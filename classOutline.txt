@@ -1,0 +1,54 @@
+MPlotWindow : QGraphicsView
+	has: MPlot
+
+MPlot : QGraphicsScene
+(holds all the plot items)
+	has many: MPlotSeries
+	has 4: MPlotAxis
+	has: MPlotBackground
+
+
+MPlotSeries : QGraphicsItem
+	has one: MPlotMarkers
+	has one: MPlotLines
+	has one: MPlotSeriesData
+	
+MPlotMarkers : QGraphicsItem
+	has many: MPlotMarker
+	
+MPlotMarker : QGraphicsItem
+
+MPlotLines : QGraphicsItem
+
+MPlotSeriesData : QAbstractTableModel
+
+MPlotGrid : QGraphicsItem
+
+MPlotAxis : QGraphicsItem
+	MPlotAxisLabel : QGraphicsItem
+	has one: MPlotGrid
+
+MPlotBackground: QGraphicsRect
+
+MPlotLegend: QGraphicsItem
+
+
+Coord:
+Top-level (scene) coordinates:
+	> coordinate axis goes from -0.5 to 0.5
+	> margins extend that to -0.6 to 0.6
+	Directions:
+		> xdir: normal.  ydir:
+		> y grows down (graphics convention)
+
+
+
+
+
+
+Properties:
+	- foreground color
+	- background color
+	- width
+	- shape (for markers)
+	- 
