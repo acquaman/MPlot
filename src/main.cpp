@@ -1,6 +1,6 @@
 #include <QApplication>
 
-#include "MPlot/MPlotWindow.h"
+#include "MPlotWindow.h"
 #include "MPlotSeriesData.h"
 #include <QTableView>
 #include <QPen>

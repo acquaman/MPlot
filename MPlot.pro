@@ -8,7 +8,7 @@ DEPENDPATH += . src src/MPlot
 INCLUDEPATH += . src/MPlot
 
 # Input
-HEADERS += src/MPlot/MPLotWindow.h \
+HEADERS += src/MPlot/MPlotWindow.h \
            src/MPlot/MPlotAxis.h \
            src/MPlot/MPlotBackground.h \
            src/MPlot/MPlot.h \

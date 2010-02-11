@@ -1,1863 +1,0 @@
-TMPlot
-v7
-r0
-t286160609.663736
-cCheck dependencies
-cProcessInfoPlistFile /Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/Info.plist Info.plist
-cPhaseScriptExecution "Qt Qmake" /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Script-D7BA7D76DAB5DD13389D6332.sh
-cPhaseScriptExecution "Qt Preprocessors" /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Script-A0A52A2ADF7A1E2A99738674.sh
-cCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/main.o /Users/mboots/dev/MPlot/src/main.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-cCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPLotWindow.o /Users/mboots/dev/MPlot/moc_MPLotWindow.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-cCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlot.o /Users/mboots/dev/MPlot/moc_MPlot.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-cCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotSeries.o /Users/mboots/dev/MPlot/moc_MPlotSeries.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-cCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotSeriesData.o /Users/mboots/dev/MPlot/moc_MPlotSeriesData.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-cLd /Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/MacOS/MPlot normal i386
-cTouch /Users/mboots/dev/MPlot/build/Debug/MPlot.app
-cPBXCp MPlot.app build/Debug/MPlot.app
-
-N/Library/Frameworks/Qt3Support.framework/Headers/q3cstring.h
-c000000004B0F4BE40000000000002795
-t1259293668
-s10133
-i<QtCore/qbytearray.h>
-
-N/Library/Frameworks/Qt3Support.framework/Headers/q3valuelist.h
-c000000004B0F4BE50000000000002081
-t1259293669
-s8321
-i<QtCore/qalgorithms.h>
-i<QtCore/qdatastream.h>
-i<QtCore/qlinkedlist.h>
-i<QtCore/qlist.h>
-i<iterator>
-i<list>
-
-N/Library/Frameworks/QtCore.framework/Headers/QPoint
-c000000004B0F4BE40000000000000014
-t1259293668
-s20
-i"qpoint.h"
-
-N/Library/Frameworks/QtCore.framework/Headers/QPointF
-c000000004B0F4BE40000000000000014
-t1259293668
-s20
-i"qpoint.h"
-
-N/Library/Frameworks/QtCore.framework/Headers/qabstractitemmodel.h
-c000000004B0F4BE40000000000004075
-t1259293668
-s16501
-i<QtCore/qvariant.h>
-i<QtCore/qobject.h>
-i<QtCore/qhash.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qalgorithms.h
-c000000004B0F4BE40000000000004026
-t1259293668
-s16422
-i<QtCore/qglobal.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic.h
-c000000004B0F4BE40000000000001AB4
-t1259293668
-s6836
-i<QtCore/qglobal.h>
-i<QtCore/qbasicatomic.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_alpha.h
-c000000004B0F4BE400000000000065C3
-t1259293668
-s26051
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_arch.h
-c000000004B0F4BE40000000000000DC1
-t1259293668
-s3521
-i"QtCore/qglobal.h"
-i"QtCore/qatomic_vxworks.h"
-i"QtCore/qatomic_alpha.h"
-i"QtCore/qatomic_arm.h"
-i"QtCore/qatomic_armv6.h"
-i"QtCore/qatomic_avr32.h"
-i"QtCore/qatomic_bfin.h"
-i"QtCore/qatomic_generic.h"
-i"QtCore/qatomic_i386.h"
-i"QtCore/qatomic_ia64.h"
-i"QtCore/qatomic_macosx.h"
-i"QtCore/qatomic_mips.h"
-i"QtCore/qatomic_parisc.h"
-i"QtCore/qatomic_powerpc.h"
-i"QtCore/qatomic_s390.h"
-i"QtCore/qatomic_sparc.h"
-i"QtCore/qatomic_windows.h"
-i"QtCore/qatomic_windowsce.h"
-i"QtCore/qatomic_x86_64.h"
-i"QtCore/qatomic_symbian.h"
-i"QtCore/qatomic_sh.h"
-i"QtCore/qatomic_sh4a.h"
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_arm.h
-c000000004B0F4BE40000000000002ED9
-t1259293668
-s11993
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_armv6.h
-c000000004B0F4BE40000000000003ABC
-t1259293668
-s15036
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_avr32.h
-c000000004B0F4BE40000000000001D39
-t1259293668
-s7481
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_bfin.h
-c000000004B0F4BE40000000000002747
-t1259293668
-s10055
-i<asm/fixed_code.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_bootstrap.h
-c000000004B0F4BE40000000000000C1D
-t1259293668
-s3101
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_generic.h
-c000000004B0F4BE400000000000021FC
-t1259293668
-s8700
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_i386.h
-c000000004B0F4BE40000000000002AC2
-t1259293668
-s10946
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_ia64.h
-c000000004B0F4BE400000000000064D0
-t1259293668
-s25808
-i<ia64intrin.h>
-i<ia64/sys/inline.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_macosx.h
-c000000004B0F4BE400000000000008E8
-t1259293668
-s2280
-i<QtCore/qatomic_x86_64.h>
-i<QtCore/qatomic_i386.h>
-i<QtCore/qatomic_powerpc.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_mips.h
-c000000004B0F4BE40000000000006E38
-t1259293668
-s28216
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_parisc.h
-c000000004B0F4BE400000000000020CD
-t1259293668
-s8397
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_powerpc.h
-c000000004B0F4BE4000000000000597D
-t1259293668
-s22909
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_s390.h
-c000000004B0F4BE400000000000038AC
-t1259293668
-s14508
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_sh.h
-c000000004B0F4BE40000000000002406
-t1259293668
-s9222
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_sh4a.h
-c000000004B0F4BE4000000000000460D
-t1259293668
-s17933
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_sparc.h
-c000000004B0F4BE4000000000000424F
-t1259293668
-s16975
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_symbian.h
-c000000004B0F4BE400000000000022D0
-t1259293668
-s8912
-i<qglobal.h>
-i<e32std.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_vxworks.h
-c000000004B0F4BE4000000000000213A
-t1259293668
-s8506
-i<QtCore/qatomic_powerpc.h>
-i<vxWorksCommon.h>
-i<taskLib.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_windows.h
-c000000004B0F4BE40000000000003FA9
-t1259293668
-s16297
-i"QtCore/qatomic_i386.h"
-i"QtCore/qatomic_x86_64.h"
-i<winbase.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_windowsce.h
-c000000004B0F4BE40000000000000873
-t1259293668
-s2163
-i<QtCore/qglobal.h>
-i"QtCore/qatomic_windows.h"
-
-N/Library/Frameworks/QtCore.framework/Headers/qatomic_x86_64.h
-c000000004B0F4BE40000000000002AE7
-t1259293668
-s10983
-
-N/Library/Frameworks/QtCore.framework/Headers/qbasicatomic.h
-c000000004B0F4BE400000000000018B4
-t1259293668
-s6324
-i<QtCore/qglobal.h>
-i<QtCore/qatomic_bootstrap.h>
-i<QtCore/qatomic_arch.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qbuffer.h
-c000000004B0F4BE40000000000000D13
-t1259293668
-s3347
-i<QtCore/qiodevice.h>
-i<QtCore/qbytearray.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qbytearray.h
-c000000004B0F4BE40000000000005B8C
-t1259293668
-s23436
-i<QtCore/qatomic.h>
-i<QtCore/qnamespace.h>
-i<string.h>
-i<stdarg.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qchar.h
-c000000004B0F4BE4000000000000321C
-t1259293668
-s12828
-i<QtCore/qglobal.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qconfig.h
-c000000004B0F4BE400000000000012B5
-t1259293668
-s4789
-
-N/Library/Frameworks/QtCore.framework/Headers/qcoreapplication.h
-c000000004B0F4BE40000000000002790
-t1259293668
-s10128
-i<QtCore/qobject.h>
-i<QtCore/qcoreevent.h>
-i<QtCore/qeventloop.h>
-i<QtCore/qstringlist.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qcoreevent.h
-c000000004B0F4BE40000000000003F97
-t1259293668
-s16279
-i<QtCore/qnamespace.h>
-i<QtCore/qbytearray.h>
-i<QtCore/qobjectdefs.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qdatastream.h
-c000000004B0F4BE40000000000002C5C
-t1259293668
-s11356
-i<QtCore/qscopedpointer.h>
-i<QtCore/qiodevice.h>
-i<QtCore/qglobal.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qeventloop.h
-c000000004B0F4BE40000000000000C6D
-t1259293668
-s3181
-i<QtCore/qobject.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qfeatures.h
-c000000004B0F4BE4000000000000538C
-t1259293668
-s21388
-
-N/Library/Frameworks/QtCore.framework/Headers/qglobal.h
-c000000004B0F4BE40000000000014D2A
-t1259293668
-s85290
-i<stddef.h>
-i<QtCore/qconfig.h>
-i<AvailabilityMacros.h>
-i<QtCore/qfeatures.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qhash.h
-c000000004B0F4BE400000000000077D4
-t1259293668
-s30676
-i<QtCore/qatomic.h>
-i<QtCore/qchar.h>
-i<QtCore/qiterator.h>
-i<QtCore/qlist.h>
-i<QtCore/qpair.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qiodevice.h
-c000000004B0F4BE400000000000020AE
-t1259293668
-s8366
-i<QtCore/qobject.h>
-i<QtCore/qobjectdefs.h>
-i<QtCore/qscopedpointer.h>
-i<QtCore/qstring.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qiterator.h
-c000000004B0F4BE400000000000022FA
-t1259293668
-s8954
-i<QtCore/qglobal.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qline.h
-c000000004B0F4BE400000000000026B4
-t1259293668
-s9908
-i<QtCore/qpoint.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qlinkedlist.h
-c000000004B0F4BE40000000000003C3E
-t1259293668
-s15422
-i<QtCore/qiterator.h>
-i<QtCore/qatomic.h>
-i<iterator>
-i<list>
-
-N/Library/Frameworks/QtCore.framework/Headers/qlist.h
-c000000004B0F4BE40000000000006549
-t1259293668
-s25929
-i<QtCore/qiterator.h>
-i<QtCore/qatomic.h>
-i<QtCore/qalgorithms.h>
-i<iterator>
-i<list>
-i<new>
-i<string.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qlocale.h
-c000000004B0F4BE40000000000004BE1
-t1259293668
-s19425
-i<QtCore/qstring.h>
-i<QtCore/qobjectdefs.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qmap.h
-c000000004B0F4BE40000000000007F19
-t1259293668
-s32537
-i<QtCore/qatomic.h>
-i<QtCore/qiterator.h>
-i<QtCore/qlist.h>
-i<map>
-i<new>
-
-N/Library/Frameworks/QtCore.framework/Headers/qmargins.h
-c000000004B0F4BE400000000000010AD
-t1259293668
-s4269
-i<QtCore/qnamespace.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qmetatype.h
-c000000004B0F4BE40000000000002EB3
-t1259293668
-s11955
-i<QtCore/qglobal.h>
-i<QtCore/qatomic.h>
-i<QtCore/qdatastream.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qmimedata.h
-c000000004B0F4BE40000000000000CE3
-t1259293668
-s3299
-i<QtCore/qvariant.h>
-i<QtCore/qobject.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qnamespace.h
-c000000004B0F4BE4000000000000D1F1
-t1259293668
-s53745
-i<QtCore/qglobal.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qobject.h
-c000000004B0F4BE40000000000003F7B
-t1259293668
-s16251
-i<QtCore/qobjectdefs.h>
-i<QtCore/qstring.h>
-i<QtCore/qbytearray.h>
-i<QtCore/qlist.h>
-i<QtCore/qcoreevent.h>
-i<QtCore/qscopedpointer.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qobjectdefs.h
-c000000004B0F4BE400000000000042B3
-t1259293668
-s17075
-i<QtCore/qnamespace.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qpair.h
-c000000004B0F4BE40000000000000F2C
-t1259293668
-s3884
-i<QtCore/qdatastream.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qpoint.h
-c000000004B0F4BE400000000000024BF
-t1259293668
-s9407
-i<QtCore/qnamespace.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qpointer.h
-c000000004B0F4BE40000000000001475
-t1259293668
-s5237
-i<QtCore/qobject.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qrect.h
-c000000004B0F4BE400000000000056D2
-t1259293668
-s22226
-i<QtCore/qsize.h>
-i<QtCore/qpoint.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qregexp.h
-c000000004B0F4BE4000000000000156D
-t1259293668
-s5485
-i<QtCore/qstring.h>
-i<new>
-
-N/Library/Frameworks/QtCore.framework/Headers/qscopedpointer.h
-c000000004B0F4BE4000000000000155A
-t1259293668
-s5466
-i<QtCore/qglobal.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qset.h
-c000000004B0F4BE400000000000035A7
-t1259293668
-s13735
-i<QtCore/qhash.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qshareddata.h
-c000000004B0F4BE40000000000001DCB
-t1259293668
-s7627
-i<QtCore/qglobal.h>
-i<QtCore/qatomic.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qsharedpointer.h
-c000000004B0F4BE4000000000000170F
-t1259293668
-s5903
-i<QtCore/qglobal.h>
-i<QtCore/qatomic.h>
-i<QtCore/qshareddata.h>
-i<QtCore/qsharedpointer_impl.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qsharedpointer_impl.h
-c000000004B0F4BE4000000000000644B
-t1259293668
-s25675
-i<new>
-i<QtCore/qatomic.h>
-i<QtCore/qobject.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qsize.h
-c000000004B0F4BE4000000000000286F
-t1259293668
-s10351
-i<QtCore/qnamespace.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qstring.h
-c000000004B0F4BE4000000000000E69D
-t1259293668
-s59037
-i<QtCore/qchar.h>
-i<QtCore/qbytearray.h>
-i<QtCore/qatomic.h>
-i<QtCore/qnamespace.h>
-i<Qt3Support/q3cstring.h>
-i<string>
-i<string>
-i<stdarg.h>
-i<QtCore/qstringbuilder.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qstringbuilder.h
-c000000004B0F4BE4000000000000205E
-t1259293668
-s8286
-i<QtCore/qstring.h>
-i<QtCore/qmap.h>
-i<string.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qstringlist.h
-c000000004B0F4BE4000000000000263B
-t1259293668
-s9787
-i<QtCore/qalgorithms.h>
-i<QtCore/qdatastream.h>
-i<QtCore/qlist.h>
-i<QtCore/qregexp.h>
-i<QtCore/qstring.h>
-i<QtCore/qstringmatcher.h>
-i<Qt3Support/q3valuelist.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qstringmatcher.h
-c000000004B0F4BE40000000000000D11
-t1259293668
-s3345
-i<QtCore/qstring.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qvariant.h
-c000000004B0F4BE400000000000047E4
-t1259293668
-s18404
-i<QtCore/qatomic.h>
-i<QtCore/qbytearray.h>
-i<QtCore/qlist.h>
-i<QtCore/qmetatype.h>
-i<QtCore/qmap.h>
-i<QtCore/qhash.h>
-i<QtCore/qstring.h>
-
-N/Library/Frameworks/QtCore.framework/Headers/qvector.h
-c000000004B0F4BE4000000000000657A
-t1259293668
-s25978
-i<QtCore/qiterator.h>
-i<QtCore/qatomic.h>
-i<QtCore/qalgorithms.h>
-i<QtCore/qlist.h>
-i<iterator>
-i<vector>
-i<stdlib.h>
-i<string.h>
-i<QtCore/QPointF>
-i<QtCore/QPoint>
-
-N/Library/Frameworks/QtCore.framework/QtCore
-c000000004B0F4D02000000000057F9E4
-t1259293954
-s5765604
-
-N/Library/Frameworks/QtCore.framework/Versions/4/Headers/QAbstractTableModel
-c000000004B0F4BE40000000000000020
-t1259293668
-s32
-i"qabstractitemmodel.h"
-
-N/Library/Frameworks/QtCore.framework/Versions/4/Headers/QList
-c000000004B0F4BE40000000000000013
-t1259293668
-s19
-i"qlist.h"
-
-N/Library/Frameworks/QtCore.framework/Versions/4/Headers/QQueue
-c000000004B0F4BE40000000000000014
-t1259293668
-s20
-i"qqueue.h"
-
-N/Library/Frameworks/QtCore.framework/Versions/4/Headers/QRectF
-c000000004B0F4BE40000000000000013
-t1259293668
-s19
-i"qrect.h"
-
-N/Library/Frameworks/QtCore.framework/Versions/4/Headers/qabstractitemmodel.h
-c000000004B0F4BE40000000000004075
-t1259293668
-s16501
-i<QtCore/qvariant.h>
-i<QtCore/qobject.h>
-i<QtCore/qhash.h>
-
-N/Library/Frameworks/QtCore.framework/Versions/4/Headers/qglobal.h
-c000000004B0F4BE40000000000014D2A
-t1259293668
-s85290
-i<stddef.h>
-i<QtCore/qconfig.h>
-i<AvailabilityMacros.h>
-i<QtCore/qfeatures.h>
-
-N/Library/Frameworks/QtCore.framework/Versions/4/Headers/qlist.h
-c000000004B0F4BE40000000000006549
-t1259293668
-s25929
-i<QtCore/qiterator.h>
-i<QtCore/qatomic.h>
-i<QtCore/qalgorithms.h>
-i<iterator>
-i<list>
-i<new>
-i<string.h>
-
-N/Library/Frameworks/QtCore.framework/Versions/4/Headers/qqueue.h
-c000000004B0F4BE40000000000000997
-t1259293668
-s2455
-i<QtCore/qlist.h>
-
-N/Library/Frameworks/QtCore.framework/Versions/4/Headers/qrect.h
-c000000004B0F4BE400000000000056D2
-t1259293668
-s22226
-i<QtCore/qsize.h>
-i<QtCore/qpoint.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qabstractitemdelegate.h
-c000000004B0F4BE400000000000011C9
-t1259293668
-s4553
-i<QtCore/qobject.h>
-i<QtGui/qstyleoption.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qabstractitemview.h
-c000000004B0F4BE400000000000034EF
-t1259293668
-s13551
-i<QtGui/qabstractscrollarea.h>
-i<QtCore/qabstractitemmodel.h>
-i<QtGui/qitemselectionmodel.h>
-i<QtGui/qabstractitemdelegate.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qabstractprintdialog.h
-c000000004B0F4BE40000000000000F41
-t1259293668
-s3905
-i<QtGui/qdialog.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qabstractscrollarea.h
-c000000004B0F4BE400000000000012F9
-t1259293668
-s4857
-i<QtGui/qframe.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qabstractslider.h
-c000000004B0F4BE40000000000001758
-t1259293668
-s5976
-i<QtGui/qwidget.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qabstractspinbox.h
-c000000004B0F4BE400000000000017B0
-t1259293668
-s6064
-i<QtGui/qwidget.h>
-i<QtGui/qvalidator.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qbrush.h
-c000000004B0F4BE40000000000002513
-t1259293668
-s9491
-i<QtCore/qpair.h>
-i<QtCore/qpoint.h>
-i<QtCore/qvector.h>
-i<QtCore/qscopedpointer.h>
-i<QtGui/qcolor.h>
-i<QtGui/qmatrix.h>
-i<QtGui/qtransform.h>
-i<QtGui/qimage.h>
-i<QtGui/qpixmap.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qcolor.h
-c000000004B0F4BE4000000000000224C
-t1259293668
-s8780
-i<QtGui/qrgb.h>
-i<QtCore/qnamespace.h>
-i<QtCore/qstringlist.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qcursor.h
-c000000004B0F4BE4000000000000142A
-t1259293668
-s5162
-i<QtCore/qpoint.h>
-i<QtGui/qwindowdefs.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qdesktopwidget.h
-c000000004B0F4BE40000000000000E11
-t1259293668
-s3601
-i<QtGui/qwidget.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qdialog.h
-c000000004B0F4BE40000000000000FD7
-t1259293668
-s4055
-i<QtGui/qwidget.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qdrag.h
-c000000004B0F4BE40000000000000C9E
-t1259293668
-s3230
-i<QtCore/qobject.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qdrawutil.h
-c000000004B0F4BE400000000000020B6
-t1259293668
-s8374
-i<QtCore/qnamespace.h>
-i<QtCore/qstring.h>
-i<QtCore/qmargins.h>
-i<QtGui/qpixmap.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qevent.h
-c000000004B0F4BE40000000000006BAB
-t1259293668
-s27563
-i<QtGui/qwindowdefs.h>
-i<QtCore/qobject.h>
-i<QtGui/qregion.h>
-i<QtCore/qnamespace.h>
-i<QtCore/qstring.h>
-i<QtGui/qkeysequence.h>
-i<QtCore/qcoreevent.h>
-i<QtGui/qmime.h>
-i<QtGui/qdrag.h>
-i<QtCore/qvariant.h>
-i<QtCore/qmap.h>
-i<QtCore/qset.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qfont.h
-c000000004B0F4BE400000000000026E3
-t1259293668
-s9955
-i<QtGui/qwindowdefs.h>
-i<QtCore/qstring.h>
-i<QtCore/qsharedpointer.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qfontinfo.h
-c000000004B0F4BE40000000000000B24
-t1259293668
-s2852
-i<QtGui/qfont.h>
-i<QtCore/qsharedpointer.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qfontmetrics.h
-c000000004B0F4BE40000000000001A4A
-t1259293668
-s6730
-i<QtGui/qfont.h>
-i<QtCore/qsharedpointer.h>
-i<QtCore/qrect.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qframe.h
-c000000004B0F4BE40000000000001221
-t1259293668
-s4641
-i<QtGui/qwidget.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qgraphicsscene.h
-c000000004B0F4BE40000000000003646
-t1259293668
-s13894
-i<QtCore/qobject.h>
-i<QtCore/qpoint.h>
-i<QtCore/qrect.h>
-i<QtGui/qbrush.h>
-i<QtGui/qfont.h>
-i<QtGui/qtransform.h>
-i<QtGui/qmatrix.h>
-i<QtGui/qpen.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qicon.h
-c000000004B0F4BE40000000000001650
-t1259293668
-s5712
-i<QtCore/qglobal.h>
-i<QtCore/qsize.h>
-i<QtCore/qlist.h>
-i<QtGui/qpixmap.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qimage.h
-c000000004B0F4BE4000000000000367C
-t1259293668
-s13948
-i<QtGui/qtransform.h>
-i<QtGui/qpaintdevice.h>
-i<QtGui/qrgb.h>
-i<QtCore/qbytearray.h>
-i<QtCore/qrect.h>
-i<QtCore/qstring.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qitemselectionmodel.h
-c000000004B0F4BE4000000000000226B
-t1259293668
-s8811
-i<QtCore/qset.h>
-i<QtCore/qvector.h>
-i<QtCore/qlist.h>
-i<QtCore/qabstractitemmodel.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qkeysequence.h
-c000000004B0F4BE40000000000001A0A
-t1259293668
-s6666
-i<QtCore/qnamespace.h>
-i<QtCore/qstring.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qmacdefines_mac.h
-c000000004B0F4BE400000000000019C8
-t1259293668
-s6600
-i<QtCore/qglobal.h>
-i<Cocoa/Cocoa.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qmatrix.h
-c000000004B0F4BE40000000000001AD4
-t1259293668
-s6868
-i<QtGui/qpolygon.h>
-i<QtGui/qregion.h>
-i<QtGui/qwindowdefs.h>
-i<QtCore/qline.h>
-i<QtCore/qpoint.h>
-i<QtCore/qrect.h>
-i<QtGui/qwmatrix.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qmime.h
-c000000004B0F4BE400000000000018D9
-t1259293668
-s6361
-i<QtCore/qmimedata.h>
-i<QtCore/qvariant.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qpaintdevice.h
-c000000004B0F4BE4000000000000176E
-t1259293668
-s5998
-i<QtGui/qwindowdefs.h>
-i<QtCore/qrect.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qpainter.h
-c000000004B0F4BE40000000000007FC7
-t1259293668
-s32711
-i<QtCore/qnamespace.h>
-i<QtCore/qrect.h>
-i<QtCore/qpoint.h>
-i<QtCore/qscopedpointer.h>
-i<QtGui/qpixmap.h>
-i<QtGui/qimage.h>
-i<QtGui/qtextoption.h>
-i<QtGui/qdrawutil.h>
-i<QtGui/qpolygon.h>
-i<QtGui/qpen.h>
-i<QtGui/qbrush.h>
-i<QtGui/qmatrix.h>
-i<QtGui/qtransform.h>
-i<QtGui/qfontinfo.h>
-i<QtGui/qfontmetrics.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qpainterpath.h
-c000000004B0F4BE40000000000003715
-t1259293668
-s14101
-i<QtGui/qmatrix.h>
-i<QtCore/qglobal.h>
-i<QtCore/qrect.h>
-i<QtCore/qline.h>
-i<QtCore/qvector.h>
-i<QtCore/qscopedpointer.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qpalette.h
-c000000004B0F4BE4000000000000328F
-t1259293668
-s12943
-i<QtGui/qwindowdefs.h>
-i<QtGui/qcolor.h>
-i<QtGui/qbrush.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qpen.h
-c000000004B0F4BE40000000000001020
-t1259293668
-s4128
-i<QtGui/qcolor.h>
-i<QtGui/qbrush.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qpixmap.h
-c000000004B0F4BE40000000000002F7F
-t1259293668
-s12159
-i<QtGui/qpaintdevice.h>
-i<QtGui/qcolor.h>
-i<QtCore/qnamespace.h>
-i<QtCore/qstring.h>
-i<QtCore/qsharedpointer.h>
-i<QtGui/qimage.h>
-i<QtGui/qtransform.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qpolygon.h
-c000000004B0F4BE40000000000001930
-t1259293668
-s6448
-i<QtCore/qvector.h>
-i<QtCore/qpoint.h>
-i<QtCore/qrect.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qregion.h
-c000000004B0F4BE40000000000002063
-t1259293668
-s8291
-i<QtCore/qatomic.h>
-i<QtCore/qrect.h>
-i<QtGui/qwindowdefs.h>
-i<QtCore/qdatastream.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qrgb.h
-c000000004B0F4BE40000000000000D24
-t1259293668
-s3364
-i<QtCore/qglobal.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qrubberband.h
-c000000004B0F4BE40000000000000D09
-t1259293668
-s3337
-i<QtGui/qwidget.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qscrollarea.h
-c000000004B0F4BE40000000000000CF0
-t1259293668
-s3312
-i<QtGui/qabstractscrollarea.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qsizepolicy.h
-c000000004B0F4BE40000000000002168
-t1259293668
-s8552
-i<QtCore/qobject.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qslider.h
-c000000004B0F4BE40000000000001166
-t1259293668
-s4454
-i<QtGui/qabstractslider.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qstyle.h
-c000000004B0F4BE40000000000006CCA
-t1259293668
-s27850
-i<QtCore/qobject.h>
-i<QtCore/qrect.h>
-i<QtCore/qsize.h>
-i<QtGui/qicon.h>
-i<QtGui/qpixmap.h>
-i<QtGui/qpalette.h>
-i<QtGui/qsizepolicy.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qstyleoption.h
-c000000004B0F4BE40000000000007013
-t1259293668
-s28691
-i<QtCore/qvariant.h>
-i<QtGui/qabstractspinbox.h>
-i<QtGui/qicon.h>
-i<QtGui/qmatrix.h>
-i<QtGui/qslider.h>
-i<QtGui/qstyle.h>
-i<QtGui/qtabbar.h>
-i<QtGui/qtabwidget.h>
-i<QtGui/qrubberband.h>
-i<QtGui/qframe.h>
-i<QtCore/qabstractitemmodel.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qtabbar.h
-c000000004B0F4BE40000000000001BE1
-t1259293668
-s7137
-i<QtGui/qwidget.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qtabwidget.h
-c000000004B0F4BE40000000000002254
-t1259293668
-s8788
-i<QtGui/qwidget.h>
-i<QtGui/qicon.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qtextoption.h
-c000000004B0F4BE40000000000001312
-t1259293668
-s4882
-i<QtCore/qnamespace.h>
-i<QtCore/qchar.h>
-i<QtCore/qmetatype.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qtransform.h
-c000000004B0F4BE40000000000002C91
-t1259293668
-s11409
-i<QtGui/qmatrix.h>
-i<QtGui/qpainterpath.h>
-i<QtGui/qpolygon.h>
-i<QtGui/qregion.h>
-i<QtGui/qwindowdefs.h>
-i<QtCore/qline.h>
-i<QtCore/qpoint.h>
-i<QtCore/qrect.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qtransportauth_qws.h
-c000000004B0F4BE40000000000001DF8
-t1259293668
-s7672
-i<QtCore/qglobal.h>
-i<QtCore/qobject.h>
-i<QtCore/qhash.h>
-i<QtCore/qstring.h>
-i<QtCore/qbuffer.h>
-i<QtCore/qpointer.h>
-i<sys/types.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qvalidator.h
-c000000004B0F4BE400000000000017B1
-t1259293668
-s6065
-i<QtCore/qobject.h>
-i<QtCore/qstring.h>
-i<QtCore/qregexp.h>
-i<QtCore/qlocale.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qwidget.h
-c000000004B0F4BE400000000000094F7
-t1259293668
-s38135
-i<QtGui/qwindowdefs.h>
-i<QtCore/qobject.h>
-i<QtCore/qmargins.h>
-i<QtGui/qpaintdevice.h>
-i<QtGui/qpalette.h>
-i<QtGui/qfont.h>
-i<QtGui/qfontmetrics.h>
-i<QtGui/qfontinfo.h>
-i<QtGui/qsizepolicy.h>
-i<QtGui/qregion.h>
-i<QtGui/qbrush.h>
-i<QtGui/qcursor.h>
-i<QtGui/qkeysequence.h>
-i<QtGui/qevent.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qwindowdefs.h
-c000000004B0F4BE40000000000000EF5
-t1259293668
-s3829
-i<QtCore/qobjectdefs.h>
-i<QtCore/qnamespace.h>
-i<QtGui/qmacdefines_mac.h>
-i<QtGui/qwindowdefs_win.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qwindowdefs_win.h
-c000000004B0F4BE40000000000000D23
-t1259293668
-s3363
-i<QtCore/qglobal.h>
-
-N/Library/Frameworks/QtGui.framework/Headers/qwmatrix.h
-c000000004B0F4BE40000000000000880
-t1259293668
-s2176
-i<QtGui/qmatrix.h>
-
-N/Library/Frameworks/QtGui.framework/QtGui
-c000000004B0F4D03000000000176A0AC
-t1259293955
-s24551596
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QAbstractGraphicsShapeItem
-c000000004B0F4BE4000000000000001B
-t1259293668
-s27
-i"qgraphicsitem.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QApplication
-c000000004B0F4BE4000000000000001A
-t1259293668
-s26
-i"qapplication.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QBrush
-c000000004B0F4BE40000000000000014
-t1259293668
-s20
-i"qbrush.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QFont
-c000000004B0F4BE40000000000000013
-t1259293668
-s19
-i"qfont.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QGraphicsEllipseItem
-c000000004B0F4BE4000000000000001B
-t1259293668
-s27
-i"qgraphicsitem.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QGraphicsItem
-c000000004B0F4BE4000000000000001B
-t1259293668
-s27
-i"qgraphicsitem.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QGraphicsItemGroup
-c000000004B0F4BE4000000000000001B
-t1259293668
-s27
-i"qgraphicsitem.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QGraphicsLineItem
-c000000004B0F4BE4000000000000001B
-t1259293668
-s27
-i"qgraphicsitem.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QGraphicsObject
-c000000004B0F4BE4000000000000001B
-t1259293668
-s27
-i"qgraphicsitem.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QGraphicsPolygonItem
-c000000004B0F4BE4000000000000001B
-t1259293668
-s27
-i"qgraphicsitem.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QGraphicsRectItem
-c000000004B0F4BE4000000000000001B
-t1259293668
-s27
-i"qgraphicsitem.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QGraphicsScene
-c000000004B0F4BE4000000000000001C
-t1259293668
-s28
-i"qgraphicsscene.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QGraphicsView
-c000000004B0F4BE4000000000000001B
-t1259293668
-s27
-i"qgraphicsview.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QPen
-c000000004B0F4BE40000000000000012
-t1259293668
-s18
-i"qpen.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QPrintDialog
-c000000004B0F4BE4000000000000001A
-t1259293668
-s26
-i"qprintdialog.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QPrinter
-c000000004B0F4BE40000000000000016
-t1259293668
-s22
-i"qprinter.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QResizeEvent
-c000000004B0F4BE40000000000000014
-t1259293668
-s20
-i"qevent.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/QTableView
-c000000004B0F4BE40000000000000018
-t1259293668
-s24
-i"qtableview.h"
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/qapplication.h
-c000000004B0F4BE400000000000038E1
-t1259293668
-s14561
-i<QtCore/qcoreapplication.h>
-i<QtGui/qwindowdefs.h>
-i<QtCore/qpoint.h>
-i<QtCore/qsize.h>
-i<QtGui/qcursor.h>
-i<QtGui/qdesktopwidget.h>
-i<QtGui/qwidget.h>
-i<QtGui/qpalette.h>
-i<QtGui/qrgb.h>
-i<QtGui/qtransportauth_qws.h>
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/qbrush.h
-c000000004B0F4BE40000000000002513
-t1259293668
-s9491
-i<QtCore/qpair.h>
-i<QtCore/qpoint.h>
-i<QtCore/qvector.h>
-i<QtCore/qscopedpointer.h>
-i<QtGui/qcolor.h>
-i<QtGui/qmatrix.h>
-i<QtGui/qtransform.h>
-i<QtGui/qimage.h>
-i<QtGui/qpixmap.h>
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/qevent.h
-c000000004B0F4BE40000000000006BAB
-t1259293668
-s27563
-i<QtGui/qwindowdefs.h>
-i<QtCore/qobject.h>
-i<QtGui/qregion.h>
-i<QtCore/qnamespace.h>
-i<QtCore/qstring.h>
-i<QtGui/qkeysequence.h>
-i<QtCore/qcoreevent.h>
-i<QtGui/qmime.h>
-i<QtGui/qdrag.h>
-i<QtCore/qvariant.h>
-i<QtCore/qmap.h>
-i<QtCore/qset.h>
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/qfont.h
-c000000004B0F4BE400000000000026E3
-t1259293668
-s9955
-i<QtGui/qwindowdefs.h>
-i<QtCore/qstring.h>
-i<QtCore/qsharedpointer.h>
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/qgraphicsitem.h
-c000000004B0F4BE40000000000009E29
-t1259293668
-s40489
-i<QtCore/qglobal.h>
-i<QtCore/qobject.h>
-i<QtCore/qvariant.h>
-i<QtCore/qrect.h>
-i<QtCore/qscopedpointer.h>
-i<QtGui/qpainterpath.h>
-i<QtGui/qpixmap.h>
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/qgraphicsscene.h
-c000000004B0F4BE40000000000003646
-t1259293668
-s13894
-i<QtCore/qobject.h>
-i<QtCore/qpoint.h>
-i<QtCore/qrect.h>
-i<QtGui/qbrush.h>
-i<QtGui/qfont.h>
-i<QtGui/qtransform.h>
-i<QtGui/qmatrix.h>
-i<QtGui/qpen.h>
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/qgraphicsview.h
-c000000004B0F4BE40000000000003209
-t1259293668
-s12809
-i<QtCore/qmetatype.h>
-i<QtGui/qpainter.h>
-i<QtGui/qscrollarea.h>
-i<QtGui/qgraphicsscene.h>
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/qpen.h
-c000000004B0F4BE40000000000001020
-t1259293668
-s4128
-i<QtGui/qcolor.h>
-i<QtGui/qbrush.h>
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/qprintdialog.h
-c000000004B0F4BE40000000000001579
-t1259293668
-s5497
-i<QtGui/qabstractprintdialog.h>
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/qprinter.h
-c000000004B0F4BE400000000000025B1
-t1259293668
-s9649
-i<QtCore/qstring.h>
-i<QtCore/qscopedpointer.h>
-i<QtGui/qpaintdevice.h>
-
-N/Library/Frameworks/QtGui.framework/Versions/4/Headers/qtableview.h
-c000000004B0F4BE40000000000001AC0
-t1259293668
-s6848
-i<QtGui/qabstractitemview.h>
-
-N/System/Library/Frameworks/Cocoa.framework/Headers/Cocoa.h
-c0000000040C4AA6800000000000001E5
-t1086630504
-s485
-
-N/Users/mboots/dev/MPlot/MPlot.app
-t1264467655
-s102
-
-N/Users/mboots/dev/MPlot/build/Debug/MPlot.app
-t1264467655
-s102
-
-N/Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/Info.plist
-t1262382455
-s566
-
-N/Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/MacOS/MPlot
-t1264467655
-s199868
-
-N/Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/PkgInfo
-t1262382455
-s8
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/MPlot.LinkFileList
-c000000004B3E6D7700000000000001DD
-t1262382455
-s477
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/main.o
-t1264467654
-s952432
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPLot.o
-t1262253647
-s562636
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPLotWindow.o
-t1264466797
-s620116
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlot.o
-t1264466797
-s478448
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotAxis.o
-t1262253681
-s1208
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotBackground.o
-t1262246056
-s1212
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotCanvas.o
-t1262253648
-s372432
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotGrid.o
-t1262235165
-s1208
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotLegend.o
-t1262235165
-s1208
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotLines.o
-t1262235165
-s1208
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotMarker.o
-t1262235165
-s1208
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotSeries.o
-t1264464997
-s528400
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotSeriesData.o
-t1262547507
-s225892
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Script-A0A52A2ADF7A1E2A99738674.sh
-c000000004B3E6D77000000000000004F
-t1262382455
-s79
-
-N/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Script-D7BA7D76DAB5DD13389D6332.sh
-c000000004B3E6D77000000000000004E
-t1262382455
-s78
-
-N/Users/mboots/dev/MPlot/moc_MPLot.cpp
-c00000000000000000000000000000000
-t2
-s0
-
-N/Users/mboots/dev/MPlot/moc_MPLotWindow.cpp
-c000000004B5E3B6A0000000000000830
-t1264466794
-s2096
-i"src/MPlot/MPLotWindow.h"
-
-N/Users/mboots/dev/MPlot/moc_MPlot.cpp
-c000000004B5E3B6B000000000000092D
-t1264466795
-s2349
-i"src/MPlot/MPlot.h"
-
-N/Users/mboots/dev/MPlot/moc_MPlotAxis.cpp
-c00000000000000000000000000000000
-t2
-s0
-
-N/Users/mboots/dev/MPlot/moc_MPlotBackground.cpp
-c00000000000000000000000000000000
-t2
-s0
-
-N/Users/mboots/dev/MPlot/moc_MPlotCanvas.cpp
-c00000000000000000000000000000000
-t2
-s0
-
-N/Users/mboots/dev/MPlot/moc_MPlotGrid.cpp
-c00000000000000000000000000000000
-t2
-s0
-
-N/Users/mboots/dev/MPlot/moc_MPlotLegend.cpp
-c00000000000000000000000000000000
-t2
-s0
-
-N/Users/mboots/dev/MPlot/moc_MPlotLines.cpp
-c00000000000000000000000000000000
-t2
-s0
-
-N/Users/mboots/dev/MPlot/moc_MPlotMarker.cpp
-c00000000000000000000000000000000
-t2
-s0
-
-N/Users/mboots/dev/MPlot/moc_MPlotSeries.cpp
-c000000004B5E34610000000000000D7B
-t1264464993
-s3451
-i"src/MPlot/MPlotSeries.h"
-
-N/Users/mboots/dev/MPlot/moc_MPlotSeriesData.cpp
-c000000004B40F22E000000000000087D
-t1262547502
-s2173
-i"src/MPlot/MPlotSeriesData.h"
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPLot.h
-c000000004B3BC0BA0000000000000185
-t1262207162
-s389
-i<QGraphicsView>
-i"MPlotCanvas.h"
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPLotWindow.h
-c000000004B5E28A8000000000000041F
-t1264461992
-s1055
-i<QGraphicsView>
-i"MPlot.h"
-i<QResizeEvent>
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPlot.h
-c000000004B5E3989000000000000381F
-t1264466313
-s14367
-i<QGraphicsScene>
-i"MPlotBackground.h"
-i"MPlotAxis.h"
-i"MPlotLegend.h"
-i"MPlotSeries.h"
-i<QList>
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPlotAxis.h
-c000000004B5E345F000000000000243B
-t1264464991
-s9275
-i<QGraphicsItem>
-i<QGraphicsLineItem>
-i<QList>
-i<QFont>
-i<math.h>
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPlotBackground.h
-c000000004B3C58A2000000000000010D
-t1262246050
-s269
-i<QGraphicsRectItem>
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPlotCanvas.h
-c000000004B3C71940000000000001314
-t1262252436
-s4884
-i<QGraphicsScene>
-i"MPlotBackground.h"
-i"MPlotAxis.h"
-i"MPlotLegend.h"
-i"MPlotSeries.h"
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPlotGrid.h
-c000000004B3BC03E0000000000000084
-t1262207038
-s132
-i<QGraphicsItem>
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPlotLegend.h
-c000000004B3C2DF400000000000001AB
-t1262235124
-s427
-i<QGraphicsItem>
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPlotLines.h
-c000000004B3BC03E0000000000000088
-t1262207038
-s136
-i<QGraphicsItem>
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPlotMarker.h
-c000000004B5E27E4000000000000405A
-t1264461796
-s16474
-i<QGraphicsItem>
-i<QAbstractGraphicsShapeItem>
-i<QGraphicsRectItem>
-i<QGraphicsEllipseItem>
-i<QGraphicsPolygonItem>
-i<QGraphicsItemGroup>
-i<QList>
-i<QFont>
-i<math.h>
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPlotSeries.h
-c000000004B5CC8C40000000000002011
-t1264371908
-s8209
-i<QGraphicsObject>
-i<QGraphicsLineItem>
-i<QQueue>
-i<QPen>
-i<QBrush>
-i"MPlotMarker.h"
-i"MPlotAxis.h"
-i"MPlotSeriesData.h"
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPlotSeriesData.h
-c000000004B40F22D00000000000020D3
-t1262547501
-s8403
-i<QAbstractTableModel>
-i<QQueue>
-i<QList>
-i<QRectF>
-
-N/Users/mboots/dev/MPlot/src/MPlot/MPlotWindow.h
-c000000004B3CF899000000000000038C
-t1262287001
-s908
-i<QGraphicsView>
-i"MPlot.h"
-i<QResizeEvent>
-
-N/Users/mboots/dev/MPlot/src/main.cpp
-c000000004B5E3EC30000000000001576
-t1264467651
-s5494
-i<QApplication>
-i"MPlot/MPlotWindow.h"
-i"MPlotSeriesData.h"
-i<QTableView>
-i<QPen>
-i<QBrush>
-i<QPrinter>
-i<QPrintDialog>
-
-N/usr/include/AvailabilityMacros.h
-c000000004A11A9B30000000000006724
-t1242671539
-s26404
-
-N/usr/include/math.h
-c000000004A5C14A000000000000004F1
-t1247548576
-s1265
-
-N/usr/include/stdarg.h
-c000000004A5C14A600000000000000EA
-t1247548582
-s234
-
-N/usr/include/stddef.h
-c000000004A5C14A60000000000001404
-t1247548582
-s5124
-
-N/usr/include/stdlib.h
-c000000004A5C14A70000000000002DF5
-t1247548583
-s11765
-
-N/usr/include/string.h
-c000000004A5C14A70000000000001731
-t1247548583
-s5937
-
-N/usr/include/sys/types.h
-c000000004A73D6550000000000002905
-t1249105493
-s10501
-
-NInfo.plist
-c000000004B3DB6080000000000000252
-t1262335496
-s594
-
-CCheck dependencies
-r0
-lSLF07#2@18"Check dependencies286160609#286160609#0(0"0(0#1#0"2524391536#0"0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/main.o /Users/mboots/dev/MPlot/src/main.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s286160455.297568
-e286160455.312168
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/main.o
-x/Users/mboots/dev/MPlot/src/main.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-lSLF07#2@44"Compile /Users/mboots/dev/MPlot/src/main.cpp286160455#286160455#0(0"0(0#0#36"/Users/mboots/dev/MPlot/src/main.cpp2524391536#1099"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/src/main.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/main.o0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPLot.o /Users/mboots/dev/MPlot/moc_MPLot.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s283946444.415071
-e283946447.508245
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPLot.o
-x/Users/mboots/dev/MPlot/moc_MPLot.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-oIn file included from /Users/mboots/dev/MPlot/src/MPlot/MPLot.h:5,
-o                 from /Users/mboots/dev/MPlot/moc_MPLot.cpp:10:
-o/Users/mboots/dev/MPlot/src/MPlot/MPlotCanvas.h:52: warning: unused parameter 'newSeries'
-lSLF07#2@45"Compile /Users/mboots/dev/MPlot/moc_MPLot.cpp283946444#283946447#0(221"In file included from /Users/mboots/dev/MPlot/src/MPlot/MPLot.h:5,                 from /Users/mboots/dev/MPlot/moc_MPLot.cpp:10:/Users/mboots/dev/MPlot/src/MPlot/MPlotCanvas.h:52: warning: unused parameter 'newSeries'1(22@28"Unused parameter 'newSeries'283946446#131#90#3(7@59"In file included from /Users/mboots/dev/MPlot/moc_MPLot.cpp283946446#4294967295#0#0(6@37"/Users/mboots/dev/MPlot/moc_MPLot.cpp283945238#10#0#10#0#0"0(7@63"In file included from /Users/mboots/dev/MPlot/src/MPlot/MPLot.h283946446#4294967295#0#0(6@41"/Users/mboots/dev/MPlot/src/MPlot/MPLot.h283931561#5#0#5#0#0"0(13@79"Unused parameter 'newSeries' in /Users/mboots/dev/MPlot/src/MPlot/MPlotCanvas.h283946446#4294967295#0#0(6@47"/Users/mboots/dev/MPlot/src/MPlot/MPlotCanvas.h283945236#52#0#52#0#0"0(6@47"/Users/mboots/dev/MPlot/src/MPlot/MPlotCanvas.h283945236#52#0#52#0#20"unused parameter '*'0(0#0#37"/Users/mboots/dev/MPlot/moc_MPLot.cpp2559457392#1105"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/moc_MPLot.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPLot.o0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPLotWindow.o /Users/mboots/dev/MPlot/moc_MPLotWindow.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s286159595.291163
-e286159597.483480
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPLotWindow.o
-x/Users/mboots/dev/MPlot/moc_MPLotWindow.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-lSLF07#2@51"Compile /Users/mboots/dev/MPlot/moc_MPLotWindow.cpp286159595#286159597#0(0"0(0#0#43"/Users/mboots/dev/MPlot/moc_MPLotWindow.cpp2524391536#1117"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/moc_MPLotWindow.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPLotWindow.o0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlot.o /Users/mboots/dev/MPlot/moc_MPlot.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s286159595.292248
-e286159597.588287
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlot.o
-x/Users/mboots/dev/MPlot/moc_MPlot.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-lSLF07#2@45"Compile /Users/mboots/dev/MPlot/moc_MPlot.cpp286159595#286159597#0(0"0(0#0#37"/Users/mboots/dev/MPlot/moc_MPlot.cpp2524391536#1105"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/moc_MPlot.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlot.o0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotAxis.o /Users/mboots/dev/MPlot/moc_MPlotAxis.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s283946481.558769
-e283946481.592737
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotAxis.o
-x/Users/mboots/dev/MPlot/moc_MPlotAxis.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-lSLF07#2@49"Compile /Users/mboots/dev/MPlot/moc_MPlotAxis.cpp283946481#283946481#0(0"0(0#0#41"/Users/mboots/dev/MPlot/moc_MPlotAxis.cpp2559457392#1113"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/moc_MPlotAxis.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotAxis.o0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotBackground.o /Users/mboots/dev/MPlot/moc_MPlotBackground.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s283938856.514545
-e283938856.556416
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotBackground.o
-x/Users/mboots/dev/MPlot/moc_MPlotBackground.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-lSLF07#2@55"Compile /Users/mboots/dev/MPlot/moc_MPlotBackground.cpp283938856#283938856#0(0"0(0#0#47"/Users/mboots/dev/MPlot/moc_MPlotBackground.cpp2559457392#1125"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/moc_MPlotBackground.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotBackground.o0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotCanvas.o /Users/mboots/dev/MPlot/moc_MPlotCanvas.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s283946447.372293
-e283946448.629612
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotCanvas.o
-x/Users/mboots/dev/MPlot/moc_MPlotCanvas.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-oIn file included from /Users/mboots/dev/MPlot/moc_MPlotCanvas.cpp:10:
-o/Users/mboots/dev/MPlot/src/MPlot/MPlotCanvas.h:52: warning: unused parameter 'newSeries'
-lSLF07#2@51"Compile /Users/mboots/dev/MPlot/moc_MPlotCanvas.cpp283946447#283946448#0(160"In file included from /Users/mboots/dev/MPlot/moc_MPlotCanvas.cpp:10:/Users/mboots/dev/MPlot/src/MPlot/MPlotCanvas.h:52: warning: unused parameter 'newSeries'1(22@28"Unused parameter 'newSeries'283946448#70#90#2(7@65"In file included from /Users/mboots/dev/MPlot/moc_MPlotCanvas.cpp283946448#4294967295#0#0(6@43"/Users/mboots/dev/MPlot/moc_MPlotCanvas.cpp283945238#10#0#10#0#0"0(13@79"Unused parameter 'newSeries' in /Users/mboots/dev/MPlot/src/MPlot/MPlotCanvas.h283946448#4294967295#0#0(6@47"/Users/mboots/dev/MPlot/src/MPlot/MPlotCanvas.h283945236#52#0#52#0#0"0(6@47"/Users/mboots/dev/MPlot/src/MPlot/MPlotCanvas.h283945236#52#0#52#0#20"unused parameter '*'0(0#0#43"/Users/mboots/dev/MPlot/moc_MPlotCanvas.cpp2559457392#1117"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/moc_MPlotCanvas.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotCanvas.o0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotGrid.o /Users/mboots/dev/MPlot/moc_MPlotGrid.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s283927964.989332
-e283927965.020350
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotGrid.o
-x/Users/mboots/dev/MPlot/moc_MPlotGrid.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-lSLF07#2@49"Compile /Users/mboots/dev/MPlot/moc_MPlotGrid.cpp283927964#283927965#0(0"0(0#0#41"/Users/mboots/dev/MPlot/moc_MPlotGrid.cpp2559457392#1113"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/moc_MPlotGrid.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotGrid.o0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotLegend.o /Users/mboots/dev/MPlot/moc_MPlotLegend.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s283927965.020507
-e283927965.052310
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotLegend.o
-x/Users/mboots/dev/MPlot/moc_MPlotLegend.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-lSLF07#2@51"Compile /Users/mboots/dev/MPlot/moc_MPlotLegend.cpp283927965#283927965#0(0"0(0#0#43"/Users/mboots/dev/MPlot/moc_MPlotLegend.cpp2559457392#1117"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/moc_MPlotLegend.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotLegend.o0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotLines.o /Users/mboots/dev/MPlot/moc_MPlotLines.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s283927965.052436
-e283927965.084701
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotLines.o
-x/Users/mboots/dev/MPlot/moc_MPlotLines.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-lSLF07#2@50"Compile /Users/mboots/dev/MPlot/moc_MPlotLines.cpp283927965#283927965#0(0"0(0#0#42"/Users/mboots/dev/MPlot/moc_MPlotLines.cpp2559457392#1115"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/moc_MPlotLines.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotLines.o0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotMarker.o /Users/mboots/dev/MPlot/moc_MPlotMarker.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s283927965.084830
-e283927965.115060
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotMarker.o
-x/Users/mboots/dev/MPlot/moc_MPlotMarker.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-lSLF07#2@51"Compile /Users/mboots/dev/MPlot/moc_MPlotMarker.cpp283927965#283927965#0(0"0(0#0#43"/Users/mboots/dev/MPlot/moc_MPlotMarker.cpp2559457392#1117"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/moc_MPlotMarker.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotMarker.o0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotSeries.o /Users/mboots/dev/MPlot/moc_MPlotSeries.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s286157796.135062
-e286157797.808510
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotSeries.o
-x/Users/mboots/dev/MPlot/moc_MPlotSeries.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-lSLF07#2@51"Compile /Users/mboots/dev/MPlot/moc_MPlotSeries.cpp286157796#286157797#0(0"0(0#0#43"/Users/mboots/dev/MPlot/moc_MPlotSeries.cpp2524391536#1117"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/moc_MPlotSeries.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotSeries.o0#
-
-CCompileC build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotSeriesData.o /Users/mboots/dev/MPlot/moc_MPlotSeriesData.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-s284240306.728877
-e284240307.730301
-r1
-xCompileC
-xbuild/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotSeriesData.o
-x/Users/mboots/dev/MPlot/moc_MPlotSeriesData.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.gcc.4_2
-lSLF07#2@55"Compile /Users/mboots/dev/MPlot/moc_MPlotSeriesData.cpp284240306#284240307#0(0"0(0#0#47"/Users/mboots/dev/MPlot/moc_MPlotSeriesData.cpp2559457392#1125"    cd /Users/mboots/dev/MPlot    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mdynamic-no-pic -fvisibility=hidden -fvisibility-inlines-hidden -mmacosx-version-min=10.4 -gdwarf-2 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot.hmap -F/Users/mboots/dev/MPlot/build/Debug -I/Users/mboots/dev/MPlot/build/Debug/include -I/Library/Frameworks/QtCore.framework/Versions/4/Headers -I/usr/include/QtCore -I/Library/Frameworks/QtGui.framework/Versions/4/Headers -I/usr/include/QtGui -I/usr/include -I. -Isrc/MPlot -I. -I/usr/local/include -I/System/Library/Frameworks/CarbonCore.framework/Headers -I/usr/local/Qt4.6/mkspecs/macx-xcode -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources/i386 -I/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources -pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -c /Users/mboots/dev/MPlot/moc_MPlotSeriesData.cpp -o /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/moc_MPlotSeriesData.o0#
-
-CLd /Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/MacOS/MPlot normal i386
-s286160455.312686
-e286160455.627564
-r1
-xLd
-x/Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/MacOS/MPlot
-xnormal
-xi386
-lSLF07#2@71"Link /Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/MacOS/MPlot286160455#286160455#0(0"0(0#0#0"2524391536#525"    cd /Users/mboots/dev/MPlot    setenv MACOSX_DEPLOYMENT_TARGET 10.4    /Developer/usr/bin/g++-4.2 -arch i386 -L/Users/mboots/dev/MPlot/build/Debug -L/Library/Frameworks -F/Users/mboots/dev/MPlot/build/Debug -filelist /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/MPlot.LinkFileList -mmacosx-version-min=10.4 -headerpad_max_install_names -L/Library/Frameworks -F/Library/Frameworks -framework QtGui -framework QtCore -o /Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/MacOS/MPlot0#
-
-CPBXCp MPlot.app build/Debug/MPlot.app
-s286160455.640545
-e286160455.664190
-r1
-xPBXCp
-xMPlot.app
-xbuild/Debug/MPlot.app
-lSLF07#2@26"Copy build/Debug/MPlot.app286160455#286160455#0(0"0(0#0#45"/Users/mboots/dev/MPlot/build/Debug/MPlot.app2524391536#249"    cd /Users/mboots/dev/MPlot    /Developer/Library/PrivateFrameworks/DevToolsCore.framework/Resources/pbxcp -exclude .DS_Store -exclude CVS -exclude .svn -resolve-src-symlinks /Users/mboots/dev/MPlot/build/Debug/MPlot.app /Users/mboots/dev/MPlot0#
-
-CPhaseScriptExecution "Qt Preprocessors" /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Script-A0A52A2ADF7A1E2A99738674.sh
-s286160609.642102
-e286160609.662886
-r1
-xPhaseScriptExecution
-xQt Preprocessors
-x/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Script-A0A52A2ADF7A1E2A99738674.sh
-omake: Nothing to be done for `preprocess'.
-lSLF07#2@42"Run custom shell script 'Qt Preprocessors'286160609#286160609#0(43"make: Nothing to be done for `preprocess'.1(13@43"make: Nothing to be done for `preprocess'.286160609#0#43#0(1@0"0(0#0#0"2524391536#15171"    cd /Users/mboots/dev/MPlot    setenv ACTION build    setenv ALTERNATE_GROUP staff    setenv ALTERNATE_MODE u+w,go-w,a+rX    setenv ALTERNATE_OWNER mboots    setenv ALWAYS_SEARCH_USER_PATHS YES    setenv APPLE_INTERNAL_DEVELOPER_DIR /AppleInternal/Developer    setenv APPLE_INTERNAL_DIR /AppleInternal    setenv APPLE_INTERNAL_DOCUMENTATION_DIR /AppleInternal/Documentation    setenv APPLE_INTERNAL_LIBRARY_DIR /AppleInternal/Library    setenv APPLE_INTERNAL_TOOLS /AppleInternal/Developer/Tools    setenv APPLY_RULES_IN_COPY_FILES NO    setenv ARCHS i386    setenv ARCHS_STANDARD_32_64_BIT "x86_64 i386 ppc"    setenv ARCHS_STANDARD_32_BIT "i386 ppc"    setenv ARCHS_STANDARD_64_BIT x86_64    setenv BUILD_COMPONENTS "headers build"    setenv BUILD_DIR /Users/mboots/dev/MPlot/build    setenv BUILD_ROOT /Users/mboots/dev/MPlot    setenv BUILD_STYLE Debug    setenv BUILD_VARIANTS normal    setenv BUILT_PRODUCTS_DIR /Users/mboots/dev/MPlot/build/Debug    setenv CACHE_ROOT /var/folders/H5/H5t2ceKiEEqd2k2p0XJPPk+++TI/-Caches-/com.apple.Xcode.501    setenv CCHROOT /var/folders/H5/H5t2ceKiEEqd2k2p0XJPPk+++TI/-Caches-/com.apple.Xcode.501    setenv CHMOD /bin/chmod    setenv CHOWN /usr/sbin/chown    setenv CLASS_FILE_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/JavaClasses    setenv CLEAN_PRECOMPS YES    setenv CLONE_HEADERS NO    setenv CODESIGNING_FOLDER_PATH /Users/mboots/dev/MPlot/build/Debug/MPlot.app    setenv CODE_SIGNING_ALLOWED YES    setenv COMMAND_MODE legacy    setenv COMPOSITE_SDK_DIRS /var/folders/H5/H5t2ceKiEEqd2k2p0XJPPk+++TI/-Caches-/com.apple.Xcode.501/CompositeSDKs    setenv CONFIGURATION Debug    setenv CONFIGURATION_BUILD_DIR /Users/mboots/dev/MPlot/build/Debug    setenv CONFIGURATION_TEMP_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug    setenv CONTENTS_FOLDER_PATH MPlot.app/Contents    setenv COPYING_PRESERVES_HFS_DATA NO    setenv COPY_PHASE_STRIP NO    setenv COPY_RESOURCES_FROM_STATIC_FRAMEWORKS YES    setenv CP /bin/cp    setenv CURRENT_ARCH i386    setenv CURRENT_VARIANT normal    setenv DEAD_CODE_STRIPPING NO    setenv DEBUGGING_SYMBOLS YES    setenv DEBUG_INFORMATION_FORMAT dwarf    setenv DEPLOYMENT_LOCATION NO    setenv DEPLOYMENT_POSTPROCESSING NO    setenv DERIVED_FILES_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources    setenv DERIVED_FILE_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources    setenv DERIVED_SOURCES_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources    setenv DEVELOPER_APPLICATIONS_DIR /Developer/Applications    setenv DEVELOPER_BIN_DIR /Developer/usr/bin    setenv DEVELOPER_DIR /Developer    setenv DEVELOPER_FRAMEWORKS_DIR /Developer/Library/Frameworks    setenv DEVELOPER_FRAMEWORKS_DIR_QUOTED "\"/Developer/Library/Frameworks\""    setenv DEVELOPER_LIBRARY_DIR /Developer/Library    setenv DEVELOPER_SDK_DIR /Developer/SDKs    setenv DEVELOPER_TOOLS_DIR /Developer/Tools    setenv DEVELOPER_USR_DIR /Developer/usr    setenv DEVELOPMENT_LANGUAGE English    setenv DOCUMENTATION_FOLDER_PATH /Documentation    setenv DO_HEADER_SCANNING_IN_JAM NO    setenv DSTROOT /tmp/MPlot.dst    setenv DWARF_DSYM_FILE_NAME MPlot.app.dSYM    setenv DWARF_DSYM_FOLDER_PATH /Users/mboots/dev/MPlot/build/Debug    setenv DYLIB_COMPATIBILITY_VERSION 1.0    setenv DYLIB_CURRENT_VERSION 1.0.0    setenv ENABLE_HEADER_DEPENDENCIES YES    setenv ENABLE_OPENMP_SUPPORT NO    setenv EXCLUDED_INSTALLSRC_SUBDIRECTORY_PATTERNS ".svn CVS"    setenv EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES "*.nib *.lproj *.framework *.gch (*) CVS .svn *.xcodeproj *.xcode *.pbproj *.pbxproj"    setenv EXECUTABLES_FOLDER_PATH MPlot.app/Contents/Executables    setenv EXECUTABLE_FOLDER_PATH MPlot.app/Contents/MacOS    setenv EXECUTABLE_NAME MPlot    setenv EXECUTABLE_PATH MPlot.app/Contents/MacOS/MPlot    setenv FILE_LIST /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects/LinkFileList    setenv FIXED_FILES_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/FixedFiles    setenv FRAMEWORKS_FOLDER_PATH MPlot.app/Contents/Frameworks    setenv FRAMEWORK_FLAG_PREFIX -framework    setenv FRAMEWORK_SEARCH_PATHS "\"/Users/mboots/dev/MPlot/build/Debug\" "    setenv FRAMEWORK_VERSION A    setenv FULL_PRODUCT_NAME MPlot.app    setenv GCC3_VERSION 3.3    setenv GCC_DYNAMIC_NO_PIC YES    setenv GCC_GENERATE_DEBUGGING_SYMBOLS YES    setenv GCC_INLINES_ARE_PRIVATE_EXTERN YES    setenv GCC_OPTIMIZATION_LEVEL 0    setenv GCC_PFE_FILE_C_DIALECTS "c objective-c c++ objective-c++"    setenv GCC_SYMBOLS_PRIVATE_EXTERN YES    setenv GCC_TREAT_WARNINGS_AS_ERRORS NO    setenv GCC_VERSION 4.2    setenv GENERATE_MASTER_OBJECT_FILE NO    setenv GENERATE_PKGINFO_FILE YES    setenv GENERATE_PROFILING_CODE NO    setenv GID 20    setenv GROUP staff    setenv HEADERMAP_INCLUDES_FLAT_ENTRIES_FOR_TARGET_BEING_BUILT YES    setenv HEADERMAP_INCLUDES_FRAMEWORK_ENTRIES_FOR_ALL_PRODUCT_TYPES YES    setenv HEADERMAP_INCLUDES_NONPUBLIC_NONPRIVATE_HEADERS YES    setenv HEADERMAP_INCLUDES_PROJECT_HEADERS YES    setenv HEADER_SEARCH_PATHS "\"/Users/mboots/dev/MPlot/build/Debug/include\" /Library/Frameworks/QtCore.framework/Versions/4/Headers /usr/include/QtCore /Library/Frameworks/QtGui.framework/Versions/4/Headers /usr/include/QtGui /usr/include . src/MPlot . /usr/local/include /System/Library/Frameworks/CarbonCore.framework/Headers /usr/local/Qt4.6/mkspecs/macx-xcode"    setenv ICONV /usr/bin/iconv    setenv INFOPLIST_EXPAND_BUILD_SETTINGS YES    setenv INFOPLIST_FILE Info.plist    setenv INFOPLIST_OUTPUT_FORMAT same-as-input    setenv INFOPLIST_PATH MPlot.app/Contents/Info.plist    setenv INFOPLIST_PREPROCESS NO    setenv INFOSTRINGS_PATH /InfoPlist.strings    setenv INSTALL_DIR /tmp/MPlot.dst/Users/mboots/Applications    setenv INSTALL_GROUP staff    setenv INSTALL_MODE_FLAG u+w,go-w,a+rX    setenv INSTALL_OWNER mboots    setenv INSTALL_PATH /Users/mboots/Applications    setenv INSTALL_ROOT /tmp/MPlot.dst    setenv JAVAC_DEFAULT_FLAGS "-J-Xms64m -J-XX:NewSize=4M -J-Dfile.encoding=UTF8"    setenv JAVA_APP_STUB /System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub    setenv JAVA_ARCHIVE_CLASSES YES    setenv JAVA_ARCHIVE_TYPE JAR    setenv JAVA_COMPILER /usr/bin/javac    setenv JAVA_FOLDER_PATH MPlot.app/Contents/Resources/Java    setenv JAVA_FRAMEWORK_RESOURCES_DIRS Resources    setenv JAVA_JAR_FLAGS cv    setenv JAVA_SOURCE_SUBDIR .    setenv JAVA_USE_DEPENDENCIES YES    setenv JAVA_ZIP_FLAGS -urg    setenv JIKES_DEFAULT_FLAGS "+E +OLDCSO"    setenv KEEP_PRIVATE_EXTERNS NO    setenv LD_GENERATE_MAP_FILE NO    setenv LD_MAP_FILE_PATH /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot-LinkMap-normal-i386.txt    setenv LD_OPENMP_FLAGS -fopenmp    setenv LEX /Developer/usr/bin/lex    setenv LIBRARY_FLAG_NOSPACE YES    setenv LIBRARY_FLAG_PREFIX -l    setenv LIBRARY_SEARCH_PATHS "\"/Users/mboots/dev/MPlot/build/Debug\" /Library/Frameworks"    setenv LINKER_DISPLAYS_MANGLED_NAMES NO    setenv LINK_FILE_LIST_normal_i386 /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/MPlot.LinkFileList    setenv LINK_WITH_STANDARD_LIBRARIES YES    setenv LOCAL_ADMIN_APPS_DIR /Applications/Utilities    setenv LOCAL_APPS_DIR /Applications    setenv LOCAL_DEVELOPER_DIR /Library/Developer    setenv LOCAL_LIBRARY_DIR /Library    setenv MACH_O_TYPE mh_execute    setenv MACOSX_DEPLOYMENT_TARGET 10.4    setenv MAC_OS_X_VERSION_ACTUAL 1062    setenv MAC_OS_X_VERSION_MAJOR 1060    setenv MAC_OS_X_VERSION_MINOR 0602    setenv NATIVE_ARCH i386    setenv NATIVE_ARCH_32_BIT i386    setenv NATIVE_ARCH_64_BIT x86_64    setenv NATIVE_ARCH_ACTUAL x86_64    setenv NO_COMMON YES    setenv OBJECT_FILE_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects    setenv OBJECT_FILE_DIR_normal /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal    setenv OBJROOT /Users/mboots/dev/MPlot/build    setenv ONLY_ACTIVE_ARCH NO    setenv OPTIMIZATION_LEVEL 0    setenv OS MACOS    setenv OSAC /usr/bin/osacompile    setenv OTHER_CFLAGS "-pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED"    setenv OTHER_CPLUSPLUSFLAGS "-pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED"    setenv OTHER_LDFLAGS "-headerpad_max_install_names -L/Library/Frameworks -F/Library/Frameworks"    setenv PACKAGE_TYPE com.apple.package-type.wrapper.application    setenv PASCAL_STRINGS YES    setenv PATH_PREFIXES_EXCLUDED_FROM_HEADER_DEPENDENCIES "/usr/include /usr/local/include /System/Library/Frameworks /System/Library/PrivateFrameworks /Developer/Headers /Developer/SDKs /Developer/Platforms"    setenv PBDEVELOPMENTPLIST_PATH MPlot.app/Contents/pbdevelopment.plist    setenv PFE_FILE_C_DIALECTS c++    setenv PKGINFO_FILE_PATH /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/PkgInfo    setenv PKGINFO_PATH MPlot.app/Contents/PkgInfo    setenv PLATFORM_DEVELOPER_APPLICATIONS_DIR /Developer/Applications    setenv PLATFORM_DEVELOPER_BIN_DIR /Developer/usr/bin    setenv PLATFORM_DEVELOPER_LIBRARY_DIR /Developer/Library    setenv PLATFORM_DEVELOPER_SDK_DIR /Developer/SDKs    setenv PLATFORM_DEVELOPER_TOOLS_DIR /Developer/Tools    setenv PLATFORM_DEVELOPER_USR_DIR /Developer/usr    setenv PLATFORM_NAME macosx    setenv PLIST_FILE_OUTPUT_FORMAT same-as-input    setenv PLUGINS_FOLDER_PATH MPlot.app/Contents/PlugIns    setenv PREBINDING NO    setenv PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR YES    setenv PRECOMP_DESTINATION_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/PrefixHeaders    setenv PRESERVE_DEAD_CODE_INITS_AND_TERMS NO    setenv PRIVATE_HEADERS_FOLDER_PATH MPlot.app/Contents/PrivateHeaders    setenv PRODUCT_NAME MPlot    setenv PRODUCT_SETTINGS_PATH /Users/mboots/dev/MPlot/Info.plist    setenv PRODUCT_TYPE com.apple.product-type.application    setenv PROFILING_CODE NO    setenv PROJECT MPlot    setenv PROJECT_DERIVED_FILE_DIR /Users/mboots/dev/MPlot/build/MPlot.build/DerivedSources    setenv PROJECT_DIR /Users/mboots/dev/MPlot    setenv PROJECT_FILE_PATH /Users/mboots/dev/MPlot/MPlot.xcodeproj    setenv PROJECT_NAME MPlot    setenv PROJECT_TEMP_DIR /Users/mboots/dev/MPlot/build/MPlot.build    setenv PUBLIC_HEADERS_FOLDER_PATH MPlot.app/Contents/Headers    setenv RECURSIVE_SEARCH_PATHS_FOLLOW_SYMLINKS YES    setenv REMOVE_CVS_FROM_RESOURCES YES    setenv REMOVE_SVN_FROM_RESOURCES YES    setenv REZ_COLLECTOR_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/ResourceManagerResources    setenv REZ_OBJECTS_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/ResourceManagerResources/Objects    setenv REZ_SEARCH_PATHS "\"/Users/mboots/dev/MPlot/build/Debug\" "    setenv RUN_CLANG_STATIC_ANALYZER NO    setenv SCAN_ALL_SOURCE_FILES_FOR_INCLUDES NO    setenv SCRIPTS_FOLDER_PATH MPlot.app/Contents/Resources/Scripts    setenv SCRIPT_INPUT_FILE_COUNT 0    setenv SCRIPT_OUTPUT_FILE_COUNT 0    setenv SDKROOT     setenv SED /usr/bin/sed    setenv SEPARATE_STRIP NO    setenv SEPARATE_SYMBOL_EDIT NO    setenv SET_DIR_MODE_OWNER_GROUP YES    setenv SET_FILE_MODE_OWNER_GROUP NO    setenv SHARED_DERIVED_FILE_DIR /Users/mboots/dev/MPlot/build/Debug/DerivedSources    setenv SHARED_FRAMEWORKS_FOLDER_PATH MPlot.app/Contents/SharedFrameworks    setenv SHARED_PRECOMPS_DIR /var/folders/H5/H5t2ceKiEEqd2k2p0XJPPk+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders    setenv SHARED_SUPPORT_FOLDER_PATH MPlot.app/Contents/SharedSupport    setenv SKIP_INSTALL YES    setenv SOURCE_ROOT /Users/mboots/dev/MPlot    setenv SRCROOT /Users/mboots/dev/MPlot    setenv STANDARD_C_PLUS_PLUS_LIBRARY_TYPE dynamic    setenv STRINGS_FILE_OUTPUT_ENCODING UTF-16    setenv STRIP_INSTALLED_PRODUCT YES    setenv STRIP_STYLE all    setenv SYMBOL_REPOSITORY_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/SymbolRepositories    setenv SYMROOT /Users/mboots/dev/MPlot/build    setenv SYSTEM_ADMIN_APPS_DIR /Applications/Utilities    setenv SYSTEM_APPS_DIR /Applications    setenv SYSTEM_CORE_SERVICES_DIR /System/Library/CoreServices    setenv SYSTEM_DEMOS_DIR /Applications/Extras    setenv SYSTEM_DEVELOPER_APPS_DIR /Developer/Applications    setenv SYSTEM_DEVELOPER_BIN_DIR /Developer/usr/bin    setenv SYSTEM_DEVELOPER_DEMOS_DIR "/Developer/Applications/Utilities/Built Examples"    setenv SYSTEM_DEVELOPER_DIR /Developer    setenv SYSTEM_DEVELOPER_DOC_DIR "/Developer/ADC Reference Library"    setenv SYSTEM_DEVELOPER_GRAPHICS_TOOLS_DIR "/Developer/Applications/Graphics Tools"    setenv SYSTEM_DEVELOPER_JAVA_TOOLS_DIR "/Developer/Applications/Java Tools"    setenv SYSTEM_DEVELOPER_PERFORMANCE_TOOLS_DIR "/Developer/Applications/Performance Tools"    setenv SYSTEM_DEVELOPER_RELEASENOTES_DIR "/Developer/ADC Reference Library/releasenotes"    setenv SYSTEM_DEVELOPER_TOOLS /Developer/Tools    setenv SYSTEM_DEVELOPER_TOOLS_DOC_DIR "/Developer/ADC Reference Library/documentation/DeveloperTools"    setenv SYSTEM_DEVELOPER_TOOLS_RELEASENOTES_DIR "/Developer/ADC Reference Library/releasenotes/DeveloperTools"    setenv SYSTEM_DEVELOPER_USR_DIR /Developer/usr    setenv SYSTEM_DEVELOPER_UTILITIES_DIR /Developer/Applications/Utilities    setenv SYSTEM_DOCUMENTATION_DIR /Library/Documentation    setenv SYSTEM_LIBRARY_DIR /System/Library    setenv TARGETNAME MPlot    setenv TARGET_BUILD_DIR /Users/mboots/dev/MPlot/build/Debug    setenv TARGET_NAME MPlot    setenv TARGET_TEMP_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build    setenv TEMP_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build    setenv TEMP_FILES_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build    setenv TEMP_FILE_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build    setenv TEMP_ROOT /Users/mboots/dev/MPlot/build    setenv UID 501    setenv UNLOCALIZED_RESOURCES_FOLDER_PATH MPlot.app/Contents/Resources    setenv UNSTRIPPED_PRODUCT NO    setenv USER mboots    setenv USER_APPS_DIR /Users/mboots/Applications    setenv USER_LIBRARY_DIR /Users/mboots/Library    setenv USE_DYNAMIC_NO_PIC YES    setenv USE_HEADERMAP YES    setenv USE_HEADER_SYMLINKS NO    setenv VALID_ARCHS "i386 ppc ppc64 ppc7400 ppc970 x86_64"    setenv VERBOSE_PBXCP NO    setenv VERSIONPLIST_PATH MPlot.app/Contents/version.plist    setenv VERSION_INFO_BUILDER mboots    setenv VERSION_INFO_FILE MPlot_vers.c    setenv VERSION_INFO_STRING "\"@(#)PROGRAM:MPlot  PROJECT:MPlot-\""    setenv WRAPPER_EXTENSION app    setenv WRAPPER_NAME MPlot.app    setenv WRAPPER_SUFFIX .app    setenv XCODE_APP_SUPPORT_DIR /Developer/Library/Xcode    setenv XCODE_VERSION_ACTUAL 0321    setenv XCODE_VERSION_MAJOR 0300    setenv XCODE_VERSION_MINOR 0320    setenv YACC /Developer/usr/bin/yacc    setenv YACCFLAGS -d    setenv i386 YES    /bin/sh -c /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Script-A0A52A2ADF7A1E2A99738674.sh0#
-
-CPhaseScriptExecution "Qt Qmake" /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Script-D7BA7D76DAB5DD13389D6332.sh
-s286160609.574386
-e286160609.641978
-r1
-xPhaseScriptExecution
-xQt Qmake
-x/Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Script-D7BA7D76DAB5DD13389D6332.sh
-omake: `MPlot.xcodeproj/project.pbxproj' is up to date.
-lSLF07#2@34"Run custom shell script 'Qt Qmake'286160609#286160609#0(55"make: `MPlot.xcodeproj/project.pbxproj' is up to date.1(13@55"make: `MPlot.xcodeproj/project.pbxproj' is up to date.286160609#0#55#0(1@0"0(0#0#0"2524391536#15171"    cd /Users/mboots/dev/MPlot    setenv ACTION build    setenv ALTERNATE_GROUP staff    setenv ALTERNATE_MODE u+w,go-w,a+rX    setenv ALTERNATE_OWNER mboots    setenv ALWAYS_SEARCH_USER_PATHS YES    setenv APPLE_INTERNAL_DEVELOPER_DIR /AppleInternal/Developer    setenv APPLE_INTERNAL_DIR /AppleInternal    setenv APPLE_INTERNAL_DOCUMENTATION_DIR /AppleInternal/Documentation    setenv APPLE_INTERNAL_LIBRARY_DIR /AppleInternal/Library    setenv APPLE_INTERNAL_TOOLS /AppleInternal/Developer/Tools    setenv APPLY_RULES_IN_COPY_FILES NO    setenv ARCHS i386    setenv ARCHS_STANDARD_32_64_BIT "x86_64 i386 ppc"    setenv ARCHS_STANDARD_32_BIT "i386 ppc"    setenv ARCHS_STANDARD_64_BIT x86_64    setenv BUILD_COMPONENTS "headers build"    setenv BUILD_DIR /Users/mboots/dev/MPlot/build    setenv BUILD_ROOT /Users/mboots/dev/MPlot    setenv BUILD_STYLE Debug    setenv BUILD_VARIANTS normal    setenv BUILT_PRODUCTS_DIR /Users/mboots/dev/MPlot/build/Debug    setenv CACHE_ROOT /var/folders/H5/H5t2ceKiEEqd2k2p0XJPPk+++TI/-Caches-/com.apple.Xcode.501    setenv CCHROOT /var/folders/H5/H5t2ceKiEEqd2k2p0XJPPk+++TI/-Caches-/com.apple.Xcode.501    setenv CHMOD /bin/chmod    setenv CHOWN /usr/sbin/chown    setenv CLASS_FILE_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/JavaClasses    setenv CLEAN_PRECOMPS YES    setenv CLONE_HEADERS NO    setenv CODESIGNING_FOLDER_PATH /Users/mboots/dev/MPlot/build/Debug/MPlot.app    setenv CODE_SIGNING_ALLOWED YES    setenv COMMAND_MODE legacy    setenv COMPOSITE_SDK_DIRS /var/folders/H5/H5t2ceKiEEqd2k2p0XJPPk+++TI/-Caches-/com.apple.Xcode.501/CompositeSDKs    setenv CONFIGURATION Debug    setenv CONFIGURATION_BUILD_DIR /Users/mboots/dev/MPlot/build/Debug    setenv CONFIGURATION_TEMP_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug    setenv CONTENTS_FOLDER_PATH MPlot.app/Contents    setenv COPYING_PRESERVES_HFS_DATA NO    setenv COPY_PHASE_STRIP NO    setenv COPY_RESOURCES_FROM_STATIC_FRAMEWORKS YES    setenv CP /bin/cp    setenv CURRENT_ARCH i386    setenv CURRENT_VARIANT normal    setenv DEAD_CODE_STRIPPING NO    setenv DEBUGGING_SYMBOLS YES    setenv DEBUG_INFORMATION_FORMAT dwarf    setenv DEPLOYMENT_LOCATION NO    setenv DEPLOYMENT_POSTPROCESSING NO    setenv DERIVED_FILES_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources    setenv DERIVED_FILE_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources    setenv DERIVED_SOURCES_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/DerivedSources    setenv DEVELOPER_APPLICATIONS_DIR /Developer/Applications    setenv DEVELOPER_BIN_DIR /Developer/usr/bin    setenv DEVELOPER_DIR /Developer    setenv DEVELOPER_FRAMEWORKS_DIR /Developer/Library/Frameworks    setenv DEVELOPER_FRAMEWORKS_DIR_QUOTED "\"/Developer/Library/Frameworks\""    setenv DEVELOPER_LIBRARY_DIR /Developer/Library    setenv DEVELOPER_SDK_DIR /Developer/SDKs    setenv DEVELOPER_TOOLS_DIR /Developer/Tools    setenv DEVELOPER_USR_DIR /Developer/usr    setenv DEVELOPMENT_LANGUAGE English    setenv DOCUMENTATION_FOLDER_PATH /Documentation    setenv DO_HEADER_SCANNING_IN_JAM NO    setenv DSTROOT /tmp/MPlot.dst    setenv DWARF_DSYM_FILE_NAME MPlot.app.dSYM    setenv DWARF_DSYM_FOLDER_PATH /Users/mboots/dev/MPlot/build/Debug    setenv DYLIB_COMPATIBILITY_VERSION 1.0    setenv DYLIB_CURRENT_VERSION 1.0.0    setenv ENABLE_HEADER_DEPENDENCIES YES    setenv ENABLE_OPENMP_SUPPORT NO    setenv EXCLUDED_INSTALLSRC_SUBDIRECTORY_PATTERNS ".svn CVS"    setenv EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES "*.nib *.lproj *.framework *.gch (*) CVS .svn *.xcodeproj *.xcode *.pbproj *.pbxproj"    setenv EXECUTABLES_FOLDER_PATH MPlot.app/Contents/Executables    setenv EXECUTABLE_FOLDER_PATH MPlot.app/Contents/MacOS    setenv EXECUTABLE_NAME MPlot    setenv EXECUTABLE_PATH MPlot.app/Contents/MacOS/MPlot    setenv FILE_LIST /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects/LinkFileList    setenv FIXED_FILES_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/FixedFiles    setenv FRAMEWORKS_FOLDER_PATH MPlot.app/Contents/Frameworks    setenv FRAMEWORK_FLAG_PREFIX -framework    setenv FRAMEWORK_SEARCH_PATHS "\"/Users/mboots/dev/MPlot/build/Debug\" "    setenv FRAMEWORK_VERSION A    setenv FULL_PRODUCT_NAME MPlot.app    setenv GCC3_VERSION 3.3    setenv GCC_DYNAMIC_NO_PIC YES    setenv GCC_GENERATE_DEBUGGING_SYMBOLS YES    setenv GCC_INLINES_ARE_PRIVATE_EXTERN YES    setenv GCC_OPTIMIZATION_LEVEL 0    setenv GCC_PFE_FILE_C_DIALECTS "c objective-c c++ objective-c++"    setenv GCC_SYMBOLS_PRIVATE_EXTERN YES    setenv GCC_TREAT_WARNINGS_AS_ERRORS NO    setenv GCC_VERSION 4.2    setenv GENERATE_MASTER_OBJECT_FILE NO    setenv GENERATE_PKGINFO_FILE YES    setenv GENERATE_PROFILING_CODE NO    setenv GID 20    setenv GROUP staff    setenv HEADERMAP_INCLUDES_FLAT_ENTRIES_FOR_TARGET_BEING_BUILT YES    setenv HEADERMAP_INCLUDES_FRAMEWORK_ENTRIES_FOR_ALL_PRODUCT_TYPES YES    setenv HEADERMAP_INCLUDES_NONPUBLIC_NONPRIVATE_HEADERS YES    setenv HEADERMAP_INCLUDES_PROJECT_HEADERS YES    setenv HEADER_SEARCH_PATHS "\"/Users/mboots/dev/MPlot/build/Debug/include\" /Library/Frameworks/QtCore.framework/Versions/4/Headers /usr/include/QtCore /Library/Frameworks/QtGui.framework/Versions/4/Headers /usr/include/QtGui /usr/include . src/MPlot . /usr/local/include /System/Library/Frameworks/CarbonCore.framework/Headers /usr/local/Qt4.6/mkspecs/macx-xcode"    setenv ICONV /usr/bin/iconv    setenv INFOPLIST_EXPAND_BUILD_SETTINGS YES    setenv INFOPLIST_FILE Info.plist    setenv INFOPLIST_OUTPUT_FORMAT same-as-input    setenv INFOPLIST_PATH MPlot.app/Contents/Info.plist    setenv INFOPLIST_PREPROCESS NO    setenv INFOSTRINGS_PATH /InfoPlist.strings    setenv INSTALL_DIR /tmp/MPlot.dst/Users/mboots/Applications    setenv INSTALL_GROUP staff    setenv INSTALL_MODE_FLAG u+w,go-w,a+rX    setenv INSTALL_OWNER mboots    setenv INSTALL_PATH /Users/mboots/Applications    setenv INSTALL_ROOT /tmp/MPlot.dst    setenv JAVAC_DEFAULT_FLAGS "-J-Xms64m -J-XX:NewSize=4M -J-Dfile.encoding=UTF8"    setenv JAVA_APP_STUB /System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub    setenv JAVA_ARCHIVE_CLASSES YES    setenv JAVA_ARCHIVE_TYPE JAR    setenv JAVA_COMPILER /usr/bin/javac    setenv JAVA_FOLDER_PATH MPlot.app/Contents/Resources/Java    setenv JAVA_FRAMEWORK_RESOURCES_DIRS Resources    setenv JAVA_JAR_FLAGS cv    setenv JAVA_SOURCE_SUBDIR .    setenv JAVA_USE_DEPENDENCIES YES    setenv JAVA_ZIP_FLAGS -urg    setenv JIKES_DEFAULT_FLAGS "+E +OLDCSO"    setenv KEEP_PRIVATE_EXTERNS NO    setenv LD_GENERATE_MAP_FILE NO    setenv LD_MAP_FILE_PATH /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/MPlot-LinkMap-normal-i386.txt    setenv LD_OPENMP_FLAGS -fopenmp    setenv LEX /Developer/usr/bin/lex    setenv LIBRARY_FLAG_NOSPACE YES    setenv LIBRARY_FLAG_PREFIX -l    setenv LIBRARY_SEARCH_PATHS "\"/Users/mboots/dev/MPlot/build/Debug\" /Library/Frameworks"    setenv LINKER_DISPLAYS_MANGLED_NAMES NO    setenv LINK_FILE_LIST_normal_i386 /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal/i386/MPlot.LinkFileList    setenv LINK_WITH_STANDARD_LIBRARIES YES    setenv LOCAL_ADMIN_APPS_DIR /Applications/Utilities    setenv LOCAL_APPS_DIR /Applications    setenv LOCAL_DEVELOPER_DIR /Library/Developer    setenv LOCAL_LIBRARY_DIR /Library    setenv MACH_O_TYPE mh_execute    setenv MACOSX_DEPLOYMENT_TARGET 10.4    setenv MAC_OS_X_VERSION_ACTUAL 1062    setenv MAC_OS_X_VERSION_MAJOR 1060    setenv MAC_OS_X_VERSION_MINOR 0602    setenv NATIVE_ARCH i386    setenv NATIVE_ARCH_32_BIT i386    setenv NATIVE_ARCH_64_BIT x86_64    setenv NATIVE_ARCH_ACTUAL x86_64    setenv NO_COMMON YES    setenv OBJECT_FILE_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects    setenv OBJECT_FILE_DIR_normal /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Objects-normal    setenv OBJROOT /Users/mboots/dev/MPlot/build    setenv ONLY_ACTIVE_ARCH NO    setenv OPTIMIZATION_LEVEL 0    setenv OS MACOS    setenv OSAC /usr/bin/osacompile    setenv OTHER_CFLAGS "-pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED"    setenv OTHER_CPLUSPLUSFLAGS "-pipe -g -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED"    setenv OTHER_LDFLAGS "-headerpad_max_install_names -L/Library/Frameworks -F/Library/Frameworks"    setenv PACKAGE_TYPE com.apple.package-type.wrapper.application    setenv PASCAL_STRINGS YES    setenv PATH_PREFIXES_EXCLUDED_FROM_HEADER_DEPENDENCIES "/usr/include /usr/local/include /System/Library/Frameworks /System/Library/PrivateFrameworks /Developer/Headers /Developer/SDKs /Developer/Platforms"    setenv PBDEVELOPMENTPLIST_PATH MPlot.app/Contents/pbdevelopment.plist    setenv PFE_FILE_C_DIALECTS c++    setenv PKGINFO_FILE_PATH /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/PkgInfo    setenv PKGINFO_PATH MPlot.app/Contents/PkgInfo    setenv PLATFORM_DEVELOPER_APPLICATIONS_DIR /Developer/Applications    setenv PLATFORM_DEVELOPER_BIN_DIR /Developer/usr/bin    setenv PLATFORM_DEVELOPER_LIBRARY_DIR /Developer/Library    setenv PLATFORM_DEVELOPER_SDK_DIR /Developer/SDKs    setenv PLATFORM_DEVELOPER_TOOLS_DIR /Developer/Tools    setenv PLATFORM_DEVELOPER_USR_DIR /Developer/usr    setenv PLATFORM_NAME macosx    setenv PLIST_FILE_OUTPUT_FORMAT same-as-input    setenv PLUGINS_FOLDER_PATH MPlot.app/Contents/PlugIns    setenv PREBINDING NO    setenv PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR YES    setenv PRECOMP_DESTINATION_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/PrefixHeaders    setenv PRESERVE_DEAD_CODE_INITS_AND_TERMS NO    setenv PRIVATE_HEADERS_FOLDER_PATH MPlot.app/Contents/PrivateHeaders    setenv PRODUCT_NAME MPlot    setenv PRODUCT_SETTINGS_PATH /Users/mboots/dev/MPlot/Info.plist    setenv PRODUCT_TYPE com.apple.product-type.application    setenv PROFILING_CODE NO    setenv PROJECT MPlot    setenv PROJECT_DERIVED_FILE_DIR /Users/mboots/dev/MPlot/build/MPlot.build/DerivedSources    setenv PROJECT_DIR /Users/mboots/dev/MPlot    setenv PROJECT_FILE_PATH /Users/mboots/dev/MPlot/MPlot.xcodeproj    setenv PROJECT_NAME MPlot    setenv PROJECT_TEMP_DIR /Users/mboots/dev/MPlot/build/MPlot.build    setenv PUBLIC_HEADERS_FOLDER_PATH MPlot.app/Contents/Headers    setenv RECURSIVE_SEARCH_PATHS_FOLLOW_SYMLINKS YES    setenv REMOVE_CVS_FROM_RESOURCES YES    setenv REMOVE_SVN_FROM_RESOURCES YES    setenv REZ_COLLECTOR_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/ResourceManagerResources    setenv REZ_OBJECTS_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/ResourceManagerResources/Objects    setenv REZ_SEARCH_PATHS "\"/Users/mboots/dev/MPlot/build/Debug\" "    setenv RUN_CLANG_STATIC_ANALYZER NO    setenv SCAN_ALL_SOURCE_FILES_FOR_INCLUDES NO    setenv SCRIPTS_FOLDER_PATH MPlot.app/Contents/Resources/Scripts    setenv SCRIPT_INPUT_FILE_COUNT 0    setenv SCRIPT_OUTPUT_FILE_COUNT 0    setenv SDKROOT     setenv SED /usr/bin/sed    setenv SEPARATE_STRIP NO    setenv SEPARATE_SYMBOL_EDIT NO    setenv SET_DIR_MODE_OWNER_GROUP YES    setenv SET_FILE_MODE_OWNER_GROUP NO    setenv SHARED_DERIVED_FILE_DIR /Users/mboots/dev/MPlot/build/Debug/DerivedSources    setenv SHARED_FRAMEWORKS_FOLDER_PATH MPlot.app/Contents/SharedFrameworks    setenv SHARED_PRECOMPS_DIR /var/folders/H5/H5t2ceKiEEqd2k2p0XJPPk+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders    setenv SHARED_SUPPORT_FOLDER_PATH MPlot.app/Contents/SharedSupport    setenv SKIP_INSTALL YES    setenv SOURCE_ROOT /Users/mboots/dev/MPlot    setenv SRCROOT /Users/mboots/dev/MPlot    setenv STANDARD_C_PLUS_PLUS_LIBRARY_TYPE dynamic    setenv STRINGS_FILE_OUTPUT_ENCODING UTF-16    setenv STRIP_INSTALLED_PRODUCT YES    setenv STRIP_STYLE all    setenv SYMBOL_REPOSITORY_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/SymbolRepositories    setenv SYMROOT /Users/mboots/dev/MPlot/build    setenv SYSTEM_ADMIN_APPS_DIR /Applications/Utilities    setenv SYSTEM_APPS_DIR /Applications    setenv SYSTEM_CORE_SERVICES_DIR /System/Library/CoreServices    setenv SYSTEM_DEMOS_DIR /Applications/Extras    setenv SYSTEM_DEVELOPER_APPS_DIR /Developer/Applications    setenv SYSTEM_DEVELOPER_BIN_DIR /Developer/usr/bin    setenv SYSTEM_DEVELOPER_DEMOS_DIR "/Developer/Applications/Utilities/Built Examples"    setenv SYSTEM_DEVELOPER_DIR /Developer    setenv SYSTEM_DEVELOPER_DOC_DIR "/Developer/ADC Reference Library"    setenv SYSTEM_DEVELOPER_GRAPHICS_TOOLS_DIR "/Developer/Applications/Graphics Tools"    setenv SYSTEM_DEVELOPER_JAVA_TOOLS_DIR "/Developer/Applications/Java Tools"    setenv SYSTEM_DEVELOPER_PERFORMANCE_TOOLS_DIR "/Developer/Applications/Performance Tools"    setenv SYSTEM_DEVELOPER_RELEASENOTES_DIR "/Developer/ADC Reference Library/releasenotes"    setenv SYSTEM_DEVELOPER_TOOLS /Developer/Tools    setenv SYSTEM_DEVELOPER_TOOLS_DOC_DIR "/Developer/ADC Reference Library/documentation/DeveloperTools"    setenv SYSTEM_DEVELOPER_TOOLS_RELEASENOTES_DIR "/Developer/ADC Reference Library/releasenotes/DeveloperTools"    setenv SYSTEM_DEVELOPER_USR_DIR /Developer/usr    setenv SYSTEM_DEVELOPER_UTILITIES_DIR /Developer/Applications/Utilities    setenv SYSTEM_DOCUMENTATION_DIR /Library/Documentation    setenv SYSTEM_LIBRARY_DIR /System/Library    setenv TARGETNAME MPlot    setenv TARGET_BUILD_DIR /Users/mboots/dev/MPlot/build/Debug    setenv TARGET_NAME MPlot    setenv TARGET_TEMP_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build    setenv TEMP_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build    setenv TEMP_FILES_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build    setenv TEMP_FILE_DIR /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build    setenv TEMP_ROOT /Users/mboots/dev/MPlot/build    setenv UID 501    setenv UNLOCALIZED_RESOURCES_FOLDER_PATH MPlot.app/Contents/Resources    setenv UNSTRIPPED_PRODUCT NO    setenv USER mboots    setenv USER_APPS_DIR /Users/mboots/Applications    setenv USER_LIBRARY_DIR /Users/mboots/Library    setenv USE_DYNAMIC_NO_PIC YES    setenv USE_HEADERMAP YES    setenv USE_HEADER_SYMLINKS NO    setenv VALID_ARCHS "i386 ppc ppc64 ppc7400 ppc970 x86_64"    setenv VERBOSE_PBXCP NO    setenv VERSIONPLIST_PATH MPlot.app/Contents/version.plist    setenv VERSION_INFO_BUILDER mboots    setenv VERSION_INFO_FILE MPlot_vers.c    setenv VERSION_INFO_STRING "\"@(#)PROGRAM:MPlot  PROJECT:MPlot-\""    setenv WRAPPER_EXTENSION app    setenv WRAPPER_NAME MPlot.app    setenv WRAPPER_SUFFIX .app    setenv XCODE_APP_SUPPORT_DIR /Developer/Library/Xcode    setenv XCODE_VERSION_ACTUAL 0321    setenv XCODE_VERSION_MAJOR 0300    setenv XCODE_VERSION_MINOR 0320    setenv YACC /Developer/usr/bin/yacc    setenv YACCFLAGS -d    setenv i386 YES    /bin/sh -c /Users/mboots/dev/MPlot/build/MPlot.build/Debug/MPlot.build/Script-D7BA7D76DAB5DD13389D6332.sh0#
-
-CProcessInfoPlistFile /Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/Info.plist Info.plist
-s284075255.137561
-e284075255.166131
-r1
-xProcessInfoPlistFile
-x/Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/Info.plist
-xInfo.plist
-lSLF07#2@18"Process Info.plist284075255#284075255#0(0"0(0#0#34"/Users/mboots/dev/MPlot/Info.plist2559457392#253"    cd /Users/mboots/dev/MPlot    builtin-infoPlistUtility Info.plist -genpkginfo /Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/PkgInfo -expandbuildsettings -platform macosx -o /Users/mboots/dev/MPlot/build/Debug/MPlot.app/Contents/Info.plist0#
-
-CTouch /Users/mboots/dev/MPlot/build/Debug/MPlot.app
-s286160455.627769
-e286160455.640416
-r1
-xTouch
-x/Users/mboots/dev/MPlot/build/Debug/MPlot.app
-lSLF07#2@51"Touch /Users/mboots/dev/MPlot/build/Debug/MPlot.app286160455#286160455#0(0"0(0#0#0"2524391536#99"    cd /Users/mboots/dev/MPlot    /usr/bin/touch -c /Users/mboots/dev/MPlot/build/Debug/MPlot.app0#
-
