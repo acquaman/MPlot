@@ -9,6 +9,8 @@
 #include <QPainterPath>
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsView>
+#include <QGraphicsScene>
 #include "MPlotMarker.h"
 #include "MPlotAxis.h"
 #include "MPlotSeriesData.h"
@@ -31,7 +33,7 @@ class MPlotSeries : public QGraphicsObject {
 	
 	Q_OBJECT
 	
-	Q_PROPERTY(bool selected READ isSelected WRITE setSelected NOTIFY selectedChanged)
+	Q_PROPERTY(bool selected READ isSelected WRITE setSelected)
 
 public:
 	
@@ -47,7 +49,7 @@ public:
 		// Set model (will check that data != 0)
 		setModel(data);
 		
-		isSelected_ = false;
+		wasSelected_ = false;
 		
 	}
 	
@@ -153,9 +155,9 @@ public:
 					   QWidget* /*widget*/) {
 		// Do nothing... drawn with children
 		
-		// Temporary: draw shape
+		// Highlight if selected:
 		
-		if(isSelected_) {
+		if(isSelected()) {
 			QPen pen = QPen(QBrush(MPLOT_SELECTION_COLOR), MPLOT_SELECTION_WIDTH);
 			pen.setCosmetic(true);
 			painter->setPen(pen);
@@ -163,18 +165,33 @@ public:
 		}
 	}
 	
-	/*
-	QTransform firstDeviceTransform() {
+	
+	QTransform firstDeviceTransform() const {
 		if(scene()->views().count() > 0)
 			return deviceTransform(scene()->views().at(0)->viewportTransform());
 		else
 			return QTransform();
-	}*/
+	}
+	
+	virtual bool isSelected() { return wasSelected_; }
+	
+	virtual void setSelected(bool isSelected = true) {
+		if(wasSelected_ = isSelected)
+			emit selected();
+		else
+			emit unselected();
+		
+		// schedule a redraw, to draw/not-draw the highlight:
+		update();
+	}
 	
 	virtual bool contains ( const QPointF & point ) const {
 		QPainterPath circleAroundPoint;
-		circleAroundPoint.addEllipse(point, 0.1, 0.1);
-		return shape().intersects(circleAroundPoint);
+		QTransform dt = firstDeviceTransform();
+		
+		circleAroundPoint.addEllipse(point, MPLOT_SELECTION_WIDTH/dt.m11(), MPLOT_SELECTION_WIDTH/dt.m22());
+		
+		return circleAroundPoint.intersects(shape());
 	}
 	
 	
@@ -182,59 +199,23 @@ public:
 		// Returns a shape consisting of the shapes of the markers, and all the lines plus 5 pixels on either side (for easy selection)
 		// todo: should this be optimized? Change when adding points, not every time it's called?
 		
+		// TODO: selection only works on one side of some lines.
+		// TODO: bounding box doesn't include selection highlight.
+		
 		
 		// Add the lines:
-		/*
-		// QPainterPathStroker stroker;  Can't use this because of different scaling in x/y. How do we set the line width? (horz., vert. lines)
-		stroker.setWidth(linePen_.width()+100);
-		QPainterPath linePath;
-		
-		// TODO: this is yucky
-		QTransform dt = firstDeviceTransform();
-		QRectF r(0, 0, 1, 1);
-		double xoff = MPLOT_SELECTION_WIDTH
-		 */
-		
-		
-		/////// Attempt 2
-		/*
-		QPainterPath shape; // clear the old path		
-		
-		double xoff = 0.1;
-		double yoff = 0.1;
-		
-		QPainterPath linePath1, linePath2;
-		if(data_ && data_->count() > 0) {
-			linePath1.moveTo(data_->x(0), data_->y(0));
-			for(int i=0; i<data_->count(); i++)
-				linePath1.lineTo(data_->x(i)+xoff, data_->y(i)+yoff);
-			for(int i=data_->count()-1; i>=0; i--)
-				linePath1.lineTo(data_->x(i)-xoff, data_->y(i)-yoff);
-			linePath1.lineTo(data_->x(0), data_->y(0));	// now a closed path
-			
-			linePath2.moveTo(data_->x(0), data_->y(0));
-			for(int i=0; i<data_->count(); i++)
-				linePath2.lineTo(data_->x(i)+xoff, data_->y(i)-yoff);
-			for(int i=data_->count()-1; i>=0; i--)
-				linePath2.lineTo(data_->x(i)-xoff, data_->y(i)+yoff);
-			linePath2.lineTo(data_->x(0), data_->y(0));	// now a closed path
-		}
-		shape.addPath(linePath1 + linePath2);
-		*/
-		
-		
 		QPainterPath shape;
+		
 		if(data_ && data_->count() > 0) {
 			shape.moveTo(data_->x(0), data_->y(0));
 			for(int i=0; i<data_->count(); i++)
 				shape.lineTo(data_->x(i), data_->y(i));
-			for(int i=data_->count()-1; i>=0; i--)
+						
+			for(int i=data_->count()-2; i>=0; i--)
 				shape.lineTo(data_->x(i), data_->y(i));
+			shape.lineTo(data_->x(0), data_->y(0));
 		}
 
-		
-		
-		
 		// Add the markers:
 		// This doesn't work because the ItemIgnoresTranformations is set, so the dimensions are too big/small to add directly.
 		//foreach(MPlotAbstractMarker* marker, markers_) {
@@ -249,7 +230,8 @@ public:
 signals:
 	
 	void dataChanged(MPlotSeries* series);	// listen to this if you want to auto-scale on changes.
-	void selectedChanged(bool);	// emitted when the plot series is selected/deselected by the mouse.
+	void selected();	// emitted when the plot series is selected by mouse.
+	void unselected();  // emitted when the plot series is unselected (ie: setSelected(false); )
 	
 protected slots:
 	void onRowsInserted( const QModelIndex & /*parent*/, int start, int end ) {
@@ -349,21 +331,6 @@ protected slots:
 		emit dataChanged(this);
 	}
 	
-	// This detects changes in the selection state of this plotseries, and emits selectedChanged(bool) as appropriate
-	void onSceneSelectionChanged() {
-		if(isSelected()) {
-			if(!isSelected_) {
-				emit selectedChanged(isSelected_ = true);
-				qDebug() << this->objectName() << "was selected";
-			}
-		}
-		else {	// currently deselected
-			if(isSelected_) {	// but was previously selected
-				emit selectedChanged(isSelected_ = false);
-				qDebug() << this->objectName() << "was deselected";
-			}
-		}
-	}
 	
 protected:
 	QPen linePen_, markerPen_;
@@ -377,7 +344,7 @@ protected:
 	
 	//mutable QPainterPath shape_;
 	
-	bool isSelected_;	// required to detect transitions from selected to unselected and vice versa
+	bool wasSelected_;	// required to detect transitions from selected to unselected and vice versa
 	
 	MPlotAxis::AxisID yAxisTarget_;
 	
@@ -447,12 +414,19 @@ protected:
 		}
 	}
 	
+	// This is used to detect selection/unselection
 	virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
 		qDebug() << objectName() << "press event... in bounding box";
-		if( contains(event->pos()) )
+		
+		// If it's "close" to us:
+		if( contains(event->pos()) ) {
 		   qDebug() << objectName() << "   inside shape";
-		   
-		QGraphicsItem::mousePressEvent(event);
+			if(!isSelected())
+				this->setSelected(true);	// set selected
+			// absorb this event here... don't let it keep travelling.
+		}
+		else	// propagate the event like normal.
+			QGraphicsItem::mousePressEvent(event);
 	}
 
 };

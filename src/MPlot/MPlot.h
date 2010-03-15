@@ -27,6 +27,7 @@ public:
 		// Create background rectangle:
 		background_ = new MPlotBackground(sceneRect(), 0);	// no parent.
 		this->addItem(background_);	// background added first... on the bottom.
+		connect(background_, SIGNAL(backgroundPressed()), this, SLOT(onBackgroundPressed()));
 		
 		// Create plot area rectangle.  All plot items will be children of plotArea_
 		plotArea_ = new MPlotBackground(QRectF(0, 0, 1, 1), 0);		// The plotArea_ has local coordinates from (0,0) to (1,1), transformed appropriately 
@@ -69,9 +70,9 @@ public:
 		// Possible optimization: only connect series to this slot when continuous autoscaling is enabled.
 		// That way non-autoscaling plots don't fire in a bunch of non-required signals.
 		
-		// Somehow we have to propagate a "selected()" signal to the plots series. 
-		// Unfortunately QGraphicsItems don't have a selected() signal. However, the scene (this) has a selectionChanged() signal.
-		connect(this, SIGNAL(selectionChanged()), newSeries, SLOT(onSceneSelectionChanged()));
+		// We need to listen for selectedChanged() signals from all of our series, to tell 
+		// the other plots to deselect when a new one is selected.
+		connect(newSeries, SIGNAL(selected()), this, SLOT(onSeriesSelected()));
 	}
 	
 	// Remove a series from a plot:
@@ -80,7 +81,6 @@ public:
 			this->removeItem(removeMe);
 			series_.removeAll(removeMe);
 			disconnect(removeMe, 0, this, 0);
-			disconnect(this, 0, removeMe, 0);
 			return true;
 		}
 		else
@@ -212,6 +212,22 @@ protected slots:
 		   we could just subtract this series bounds (nope.. it's changed... don't have old) and |= on the new one.
 		 */
 	}
+	
+	// this is called when a series signals to us that it's been selected.  We go through and unselect all other series.
+	void onSeriesSelected() {
+		foreach(MPlotSeries* s, series_) {
+			if(s != sender())
+				s->setSelected(false);
+		}
+	}
+	
+	// This is called when the background is clicked... In this case we want to deselect all series:
+	void onBackgroundPressed() {
+		foreach(MPlotSeries* s, series_) {
+			s->setSelected(false);
+		}
+	}
+	
 protected:
 	// Members:
 	MPlotLegend* legend_;
@@ -222,7 +238,7 @@ protected:
 	
 	double margins_[9];			// We only use [1], [2], [4], and [8]...
 	
-	QGraphicsRectItem* background_;
+	MPlotBackground* background_;
 	QGraphicsRectItem* plotArea_;
 	
 	bool autoScaleBottomEnabled_;

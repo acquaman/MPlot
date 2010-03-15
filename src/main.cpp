@@ -111,7 +111,7 @@
 	 // 6. Adding a series to a plot:
 	 ///////////////////////////////
 	 plot.addSeries(&series1);
-	 //plot.addSeries(&series2);
+	 plot.addSeries(&series2);
 	 
 	 // 2. (continued) Axis / Axis Scale Settings
 	 ///////////////////////
