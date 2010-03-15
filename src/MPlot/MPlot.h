@@ -65,9 +65,13 @@ public:
 		newSeries->setParentItem(plotArea_);
 		series_ << newSeries;
 		
-		connect(newSeries, SIGNAL(dataChanged(MPlotSeries*)), this, SLOT(handleDataChanged(MPlotSeries*)));
+		connect(newSeries, SIGNAL(dataChanged(MPlotSeries*)), this, SLOT(onDataChanged(MPlotSeries*)));
 		// Possible optimization: only connect series to this slot when continuous autoscaling is enabled.
 		// That way non-autoscaling plots don't fire in a bunch of non-required signals.
+		
+		// Somehow we have to propagate a "selected()" signal to the plots series. 
+		// Unfortunately QGraphicsItems don't have a selected() signal. However, the scene (this) has a selectionChanged() signal.
+		connect(this, SIGNAL(selectionChanged()), newSeries, SLOT(onSceneSelectionChanged()));
 	}
 	
 	// Remove a series from a plot:
@@ -76,6 +80,7 @@ public:
 			this->removeItem(removeMe);
 			series_.removeAll(removeMe);
 			disconnect(removeMe, 0, this, 0);
+			disconnect(this, 0, removeMe, 0);
 			return true;
 		}
 		else
@@ -181,7 +186,7 @@ public:
 protected slots:
 	
 	// This is called when a series updates it's data.  We may have to autoscale/rescale:
-	void handleDataChanged(MPlotSeries* series) {
+	void onDataChanged(MPlotSeries* series) {
 		
 		if(autoScaleBottomEnabled_)
 			setXDataRangeImp(0, 0, true);

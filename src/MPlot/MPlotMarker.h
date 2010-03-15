@@ -46,6 +46,7 @@ class MPlotMarkerSquare : public MPlotAbstractMarker {
 public:
 	MPlotMarkerSquare(QGraphicsItem * parent = 0 , double size = 6) : MPlotAbstractMarker(parent), marker_(QRectF(-size/2, -size/2, size, size), this) {
 		setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+		setFlag(QGraphicsItem::ItemHasNoContents, true);// all painting done by children
 	}
 	
 	virtual void setSize(double width) {
@@ -78,6 +79,7 @@ class MPlotMarkerCircle : public MPlotAbstractMarker {
 public:	
 	MPlotMarkerCircle(QGraphicsItem * parent = 0 , double size = 6) : MPlotAbstractMarker(parent), marker_(QRectF(-size/2, -size/2, size, size), this) {
 		setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+		setFlag(QGraphicsItem::ItemHasNoContents, true);// all painting done by children
 	}
 	
 	virtual void setSize(double width) {
@@ -109,6 +111,7 @@ class MPlotMarkerTriangle : public MPlotAbstractMarker {
 public:	
 	MPlotMarkerTriangle(QGraphicsItem * parent = 0 , double size = 6 ) : MPlotAbstractMarker(parent), marker_(this) {
 		setFlag(QGraphicsItem::ItemIgnoresTransformations, true); 
+		setFlag(QGraphicsItem::ItemHasNoContents, true);// all painting done by children
 		setSize(size);
 	}
 	
@@ -145,6 +148,7 @@ class MPlotMarkerVerticalBeam : public MPlotAbstractMarker {
 public:
 	MPlotMarkerVerticalBeam(QGraphicsItem * parent = 0 , double size = 6) : MPlotAbstractMarker(parent), marker_(0, size/2, 0, -size/2, this) {
 		setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+		setFlag(QGraphicsItem::ItemHasNoContents, true);// all painting done by children
 	}
 	
 	virtual void setSize(double size) {
@@ -245,6 +249,7 @@ class MPlotMarkerText : public MPlotAbstractMarker {
 public:
 	MPlotMarkerText(const QString& text, QGraphicsItem* parent = 0, double size = 12) : MPlotAbstractMarker(parent), marker_(text, this), font_("Helvetica", size) {
 		setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+		setFlag(QGraphicsItem::ItemHasNoContents, true);// all painting done by children
 		setSize(size);		
 	}
 	
@@ -279,6 +284,7 @@ class MPlotMarkerCombined : public MPlotAbstractMarker {
 public:
 	MPlotMarkerCombined(int shapeCode, QGraphicsItem* parent = 0, double size = 6) : MPlotAbstractMarker(parent) {
 		setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+		setFlag(QGraphicsItem::ItemHasNoContents, true);// all painting done by children
 		
 
 		if(shapeCode & MPlotMarkerShape::Square) {

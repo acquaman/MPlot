@@ -6,10 +6,22 @@
 #include <QQueue>
 #include <QPen>
 #include <QBrush>
+#include <QPainterPath>
+#include <QPainter>
+#include <QGraphicsSceneMouseEvent>
 #include "MPlotMarker.h"
 #include "MPlotAxis.h"
 #include "MPlotSeriesData.h"
 
+#include <QDebug>
+
+#define MPLOT_DESELECTED_OPACITY 0.25
+#define MPLOT_SELECTED_OPACITY 1.0
+
+// When selecting lines on plots with the mouse, this is how wide the selection region is (split equally on either side of the line)
+#define MPLOT_SELECTION_WIDTH 10
+
+#define MPLOT_SELECTION_COLOR QColor(255, 210, 129)
 
 // TODO:
 // Put markers on top of plot lines...
@@ -18,13 +30,16 @@
 class MPlotSeries : public QGraphicsObject {
 	
 	Q_OBJECT
+	
+	Q_PROPERTY(bool selected READ isSelected WRITE setSelected NOTIFY selectedChanged)
 
 public:
 	
 	MPlotSeries(const MPlotSeriesData* data = 0, QGraphicsItem* parent = 0) : QGraphicsObject(parent) {
 		
 		data_ = 0;
-		// setFlag(QGraphicsItem::ItemIsSelectable, true);	// TODO: figure this out
+		setFlag(QGraphicsItem::ItemIsSelectable, false);	// We're implementing our own selection mechanism... ignoring QGraphicsView's selection system.
+		//setFlag(QGraphicsItem::ItemHasNoContents, true);// all painting done by children
 		
 		// Set style defaults:
 		setDefaults();
@@ -32,14 +47,34 @@ public:
 		// Set model (will check that data != 0)
 		setModel(data);
 		
+		isSelected_ = false;
+		
 	}
 	
 	
 	
-	// Properties:
-	void setLinePen(const QPen& pen) { linePen_ = pen; linePen_.setCosmetic(true); placeAllLines(); }
-	void setMarkerPen(const QPen& pen) { markerPen_ = pen; markerPen_.setCosmetic(true); placeAllMarkers(); }
-	void setMarkerBrush(const QBrush& brush) { markerBrush_ = brush; placeAllMarkers(); }
+	// Properties:	
+	void setLinePen(const QPen& pen) { 
+		linePen_ = pen; 
+		linePen_.setCosmetic(true); 
+		foreach(QGraphicsLineItem* line, lines_) {
+			line->setPen(linePen_);
+		}
+	}
+	void setMarkerPen(const QPen& pen) { 
+		markerPen_ = pen; 
+		markerPen_.setCosmetic(true);
+		foreach(MPlotAbstractMarker* marker, markers_) {
+			marker->setPen(markerPen_);
+		}
+	}
+		
+	void setMarkerBrush(const QBrush& brush) { 
+		markerBrush_ = brush; 
+		foreach(MPlotAbstractMarker* marker, markers_) {
+			marker->setBrush(markerBrush_);
+		}
+	}
 	void setMarkerShape(MPlotMarkerShape::Shape shape) {
 		markerShape_ = shape; 
 		if(data_) {
@@ -100,9 +135,9 @@ public:
 		placeAllMarkers();
 		
 		// Connect model signals to slots: rowsInserted(), rowsRemoved(), dataChanged()
-		connect(data_, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SLOT(handleRowsInserted( const QModelIndex &, int, int )));
-		connect(data_, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SLOT(handleRowsRemoved( const QModelIndex &, int, int )));
-		connect(data_, SIGNAL(dataChanged( const QModelIndex &, const QModelIndex & )), this, SLOT(handleDataChanged( const QModelIndex &, const QModelIndex & )));
+		connect(data_, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SLOT(onRowsInserted( const QModelIndex &, int, int )));
+		connect(data_, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SLOT(onRowsRemoved( const QModelIndex &, int, int )));
+		connect(data_, SIGNAL(dataChanged( const QModelIndex &, const QModelIndex & )), this, SLOT(onDataChanged( const QModelIndex &, const QModelIndex & )));
 		
 		emit dataChanged(this);
 	}
@@ -113,19 +148,111 @@ public:
 	// Bounding rect: reported in our PlotSeries coordinates, which are just the actual data coordinates.
 	virtual QRectF boundingRect() const { if(data_) return data_->boundingRect(); else return QRectF(); }
 	// Paint:
-	virtual void paint(QPainter* /*painter*/,
+	virtual void paint(QPainter* painter,
 					   const QStyleOptionGraphicsItem* /*option*/,
 					   QWidget* /*widget*/) {
 		// Do nothing... drawn with children
+		
+		// Temporary: draw shape
+		
+		if(isSelected_) {
+			QPen pen = QPen(QBrush(MPLOT_SELECTION_COLOR), MPLOT_SELECTION_WIDTH);
+			pen.setCosmetic(true);
+			painter->setPen(pen);
+			painter->drawPath(shape());
+		}
+	}
+	
+	/*
+	QTransform firstDeviceTransform() {
+		if(scene()->views().count() > 0)
+			return deviceTransform(scene()->views().at(0)->viewportTransform());
+		else
+			return QTransform();
+	}*/
+	
+	virtual bool contains ( const QPointF & point ) const {
+		QPainterPath circleAroundPoint;
+		circleAroundPoint.addEllipse(point, 0.1, 0.1);
+		return shape().intersects(circleAroundPoint);
+	}
+	
+	
+	virtual QPainterPath shape() const {
+		// Returns a shape consisting of the shapes of the markers, and all the lines plus 5 pixels on either side (for easy selection)
+		// todo: should this be optimized? Change when adding points, not every time it's called?
+		
+		
+		// Add the lines:
+		/*
+		// QPainterPathStroker stroker;  Can't use this because of different scaling in x/y. How do we set the line width? (horz., vert. lines)
+		stroker.setWidth(linePen_.width()+100);
+		QPainterPath linePath;
+		
+		// TODO: this is yucky
+		QTransform dt = firstDeviceTransform();
+		QRectF r(0, 0, 1, 1);
+		double xoff = MPLOT_SELECTION_WIDTH
+		 */
+		
+		
+		/////// Attempt 2
+		/*
+		QPainterPath shape; // clear the old path		
+		
+		double xoff = 0.1;
+		double yoff = 0.1;
+		
+		QPainterPath linePath1, linePath2;
+		if(data_ && data_->count() > 0) {
+			linePath1.moveTo(data_->x(0), data_->y(0));
+			for(int i=0; i<data_->count(); i++)
+				linePath1.lineTo(data_->x(i)+xoff, data_->y(i)+yoff);
+			for(int i=data_->count()-1; i>=0; i--)
+				linePath1.lineTo(data_->x(i)-xoff, data_->y(i)-yoff);
+			linePath1.lineTo(data_->x(0), data_->y(0));	// now a closed path
+			
+			linePath2.moveTo(data_->x(0), data_->y(0));
+			for(int i=0; i<data_->count(); i++)
+				linePath2.lineTo(data_->x(i)+xoff, data_->y(i)-yoff);
+			for(int i=data_->count()-1; i>=0; i--)
+				linePath2.lineTo(data_->x(i)-xoff, data_->y(i)+yoff);
+			linePath2.lineTo(data_->x(0), data_->y(0));	// now a closed path
+		}
+		shape.addPath(linePath1 + linePath2);
+		*/
+		
+		
+		QPainterPath shape;
+		if(data_ && data_->count() > 0) {
+			shape.moveTo(data_->x(0), data_->y(0));
+			for(int i=0; i<data_->count(); i++)
+				shape.lineTo(data_->x(i), data_->y(i));
+			for(int i=data_->count()-1; i>=0; i--)
+				shape.lineTo(data_->x(i), data_->y(i));
+		}
+
+		
+		
+		
+		// Add the markers:
+		// This doesn't work because the ItemIgnoresTranformations is set, so the dimensions are too big/small to add directly.
+		//foreach(MPlotAbstractMarker* marker, markers_) {
+		//	shape.addPath(marker->shape());
+		//}
+		
+		return shape;
+		
 	}
 	
 
 signals:
 	
 	void dataChanged(MPlotSeries* series);	// listen to this if you want to auto-scale on changes.
+	void selectedChanged(bool);	// emitted when the plot series is selected/deselected by the mouse.
 	
 protected slots:
-	void handleRowsInserted( const QModelIndex & /*parent*/, int start, int end ) {
+	void onRowsInserted( const QModelIndex & /*parent*/, int start, int end ) {
 		
 		// This signal should only be delivered by a valid data_ model:
 		
@@ -175,7 +302,7 @@ protected slots:
 
 	}
 	
-	void handleRowsRemoved ( const QModelIndex & /*parent*/, int start, int end ) {
+	void onRowsRemoved ( const QModelIndex & /*parent*/, int start, int end ) {
 		
 		// This signal should only be delivered by a valid data_ model:
 		
@@ -206,7 +333,10 @@ protected slots:
 		emit dataChanged(this);
 	}
 	
-	void handleDataChanged( const QModelIndex & topLeft, const QModelIndex & bottomRight ) {
+	void onDataChanged( const QModelIndex & topLeft, const QModelIndex & bottomRight ) {
+		
+		// todo: necessary?
+		prepareGeometryChange();
 		
 		// This signal should only be delivered by a valid data_ model:
 		for(int i = topLeft.row(); i <= bottomRight.row(); i++) {
@@ -219,6 +349,22 @@ protected slots:
 		emit dataChanged(this);
 	}
 	
+	// This detects changes in the selection state of this plotseries, and emits selectedChanged(bool) as appropriate
+	void onSceneSelectionChanged() {
+		if(isSelected()) {
+			if(!isSelected_) {
+				emit selectedChanged(isSelected_ = true);
+				qDebug() << this->objectName() << "was selected";
+			}
+		}
+		else {	// currently deselected
+			if(isSelected_) {	// but was previously selected
+				emit selectedChanged(isSelected_ = false);
+				qDebug() << this->objectName() << "was deselected";
+			}
+		}
+	}
+	
 protected:
 	QPen linePen_, markerPen_;
 	QBrush markerBrush_;
@@ -228,6 +374,10 @@ protected:
 	const MPlotSeriesData* data_;
 	QQueue<MPlotAbstractMarker*> markers_;
 	QQueue<QGraphicsLineItem*> lines_;
+	
+	//mutable QPainterPath shape_;
+	
+	bool isSelected_;	// required to detect transitions from selected to unselected and vice versa
 	
 	MPlotAxis::AxisID yAxisTarget_;
 	
@@ -253,7 +403,10 @@ protected:
 		
 		// create additional markers:
 		while(markers_.count() < num) {
-			markers_ << MPlotMarker::create(markerShape_, this, markerSize_);
+			MPlotAbstractMarker* marker = MPlotMarker::create(markerShape_, this, markerSize_);
+			marker->setBrush(markerBrush_);
+			marker->setPen(markerPen_);
+			markers_ << marker;
 		}
 	}
 	
@@ -265,10 +418,6 @@ protected:
 		
 		for(int i=0; i<data_->count(); i++) {
 			markers_[i]->setPos(data_->x(i), data_->y(i));
-			// TODO: optimize this. Need to do this every time we place?
-			markers_[i]->setPen(markerPen_);
-			markers_[i]->setBrush(markerBrush_);
-
 		}
 		
 	}
@@ -282,7 +431,9 @@ protected:
 		
 		// create additional lines:
 		while(lines_.count() < num) {
-			lines_ << new QGraphicsLineItem(this);
+			QGraphicsLineItem* line = new QGraphicsLineItem(this);
+			line->setPen(linePen_);
+			lines_ << line;
 		}
 	}
 	
@@ -293,8 +444,15 @@ protected:
 		
 		for(int i=1; i<data_->count(); i++) {
 			lines_[i-1]->setLine(data_->x(i-1), data_->y(i-1), data_->x(i), data_->y(i));
-			lines_[i-1]->setPen(linePen_);
 		}
+	}
+	
+	virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
+		qDebug() << objectName() << "press event... in bounding box";
+		if( contains(event->pos()) )
+		   qDebug() << objectName() << "   inside shape";
+		   
+		QGraphicsItem::mousePressEvent(event);
 	}
 
 };

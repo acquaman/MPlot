@@ -13,8 +13,8 @@ public:
 		
 		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-		// TODO: research this: 
-		setDragMode(QGraphicsView::RubberBandDrag);
+		// TODO: research this:
+		//setDragMode(QGraphicsView::RubberBandDrag);
 		
 		setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 	}

@@ -78,6 +78,8 @@
 	 // 4.  View the data.  A basic scatter/line plot is an MPlotSeries:
 	 ////////////////////////////////////////////////////
 	 MPlotSeries series1, series2;
+	 series1.setObjectName("series1");
+	 series2.setObjectName("series2");
 	 
 	 // Enable to plot on the right axis instead of the left axis
 	 // series1.setYAxisTarget(MPlotAxis::Right);
@@ -109,7 +111,7 @@
 	 // 6. Adding a series to a plot:
 	 ///////////////////////////////
 	 plot.addSeries(&series1);
-	 plot.addSeries(&series2);
+	 //plot.addSeries(&series2);
 	 
 	 // 2. (continued) Axis / Axis Scale Settings
 	 ///////////////////////
@@ -118,15 +120,15 @@
 	 plot.setScalePadding(5);	// set axis scale padding in percent
 
 	 // Manual axis range:
-	 plot.setXDataRange(-1, 1);		// Manually set the axis range
-	 plot.setYDataRangeLeft(0, 0.5);
+	 plot.setXDataRange(-1.5, 1.5);		// Manually set the axis range
+	 plot.setYDataRangeLeft(-0.5, 0.5);
 	 
 	 // To auto-scale once only (using the current data):
 	 // plot.setXDataRange(0, 0, true);
 	 // plot.setYDataRangeLeft(0, 0, true);
 	 
 	 // Auto-scale always (ie: rescale as new data arrives)
-	 plot.enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+	 // plot.enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
 	 
 	 // 7. Testing adding points to the series after the series is created.
 	 //////////////////////////////////////
@@ -159,9 +161,15 @@
 	series1.setMarkerSize(6);
 	series1.setMarkerShape(MPlotMarkerShape::Cross);
 	 
+	 // 11. Enable, disable, and selection?
+	 /////////////////////////////
+	// series2.setEnabled(true);
+	// series2.setSelected(true);
+	 
 	 // 10. Printing:
 	 ////////////////////
 	 
+	 /*
 	 QPrinter printer;
 	 printer.setOrientation(QPrinter::Landscape);
 	 if (QPrintDialog(&printer).exec() == QDialog::Accepted) {
@@ -169,7 +177,7 @@
 		 painter.setRenderHint(QPainter::Antialiasing);
 		 plot.render(&painter);
 	 } // Print this to a PDF to see vector-graphics export.  Wow that was easy!
-
+	  */
 	 
 	 /* PNG export:
 	 QPixmap pixmap;
