@@ -8,22 +8,15 @@
 #include <QBrush>
 #include <QPainterPath>
 #include <QPainter>
-#include <QGraphicsSceneMouseEvent>
-#include <QGraphicsView>
-#include <QGraphicsScene>
+//#include <QGraphicsSceneMouseEvent>
+//#include <QGraphicsView>
+//#include <QGraphicsScene>
 #include "MPlotMarker.h"
 #include "MPlotAxis.h"
 #include "MPlotSeriesData.h"
 
 #include <QDebug>
 
-#define MPLOT_DESELECTED_OPACITY 0.25
-#define MPLOT_SELECTED_OPACITY 1.0
-
-// When selecting lines on plots with the mouse, this is how wide the selection region is (split equally on either side of the line)
-#define MPLOT_SELECTION_WIDTH 10
-
-#define MPLOT_SELECTION_COLOR QColor(255, 210, 129)
 
 // TODO:
 // Put markers on top of plot lines...
@@ -41,15 +34,13 @@ public:
 		
 		data_ = 0;
 		setFlag(QGraphicsItem::ItemIsSelectable, false);	// We're implementing our own selection mechanism... ignoring QGraphicsView's selection system.
-		//setFlag(QGraphicsItem::ItemHasNoContents, true);// all painting done by children
+		setFlag(QGraphicsItem::ItemHasNoContents, true);// all painting done by children
 		
 		// Set style defaults:
 		setDefaults();
 		
 		// Set model (will check that data != 0)
 		setModel(data);
-		
-		wasSelected_ = false;
 		
 	}
 	
@@ -150,41 +141,15 @@ public:
 	// Bounding rect: reported in our PlotSeries coordinates, which are just the actual data coordinates.
 	virtual QRectF boundingRect() const { if(data_) return data_->boundingRect(); else return QRectF(); }
 	// Paint:
-	virtual void paint(QPainter* painter,
+	virtual void paint(QPainter* /*painter*/,
 					   const QStyleOptionGraphicsItem* /*option*/,
 					   QWidget* /*widget*/) {
 		// Do nothing... drawn with children
-		
-		// Highlight if selected:
-		
-		if(isSelected()) {
-			QPen pen = QPen(QBrush(MPLOT_SELECTION_COLOR), MPLOT_SELECTION_WIDTH);
-			pen.setCosmetic(true);
-			painter->setPen(pen);
-			painter->drawPath(shape());
-		}
 	}
 	
-	
-	QTransform firstDeviceTransform() const {
-		if(scene()->views().count() > 0)
-			return deviceTransform(scene()->views().at(0)->viewportTransform());
-		else
-			return QTransform();
-	}
-	
-	virtual bool isSelected() { return wasSelected_; }
-	
-	virtual void setSelected(bool isSelected = true) {
-		if(wasSelected_ = isSelected)
-			emit selected();
-		else
-			emit unselected();
-		
-		// schedule a redraw, to draw/not-draw the highlight:
-		update();
-	}
-	
+	// This is the "sloppy" contains() used for selection in a view/scene.  It returns true if the selected point is within MPLOT_SELECTION_WIDTH
+	// of the plot
+	/* SCHEDULE FOR DELETION
 	virtual bool contains ( const QPointF & point ) const {
 		QPainterPath circleAroundPoint;
 		QTransform dt = firstDeviceTransform();
@@ -192,7 +157,7 @@ public:
 		circleAroundPoint.addEllipse(point, MPLOT_SELECTION_WIDTH/dt.m11(), MPLOT_SELECTION_WIDTH/dt.m22());
 		
 		return circleAroundPoint.intersects(shape());
-	}
+	}*/
 	
 	
 	virtual QPainterPath shape() const {
@@ -230,8 +195,6 @@ public:
 signals:
 	
 	void dataChanged(MPlotSeries* series);	// listen to this if you want to auto-scale on changes.
-	void selected();	// emitted when the plot series is selected by mouse.
-	void unselected();  // emitted when the plot series is unselected (ie: setSelected(false); )
 	
 protected slots:
 	void onRowsInserted( const QModelIndex & /*parent*/, int start, int end ) {
@@ -344,8 +307,6 @@ protected:
 	
 	//mutable QPainterPath shape_;
 	
-	bool wasSelected_;	// required to detect transitions from selected to unselected and vice versa
-	
 	MPlotAxis::AxisID yAxisTarget_;
 	
 	void setDefaults() {
@@ -415,6 +376,7 @@ protected:
 	}
 	
 	// This is used to detect selection/unselection
+	/* scheduled for deletion:
 	virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
 		qDebug() << objectName() << "press event... in bounding box";
 		
@@ -428,6 +390,7 @@ protected:
 		else	// propagate the event like normal.
 			QGraphicsItem::mousePressEvent(event);
 	}
+	 */
 
 };
 
