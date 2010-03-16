@@ -32,9 +32,7 @@ public:
 		// Create background rectangle:
 		background_ = new MPlotBackground(sceneRect(), 0);	// no parent.
 		this->addItem(background_);	// background added first... on the bottom.
-		
-		// SCHEUDLE FOR DELETION: connect(background_, SIGNAL(backgroundPressed()), this, SLOT(onBackgroundPressed()));
-		
+				
 		// Create plot area rectangle.  All plot items will be children of plotArea_
 		plotArea_ = new MPlotBackground(QRectF(0, 0, 1, 1), 0);		// The plotArea_ has local coordinates from (0,0) to (1,1), transformed appropriately 
 		plotArea_->setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
@@ -306,16 +304,16 @@ protected:
 	void placeAxes() {
 		
 		axes_[MPlotAxis::Bottom]->setPos( plotAreaSceneCoord().bottomLeft() );
-		axes_[MPlotAxis::Bottom]->setExtent(plotAreaSceneCoord().width());
+		axes_[MPlotAxis::Bottom]->setExtent(plotAreaSceneCoord().width(), plotAreaSceneCoord().height());
 		
 		axes_[MPlotAxis::Top]->setPos( plotAreaSceneCoord().topLeft());
-		axes_[MPlotAxis::Top]->setExtent(plotAreaSceneCoord().width());
+		axes_[MPlotAxis::Top]->setExtent(plotAreaSceneCoord().width(), plotAreaSceneCoord().height());
 		
 		axes_[MPlotAxis::Left]->setPos( plotAreaSceneCoord().bottomLeft() );
-		axes_[MPlotAxis::Left]->setExtent(plotAreaSceneCoord().height());
+		axes_[MPlotAxis::Left]->setExtent(plotAreaSceneCoord().height(), plotAreaSceneCoord().width());
 		
 		axes_[MPlotAxis::Right]->setPos( plotAreaSceneCoord().bottomRight() );
-		axes_[MPlotAxis::Right]->setExtent(plotAreaSceneCoord().height());
+		axes_[MPlotAxis::Right]->setExtent(plotAreaSceneCoord().height(), plotAreaSceneCoord().width());
 		
 	}
 	

@@ -33,7 +33,8 @@
 	 //plot.axisBottom()->setTickPen(QPen(QBrush(QColor(Qt::red)), 0));
 	 //plot.axisLeft()->setTickPen(QPen(QBrush(QColor(Qt::green)), 0));
 	 //plot.axisRight()->setTickPen(QPen(QBrush(QColor(Qt::blue)), 0));
-	 plot.axisRight()->setTicks(3, MPlotAxis::Inside);	// Set the approximate number and style of axis tick marks:
+	 plot.axisRight()->setTicks(3, MPlotAxis::Inside, 2);	// Set the approximate number and style of axis tick marks:
+
 	 
 	 // Change the margins: (in % of the plot width/height)
 	 plot.setMarginTop(5);
@@ -107,6 +108,10 @@
 	 series2.setMarkerPen(pinkSkinny);
 	 series2.setMarkerBrush(QBrush(QColor(Qt::black)));
 	 
+	 // Gridlines:
+	 plot.axisRight()->showGrid(true);
+	 plot.axisRight()->setGridPen(greenFat);
+	 
 	 
 	 // 6. Adding a series to a plot:
 	 ///////////////////////////////
@@ -128,7 +133,7 @@
 	 // plot.setYDataRangeLeft(0, 0, true);
 	 
 	 // Auto-scale always (ie: rescale as new data arrives)
-	 // plot.enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+	 plot.enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
 	 
 	 // 7. Testing adding points to the series after the series is created.
 	 //////////////////////////////////////

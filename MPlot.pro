@@ -12,7 +12,6 @@ HEADERS += src/MPlot/MPlotWindow.h \
            src/MPlot/MPlotAxis.h \
            src/MPlot/MPlotBackground.h \
            src/MPlot/MPlot.h \
-           src/MPlot/MPlotGrid.h \
            src/MPlot/MPlotLegend.h \
            src/MPlot/MPlotMarker.h \
            src/MPlot/MPlotSeries.h \

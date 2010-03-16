@@ -33,6 +33,8 @@ public:
 		extraTick_->setVisible(false);
 		extraLabel_ = new QGraphicsSimpleTextItem(this);
 		extraLabel_->setVisible(false);
+		extraGrid_ = new QGraphicsLineItem(this);
+		extraGrid_->setVisible(false);
 		
 		
 		// Create the tick marks:
@@ -50,6 +52,7 @@ public:
 		delete mainLine_;
 		delete extraTick_;
 		delete extraLabel_;
+		delete extraGrid_;
 	}
 	
 	// Set the range (in data values)
@@ -62,12 +65,15 @@ public:
 	}
 		
 	// Set the number and style of ticks:
-	void setTicks(int num, TickStyle tstyle = Outside) {
+		// tStyle can be Inside, Outside, or Middle.  tickLength is in logical coordinates ("percent of plot") coordinates.
+	void setTicks(int num, TickStyle tstyle = Outside, double tickLength = 2) {
 		
 		if(num != ticks_.count()) {
 			createTicks(num);
 		}
 		tickStyle_ = tstyle;
+		tickLength_ = tickLength;
+		scTickLength_ = tickLength_*scWidth_/100.0;
 		placeAxis();
 	}
 	
@@ -80,12 +86,15 @@ public:
 	// TODO: access font, labelOffset, etc.
 	
 	// Set the scene-coordinate-system length of the axis (needed to redraw when the size of the scene changes )
-	void setExtent(double sceneCoordLength) { scLength_ = sceneCoordLength; placeAxis(); }
+	
+	void setExtent(double sceneCoordLength, double sceneCoordWidth) { scLength_ = sceneCoordLength; scWidth_ = sceneCoordWidth; scTickLength_ = tickLength_*scWidth_/100.0; placeAxis(); }
 	void showTickLabels(bool valuesOn) { tickLabelsVisible_ = valuesOn;  placeAxis(); }
+	void showGrid(bool gridOn) { gridVisible_ = gridOn; placeAxis(); }
 	
 	// Set the pen for the axis line:
 	void setAxisPen(const QPen& pen) { axisPen_ = pen; axisPen_.setCosmetic(true); mainLine_->setPen(axisPen_); }
-	void setTickPen(const QPen& pen) { tickPen_ = pen; tickPen_.setCosmetic(true); foreach(QGraphicsLineItem* tick, ticks_) tick->setPen(tickPen_); }
+	void setTickPen(const QPen& pen) { tickPen_ = pen; tickPen_.setCosmetic(true); foreach(QGraphicsLineItem* tick, ticks_) tick->setPen(tickPen_); extraTick_->setPen(tickPen_); }
+	void setGridPen(const QPen& pen) { gridPen_ = pen; gridPen_.setCosmetic(true); foreach(QGraphicsLineItem* grid, grids_) grid->setPen(gridPen_); extraGrid_->setPen(gridPen_); }
 	// TODO: minor ticks
 	
 	// Required functions:
@@ -111,23 +120,25 @@ protected:
 	
 	AxisID type_;
 	TickStyle tickStyle_;
-	double tickLength_;
+	
+	// logical (% of plot) and scene-coordinate tick lengths:
+	double tickLength_, scTickLength_;
 	double tickLabelOffset_;
-	bool tickLabelsVisible_;
+	bool tickLabelsVisible_, gridVisible_;
 	
 	QString name_;
 		
-	double scLength_;
+	double scLength_, scWidth_;
 	
-	QPen axisPen_, tickPen_;
+	QPen axisPen_, tickPen_, gridPen_;
 	QFont tickLabelFont_, labelFont_;
 	
 	// Actual tick values:
 	double minTickVal_, tickIncVal_;
 	
 	// Objects:
-	QGraphicsLineItem* mainLine_, *extraTick_;
-	QList<QGraphicsLineItem*> ticks_;
+	QGraphicsLineItem* mainLine_, *extraTick_, *extraGrid_;
+	QList<QGraphicsLineItem*> ticks_, grids_;
 	QList<QGraphicsSimpleTextItem*> labels_;
 	QGraphicsSimpleTextItem* extraLabel_;
 	
@@ -145,7 +156,7 @@ protected:
 		double scIncrement = tickIncVal_ * scPerDC;
 		double scStart = (minTickVal_ - min_) * scPerDC;		
 		
-		QLineF tickLine;
+		QLineF tickLine, gridLine;
 		QPointF scIncP, scStartP;
 		
 		// Handle differences between vertical and horizontal axes:
@@ -154,18 +165,22 @@ protected:
 			scIncP = QPointF(0, -scIncrement);
 			scStartP = QPointF(0, -scStart);
 			
-			if(type_ == Left)
+			if(type_ == Left) {
 				switch(tickStyle_) {
-					case Outside: tickLine.setLine(-tickLength_, 0, 0, 0); break;
-					case Inside: tickLine.setLine(tickLength_, 0, 0, 0); break;
-					case Middle: tickLine.setLine(-tickLength_/2, 0, tickLength_/2, 0); break;
+					case Outside: tickLine.setLine(-scTickLength_, 0, 0, 0); break;
+					case Inside: tickLine.setLine(scTickLength_, 0, 0, 0); break;
+					case Middle: tickLine.setLine(-scTickLength_/2, 0, scTickLength_/2, 0); break;
 				}
-			else
+				gridLine.setLine(scWidth_, 0, 0, 0);
+			}
+			else {
 				switch(tickStyle_) {
-					case Outside: tickLine.setLine(tickLength_, 0, 0, 0); break;
-					case Inside: tickLine.setLine(-tickLength_, 0, 0, 0); break;
-					case Middle: tickLine.setLine(-tickLength_/2, 0, tickLength_/2, 0); break;
+					case Outside: tickLine.setLine(scTickLength_, 0, 0, 0); break;
+					case Inside: tickLine.setLine(-scTickLength_, 0, 0, 0); break;
+					case Middle: tickLine.setLine(-scTickLength_/2, 0, scTickLength_/2, 0); break;
 				}
+				gridLine.setLine(-scWidth_, 0, 0, 0);
+			}
 		}
 		
 		// Same for horizontal axes (increment is horizontal, tickline is vertical)
@@ -174,18 +189,22 @@ protected:
 			scIncP = QPointF(scIncrement, 0);
 			scStartP = QPointF(scStart, 0);
 			
-			if(type_ == Bottom)
+			if(type_ == Bottom) {
 				switch(tickStyle_) {
-					case Outside: default: tickLine.setLine(0, tickLength_, 0, 0); break;
-					case Inside: tickLine.setLine(0, -tickLength_, 0, 0); break;
-					case Middle: tickLine.setLine(0, tickLength_/2, 0, -tickLength_/2); break;
+					case Outside: default: tickLine.setLine(0, scTickLength_, 0, 0); break;
+					case Inside: tickLine.setLine(0, -scTickLength_, 0, 0); break;
+					case Middle: tickLine.setLine(0, scTickLength_/2, 0, -scTickLength_/2); break;
 				}
-			else
+				gridLine.setLine(0, -scWidth_, 0, 0);
+			}
+			else {
 				switch(tickStyle_) {
-					case Outside: default: tickLine.setLine(0, -tickLength_, 0, 0); break;
-					case Inside: tickLine.setLine(0, +tickLength_, 0, 0); break;
-					case Middle: tickLine.setLine(0, tickLength_/2, 0, -tickLength_/2); break;
+					case Outside: default: tickLine.setLine(0, -scTickLength_, 0, 0); break;
+					case Inside: tickLine.setLine(0, +scTickLength_, 0, 0); break;
+					case Middle: tickLine.setLine(0, scTickLength_/2, 0, -scTickLength_/2); break;
 				}
+				gridLine.setLine(0, scWidth_, 0, 0);
+			}
 		}
 		
 		// Place all the ticks along the axis:
@@ -200,7 +219,18 @@ protected:
 				placeLabel(labels_[i], minTickVal_ + i*tickIncVal_, (scStartP + i*scIncP) );
 			}
 			else {
-				labels_[i]->setVisible(false);
+				labels_[i]->setVisible(false);	// todo: necessary?
+			}
+			
+			// Place grids:
+			if(gridVisible_) {
+				grids_[i]->setPen(gridPen_); 
+				grids_[i]->setLine(gridLine);
+				grids_[i]->setPos(scStartP + i*scIncP);
+				grids_[i]->setVisible(true);
+			}
+			else {
+				grids_[i]->setVisible(false);	// todo: necessary?
 			}
 		}
 		
@@ -215,10 +245,22 @@ protected:
 				placeLabel(extraLabel_, minTickVal_ + ticks_.count()*tickIncVal_, scStartP + ticks_.count()*scIncP);
 			else
 				extraLabel_->setVisible(false);
+			
+			if(gridVisible_) {
+				extraGrid_->setPen(gridPen_);
+				extraGrid_->setLine(gridLine);
+				extraGrid_->setPos(scStartP + ticks_.count()*scIncP);
+				extraGrid_->setVisible(true);
+			}
+			else
+				extraGrid_->setVisible(false);
 		}
+		
+		// no room for extra tick
 		else {
 			extraTick_->setVisible(false);
 			extraLabel_->setVisible(false);
+			extraGrid_->setVisible(false);
 		}
 	}
 	
@@ -248,14 +290,16 @@ protected:
 		
 		// remove extra ticks
 		while(ticks_.count() > num) {
-				delete ticks_.takeFirst();
-				delete labels_.takeFirst();
+			delete ticks_.takeFirst();
+			delete labels_.takeFirst();
+			delete grids_.takeFirst();
 		}
 		
 		// create additional ticks:
 		while(ticks_.count() < num) {
 			ticks_ << new QGraphicsLineItem(this);
 			labels_ << new QGraphicsSimpleTextItem(this);
+			grids_ << new QGraphicsLineItem(this);
 		}
 	}
 	
@@ -272,7 +316,7 @@ protected:
 			tickIncVal_  = trunc( (max_/norm-minTickVal_)/(numTicks()-1) );
 
 			
-			// Hit Zero if possible:
+			// Hit Zero if possible: (while passing through origin)
 			if(min_ < 0 && max_ > 0) {
 				double potentialminTickVal = minTickVal_ + ( (int)(-minTickVal_) % (int)tickIncVal_ );
 				if( (potentialminTickVal + tickIncVal_*(numTicks()-1))*norm < max_)	// Just making sure we don't go past the end of the axis with this tweak
@@ -309,6 +353,14 @@ protected:
 			tickLabelsVisible_ = false;
 		else
 			tickLabelsVisible_ = true;
+		
+		gridPen_ = QPen(QBrush(QColor(Qt::blue)), 1, Qt::DotLine);
+		gridPen_.setCosmetic(true);
+		
+		if(type_ == Left)
+			gridVisible_ = true;
+		else
+			gridVisible_ = false;
 	}
 
 };
