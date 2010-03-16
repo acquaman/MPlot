@@ -213,11 +213,13 @@ protected slots:
 				newline->setPen(linePen_);
 			}
 			
-			MPlotAbstractMarker* newmarker = MPlotMarker::create(markerShape_, this, markerSize_);
-			markers_.prepend( newmarker );
-			newmarker->setPos(data_->x(0), data_->y(0));
-			newmarker->setPen(markerPen_);
-			newmarker->setBrush(markerBrush_);			
+			if(markerShape_) {
+				MPlotAbstractMarker* newmarker = MPlotMarker::create(markerShape_, this, markerSize_);
+				markers_.prepend( newmarker );
+				newmarker->setPos(data_->x(0), data_->y(0));
+				newmarker->setPen(markerPen_);
+				newmarker->setBrush(markerBrush_);
+			}
 		}
 		
 		// Handle single insert at end: (this is also pretty fast)
@@ -230,11 +232,13 @@ protected slots:
 			newline->setLine(data_->x(insertIndex-1), data_->y(insertIndex-1), data_->x(insertIndex), data_->y(insertIndex));
 			newline->setPen(linePen_);
 			
-			MPlotAbstractMarker* newmarker = MPlotMarker::create(markerShape_, this, markerSize_);
-			markers_.append( newmarker );
-			newmarker->setPos(data_->x(insertIndex), data_->y(insertIndex));
-			newmarker->setPen(markerPen_);
-			newmarker->setBrush(markerBrush_);
+			if(markerShape_) {
+				MPlotAbstractMarker* newmarker = MPlotMarker::create(markerShape_, this, markerSize_);
+				markers_.append( newmarker );
+				newmarker->setPos(data_->x(insertIndex), data_->y(insertIndex));
+				newmarker->setPen(markerPen_);
+				newmarker->setBrush(markerBrush_);
+			}
 		}
 		
 		// Otherwise (insert in the middle, etc.) do a complete re-do of all the lines and markers:
@@ -255,16 +259,18 @@ protected slots:
 		
 		// Handle single removal at beginning: (this is fast)
 		if(start == 0 && end == 0) {
-			if(!markers_.isEmpty())
-				delete markers_.takeFirst();
+			if(markerShape_)
+				if(!markers_.isEmpty())
+					delete markers_.takeFirst();
 			if(!lines_.isEmpty())
 				delete lines_.takeFirst();			
 		}
 		
 		// Handle single removal at end: (this is also pretty fast)
 		else if(start == data_->count() && end == data_->count()) {
-			if(!markers_.isEmpty())
-				delete markers_.takeLast();
+			if(markerShape_)
+				if(!markers_.isEmpty())
+					delete markers_.takeLast();
 			if(!lines_.isEmpty())
 				delete lines_.takeLast();
 		}
@@ -281,13 +287,15 @@ protected slots:
 	}
 	
 	void onDataChanged( const QModelIndex & topLeft, const QModelIndex & bottomRight ) {
-		
-		// todo: necessary?
-		prepareGeometryChange();
+
 		
 		// This signal should only be delivered by a valid data_ model:
 		for(int i = topLeft.row(); i <= bottomRight.row(); i++) {
-			markers_[i]->setPos(data_->x(i), data_->y(i));
+			
+			// Adjust markers (if we have 'em.)
+			if(markerShape_)
+				markers_[i]->setPos(data_->x(i), data_->y(i));
+			
 			if(i>0)
 				lines_[i-1]->setLine(QLineF(data_->x(i-1), data_->y(i-1), data_->x(i), data_->y(i)));
 			if(i<lines_.count())

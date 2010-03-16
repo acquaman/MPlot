@@ -11,9 +11,6 @@
 
 // When selecting lines on plots with the mouse, this is how wide the selection ballpark is, in pixels
 #define MPLOT_SELECTION_WIDTH 10
-// This is the color of the selection highlight
-#define MPLOT_SELECTION_COLOR QColor(255, 210, 129)
-#define MPLOT_SELECTION_HIGHLIGHT_ZVALUE -1000
 
 class MPlotWindow : public QGraphicsView {
     Q_OBJECT
@@ -31,23 +28,10 @@ public:
 		selectedSeries_ = 0;
 		connect(this, SIGNAL(seriesSelected(MPlotSeries*)), this, SLOT(onSeriesSelected(MPlotSeries*)));
 		connect(this, SIGNAL(deselected()), this, SLOT(onDeselected()));
-		
-		// Prepare the plot series we use to draw highlights:
-		highlightSeries_ = new MPlotSeries;
-		QPen linePen(QBrush(MPLOT_SELECTION_COLOR), 10);
-		highlightSeries_->setLinePen(linePen);
-		highlightSeries_->setMarkerShape(MPlotMarkerShape::None);
-		highlightSeries_->setZValue(MPLOT_SELECTION_HIGHLIGHT_ZVALUE);
-
 	}
 	
+	
 	virtual ~MPlotWindow() {
-		// TODO: problem: if a plot is highlighted when the program quits, it will be deleted automatically by its parent QGraphicsItem (the MPlot)
-		// If it's NOT highlighted, then we need to delete it.  Oops...
-//		if(highlightSeries_) {
-//			delete highlightSeries_;
-//			highlightSeries_ = 0;
-//		}
 	}
 
 	void setPlot(MPlot* plot) { 
@@ -74,18 +58,17 @@ signals:
 	
 protected slots:
 	
-	// These are used to draw a highlight (ideally specifically within this view) when a series is selected:
+	// These are used to draw a highlight when a series is selected:
 	void onSeriesSelected(MPlotSeries* newSeries) {
 		qDebug() << newSeries->objectName() << " selected.";
-		plot()->removeSeries(highlightSeries_);
-		highlightSeries_->setModel(newSeries->model());
-		highlightSeries_->setYAxisTarget(newSeries->yAxisTarget());
-		plot()->addSeries(highlightSeries_);
+		// Notify the plot (useful for drawing highlights, etc.)
+		plot()->onSeriesSelected(newSeries);
 	}
 	
 	void onDeselected() {
 		qDebug() << "deselected";
-		plot()->removeSeries(highlightSeries_);
+		// Notify the plot (useful for removing highlights, etc.)
+		plot()->onDeselected();
 	}
 	
 	
