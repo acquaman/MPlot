@@ -72,8 +72,8 @@
 		 data1.insertPointBack(i, -i*i+0.5);
 	 
 	 // Fill with many random data points:
-	 // for(int i=0; i<1000; i++)
-	 //	 data2.insertPointBack(double(rand())/RAND_MAX/2, double(rand())/RAND_MAX/2);
+	  for(int i=0; i<10000; i++)
+	 	 data2.insertPointBack(double(rand())/RAND_MAX/2, double(rand())/RAND_MAX/2);
 
 	 
 	 // 4.  View the data.  A basic scatter/line plot is an MPlotSeries:
@@ -102,7 +102,8 @@
 	 
 	 // Marker size and shape:
 	 series2.setMarkerSize(12);
-	 series2.setMarkerShape(MPlotMarkerShape::StarCircle);
+	 series2.setMarkerShape(MPlotMarkerShape::None);
+	 //series2.setMarkerShape(MPlotMarkerShape::StarCircle);
 	 
 	 // Can also configure the marker pen and brush:
 	 series2.setMarkerPen(pinkSkinny);
@@ -110,7 +111,7 @@
 	 
 	 // Gridlines:
 	 plot.axisRight()->showGrid(true);
-	 plot.axisRight()->setGridPen(greenFat);
+	 //plot.axisRight()->setGridPen(greenFat);
 	 
 	 
 	 // 6. Adding a series to a plot:

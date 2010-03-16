@@ -24,7 +24,8 @@ public:
 	MPlot(QObject* parent = 0) : QGraphicsScene(0, 0, SCENESIZE, SCENESIZE, parent) {
 		
 		// TODO: test performance of:
-		// setItemIndexMethod(NoIndex);
+		setItemIndexMethod(NoIndex);
+			// makes performance ok instead of broken for series with 10000 pts.
 		
 		// initial aspect ratio:
 		ar_ = 1.0;

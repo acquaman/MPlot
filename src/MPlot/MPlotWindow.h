@@ -9,6 +9,10 @@
 
 #include <QDebug>
 
+// Note on versions:
+// GraphicsView in Qt 4.6.0 gets very slow with >= 10,000 items added to the scene.  This is due to a performance bug in QGraphicsScenePrivate::_q_polishItems,
+// which is fixed in 4.6.1.  This library will build/work with all versions of Qt 4, but recommend using Qt >= 4.6.1.
+
 // When selecting lines on plots with the mouse, this is how wide the selection ballpark is, in pixels
 #define MPLOT_SELECTION_WIDTH 10
 
@@ -96,9 +100,9 @@ protected:
 		MPlotSeries* s;
 		QList<MPlotSeries*> selectedPossibilities;	// this will become a filtered list containing all the MPlotSeries that are in range from this click.
 		
-		// Construct a QPainterPath region "in the ballpark" of the mouse click:
-		QPainterPath clickRegion;
-		clickRegion.addEllipse(event->pos(), MPLOT_SELECTION_WIDTH, MPLOT_SELECTION_WIDTH);
+		// Construct a QPolygon "in the ballpark" of the mouse click: (switching from QPainterPath to QPolygon for performance)
+		QRect clickRegion(event->pos().x()-MPLOT_SELECTION_WIDTH, event->pos().y()-MPLOT_SELECTION_WIDTH, 2*MPLOT_SELECTION_WIDTH, 2*MPLOT_SELECTION_WIDTH);
+		//clickRegion.addEllipse(event->pos(), MPLOT_SELECTION_WIDTH, MPLOT_SELECTION_WIDTH);
 		
 		// Get the list of items at this location:
 		QList<QGraphicsItem*> itemList = items(clickRegion, Qt::IntersectsItemShape);	// QT BUG REPORT... with this option for Qt::IntersectsItemShape...
@@ -109,13 +113,15 @@ protected:
 			// This check should not be necessary, but Qt 4.6 is using the boundingBox() instead of shape, even when Qt::IntersectsItemShape is used.
 				// Have to verify that we actually intersect the shape...
 			QTransform dt = item->deviceTransform(this->viewportTransform());			// QT BUG REPORT... this line should not be required
-			if(clickRegion.intersects(dt.map(item->shape()))) {							// QT BUG REPORT... this line should not be required
+			if(dt.map(item->shape()).intersects(clickRegion)) {							// QT BUG REPORT... this line should not be required
 
 				// Is it actually a MPlotSeries? (not just the background, or some other GraphicsItem?
 				s = dynamic_cast<MPlotSeries*>(item);
 				if(s && s->objectName() != "MPLOT_HIGHLIGHT")
 					selectedPossibilities << s;	// add it to the list of selected possibilities
 			}
+			else
+				qDebug() << "should not happen... bug in shape/boundingBox choice.";
 		}
 		
 		// select from the list of possibilities using selIndex.  If there aren't any, s=0.

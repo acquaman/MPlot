@@ -149,31 +149,18 @@ public:
 		// Do nothing... drawn with children
 	}
 	
-	// This is the "sloppy" contains() used for selection in a view/scene.  It returns true if the selected point is within MPLOT_SELECTION_WIDTH
-	// of the plot
-	/* SCHEDULE FOR DELETION
-	virtual bool contains ( const QPointF & point ) const {
-		QPainterPath circleAroundPoint;
-		QTransform dt = firstDeviceTransform();
-		
-		circleAroundPoint.addEllipse(point, MPLOT_SELECTION_WIDTH/dt.m11(), MPLOT_SELECTION_WIDTH/dt.m22());
-		
-		return circleAroundPoint.intersects(shape());
-	}*/
-	
 	
 	virtual QPainterPath shape() const {
-		// Returns a shape consisting of the shapes of the markers, and all the lines plus 5 pixels on either side (for easy selection)
-		// todo: should this be optimized? Change when adding points, not every time it's called?
 		
-		// TODO: selection only works on one side of some lines.
-		// TODO: bounding box doesn't include selection highlight.
-		
-		
-		// Add the lines:
 		QPainterPath shape;
 		
-		if(data_ && data_->count() > 0) {
+		// If there's under 1000 points, we can return a detailed shape with ok performance.
+		// Above 1000 points, let's just return the bounding box.
+		if(data_ && data_->count() > 1000)
+			shape.addRect(boundingRect());
+		
+		
+		else if(data_ && data_->count() > 0) {
 			shape.moveTo(data_->x(0), data_->y(0));
 			for(int i=0; i<data_->count(); i++)
 				shape.lineTo(data_->x(i), data_->y(i));
@@ -182,15 +169,8 @@ public:
 				shape.lineTo(data_->x(i), data_->y(i));
 			shape.lineTo(data_->x(0), data_->y(0));
 		}
-
-		// Add the markers:
-		// This doesn't work because the ItemIgnoresTranformations is set, so the dimensions are too big/small to add directly.
-		//foreach(MPlotAbstractMarker* marker, markers_) {
-		//	shape.addPath(marker->shape());
-		//}
 		
 		return shape;
-		
 	}
 	
 
