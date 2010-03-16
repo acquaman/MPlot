@@ -69,9 +69,9 @@ public:
 		}
 	}
 	void setMarkerShape(MPlotMarkerShape::Shape shape) {
-		markerShape_ = shape; 
+		markerShape_ = shape;
+		createMarkers(0);
 		if(data_) {
-			createMarkers(0);
 			createMarkers(data_->count());
 			placeAllMarkers();
 		}
@@ -123,7 +123,7 @@ public:
 		int numLines = (data_->count() > 1) ? data_->count() - 1 : 0;
 		createLines(numLines);
 		placeAllLines();
-		
+
 		createMarkers(data_->count());
 		placeAllMarkers();
 		
@@ -134,6 +134,8 @@ public:
 		
 		emit dataChanged(this);
 	}
+	
+	const MPlotSeriesData* model() const { return data_; }
 	
 	
 	// Required functions:
@@ -324,6 +326,10 @@ protected:
 	
 	void createMarkers(int num) {
 		
+		// If the marker shape is MPlotMarkerNone, don't create. Delete all if they exist.
+		if(markerShape_ == MPlotMarkerShape::None)
+			num = 0;
+		
 		// remove extra markers
 		while(markers_.count() > num) {
 			delete markers_.takeFirst();
@@ -338,10 +344,13 @@ protected:
 		}
 	}
 	
-	// Important: need to make sure first that number of markers matches data_->count()!
+	// Important: whenever markerShape_ is not MPlotMarkerShape::None, need to make sure first that number of markers matches data_->count()!
 	void placeAllMarkers() {
 		
 		if(!data_)
+			return;
+		
+		if(markerShape_ == MPlotMarkerShape::None)
 			return;
 		
 		for(int i=0; i<data_->count(); i++) {
@@ -375,23 +384,6 @@ protected:
 		}
 	}
 	
-	// This is used to detect selection/unselection
-	/* scheduled for deletion:
-	virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
-		qDebug() << objectName() << "press event... in bounding box";
-		
-		// If it's "close" to us:
-		if( contains(event->pos()) ) {
-		   qDebug() << objectName() << "   inside shape";
-			if(!isSelected())
-				this->setSelected(true);	// set selected
-			// absorb this event here... don't let it keep travelling.
-		}
-		else	// propagate the event like normal.
-			QGraphicsItem::mousePressEvent(event);
-	}
-	 */
-
 };
 
 #endif

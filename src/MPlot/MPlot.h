@@ -70,6 +70,9 @@ public:
 		connect(newSeries, SIGNAL(dataChanged(MPlotSeries*)), this, SLOT(onDataChanged(MPlotSeries*)));
 		// Possible optimization: only connect series to this slot when continuous autoscaling is enabled.
 		// That way non-autoscaling plots don't fire in a bunch of non-required signals.
+		
+		// Apply transforms as needed
+		placeSeries(newSeries);
 
 	}
 	

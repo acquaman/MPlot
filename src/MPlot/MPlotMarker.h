@@ -15,7 +15,7 @@
 #define MPLOTMARKER_ZVALUE 5
 
 namespace MPlotMarkerShape {
-	enum Shape { Square = 1, Circle = 2, Triangle = 4, VerticalBeam = 8, HorizontalBeam = 16, DiagDownLeft = 32, DiagDownRight = 64, DiagDownLeftR = 128, DiagDownRightR = 256, Point = 512, Cross, CrossSquare, CrossCircle, X, XSquare, XCircle, Star, StarSquare, StarCircle, PointSquare, PointCircle };
+	enum Shape { None = 0, Square = 1, Circle = 2, Triangle = 4, VerticalBeam = 8, HorizontalBeam = 16, DiagDownLeft = 32, DiagDownRight = 64, DiagDownLeftR = 128, DiagDownRightR = 256, Point = 512, Cross, CrossSquare, CrossCircle, X, XSquare, XCircle, Star, StarSquare, StarCircle, PointSquare, PointCircle };
 }
 
 // Abstract class: all plot markers must have this:
@@ -39,7 +39,37 @@ protected:
 
 };
 
-
+// THis is kinda silly... It fills the MPlotMarker api, but doesn't exist as a QGraphicsItem.
+// Why have all these in memory?
+/*
+class MPlotMarkerNone : public MPlotAbstractMarker {
+	
+public:
+	MPlotMarkerNone(QGraphicsItem * parent = 0 , double size = 6) : MPlotAbstractMarker(parent) {
+		setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+		setFlag(QGraphicsItem::ItemHasNoContents, true);// all painting done by children
+	}
+	
+	virtual void setSize(double width) {
+	}
+	
+	
+	/////////////////////
+	QPen pen() const { return QPen(); }
+    void setPen(const QPen &pen) { }
+	
+    QBrush brush() const { return QBrush(); }
+    void setBrush(const QBrush &brush) {}
+	///////////////
+	virtual QRectF boundingRect() const { return QRectF(); }
+	virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0) {}
+	virtual QPainterPath shape () const { return QPainterPath(); }
+	virtual bool contains ( const QPointF & point ) const { return false; }
+	virtual bool isObscuredBy ( const QGraphicsItem * item ) const { return false; }
+	virtual QPainterPath opaqueArea () const { return QPainterPath(); }
+	///////////////	
+};
+*/
 
 class MPlotMarkerSquare : public MPlotAbstractMarker {
 
