@@ -27,10 +27,10 @@ public:
 		// TODO: research this:
 		//setDragMode(QGraphicsView::RubberBandDrag);
 		
-		setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
+		setRenderHints(/*QPainter::Antialiasing |*/ QPainter::TextAntialiasing);
 		
 		selectedSeries_ = 0;
-		connect(this, SIGNAL(seriesSelected(MPlotSeries*)), this, SLOT(onSeriesSelected(MPlotSeries*)));
+		connect(this, SIGNAL(seriesSelected(MPlotAbstractSeries*)), this, SLOT(onSeriesSelected(MPlotAbstractSeries*)));
 		connect(this, SIGNAL(deselected()), this, SLOT(onDeselected()));
 	}
 	
@@ -50,20 +50,20 @@ public:
 	}
 	
 	// Returns the currently-selected series in the plot (0 if none).
-	MPlotSeries* selectedSeries() { return selectedSeries_; }
+	MPlotAbstractSeries* selectedSeries() { return selectedSeries_; }
 	
 
 signals:
 	// Emitted by the view when a series in the plot is selected
 		// Note that selection happens on a per-view basis.  The same series can be in multiple views
-	void seriesSelected(MPlotSeries*);
+	void seriesSelected(MPlotAbstractSeries*);
 	// Emitted when nothing is selected:
 	void deselected();
 	
 	
 protected slots:
 	
-	void onSeriesSelected(MPlotSeries* newSeries) {
+	void onSeriesSelected(MPlotAbstractSeries* newSeries) {
 		qDebug() << newSeries->objectName() << " selected.";
 		// Notify the plot (useful for drawing highlights, etc.)
 		plot()->onSeriesSelected(newSeries);
@@ -79,7 +79,7 @@ protected slots:
 	
 protected:
 	// Member variables:
-	MPlotSeries* selectedSeries_;
+	MPlotAbstractSeries* selectedSeries_;
 	
 	// On resize events: notify the canvas if the aspect ratio needs to change, and fill the viewport with the canvas.
 	virtual void resizeEvent ( QResizeEvent * event ) {
@@ -97,8 +97,8 @@ protected:
 	virtual void mousePressEvent ( QMouseEvent * event ) {
 		
 		static unsigned int selIndex = 0;	// If two or more series are on top of each other, this is used to alternate between them
-		MPlotSeries* s;
-		QList<MPlotSeries*> selectedPossibilities;	// this will become a filtered list containing all the MPlotSeries that are in range from this click.
+		MPlotAbstractSeries* s;
+		QList<MPlotAbstractSeries*> selectedPossibilities;	// this will become a filtered list containing all the MPlotAbstractSeries that are in range from this click.
 		
 		// Construct a QPolygon "in the ballpark" of the mouse click: (switching from QPainterPath to QPolygon for performance)
 		QRect clickRegion(event->pos().x()-MPLOT_SELECTION_WIDTH, event->pos().y()-MPLOT_SELECTION_WIDTH, 2*MPLOT_SELECTION_WIDTH, 2*MPLOT_SELECTION_WIDTH);
@@ -115,13 +115,13 @@ protected:
 			QTransform dt = item->deviceTransform(this->viewportTransform());			// QT BUG REPORT... this line should not be required
 			if(dt.map(item->shape()).intersects(clickRegion)) {							// QT BUG REPORT... this line should not be required
 
-				// Is it actually a MPlotSeries? (not just the background, or some other GraphicsItem?
-				s = dynamic_cast<MPlotSeries*>(item);
+				// Is it actually a MPlotAbstractSeries? (not just the background, or some other GraphicsItem?
+				s = dynamic_cast<MPlotAbstractSeries*>(item);
 				if(s && s->objectName() != "MPLOT_HIGHLIGHT")
 					selectedPossibilities << s;	// add it to the list of selected possibilities
 			}
 			else
-				qDebug() << "should not happen... bug in shape/boundingBox choice.";
+				qDebug() << "should not happen... Qt bug using boundingBox() instead of shape() in items(region, Qt::IntersectsItemShape).";
 		}
 		
 		// select from the list of possibilities using selIndex.  If there aren't any, s=0.

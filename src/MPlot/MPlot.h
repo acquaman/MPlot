@@ -6,6 +6,7 @@
 #include "MPlotBackground.h"
 #include "MPlotAxis.h"
 #include "MPlotLegend.h"
+#include "MPlotAbstractSeries.h"
 #include "MPlotSeries.h"
 #include <QList>
 
@@ -77,11 +78,11 @@ public:
 	
 	
 	// Use this to add a series to a plot:
-	void addSeries(MPlotSeries* newSeries) {
+	void addSeries(MPlotAbstractSeries* newSeries) {
 		newSeries->setParentItem(plotArea_);
 		series_ << newSeries;
 		
-		connect(newSeries, SIGNAL(dataChanged(MPlotSeries*)), this, SLOT(onDataChanged(MPlotSeries*)));
+		connect(newSeries, SIGNAL(dataChanged(MPlotAbstractSeries*)), this, SLOT(onDataChanged(MPlotAbstractSeries*)));
 		// Possible optimization: only connect series to this slot when continuous autoscaling is enabled.
 		// That way non-autoscaling plots don't fire in a bunch of non-required signals.
 		
@@ -91,7 +92,7 @@ public:
 	}
 	
 	// Remove a series from a plot:
-	bool removeSeries(MPlotSeries* removeMe) {
+	bool removeSeries(MPlotAbstractSeries* removeMe) {
 		if(series_.contains(removeMe)) {
 			this->removeItem(removeMe);
 			series_.removeAll(removeMe);
@@ -171,7 +172,7 @@ public:
 		setXDataRangeImp(min, max, autoscale);
 		
 		// We have new transforms.  Need to apply them to all series:
-		foreach(MPlotSeries* series, series_) {
+		foreach(MPlotAbstractSeries* series, series_) {
 			placeSeries(series);
 		}
 		
@@ -182,7 +183,7 @@ public:
 		setYDataRangeLeftImp(min, max, autoscale);
 		
 		// We have new transforms.  Need to apply them:
-		foreach(MPlotSeries* series, series_) {
+		foreach(MPlotAbstractSeries* series, series_) {
 			placeSeries(series);
 		}
 	}
@@ -192,14 +193,14 @@ public:
 		setYDataRangeRightImp(min, max, autoscale);
 		
 		// Apply new transforms:
-		foreach(MPlotSeries* series, series_) {
+		foreach(MPlotAbstractSeries* series, series_) {
 			placeSeries(series);
 		}
 	}
 	
 public slots:
 	// These are used to draw a highlight when a series is selected:
-	void onSeriesSelected(MPlotSeries* newSeries) {
+	void onSeriesSelected(MPlotAbstractSeries* newSeries) {
 		highlightSeries_->setModel(newSeries->model());
 		highlightSeries_->setYAxisTarget(newSeries->yAxisTarget());
 		highlightSeries_->setVisible(true);
@@ -213,7 +214,7 @@ public slots:
 protected slots:
 	
 	// This is called when a series updates it's data.  We may have to autoscale/rescale:
-	void onDataChanged(MPlotSeries* series) {
+	void onDataChanged(MPlotAbstractSeries* series) {
 		
 		if(autoScaleBottomEnabled_)
 			setXDataRangeImp(0, 0, true);
@@ -226,7 +227,7 @@ protected slots:
 		
 		// We have new transforms.  Need to apply them:
 		if(autoScaleBottomEnabled_ | autoScaleLeftEnabled_ | autoScaleRightEnabled_)
-			foreach(MPlotSeries* series, series_)
+			foreach(MPlotAbstractSeries* series, series_)
 				placeSeries(series);
 		
 		// Possible optimizations:
@@ -246,7 +247,7 @@ protected:
 	// Members:
 	MPlotLegend* legend_;
 	MPlotAxis* axes_[9];		// We only use [1], [2], [4], and [8]...
-	QList<MPlotSeries*> series_;	// list of current series displayed on plot
+	QList<MPlotAbstractSeries*> series_;	// list of current series displayed on plot
 	MPlotSeries* highlightSeries_;	// used to draw the highlight on the selected plot.
 	
 	double ar_;	// Aspect ratio: scene height = width * ar_;
@@ -320,7 +321,7 @@ protected:
 	
 	
 	// Applies the leftAxis or rightAxis transformation matrix (depending on the 
-	void placeSeries(MPlotSeries* series) {
+	void placeSeries(MPlotAbstractSeries* series) {
 		if(series->yAxisTarget() == MPlotAxis::Right) {
 			series->setTransform(rightAxisTransform_);
 		}
@@ -368,7 +369,7 @@ protected:
 		if(autoscale) {
 			
 			QRectF bounds; 
-			foreach(MPlotSeries* series, series_) {
+			foreach(MPlotAbstractSeries* series, series_) {
 				bounds |= series->boundingRect();
 			}
 			if(bounds.isValid()) {
@@ -408,7 +409,7 @@ protected:
 		if(autoscale) {
 			
 			QRectF bounds; 
-			foreach(MPlotSeries* series, series_) {
+			foreach(MPlotAbstractSeries* series, series_) {
 				if(series->yAxisTarget() == MPlotAxis::Left)
 					bounds |= series->boundingRect();
 			}
@@ -442,7 +443,7 @@ protected:
 		if(autoscale) {
 			
 			QRectF bounds; 
-			foreach(MPlotSeries* series, series_) {
+			foreach(MPlotAbstractSeries* series, series_) {
 				if(series->yAxisTarget() == MPlotAxis::Right)
 					bounds |= series->boundingRect();
 			}

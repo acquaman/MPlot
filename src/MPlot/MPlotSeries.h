@@ -1,75 +1,61 @@
 #ifndef __MPlotSeries_H__
 #define __MPlotSeries_H__
 
-#include <QGraphicsObject>
+#include "MPlotAbstractSeries.h"
 #include <QGraphicsLineItem>
 #include <QQueue>
-#include <QPen>
-#include <QBrush>
+
 #include <QPainterPath>
 #include <QPainter>
-//#include <QGraphicsSceneMouseEvent>
-//#include <QGraphicsView>
-//#include <QGraphicsScene>
-#include "MPlotMarker.h"
-#include "MPlotAxis.h"
-#include "MPlotSeriesData.h"
-
-#include <QDebug>
 
 
 // TODO:
 // Put markers on top of plot lines...
 // Optimize placeAllMarkers to not set Brush
 
-class MPlotSeries : public QGraphicsObject {
+class MPlotSeries : public MPlotAbstractSeries {
 	
 	Q_OBJECT
-	
-	Q_PROPERTY(bool selected READ isSelected WRITE setSelected)
 
 public:
 	
-	MPlotSeries(const MPlotSeriesData* data = 0, QGraphicsItem* parent = 0) : QGraphicsObject(parent) {
+	MPlotSeries(const MPlotSeriesData* data = 0, QGraphicsItem* parent = 0) : MPlotAbstractSeries(data, parent) {
 		
-		data_ = 0;
-		setFlag(QGraphicsItem::ItemIsSelectable, false);	// We're implementing our own selection mechanism... ignoring QGraphicsView's selection system.
+		// unique setup for MPlotSeries?
+		
 		setFlag(QGraphicsItem::ItemHasNoContents, true);// all painting done by children
-		
-		// Set style defaults:
-		setDefaults();
-		
-		// Set model (will check that data != 0)
-		setModel(data);
 		
 	}
 	
 	
 	
 	// Properties:	
-	void setLinePen(const QPen& pen) { 
-		linePen_ = pen; 
-		linePen_.setCosmetic(true); 
+	virtual void setLinePen(const QPen& pen) { 
+		MPlotAbstractSeries::setLinePen(pen);
+		
 		foreach(QGraphicsLineItem* line, lines_) {
 			line->setPen(linePen_);
 		}
 	}
-	void setMarkerPen(const QPen& pen) { 
-		markerPen_ = pen; 
-		markerPen_.setCosmetic(true);
+	virtual void setMarkerPen(const QPen& pen) { 
+		MPlotAbstractSeries::setMarkerPen(pen);
+		
 		foreach(MPlotAbstractMarker* marker, markers_) {
 			marker->setPen(markerPen_);
 		}
 	}
 		
-	void setMarkerBrush(const QBrush& brush) { 
-		markerBrush_ = brush; 
+	virtual void setMarkerBrush(const QBrush& brush) { 
+		MPlotAbstractSeries::setMarkerBrush(brush);
+		
 		foreach(MPlotAbstractMarker* marker, markers_) {
 			marker->setBrush(markerBrush_);
 		}
 	}
-	void setMarkerShape(MPlotMarkerShape::Shape shape) {
-		markerShape_ = shape;
+	
+	virtual void setMarkerShape(MPlotMarkerShape::Shape shape) {
+		MPlotAbstractSeries::setMarkerShape(shape);
+		
 		createMarkers(0);
 		if(data_) {
 			createMarkers(data_->count());
@@ -77,62 +63,42 @@ public:
 		}
 	}
 	
-	void setMarkerSize(double size) {
+	virtual void setMarkerSize(double size) {
 		
-		markerSize_ = size;
+		MPlotAbstractSeries::setMarkerSize(size);
+		
 		foreach(MPlotAbstractMarker* marker, markers_) {
 			marker->setSize(size);
-		}
-
-		// Long way:
-		/*
-		if(data_) {
-			createMarkers(0);
-			createMarkers(data_->count());
-			placeAllMarkers();
-		}
-		*/
-		
+		}		
 	}
-	
-	MPlotAxis::AxisID yAxisTarget() { return yAxisTarget_;}
-	void setYAxisTarget(MPlotAxis::AxisID axis) { yAxisTarget_ = axis; }
+
 	
 	// Sets this series to view the model in 'data';
-	void setModel(const MPlotSeriesData* data) {
+	virtual void setModel(const MPlotSeriesData* data) {
 		
-		// Clearing a model:
-		if(data == 0) {
-			if(data_)
-				disconnect(data_, 0, this, 0);
-			data_ = 0;
-			createLines(0);
-			createMarkers(0);
-			return;
+		MPlotAbstractSeries::setModel(data);
+		
+		// If there's a new valid model:
+		if(data_) {
+			// add initial data points (lines and markers)	
+			int numLines = (data_->count() > 1) ? data_->count() - 1 : 0;
+			createLines(numLines);
+			placeAllLines();
+
+			createMarkers(data_->count());
+			placeAllMarkers();
+			
+			// Connect model signals to slots: rowsInserted(), rowsRemoved(), dataChanged()
+			connect(data_, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SLOT(onRowsInserted( const QModelIndex &, int, int )));
+			connect(data_, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SLOT(onRowsRemoved( const QModelIndex &, int, int )));
+			connect(data_, SIGNAL(dataChanged( const QModelIndex &, const QModelIndex & )), this, SLOT(onDataChanged( const QModelIndex &, const QModelIndex & )));
 		}
 		
-		// Setting a new model:
-		// If there was an old model, disconnect old signals:
-		if(data_)
-			disconnect(data_, 0, this, 0);
-		
-		// New model from here:
-		data_ = data;
-		
-		// add initial data point (lines and markers)	
-		int numLines = (data_->count() > 1) ? data_->count() - 1 : 0;
-		createLines(numLines);
-		placeAllLines();
-
-		createMarkers(data_->count());
-		placeAllMarkers();
-		
-		// Connect model signals to slots: rowsInserted(), rowsRemoved(), dataChanged()
-		connect(data_, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SLOT(onRowsInserted( const QModelIndex &, int, int )));
-		connect(data_, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SLOT(onRowsRemoved( const QModelIndex &, int, int )));
-		connect(data_, SIGNAL(dataChanged( const QModelIndex &, const QModelIndex & )), this, SLOT(onDataChanged( const QModelIndex &, const QModelIndex & )));
-		
-		emit dataChanged(this);
+		// Otherwise, (data == 0) we're just clearing the model:
+		else {
+			createLines(0);
+			createMarkers(0);
+		}
 	}
 	
 	const MPlotSeriesData* model() const { return data_; }
@@ -140,8 +106,9 @@ public:
 	
 	// Required functions:
 	//////////////////////////
-	// Bounding rect: reported in our PlotSeries coordinates, which are just the actual data coordinates.
-	virtual QRectF boundingRect() const { if(data_) return data_->boundingRect(); else return QRectF(); }
+	// boundingRect: reported in our PlotSeries coordinates, which are just the actual data coordinates.
+		// using parent implementation
+	
 	// Paint:
 	virtual void paint(QPainter* /*painter*/,
 					   const QStyleOptionGraphicsItem* /*option*/,
@@ -150,33 +117,14 @@ public:
 	}
 	
 	
+	// Overriding parent class with higher-performance. We already know our shape.
+	/*
 	virtual QPainterPath shape() const {
 		
-		QPainterPath shape;
-		
-		// If there's under 1000 points, we can return a detailed shape with ok performance.
-		// Above 1000 points, let's just return the bounding box.
-		if(data_ && data_->count() > 1000)
-			shape.addRect(boundingRect());
-		
-		
-		else if(data_ && data_->count() > 0) {
-			shape.moveTo(data_->x(0), data_->y(0));
-			for(int i=0; i<data_->count(); i++)
-				shape.lineTo(data_->x(i), data_->y(i));
-						
-			for(int i=data_->count()-2; i>=0; i--)
-				shape.lineTo(data_->x(i), data_->y(i));
-			shape.lineTo(data_->x(0), data_->y(0));
-		}
-		
-		return shape;
-	}
+		return plotPathClosed_;
+	}*/
 	
 
-signals:
-	
-	void dataChanged(MPlotSeries* series);	// listen to this if you want to auto-scale on changes.
 	
 protected slots:
 	void onRowsInserted( const QModelIndex & /*parent*/, int start, int end ) {
@@ -286,31 +234,15 @@ protected slots:
 	
 	
 protected:
-	QPen linePen_, markerPen_;
-	QBrush markerBrush_;
-	MPlotMarkerShape::Shape markerShape_;
-	double markerSize_;
-	
-	const MPlotSeriesData* data_;
+
 	QQueue<MPlotAbstractMarker*> markers_;
 	QQueue<QGraphicsLineItem*> lines_;
-	
-	//mutable QPainterPath shape_;
-	
-	MPlotAxis::AxisID yAxisTarget_;
-	
-	void setDefaults() {
+
+	// Customize this if needed for MPlotSeries. For now we use the parent class implementation
+	/*
+	virtual void setDefaults() {
 		
-		yAxisTarget_ = MPlotAxis::Left;
-		
-		setLinePen(QPen(QColor(Qt::red)));	// Red solid lines on plot
-		setMarkerPen(QPen(QColor(Qt::blue))); // Blue outlines on markers
-		setMarkerBrush(QBrush());	// default: NoBrush
-		
-		markerShape_ = MPlotMarkerShape::Square;
-		markerSize_ = 6.0;
-		
-	}
+	}*/
 	
 	void createMarkers(int num) {
 		

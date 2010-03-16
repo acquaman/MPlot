@@ -2,6 +2,8 @@
 
 #include "MPlotWindow.h"
 #include "MPlotSeriesData.h"
+#include "MPlotSeriesRaw.h"
+
 #include <QTableView>
 #include <QPen>
 #include <QBrush>
@@ -78,7 +80,8 @@
 	 
 	 // 4.  View the data.  A basic scatter/line plot is an MPlotSeries:
 	 ////////////////////////////////////////////////////
-	 MPlotSeries series1, series2;
+	 MPlotSeries series1;
+	 MPlotSeriesRaw series2;
 	 series1.setObjectName("series1");
 	 series2.setObjectName("series2");
 	 
