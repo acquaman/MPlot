@@ -64,6 +64,7 @@ public:
 		
 		// Prepare the plot series we use to draw highlights:
 		highlightSeries_ = new MPlotSeries;
+		highlightSeries_->setObjectName("MPLOT_HIGHLIGHT");	// this is important... For now, using this to designate plotSeries just used to highlight other plots. (TODO: clean up)
 		QPen linePen(QBrush(MPLOT_SELECTION_COLOR), 10);
 		highlightSeries_->setLinePen(linePen);
 		highlightSeries_->setMarkerShape(MPlotMarkerShape::None);

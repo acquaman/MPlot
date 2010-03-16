@@ -36,6 +36,7 @@ public:
 
 	void setPlot(MPlot* plot) { 
 		if(plot) {
+			// todo: disconnect any signals? detach highlightSeries_ from old plot?
 			setScene(plot);
 		}
 	}
@@ -58,7 +59,6 @@ signals:
 	
 protected slots:
 	
-	// These are used to draw a highlight when a series is selected:
 	void onSeriesSelected(MPlotSeries* newSeries) {
 		qDebug() << newSeries->objectName() << " selected.";
 		// Notify the plot (useful for drawing highlights, etc.)
@@ -72,10 +72,10 @@ protected slots:
 	}
 	
 	
+	
 protected:
 	// Member variables:
 	MPlotSeries* selectedSeries_;
-	MPlotSeries* highlightSeries_;	// used to draw highlights over selected plots
 	
 	// On resize events: notify the canvas if the aspect ratio needs to change, and fill the viewport with the canvas.
 	virtual void resizeEvent ( QResizeEvent * event ) {
@@ -88,11 +88,13 @@ protected:
 		}
 	}
 	
-	// This is used to detect PlotSeries selection. Selects a maximum of one series.
-	// TODO: if multiple series within selection range, pop up a selection menu?
+	// This is used to detect PlotSeries selection.
+	// If multiple series are on top of each other (or are within the selection range), this will alternate between them on successive clicks.
 	virtual void mousePressEvent ( QMouseEvent * event ) {
 		
-		MPlotSeries* newSeries = 0;
+		static unsigned int selIndex = 0;	// If two or more series are on top of each other, this is used to alternate between them
+		MPlotSeries* s;
+		QList<MPlotSeries*> selectedPossibilities;	// this will become a filtered list containing all the MPlotSeries that are in range from this click.
 		
 		// Construct a QPainterPath region "in the ballpark" of the mouse click:
 		QPainterPath clickRegion;
@@ -107,22 +109,28 @@ protected:
 			// This check should not be necessary, but Qt 4.6 is using the boundingBox() instead of shape, even when Qt::IntersectsItemShape is used.
 				// Have to verify that we actually intersect the shape...
 			QTransform dt = item->deviceTransform(this->viewportTransform());			// QT BUG REPORT... this line should not be required
-			if(!clickRegion.intersects(dt.map(item->shape())))							// QT BUG REPORT... this line should not be required
-				continue;
-			
-			// Is it actually a MPlotSeries? (not just the background?)
-			newSeries = dynamic_cast<MPlotSeries*>(item);
-			if(newSeries)
-				break;	// just found one
+			if(clickRegion.intersects(dt.map(item->shape()))) {							// QT BUG REPORT... this line should not be required
+
+				// Is it actually a MPlotSeries? (not just the background, or some other GraphicsItem?
+				s = dynamic_cast<MPlotSeries*>(item);
+				if(s && s->objectName() != "MPLOT_HIGHLIGHT")
+					selectedPossibilities << s;	// add it to the list of selected possibilities
+			}
 		}
 		
+		// select from the list of possibilities using selIndex.  If there aren't any, s=0.
+		if(selectedPossibilities.count() > 0)
+			s = selectedPossibilities.at( (selIndex++) % selectedPossibilities.count() );
+		else
+			s = 0;
+		
 		// If we found one, and it's not the same as the old one:
-		if(newSeries && newSeries != selectedSeries_) {
-			emit seriesSelected(selectedSeries_ = newSeries);
+		if(s && s != selectedSeries_) {
+			emit seriesSelected(selectedSeries_ = s);
 		}
 			
 		// If the click didn't land on any series, and there was one previously selected:
-		if(!newSeries && selectedSeries_) {
+		if(!s && selectedSeries_) {
 			selectedSeries_ = 0;
 			emit deselected();
 		}
