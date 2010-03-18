@@ -102,6 +102,8 @@ public:
 		else
 			return false;
 	}
+	
+	QList<MPlotAbstractSeries*> series() const { return series_; }
 
 
 	
@@ -207,6 +209,7 @@ public slots:
 	}
 	
 	void onDeselected() {
+		highlightSeries_->setModel(0);
 		highlightSeries_->setVisible(false);
 	}	// TODO: determine what happens if someone deletes a plot series while it is highlighted...
 		// todo: also determine what happens for memory management when removing plotSeries from a plot.

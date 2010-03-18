@@ -27,7 +27,7 @@ public:
 		// TODO: research this:
 		//setDragMode(QGraphicsView::RubberBandDrag);
 		
-		setRenderHints(/*QPainter::Antialiasing |*/ QPainter::TextAntialiasing);
+		setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing /*| QPainter::HighQualityAntialiasing*/);
 		
 		selectedSeries_ = 0;
 		connect(this, SIGNAL(seriesSelected(MPlotAbstractSeries*)), this, SLOT(onSeriesSelected(MPlotAbstractSeries*)));
@@ -102,26 +102,17 @@ protected:
 		
 		// Construct a QPolygon "in the ballpark" of the mouse click: (switching from QPainterPath to QPolygon for performance)
 		QRect clickRegion(event->pos().x()-MPLOT_SELECTION_WIDTH, event->pos().y()-MPLOT_SELECTION_WIDTH, 2*MPLOT_SELECTION_WIDTH, 2*MPLOT_SELECTION_WIDTH);
-		//clickRegion.addEllipse(event->pos(), MPLOT_SELECTION_WIDTH, MPLOT_SELECTION_WIDTH);
 		
-		// Get the list of items at this location:
-		QList<QGraphicsItem*> itemList = items(clickRegion, Qt::IntersectsItemShape);	// QT BUG REPORT... with this option for Qt::IntersectsItemShape...
-		
-		// Check all items within range...
-		foreach(QGraphicsItem* item, itemList) {
+		// Check all series for intersections
+		foreach(MPlotAbstractSeries* s2, plot()->series() ) {
 			
-			// This check should not be necessary, but Qt 4.6 is using the boundingBox() instead of shape, even when Qt::IntersectsItemShape is used.
-				// Have to verify that we actually intersect the shape...
-			QTransform dt = item->deviceTransform(this->viewportTransform());			// QT BUG REPORT... this line should not be required
-			if(dt.map(item->shape()).intersects(clickRegion)) {							// QT BUG REPORT... this line should not be required
+			// Have to verify that we actually intersect the shape...
+			QTransform dt = s2->deviceTransform(this->viewportTransform());
+			if(dt.map(s2->shape()).intersects(clickRegion)) {
 
-				// Is it actually a MPlotAbstractSeries? (not just the background, or some other GraphicsItem?
-				s = dynamic_cast<MPlotAbstractSeries*>(item);
-				if(s && s->objectName() != "MPLOT_HIGHLIGHT")
-					selectedPossibilities << s;	// add it to the list of selected possibilities
+				if(s2->objectName() != "MPLOT_HIGHLIGHT")
+					selectedPossibilities << s2;	// add it to the list of selected possibilities
 			}
-			else
-				qDebug() << "should not happen... Qt bug using boundingBox() instead of shape() in items(region, Qt::IntersectsItemShape).";
 		}
 		
 		// select from the list of possibilities using selIndex.  If there aren't any, s=0.

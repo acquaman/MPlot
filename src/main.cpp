@@ -2,6 +2,7 @@
 
 #include "MPlotWindow.h"
 #include "MPlotSeriesData.h"
+#include "MPlotSeries.h"
 #include "MPlotSeriesRaw.h"
 
 #include <QTableView>
@@ -10,6 +11,9 @@
 
 #include <QPrinter>
 #include <QPrintDialog>
+
+ #include <QGLWidget>
+#include <cmath>
 
  int main(int argc, char *argv[])
  {
@@ -74,14 +78,18 @@
 		 data1.insertPointBack(i, -i*i+0.5);
 	 
 	 // Fill with many random data points:
-	  for(int i=0; i<10000; i++)
-	 	 data2.insertPointBack(double(rand())/RAND_MAX/2, double(rand())/RAND_MAX/2);
+	  //for(int i=0; i<5000; i++)
+	 	// data2.insertPointBack(double(rand())/RAND_MAX/2, double(rand())/RAND_MAX/2);
+	 
+	 // many-point sine wave:
+	 for(int i=0; i<1000000; i++)
+	 	 data2.insertPointBack(-0.5+i/1000000.0, sin((-0.5+i/1000000.0)*4*3.1415));
 
 	 
 	 // 4.  View the data.  A basic scatter/line plot is an MPlotSeries:
 	 ////////////////////////////////////////////////////
 	 MPlotSeries series1;
-	 MPlotSeriesRaw series2;
+	 MPlotSeries series2;
 	 series1.setObjectName("series1");
 	 series2.setObjectName("series2");
 	 
@@ -106,7 +114,7 @@
 	 // Marker size and shape:
 	 series2.setMarkerSize(12);
 	 series2.setMarkerShape(MPlotMarkerShape::None);
-	 //series2.setMarkerShape(MPlotMarkerShape::StarCircle);
+	 // series2.setMarkerShape(MPlotMarkerShape::StarCircle);
 	 
 	 // Can also configure the marker pen and brush:
 	 series2.setMarkerPen(pinkSkinny);
@@ -197,6 +205,9 @@
 	 
 	 pixmap.save("/Users/mboots/scene.png");
 	 */
+	 
+	 // Try out openGl viewport: (instead of CoreGraphics on Mac OS X)
+	 //plotWindow.setViewport(new QGLWidget);
 
 	 
 	return app.exec();

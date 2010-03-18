@@ -101,7 +101,6 @@ public:
 		}
 	}
 	
-	const MPlotSeriesData* model() const { return data_; }
 	
 	
 	// Required functions:
@@ -116,13 +115,6 @@ public:
 		// Do nothing... drawn with children
 	}
 	
-	
-	// Overriding parent class with higher-performance. We already know our shape.
-	/*
-	virtual QPainterPath shape() const {
-		
-		return plotPathClosed_;
-	}*/
 	
 
 	
