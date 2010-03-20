@@ -7,15 +7,13 @@
 #include "MPlotAxis.h"
 #include "MPlotLegend.h"
 #include "MPlotAbstractSeries.h"
-#include "MPlotSeries.h"
+#include "MPlotSeriesRaw.h"
 #include <QList>
 
 
 #define SCENESIZE 100
 
-// This is the color of the selection highlight
-#define MPLOT_SELECTION_COLOR QColor(255, 210, 129)
-#define MPLOT_SELECTION_HIGHLIGHT_ZVALUE -1000
+
 
 
 class MPlot : public QGraphicsScene {
@@ -60,18 +58,7 @@ public:
 		setDefaults();
 		
 		// Place 
-		placeComponents();
-		
-		// Prepare the plot series we use to draw highlights:
-		highlightSeries_ = new MPlotSeries;
-		highlightSeries_->setObjectName("MPLOT_HIGHLIGHT");	// this is important... For now, using this to designate plotSeries just used to highlight other plots. (TODO: clean up)
-		QPen linePen(QBrush(MPLOT_SELECTION_COLOR), 10);
-		highlightSeries_->setLinePen(linePen);
-		highlightSeries_->setMarkerShape(MPlotMarkerShape::None);
-		highlightSeries_->setZValue(MPLOT_SELECTION_HIGHLIGHT_ZVALUE);
-		highlightSeries_->setVisible(false);
-		addSeries(highlightSeries_);
-		
+		placeComponents();		
 		
 	}
 
@@ -201,18 +188,7 @@ public:
 	}
 	
 public slots:
-	// These are used to draw a highlight when a series is selected:
-	void onSeriesSelected(MPlotAbstractSeries* newSeries) {
-		highlightSeries_->setModel(newSeries->model());
-		highlightSeries_->setYAxisTarget(newSeries->yAxisTarget());
-		highlightSeries_->setVisible(true);
-	}
-	
-	void onDeselected() {
-		highlightSeries_->setModel(0);
-		highlightSeries_->setVisible(false);
-	}	// TODO: determine what happens if someone deletes a plot series while it is highlighted...
-		// todo: also determine what happens for memory management when removing plotSeries from a plot.
+
 	
 protected slots:
 	
@@ -251,7 +227,6 @@ protected:
 	MPlotLegend* legend_;
 	MPlotAxis* axes_[9];		// We only use [1], [2], [4], and [8]...
 	QList<MPlotAbstractSeries*> series_;	// list of current series displayed on plot
-	MPlotSeries* highlightSeries_;	// used to draw the highlight on the selected plot.
 	
 	double ar_;	// Aspect ratio: scene height = width * ar_;
 	

@@ -356,6 +356,9 @@ protected:
 		
 		gridPen_ = QPen(QBrush(QColor(Qt::blue)), 1, Qt::DotLine);
 		gridPen_.setCosmetic(true);
+		QVector<qreal> dashes;
+		dashes << 4 << 4;
+		gridPen_.setDashPattern(dashes);
 		
 		if(type_ == Left)
 			gridVisible_ = true;

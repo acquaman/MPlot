@@ -30,8 +30,6 @@ public:
 		setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing /*| QPainter::HighQualityAntialiasing*/);
 		
 		selectedSeries_ = 0;
-		connect(this, SIGNAL(seriesSelected(MPlotAbstractSeries*)), this, SLOT(onSeriesSelected(MPlotAbstractSeries*)));
-		connect(this, SIGNAL(deselected()), this, SLOT(onDeselected()));
 	}
 	
 	
@@ -55,27 +53,11 @@ public:
 
 signals:
 	// Emitted by the view when a series in the plot is selected
-		// Note that selection happens on a per-view basis.  The same series can be in multiple views
+		// Note that selection happens on a per-scene basis.  The same series can be in multiple views, and will be selected in multiple views.
 	void seriesSelected(MPlotAbstractSeries*);
 	// Emitted when nothing is selected:
 	void deselected();
-	
-	
-protected slots:
-	
-	void onSeriesSelected(MPlotAbstractSeries* newSeries) {
-		qDebug() << newSeries->objectName() << " selected.";
-		// Notify the plot (useful for drawing highlights, etc.)
-		plot()->onSeriesSelected(newSeries);
-	}
-	
-	void onDeselected() {
-		qDebug() << "deselected";
-		// Notify the plot (useful for removing highlights, etc.)
-		plot()->onDeselected();
-	}
-	
-	
+
 	
 protected:
 	// Member variables:
@@ -123,11 +105,19 @@ protected:
 		
 		// If we found one, and it's not the same as the old one:
 		if(s && s != selectedSeries_) {
+			// tell the old series to unselect:
+			if(selectedSeries_)
+				selectedSeries_->setSelected(false);
+			// Tell the new one to select:
+			s->setSelected(true);
+			// Assign, and emit signal:
 			emit seriesSelected(selectedSeries_ = s);
 		}
 			
 		// If the click didn't land on any series, and there was one previously selected:
 		if(!s && selectedSeries_) {
+			// Tell the old one to unselect:
+			selectedSeries_->setSelected(false);
 			selectedSeries_ = 0;
 			emit deselected();
 		}

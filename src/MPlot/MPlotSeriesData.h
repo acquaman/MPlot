@@ -6,14 +6,53 @@
 #include <QList>
 #include <QRectF>
 
-// This class provides a Qt Model implementation of XY data.  It also provides fast (usually constant-time) lookups of the min and max values for each axis.
-// TODO: the implementation using QLists for xval_ and yval_ are a problem if using for a real-time data stream, where you are always
-// insertPointBack() and removePointFront()... Since QList never frees old space, this will consume all memory over time.
-class MPlotSeriesData : public QAbstractTableModel {
+// This defines the interface for classes which may be used for Series (XY) plot data.
+// Unfortunately, because QObject doesn't support multiple inheritance, if you want your data object to inherit from another QObject-derived class, wrapper classes are needed as shown in the example below.
+class MPlotAbstractSeriesData : public QObject {
+	Q_OBJECT
+	
+public:
+	MPlotAbstractSeriesData(QObject* parent = 0) : QObject(parent) {}
+	
+	// Return the x-value (y-value) at index:
+	virtual double x(size_t index) const = 0;
+	virtual double y(size_t index) const = 0;
+	
+	// Return the number of elements
+	virtual size_t count() const = 0;
+	
+	
+	// Return the bounds of the data (the rectangle containing the max/min x- and y-values)
+	virtual QRectF boundingRect() const = 0;
+ 
+signals:
+	// Emit this when the data has been changed (will trigger a plot update)
+	// The arguments let you specify the range of data that has been changed (inclusive)
+	// To force an update of the entire plot, specify fromIndex > toIndex.
+	void dataChanged(size_t fromIndex, size_t toIndex);
+ 
+	// todo: to support multi-threading, consider a 
+	// void pauseUpdates();	// to tell nothing to redraw using the plot because the data is currently invalid; a dataChanged will be emitted when it is valid again.
+							// This would need to be deterministic, so maybe we need to use function calls instead of signals.
+};
+
+
+// TODO: This is a wrapper class to allow any class which ________
+
+
+
+// This class provides a Qt TabkeModel implementation of XY data.  It is optimized for fast storage of real-time data.
+// It provides fast (usually constant-time) lookups of the min and max values for each axis, which is important for plotting so that 
+	// boundingRect() and autoscaling calls run quickly.
+// When using for real-time data, calling insertPointFront and insertPointBack is very fast.
+// This class implements all the functions of the MPlotAbstractSeriesData interface.  However, if we told the compiler that, it would 
+// imply multiple inheritance of QObject, which is not allowed. To pass this class to plot->setModel(), you must use wrapper-class MPlotRealtimeModelSeriesData
+class MPlotRealtimeModel : public QAbstractTableModel {
+	
     Q_OBJECT
 	
 public:
-	MPlotSeriesData(QObject *parent = 0) : QAbstractTableModel(parent), xName_("x"), yName_("y") {
+	MPlotRealtimeModel(QObject *parent = 0) : QAbstractTableModel(parent), xName_("x"), yName_("y") {
 		
 		// min/max tracking indices are invalid at start (empty model)
 		minYIndex_ = maxYIndex_ = minXIndex_ = maxXIndex_ = -1;
@@ -25,6 +64,10 @@ public:
 	int rowCount(const QModelIndex & /*parent*/) const { return xval_.count(); }
 	int count() const { return xval_.count(); }
 	int columnCount(const QModelIndex & /*parent*/) const { return 2; }
+	
+	double x(size_t index) const { if(index<(size_t)xval_.count()) return xval_.at(index); else return 0.0; }
+	double y(size_t index) const { if(index<(size_t)yval_.count()) return yval_.at(index); else return 0.0; }
+	
 	
 	QVariant data(const QModelIndex &index, int role) const {
 		
@@ -50,9 +93,6 @@ public:
 		// Anything else:
 		return QVariant();		
 	}
-	
-	double x(int index) const { if(index>=0 && index<xval_.count()) return xval_.at(index); else return 0.0; }
-	double y(int index) const { if(index>=0 && index<yval_.count()) return yval_.at(index); else return 0.0; }
 	
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const {
 		
@@ -85,13 +125,15 @@ public:
 			// Setting an x value?
 			if(index.column() == 0) {
 				minMaxChangeCheckX(dval, index.row());
-				emit dataChanged(index, index);
+				emit QAbstractItemModel::dataChanged(index, index);
+				emit dataChanged(index.row(), index.row());
 				return true;
 			}
 			// Setting a y value?
 			if(index.column() == 1) {
 				minMaxChangeCheckY(dval, index.row());
-				emit dataChanged(index, index);
+				emit QAbstractItemModel::dataChanged(index, index);
+				emit dataChanged(index.row(), index.row());
 				return true;
 			}
 		}
@@ -124,6 +166,9 @@ public:
 		minMaxAddCheck(x, y, 0);
 		
 		endInsertRows();
+		
+		// Signal a full-plot update
+		emit dataChanged(1,0);
 	}
 	
 	// This allows you to add data points at the end:
@@ -135,7 +180,9 @@ public:
 		
 		minMaxAddCheck(x, y, xval_.count()-1);		
 		
-		endInsertRows();		
+		endInsertRows();
+		// Signal a full-plot update
+		emit dataChanged(1,0);
 	}
 	
 	// Remove a point at the front (Returns true if successful).
@@ -165,7 +212,10 @@ public:
 			maxXIndex_ = searchMaxIndex(xval_);
 		
 		
-		endRemoveRows();	
+		endRemoveRows();
+		
+		// Signal a full-plot update
+		emit dataChanged(1,0);
 		return true;
 	}
 	
@@ -191,10 +241,13 @@ public:
 			maxXIndex_ = searchMaxIndex(xval_);
 		
 		endRemoveRows();
+		
+		// Signal a full-plot update
+		emit dataChanged(1,0);
 		return true;
 	}
 	
-	QRectF boundingRect() const {
+	virtual QRectF boundingRect() const {
 		if(xval_.isEmpty() || yval_.isEmpty())
 			return QRectF();	// No data... return an invalid QRectF
 		
@@ -204,6 +257,9 @@ public:
 	
 	// TODO: add properties: set and read axis names
 
+signals:
+	void dataChanged(size_t fromIndex, size_t toIndex);
+	
 protected:
 	
 	// Members: Data arrays:
@@ -321,5 +377,35 @@ protected:
 	double maxX() const { return xval_.at(maxXIndex_); }
 	
 };
+
+
+// This is a wrapper class allowing an MPlotRealtimeModel to be used as series data
+// Note that the MPlotRealtimeModel _already_ implements the MPlotAbstractSeriesData interface, but can't say so because that would cause multiple inheritance of QObject.
+class MPlotRealtimeModelSeriesData : public MPlotAbstractSeriesData {
+	Q_OBJECT
+	
+public:
+	MPlotRealtimeModelSeriesData(MPlotRealtimeModel& model, QObject* parent = 0) : MPlotAbstractSeriesData(parent), model_(model) {
+
+		connect(&model_, SIGNAL(dataChanged(size_t, size_t)), this, SIGNAL(dataChanged(size_t, size_t)));
+	}
+	
+	// Return the x-value (y-value) at index:
+	virtual double x(size_t index) const { return model_.x(index); }
+	virtual double y(size_t index) const { return model_.y(index); }
+	
+	// Return the number of elements
+	virtual size_t count() const { return model_.count(); }
+	
+	
+	// Return the bounds of the data (the rectangle containing the max/min x- and y-values)
+	QRectF boundingRect() const { return model_.boundingRect(); }
+	
+	
+protected:
+	MPlotRealtimeModel& model_;
+	
+};
+
 
 #endif

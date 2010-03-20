@@ -2,7 +2,6 @@
 
 #include "MPlotWindow.h"
 #include "MPlotSeriesData.h"
-#include "MPlotSeries.h"
 #include "MPlotSeriesRaw.h"
 
 #include <QTableView>
@@ -14,6 +13,18 @@
 
  #include <QGLWidget>
 #include <cmath>
+
+
+// Major todo's: thursday:
+/*
+ - architecture: make MPlot a QGraphicsObject ; figure out scene/view geometry; remove need for mplotwindow
+ - think: make mplotseries just a normal object that adds a bunch of separate objects to scene? raw painting instead of lists of markers? 
+ - read qpainter->worldTransform; look at 40000 chip example; look at bookmarked offscreen rendering example; qtconcurrent
+ - smoothpixmap transform?
+ - MPlotSeriesData: let MPlotSeries use a MPlotAbstractSeriesData interface; make MPlotSeriesDataFromTableModel and MPlotSeriesDataFromTreeModel wrappers.
+	// and MPlotSeriesDataRealtime, which is optimized for queue-mode enter/leave data.
+ - Think about how to optimize drawing for 100000pt realtime (change individual rows; add to front/back) use
+ */
 
  int main(int argc, char *argv[])
  {
@@ -61,7 +72,9 @@
 
 	 // 3. Add data. Data is contained in the first two columns of an MPlotSeriesData:
 	 //////////////////////////////
-	 MPlotSeriesData data1, data2;
+	 MPlotRealtimeModel data1, data2;
+	 // These class wrap MPlotRealtimeModel so that they can be used as plot series data.
+	 MPlotRealtimeModelSeriesData sdata1(data1), sdata2(data2);
 	 /*
 	 data1.insertPointBack(0.55, 0.57);
 	 data1.insertPointFront(0.4, 0.43);
@@ -82,14 +95,14 @@
 	 	// data2.insertPointBack(double(rand())/RAND_MAX/2, double(rand())/RAND_MAX/2);
 	 
 	 // many-point sine wave:
-	 for(int i=0; i<1000000; i++)
-	 	 data2.insertPointBack(-0.5+i/1000000.0, sin((-0.5+i/1000000.0)*4*3.1415));
+	 for(int i=0; i<1000; i++)
+	 	 data2.insertPointBack(-0.5+i/1000.0, sin((-0.5+i/1000.0)*4*3.1415));
 
 	 
 	 // 4.  View the data.  A basic scatter/line plot is an MPlotSeries:
 	 ////////////////////////////////////////////////////
-	 MPlotSeries series1;
-	 MPlotSeries series2;
+	 MPlotSeriesRaw series1;
+	 MPlotSeriesRaw series2;
 	 series1.setObjectName("series1");
 	 series2.setObjectName("series2");
 	 
@@ -97,8 +110,8 @@
 	 // series1.setYAxisTarget(MPlotAxis::Right);
 	 
 	 // connect this plot series as a view on its model (data1, data2)
-	 series1.setModel(&data1);	
-	 series2.setModel(&data2);
+	 series1.setModel(&sdata1);	
+	 series2.setModel(&sdata2);
 	 
 	 
 	 // 5. Configure look of the plots:
@@ -111,18 +124,18 @@
 	 series1.setLinePen( redSkinny);	// set the pen for drawing the series
 	 series2.setLinePen( greenFat );
 	 
-	 // Marker size and shape:
-	 series2.setMarkerSize(12);
+	 // Marker size and shape: (always set shape before size/pen/brush)
+	  // series2.setMarkerShape(MPlotMarkerShape::StarCircle);
 	 series2.setMarkerShape(MPlotMarkerShape::None);
-	 // series2.setMarkerShape(MPlotMarkerShape::StarCircle);
+	 series2.setMarkerSize(12);
 	 
 	 // Can also configure the marker pen and brush:
 	 series2.setMarkerPen(pinkSkinny);
 	 series2.setMarkerBrush(QBrush(QColor(Qt::black)));
 	 
 	 // Gridlines:
-	 plot.axisRight()->showGrid(true);
-	 //plot.axisRight()->setGridPen(greenFat);
+	 // plot.axisRight()->showGrid(true);
+	 // plot.axisRight()->setGridPen(greenFat);
 	 
 	 
 	 // 6. Adding a series to a plot:
@@ -175,8 +188,10 @@
 	 
 	// 5. (continued) More fun with marker shapes... Testing changes after a plot is created:
 	//////////////////
-	series1.setMarkerSize(6);
 	series1.setMarkerShape(MPlotMarkerShape::Cross);
+	series1.setMarkerSize(24);
+	series1.setMarkerPen(QPen(QColor(Qt::yellow), 0));
+	 
 	 
 	 // 11. Enable, disable, and selection?
 	 /////////////////////////////
