@@ -431,6 +431,8 @@ protected:
 			// Round off:
 			minTickVal_ = trunc(min_/norm);
 			tickIncVal_  = trunc( (max_/norm-minTickVal_)/(numTicks()-1) );
+			if((int)tickIncVal_ == 0)
+				tickIncVal_ = 1;
 
 			
 			// Hit Zero if possible: (while passing through origin)

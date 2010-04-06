@@ -9,6 +9,9 @@
 // When selecting lines on plots with the mouse, this is how wide the selection ballpark is, in pixels. (Actually, in sceneCoordinates, but we prefer that you don't transform the view, so viewCoordinates = sceneCoordinates)
 #define MPLOT_SELECTION_WIDTH 10
 
+/// This is the width of the rubber-band cursor when selecting plot ranges:
+#define MPLOT_RUBBERBAND_WIDTH 2
+
 
 /// This class provides a plot tool that can be used to select a single series in a plot:
 class MPlotPlotSelectorTool : public MPlotAbstractTool {
@@ -86,6 +89,122 @@ protected:
 	virtual void	mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event ) { QGraphicsObject::mouseDoubleClickEvent(event); }
 
 	MPlotAbstractSeries* selectedSeries_;
+
+};
+
+
+#include <QGraphicsRectItem>
+#include <QStack>
+
+/// This class provides a plot tool that can be used to select a single series in a plot:
+class MPlotDragZoomerTool : public MPlotAbstractTool {
+	Q_OBJECT
+public:
+	MPlotDragZoomerTool() : MPlotAbstractTool() {
+
+		selectionRect_ = new QGraphicsRectItem(QRectF(), this);
+
+		QPen selectionPen = QPen(QBrush(MPLOT_SELECTION_COLOR), MPLOT_RUBBERBAND_WIDTH);
+		selectionPen.setCosmetic(true);
+
+		selectionRect_->setPen(selectionPen);
+
+		QColor brushColor = MPLOT_SELECTION_COLOR;
+		brushColor.setAlphaF(0.35);
+		selectionRect_->setBrush(brushColor);
+
+		dragInProgress_ = false;
+	}
+
+
+signals:
+
+
+protected:
+
+	virtual void	mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
+
+		if(event->button() == Qt::LeftButton) {
+			dragInProgress_ = true;
+			selectionRect_->setRect(QRectF(event->buttonDownPos(Qt::LeftButton), event->buttonDownPos(Qt::LeftButton)));
+			// Disable auto-scaling... we're taking over manual control...
+			plot()->enableAutoScaleBottom(false);
+			if(yAxisTarget_ == MPlotAxis::Right)
+				plot()->enableAutoScaleRight(false);
+			else
+				plot()->enableAutoScaleLeft(false);
+		}
+
+
+	}
+
+	virtual void	mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) {
+		if(dragInProgress_) {
+			selectionRect_->setRect(QRectF(event->buttonDownPos(Qt::LeftButton), event->pos()));
+		}
+	}
+
+	virtual void	mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) {
+		if(dragInProgress_ && event->button() == Qt::LeftButton) {
+			selectionRect_->setRect(QRectF());
+			dragInProgress_ = false;
+
+			QRectF oldZoom, newZoom;
+			// Get old axis coordinates:
+			if(yAxisTarget_ == MPlotAxis::Right) {
+				oldZoom = QRectF(QPointF(plot()->xMin(), plot()->yRightMin()), QPointF(plot()->xMax(), plot()->yRightMax()));
+				zoomStack_.push(oldZoom);
+
+				QPointF new1(event->buttonDownPos(Qt::LeftButton).x(), event->buttonDownPos(Qt::LeftButton).y());
+				QPointF new2(event->pos().x(), event->pos().y());
+				newZoom = QRectF(new1, new2);
+				newZoom = plot()->rightAxisTransform().inverted().mapRect(newZoom);
+				plot()->setXDataRange(qMin(newZoom.left(), newZoom.right()), qMax(newZoom.left(), newZoom.right()));
+				plot()->setYDataRangeRight(qMin(newZoom.bottom(), newZoom.top()), qMax(newZoom.bottom(), newZoom.top()));
+			}
+			else {
+				oldZoom = QRectF(QPointF(plot()->xMin(), plot()->yLeftMin()), QPointF(plot()->xMax(), plot()->yLeftMax()));
+				zoomStack_.push(oldZoom);
+
+				QPointF new1(qMin(event->buttonDownPos(Qt::LeftButton).x(), event->pos().x()), qMin(event->buttonDownPos(Qt::LeftButton).y(), event->pos().y()));
+				QPointF new2(qMax(event->buttonDownPos(Qt::LeftButton).x(), event->pos().x()), qMax(event->buttonDownPos(Qt::LeftButton).y(), event->pos().y()));
+				newZoom = QRectF(new1, new2);
+				newZoom = plot()->leftAxisTransform().inverted().mapRect(newZoom);
+				plot()->setXDataRange(qMin(newZoom.left(), newZoom.right()), qMax(newZoom.left(), newZoom.right()));
+				plot()->setYDataRangeLeft(qMin(newZoom.bottom(), newZoom.top()), qMax(newZoom.bottom(), newZoom.top()));
+
+			}
+			qDebug() << "zoom to rect:" << newZoom;
+		}
+
+		// Right mouse button let's you go back
+		if(!dragInProgress_ && event->button() == Qt::RightButton) {
+			// If we have old zoom settings to go back to:
+			if(zoomStack_.count() > 0) {
+				QRectF newZoom = zoomStack_.pop();
+				plot()->setXDataRange(qMin(newZoom.left(), newZoom.right()), qMax(newZoom.left(), newZoom.right()));
+				if(yAxisTarget_ == MPlotAxis::Right)
+					plot()->setYDataRangeRight(qMin(newZoom.bottom(), newZoom.top()), qMax(newZoom.bottom(), newZoom.top()));
+				else
+					plot()->setYDataRangeLeft(qMin(newZoom.bottom(), newZoom.top()), qMax(newZoom.bottom(), newZoom.top()));
+			}
+			// otherwise go back to auto-scale:
+			else {
+				plot()->enableAutoScaleBottom(true);
+				if(yAxisTarget_ == MPlotAxis::Right)
+					plot()->enableAutoScaleRight(true);
+				else
+					plot()->enableAutoScaleLeft(true);
+			}
+		}
+	}
+
+	virtual void	wheelEvent ( QGraphicsSceneWheelEvent * event ) { QGraphicsObject::wheelEvent(event); }
+	virtual void	mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event ) { QGraphicsObject::mouseDoubleClickEvent(event); }
+
+	QGraphicsRectItem* selectionRect_;
+	QStack<QRectF> zoomStack_;
+	bool dragInProgress_;
 
 };
 

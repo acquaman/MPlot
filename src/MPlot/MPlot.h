@@ -100,7 +100,7 @@ public:
 		newTool->setParentItem(plotArea_);
 		tools_ << newTool;
 
-		placeTool(newTool);
+		// placeTool(newTool);
 		newTool->setPlot(this);
 	}
 
@@ -170,14 +170,16 @@ public:
 	void setMarginTop(double value) { setMargin(MPlotAxis::Top, value); }
 	void setMarginBottom(double value) { setMargin(MPlotAxis::Bottom, value); }
 
-	/*
-	double xDataRangeMin() { return xmin_; }
-	double xDataRangeMax() { return xmax_; }
-	double yDataRangeLeftMin() { return yleftmin_; }
-	double yDataRangeRightMin() { return yrightmin_; }
-	double yDataRangeLeftMax() { return yleftmax_; }
-	double yDataRangeRightMax() { return yrightmax_; }
-	 */
+
+	double xMin() { return xmin_; }
+	double xMax() { return xmax_; }
+	double yLeftMin() { return yleftmin_; }
+	double yRightMin() { return yrightmin_; }
+	double yLeftMax() { return yleftmax_; }
+	double yRightMax() { return yrightmax_; }
+	QTransform leftAxisTransform() { return leftAxisTransform_; }
+	QTransform rightAxisTransform() { return rightAxisTransform_; }
+
 
 	void enableAutoScaleBottom(bool autoScaleOn) { if(autoScaleBottomEnabled_ = autoScaleOn) setXDataRange(0, 0, true); }
 	void enableAutoScaleLeft(bool autoScaleOn) { if(autoScaleLeftEnabled_ = autoScaleOn) setYDataRangeLeft(0, 0, true); }
@@ -199,8 +201,6 @@ public:
 
 		foreach(MPlotAbstractSeries* series, series_)
 			placeSeries(series);
-		foreach(MPlotAbstractTool* tool, tools_)
-			placeTool(tool);
 	}
 
 	double scalePadding() { return scalePadding_ * 100; }
@@ -213,8 +213,6 @@ public:
 		foreach(MPlotAbstractSeries* series, series_) {
 			placeSeries(series);
 		}
-		foreach(MPlotAbstractTool* tool, tools_)
-			placeTool(tool);
 
 	}
 
@@ -226,8 +224,6 @@ public:
 		foreach(MPlotAbstractSeries* series, series_) {
 			placeSeries(series);
 		}
-		foreach(MPlotAbstractTool* tool, tools_)
-			placeTool(tool);
 	}
 
 	void setYDataRangeRight(double min, double max, bool autoscale = false) {
@@ -237,8 +233,6 @@ public:
 		// Apply new transforms:
 		foreach(MPlotAbstractSeries* series, series_)
 			placeSeries(series);
-		foreach(MPlotAbstractTool* tool, tools_)
-			placeTool(tool);
 	}
 
 public slots:
@@ -262,8 +256,6 @@ protected slots:
 		if(autoScaleBottomEnabled_ | autoScaleLeftEnabled_ | autoScaleRightEnabled_) {
 			foreach(MPlotAbstractSeries* series, series_)
 				placeSeries(series);
-			foreach(MPlotAbstractTool* tool, tools_)
-				placeTool(tool);
 		}
 
 		// Possible optimizations:
@@ -316,6 +308,7 @@ protected:
 	}
 
 	/// Applies the leftAxis or rightAxis transformation matrix (depending on the
+	/*
 	void placeTool(MPlotAbstractTool* tool) {
 		if(tool->yAxisTarget() == MPlotAxis::Right) {
 			tool->setTransform(rightAxisTransform_);
@@ -323,7 +316,7 @@ protected:
 		else {
 			tool->setTransform(leftAxisTransform_);
 		}
-	}
+	}*/
 
 
 	/// Sets the defaults for the drawing options: margins, scale padding, background colors, initial data range.

@@ -239,7 +239,11 @@
 	// 12: Testing plot tools: MPlotPlotSelectorTool:
 	MPlotPlotSelectorTool psTool;
 	plot.addTool(&psTool);
-	// psTool.setEnabled(false);
+	psTool.setEnabled(false);
+
+	MPlotDragZoomerTool dzTool;
+	plot.addTool(&dzTool);
+	// dzTool.setEnabled(false);
 	 
 	return app.exec();
  }
