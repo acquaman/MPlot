@@ -4,7 +4,7 @@
 #include "MPlotAxis.h"
 #include "MPlotLegend.h"
 #include "MPlotAbstractSeries.h"
-#include "MPlotSeriesRaw.h"
+#include "MPlotSeriesBasic.h"
 #include <QList>
 #include <QGraphicsObject>
 #include <QGraphicsScene>

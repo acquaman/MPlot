@@ -2,7 +2,7 @@
 
 #include "MPlotWidget.h"
 #include "MPlotSeriesData.h"
-#include "MPlotSeriesRaw.h"
+#include "MPlotSeriesBasic.h"
 
 #include <QTableView>
 #include <QPen>
@@ -51,11 +51,17 @@
 	 //plot.axisLeft()->setTickPen(QPen(QBrush(QColor(Qt::green)), 0));
 	 //plot.axisRight()->setTickPen(QPen(QBrush(QColor(Qt::blue)), 0));
 	 plot.axisRight()->setTicks(3, MPlotAxis::Inside, 2);	// Set the approximate number and style of axis tick marks:
+	 // plot.axisRight()->showTickLabels(false);
+	 plot.axisRight()->setAxisName("y_right");
+	 plot.axisRight()->showAxisName(true);
+
+	 plot.axisBottom()->setAxisName("eV");
+	 plot.axisLeft()->setAxisName("Intensity (arb. units)");
 
 	 
 	 // Change the margins: (in % of the plot width/height)
 	 plot.setMarginTop(5);
-	 plot.setMarginRight(5);
+	 plot.setMarginRight(10);
 	 plot.setMarginLeft(15);
 	 plot.setMarginBottom(15);
 
@@ -68,6 +74,10 @@
 	 
 	 // Disable tick marks completely:
 	 plot.axisTop()->setTicks(0);
+	 plot.axisTop()->setAxisName("time (s)");
+	 plot.axisTop()->showAxisName();
+
+	// plot.axisTop()->showTickLabels(true);
 	 
 
 	 // 3. Add data. Data is contained in the first two columns of an MPlotSeriesData:
@@ -101,8 +111,8 @@
 	 
 	 // 4.  View the data.  A basic scatter/line plot is an MPlotSeries:
 	 ////////////////////////////////////////////////////
-	 MPlotSeriesRaw series1;
-	 MPlotSeriesRaw series2;
+	 MPlotSeriesBasic series1;
+	 MPlotSeriesBasic series2;
 	 series1.setObjectName("series1");
 	 series2.setObjectName("series2");
 	 
@@ -201,15 +211,16 @@
 	 // 10. Printing:
 	 ////////////////////
 	 
-	 /*
+
+	/*
 	 QPrinter printer;
 	 printer.setOrientation(QPrinter::Landscape);
 	 if (QPrintDialog(&printer).exec() == QDialog::Accepted) {
 		 QPainter painter(&printer);
 		 painter.setRenderHint(QPainter::Antialiasing);
-		 plot.render(&painter);
+		 plotWindow.scene()->render(&painter);
 	 } // Print this to a PDF to see vector-graphics export.  Wow that was easy!
-	  */
+*/
 	 
 	 /* PNG export:
 	 QPixmap pixmap;

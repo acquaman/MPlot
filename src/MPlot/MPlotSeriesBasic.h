@@ -1,5 +1,5 @@
-#ifndef __MPlotSeriesRaw_H__
-#define __MPlotSeriesRaw_H__
+#ifndef __MPlotSeriesBasic_H__
+#define __MPlotSeriesBasic_H__
 
 #include "MPlotAbstractSeries.h"
 #include <QGraphicsLineItem>
@@ -14,25 +14,27 @@
 // The value that makes sense here is 1 (since you can't see any more... they'll just look like vertical lines on top of each other.)
 #define MPLOT_MAX_LINES_PER_PIXEL 1.0
 
+/// \bug Using test plot in main.cpp with 100,000 pts... resize plot in x and note how slope of connecting line between end of sinusoid and the other points changes as you slide across. should not.
+
 
 // If you're going to add a lot of points to the model (without caring about updates in between), recommend this for performance reasons:
 /*
-	MPlotSeriesRaw series;
+	MPlotSeriesBasic series;
 	 ....
 	series->setModel(0);	// disconnect series from data model
 	// add points to model...
 	series->setModel(model);	// reconnect model to series
  */
 
-class MPlotSeriesRaw : public MPlotAbstractSeries {
+class MPlotSeriesBasic : public MPlotAbstractSeries {
 	
 	Q_OBJECT
 	
 public:
 	
-	MPlotSeriesRaw(const MPlotAbstractSeriesData* data = 0, QGraphicsItem* parent = 0) : MPlotAbstractSeries(data, parent) {
+	MPlotSeriesBasic(const MPlotAbstractSeriesData* data = 0, QGraphicsItem* parent = 0) : MPlotAbstractSeries(data, parent) {
 		
-		// unique setup for MPlotSeriesRaw?
+		// unique setup for MPlotSeriesBasic?
 	
 		
 	}

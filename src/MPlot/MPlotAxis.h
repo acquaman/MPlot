@@ -6,6 +6,8 @@
 #include <QList>
 #include <QFont>
 #include <QPen>
+#include <QPainter>
+#include <QDebug>
 
 #include <math.h>
 
@@ -19,43 +21,18 @@ public:
 	
 	// Axis ID:
 	MPlotAxis(AxisID type, QString name = QString(""), QGraphicsItem* parent = 0) : QGraphicsItem(parent) {
-		
-		setFlags(QGraphicsItem::ItemHasNoContents);
 
 		type_ = type;		
 		name_ = name;
 		
+		numTicks_ = 5;
 		setDefaults();	
-				
-		// Create main axis border:
-		mainLine_ = new QGraphicsLineItem(this);
-		
-		// Normal ticks/tick labels are created in createTicks().
-		// These extra guys hang around, and we enable them if there's room to fit an additional tick on the axis scale.
-		extraTick_ = new QGraphicsLineItem(this);
-		extraTick_->setVisible(false);
-		extraLabel_ = new QGraphicsSimpleTextItem(this);
-		extraLabel_->setVisible(false);
-		extraGrid_ = new QGraphicsLineItem(this);
-		extraGrid_->setVisible(false);
-		
-		
-		// Create the tick marks:
-		createTicks(5);
 		
 		// Put everything in the right spot:
 		placeAxis();		
 	}
 	
 	virtual ~MPlotAxis() {
-		// Destroy all ticks:
-		createTicks(0);
-		
-		// Delete the main axis
-		delete mainLine_;
-		delete extraTick_;
-		delete extraLabel_;
-		delete extraGrid_;
 	}
 	
 	// Set the range (in data-value coordinates)
@@ -71,9 +48,7 @@ public:
 		// tStyle can be Inside, Outside, or Middle.  tickLength is in logical coordinates ("percent of plot") coordinates.
 	void setTicks(int num, TickStyle tstyle = Outside, double tickLength = 2) {
 		
-		if(num != ticks_.count()) {
-			createTicks(num);
-		}
+		numTicks_ = num;
 		tickStyle_ = tstyle;
 		tickLength_ = tickLength/100;
 		placeAxis();
@@ -83,35 +58,142 @@ public:
 	// Access properties:
 	double min() const { return min_; }
 	double max() const { return max_; }
-	int numTicks() const { return ticks_.count(); }
+	int numTicks() const { return numTicks_; }
 	const QString& name() const { return name_; }
 	// TODO: access font, labelOffset, etc.
-		
-	void showTickLabels(bool valuesOn) { tickLabelsVisible_ = valuesOn;  placeAxis(); }
-	void showGrid(bool gridOn) { gridVisible_ = gridOn; placeAxis(); }
+
+	/// show or hide the value labels along the axis
+	void showTickLabels(bool tickLabelsOn = true) { tickLabelsVisible_ = tickLabelsOn;  placeAxis(); }
+	/// show or hide the grid lines
+	void showGrid(bool gridOn = true) { gridVisible_ = gridOn; update(); }
+	/// show or hide the axis name
+	void showAxisName(bool axisNameOn = true) { axisNameVisible_ = axisNameOn; placeAxis(); }
 	
-	// Set the pen for the axis line:
-	void setAxisPen(const QPen& pen) { axisPen_ = pen; axisPen_.setCosmetic(true); mainLine_->setPen(axisPen_); }
-	void setTickPen(const QPen& pen) { tickPen_ = pen; tickPen_.setCosmetic(true); foreach(QGraphicsLineItem* tick, ticks_) tick->setPen(tickPen_); extraTick_->setPen(tickPen_); }
-	void setGridPen(const QPen& pen) { gridPen_ = pen; gridPen_.setCosmetic(true); foreach(QGraphicsLineItem* grid, grids_) grid->setPen(gridPen_); extraGrid_->setPen(gridPen_); }
+	/// Set the pen for the axis line and axis name text:
+	void setAxisPen(const QPen& pen) { axisPen_ = pen; axisPen_.setCosmetic(true); update(); }
+	/// set the pen for the ticks along the axis:
+	void setTickPen(const QPen& pen) { tickPen_ = pen; tickPen_.setCosmetic(true); update(); }
+	/// set the pen for the grid lines
+	void setGridPen(const QPen& pen) { gridPen_ = pen; gridPen_.setCosmetic(true); update(); }
+	/// set the font used for the values along the axis
+	void setTickLabelFont(const QFont& font) { tickLabelFont_ = font; placeAxis(); }
+	/// set the font used for the axis name
+	void setAxisNameFont(const QFont& font) { axisNameFont_ = font; placeAxis(); }
+
+	/// Set the axis name:
+	void setAxisName(const QString& name) { name_ = name; placeAxis(); }
 	// TODO: minor ticks
 	
 	// Required functions:
 	//////////////////////////
 	// Bounding rect:
-	virtual QRectF boundingRect() const { return childrenBoundingRect(); }
-	// Paint:
-	virtual void paint(QPainter* /*painter*/,
-		  const QStyleOptionGraphicsItem* /*option*/,
-		  QWidget* /*widget*/) {
-		// Do nothing... drawn with children
+	virtual QRectF boundingRect() const {
+
+		// For this to be accurate, make sure to keep mainLine_ going from (smallestX, smallestY) to (largestX, largestY)
+		// and tickLine_ going from (smallestX, smallestY) in P1 to (largestX, largestY) in P2.
+		QPointF bottomLeft(mainLine_.x1()+tickLine_.x1(), mainLine_.y1()+tickLine_.y1());
+		QPointF topRight(mainLine_.x2()+tickLine_.x2(), mainLine_.y2()+tickLine_.y2());
+		QRectF br(bottomLeft, topRight);
+
+		// If the grids are on, they take up the whole (0,0) to (1,1) rectangle:
+		if(gridVisible_)
+			br |= QRectF(0,0,1,1);
+
+		return (br | tickLabelBr_ | nameBr_);
 	}
+	// Paint:
+	virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) {
+
+		Q_UNUSED(widget)
+		Q_UNUSED(option)
+
+
+		// Disable anti-aliasing, because these horizontal lines look best non-AA'd.
+		/// \todo: check for rotation, and leave AA on if rotated.
+		painter->setRenderHint(QPainter::Antialiasing, false);
+
+		// Draw the main axis line:
+		painter->setPen(axisPen_);
+		painter->drawLine(mainLine_);
+
+		// Draw the ticks:
+		painter->setPen(tickPen_);
+		for(int i=0; i<numTicks_; i++) {
+			painter->drawLine(tickLine_.translated(scStartP_ + i*scIncP_));
+		}
+
+
+		// clear/initialize the bounding box containing the tick labels. (It determines where to place the axis name. Needed if we're not drawing the axis names).
+		tickLabelBr_ = QRectF();
+		switch(type_) {
+		case Bottom:
+			tickLabelBr_ = QRectF(0,0,1,0);
+			break;
+		case Top:
+			tickLabelBr_ = QRectF(0,1,1,0);
+			break;
+		case Left:
+			tickLabelBr_ = QRectF(0,0,0,1);
+			break;
+		case Right:
+			tickLabelBr_ = QRectF(1,0,0,1);
+			break;
+		}
+
+		// calculate a nice size/scaling for text:
+		calcTextTransform(painter);
+
+		// Draw Tick Labels:
+		if(tickLabelsVisible_) {
+			painter->setPen(axisPen_);
+			painter->setFont(tickLabelFont_);
+			for(int i=0; i<numTicks_; i++)
+				drawLabel(painter, QString("%1").arg(minTickVal_+i*tickIncVal_), scStartP_ + i*scIncP_);
+		}
+
+		// Draw grids:
+		if(gridVisible_) {
+			painter->setPen(gridPen_);
+			for(int i=0; i<numTicks_; i++)
+				painter->drawLine(gridLine_.translated(scStartP_ + i*scIncP_));
+		}
+
+		// Is there room left for the extra tick on the axis?
+		if(numTicks_ > 1 && scStart_ + numTicks_*scIncrement_ < 1) {
+			// draw extra tick:
+			painter->setPen(tickPen_);
+			painter->drawLine(tickLine_.translated(scStartP_ + numTicks_*scIncP_));
+
+			// draw extra tick label:
+			if(tickLabelsVisible_) {
+				painter->setPen(axisPen_);
+				drawLabel(painter, QString("%1").arg(minTickVal_+numTicks_*tickIncVal_), scStartP_ + numTicks_*scIncP_);
+			}
+
+			// draw extra grid:
+			if(gridVisible_) {
+				painter->setPen(gridPen_);
+				painter->drawLine(gridLine_.translated(scStartP_ + numTicks_*scIncP_));
+			}
+		}
+
+		// Draw axis name?
+		if(axisNameVisible_) {
+			painter->setFont(axisNameFont_);
+			painter->setPen(axisPen_);
+			drawAxisName(painter);
+		}
+	}
+
+
+
 	// TODO: finer shape?
 	/*
 	QPainterPath shape() {
 		return 
 	}*/
 	
+
 protected:
 	
 	// Properties:
@@ -119,191 +201,223 @@ protected:
 	
 	AxisID type_;
 	TickStyle tickStyle_;
+	unsigned numTicks_;
 	
 	// tick lengths, in logical units (fraction of plot width)
 	double tickLength_;
 	double tickLabelOffset_;
 
-	bool tickLabelsVisible_, gridVisible_;
+	bool tickLabelsVisible_, gridVisible_, axisNameVisible_;
 	
 	QString name_;
 	
 	QPen axisPen_, tickPen_, gridPen_;
-	QFont tickLabelFont_, labelFont_;
+	QFont tickLabelFont_, axisNameFont_;
 	
 	// Actual tick values:
 	double minTickVal_, tickIncVal_;
 	
-	// Objects:
-	QGraphicsLineItem* mainLine_, *extraTick_, *extraGrid_;
-	QList<QGraphicsLineItem*> ticks_, grids_;
-	QList<QGraphicsSimpleTextItem*> labels_;
-	QGraphicsSimpleTextItem* extraLabel_;
+	// Coordinates, computed by placeAxis and used for paint()ing:
+	QLineF mainLine_, tickLine_, gridLine_;
+	QPointF scStartP_, scIncP_;
+	double scStart_, scIncrement_;
+
+	// cached bounding rectangle of all the text labels:
+	QRectF tickLabelBr_;
+	// cached bounding rectangle of the axis name label:
+	QRectF nameBr_;
+	// textTransform: A transform based on our true device coordinates, used to draw undistorted text at a nice size:
+	QTransform tt_;
 	
 	
 	//Helper Functions:
 	
-	// Adjust the length of the main line, and re-place the correct number of ticks.
+	// Adjust the length of the main line, and determine the locations for the ticks.
 	void placeAxis() {
 		
 		// Determine "nice" values for the axis labels. (Sets minTickVal_ and tickIncVal_)
 		intelliScale();
 		
-		// The ratio of scene coordinates to data coordinates:
-		double scPerDC = 1.0 / (max_ - min_);
-		double scIncrement = tickIncVal_ * scPerDC;
-		double scStart = (minTickVal_ - min_) * scPerDC;		
+		// Tick increment and initial value, in our painting coordinates which go from 0 to 1
+		scIncrement_ = tickIncVal_ / (max_ - min_);
+		scStart_ = (minTickVal_ - min_) / (max_ - min_);
 		
-		QLineF tickLine, gridLine;
-		QPointF scIncP, scStartP;
-		
-		// Handle differences between vertical and horizontal axes:
+		// Handle differences between vertical and horizontal axes.
+		// Set QLineFs mainLine_, gridLine_, and tickLine_
+		// and QPointFs scIncP_, scStartP_ for use by the paint() function
 		if(type_ == Left || type_ == Right) {
-			scIncP = QPointF(0, scIncrement);
+			scIncP_ = QPointF(0, scIncrement_);
 			// Left axis:
 			if(type_ == Left) {
-				mainLine_->setLine(0, 0, 0, 1);
-				scStartP = QPointF(0, scStart);
-				gridLine.setLine(0, 0, 1, 0);
+				mainLine_.setLine(0, 0, 0, 1);
+				scStartP_ = QPointF(0, scStart_);
+				gridLine_.setLine(0, 0, 1, 0);
 				switch(tickStyle_) {
-					case Outside: tickLine.setLine(-tickLength_, 0, 0, 0); break;
-					case Inside: tickLine.setLine(tickLength_, 0, 0, 0); break;
-					case Middle: tickLine.setLine(-tickLength_/2, 0, tickLength_/2, 0); break;
+					case Outside: tickLine_.setLine(-tickLength_, 0, 0, 0); break;
+					case Inside: tickLine_.setLine(0, 0, tickLength_, 0); break;
+					case Middle: tickLine_.setLine(-tickLength_/2, 0, tickLength_/2, 0); break;
 				}
 			}
 			// Right axis:
 			else {
-				mainLine_->setLine(1, 0, 1, 1);
-				scStartP = QPointF(1, scStart);
-				gridLine.setLine(1, 0, 0, 0);
+				mainLine_.setLine(1, 0, 1, 1);
+				scStartP_ = QPointF(1, scStart_);
+				gridLine_.setLine(1, 0, 0, 0);
 				switch(tickStyle_) {
-					case Outside: tickLine.setLine(tickLength_, 0, 0, 0); break;
-					case Inside: tickLine.setLine(-tickLength_, 0, 0, 0); break;
-					case Middle: tickLine.setLine(-tickLength_/2, 0, tickLength_/2, 0); break;
+					case Outside: tickLine_.setLine(0, 0, tickLength_, 0); break;
+					case Inside: tickLine_.setLine(-tickLength_, 0, 0, 0); break;
+					case Middle: tickLine_.setLine(-tickLength_/2, 0, tickLength_/2, 0); break;
 				}
 			}
 		}
 		
-		// Same for horizontal axes (increment is horizontal, tickline is vertical)
+		// Same for horizontal axes (increment is horizontal, tickLine_ is vertical)
 		else{
-			scIncP = QPointF(scIncrement, 0);			
+			scIncP_ = QPointF(scIncrement_, 0);
 			if(type_ == Bottom) {
-				mainLine_->setLine(0, 0, 1, 0);
-				scStartP = QPointF(scStart, 0);
-				gridLine.setLine(0, 0, 0, 1);
+				mainLine_.setLine(0, 0, 1, 0);
+				scStartP_ = QPointF(scStart_, 0);
+				gridLine_.setLine(0, 0, 0, 1);
 				switch(tickStyle_) {
-					case Inside: default: tickLine.setLine(0, tickLength_, 0, 0); break;
-					case Outside: tickLine.setLine(0, -tickLength_, 0, 0); break;
-					case Middle: tickLine.setLine(0, tickLength_/2, 0, -tickLength_/2); break;
+					case Inside: default: tickLine_.setLine(0, 0, 0, tickLength_); break;
+					case Outside: tickLine_.setLine(0, -tickLength_, 0, 0); break;
+					case Middle: tickLine_.setLine(0, -tickLength_/2, 0, tickLength_/2); break;
 				}
 			}
 			else {
-				mainLine_->setLine(0, 1, 1, 1);
-				scStartP = QPointF(scStart, 1);
-				gridLine.setLine(0, 1, 0, 0);
+				mainLine_.setLine(0, 1, 1, 1);
+				scStartP_ = QPointF(scStart_, 1);
+				gridLine_.setLine(0, 1, 0, 0);
 				switch(tickStyle_) {
-					case Inside: default: tickLine.setLine(0, -tickLength_, 0, 0); break;
-					case Outside: tickLine.setLine(0, +tickLength_, 0, 0); break;
-					case Middle: tickLine.setLine(0, tickLength_/2, 0, -tickLength_/2); break;
+					case Inside: default: tickLine_.setLine(0, -tickLength_, 0, 0); break;
+					case Outside: tickLine_.setLine(0, 0, 0, tickLength_); break;
+					case Middle: tickLine_.setLine(0, -tickLength_/2, 0, +tickLength_/2); break;
 				}
 			}
 		}
-		
-		// Place all the ticks along the axis:
-		for(int i=0; i<ticks_.count(); i++) {
-			// Place Ticks:
-			ticks_[i]->setPen(tickPen_);
-			ticks_[i]->setLine(tickLine);
-			ticks_[i]->setPos(scStartP + i*scIncP);
 
-			
-			// Place Tick Labels:
-			if(tickLabelsVisible_) {
-				placeLabel(labels_[i], minTickVal_ + i*tickIncVal_, (scStartP + i*scIncP) );
-			}
-			else {
-				labels_[i]->setVisible(false);	// todo: necessary?
-			}
-			
-			// Place grids:
-			if(gridVisible_) {
-				grids_[i]->setPen(gridPen_); 
-				grids_[i]->setLine(gridLine);
-				grids_[i]->setPos(scStartP + i*scIncP);
-				grids_[i]->setVisible(true);
-			}
-			else {
-				grids_[i]->setVisible(false);	// todo: necessary?
-			}
-		}
-		
-		// Is there room left for the extra tick on the axis?
-		if(ticks_.count() > 1 && scStart + ticks_.count()*scIncrement < 1) {
-			extraTick_->setPen(tickPen_);
-			extraTick_->setLine(tickLine);
-			extraTick_->setPos(scStartP + ticks_.count()*scIncP);
-			extraTick_->setVisible(true);
-			
-			if(tickLabelsVisible_)
-				placeLabel(extraLabel_, minTickVal_ + ticks_.count()*tickIncVal_, scStartP + ticks_.count()*scIncP);
-			else
-				extraLabel_->setVisible(false);
-			
-			if(gridVisible_) {
-				extraGrid_->setPen(gridPen_);
-				extraGrid_->setLine(gridLine);
-				extraGrid_->setPos(scStartP + ticks_.count()*scIncP);
-				extraGrid_->setVisible(true);
-			}
-			else
-				extraGrid_->setVisible(false);
-		}
-		
-		// no room for extra tick
-		else {
-			extraTick_->setVisible(false);
-			extraLabel_->setVisible(false);
-			extraGrid_->setVisible(false);
-		}
+		// repaint:
+		update();
 	}
 	
-	// Place a single label onto the axis position corresponding to 'value' at axis position tickPos
-	// (Accounts for size/shape of label and shifting into centered position automatically)
-	void placeLabel(QGraphicsSimpleTextItem* label, double value, QPointF tickPos) {
-		label->setVisible(true);
-		label->setScale(0.4);
-		label->setText(QString("%1").arg(value));
-		label->setFont(tickLabelFont_);
-		
-		// Label Alignment: depends on size of label
-		QSizeF labelSize = label->boundingRect().size()*0.4;
-		
-		QPointF shift;
+	/// Calculates a transform suitable for applying to the painter to draw undistorted text.
+	/*! The text will shrink and grow with the size of the plot, but only within a reasonable range. (ie: infinitely small text isn't helpful, and super-humongous text isn't helpful).
+		Result is saved in tt_ */
+	void calcTextTransform(QPainter* painter) {
+		// World transform: tells how we would get back into actual pixel coordinates
+		QTransform wt = painter->deviceTransform();	// equivalent to worldTransform and combinedTransform
+
+		// "unscale" to get rid of different scaling in x and y:
+		tt_ = QTransform::fromScale(1/wt.m11(), 1/wt.m22());
+
+		// reintroduce a bit of dependence on the plot size, but constrain with a min/max range.
+		// use the smaller dimension as the relevant one to base this on.
+		double scaleFactor;
+		if(fabs(wt.m11()) > fabs(wt.m22()))
+			scaleFactor = qBound((qreal)0.6, fabs(wt.m22()/250), (qreal)1.4);
+		else
+			scaleFactor = qBound((qreal)0.6, fabs(wt.m11()/250), (qreal)1.4);
+		tt_.scale(scaleFactor, scaleFactor);
+
+
+	}
+
+	void drawLabel(QPainter* painter, const QString& text, const QPointF& tickPos) {
+
+		// Text Transform: will be applied to place text at correct location, scaled back to reasonable, undistorted size
+		QTransform tt = QTransform::fromTranslate(tickPos.x(), tickPos.y());
+
+		// Don't clip if we overflow the container (because we're making a tiny container)
+		int flags = Qt::TextDontClip;
+		// Create a container rectangle centered on the tick position:
+		QRectF container(0,0,0,0);
+
+		// set alignment and offset based on axis orientation:
 		switch(type_) {
-			case Bottom: shift.setX(-labelSize.width()/2); shift.setY( tickLabelOffset_ ); break;
-			case Top: shift.setX(-labelSize.width()/2); shift.setY( -tickLabelOffset_ - labelSize.height() ); break;
-			case Left: shift.setX(-labelSize.width() - tickLabelOffset_); shift.setY( -labelSize.height()/2 ); break;
-			case Right: shift.setX( tickLabelOffset_); shift.setY( -labelSize.height()/2 ); break;
-		}
-		
-		label->setPos(tickPos+shift);
+		case Bottom:
+			flags |= (Qt::AlignHCenter | Qt::AlignTop);
+			tt.translate(0, tickLine_.y1()-tickLabelOffset_);
+			break;
+		case Top:
+			flags |= (Qt::AlignHCenter | Qt::AlignBottom);
+			tt.translate(0, tickLine_.y2()+tickLabelOffset_);
+			break;
+		case Left:
+			flags |= (Qt::AlignRight | Qt::AlignVCenter);
+			tt.translate(tickLine_.x1()-tickLabelOffset_, 0);
+			break;
+		case Right:
+			flags |= (Qt::AlignLeft | Qt::AlignVCenter);
+			tt.translate(tickLine_.x2()+tickLabelOffset_, 0);
+			break;
+		}		
+
+		// apply scaling to get rid of x-y distortion and reach a nice size for text.
+		// (Note that tt_ was calculated once before all calls to drawLabel() )
+		tt.scale(tt_.m11(), tt_.m22());
+		// save the old painter transform,
+		painter->save();
+		// translate the painter into position and scale:
+		painter->setTransform(tt, true);
+
+		QRectF br;	// used to return the effective bounding rectangle
+		// draw the text, and discover the bounding rectangle it filled (note: this will be in tt coordinates... must map back)
+		painter->drawText(container, flags, text, &br);
+		// remember the bounding box of all tick labels:
+		tickLabelBr_ |= tt.mapRect(br);
+
+		// restore the painter transform so we don't mess it up for the next person who draws...
+		painter->restore();
 	}
-	
-	void createTicks(int num) {
-		
-		// remove extra ticks
-		while(ticks_.count() > num) {
-			delete ticks_.takeFirst();
-			delete labels_.takeFirst();
-			delete grids_.takeFirst();
+
+	/// Used to draw the axis name (ex: "x" or "time (s)") onto the plot.  Draw the axis labels first so we know where to put this.
+	void drawAxisName(QPainter* painter) {
+
+		// Text Transform: will be applied to place text at correct location, scaled back to normal size
+		QTransform tt;
+
+		// Don't clip if we overflow the container (because we're making a tiny container)
+		int flags = Qt::TextDontClip;
+		// Create a container rectangle centered on the tick position:
+		QRectF container(0,0,0,0);
+
+		switch(type_) {
+		case Bottom:
+			flags |= (Qt::AlignHCenter | Qt::AlignTop);
+			tt.translate(0.5, tickLabelBr_.top() );
+			tt.scale(tt_.m11(), tt_.m22());
+			break;
+		case Top:
+			flags |= (Qt::AlignHCenter | Qt::AlignBottom);
+			tt.translate(0.5, tickLabelBr_.bottom() );
+			tt.scale(tt_.m11(), tt_.m22());
+			break;
+		case Left:
+			flags |= (Qt::AlignHCenter | Qt::AlignBottom);
+			tt.translate(tickLabelBr_.left(), 0.5);
+			tt.scale(tt_.m11(), tt_.m22());;
+			tt.rotate(-90);
+			break;
+		case Right:
+			flags |= (Qt::AlignHCenter | Qt::AlignTop);
+			tt.translate(tickLabelBr_.right(), 0.5);
+			tt.scale(tt_.m11(), tt_.m22());
+			tt.rotate(-90);
+			break;
 		}
-		
-		// create additional ticks:
-		while(ticks_.count() < num) {
-			ticks_ << new QGraphicsLineItem(this);
-			labels_ << new QGraphicsSimpleTextItem(this);
-			grids_ << new QGraphicsLineItem(this);
-		}
+
+		// save the old painter transform,
+		painter->save();
+		// translate and scale using tt:
+		painter->setTransform(tt, true);
+
+		QRectF br;	// used to return the effective bounding rectangle
+		painter->drawText(container, flags, name_, &br);
+		nameBr_ = tt.mapRect(br);
+
+		// restore the painter transform so we don't mess it up for the next person who draws...
+		painter->restore();
+
 	}
 	
 	// IntelliScale: Calculate "nice" values for starting tick and tick increment.
@@ -344,14 +458,20 @@ protected:
 		
 		tickStyle_ = Outside;
 		tickLength_ = .02;
+		numTicks_ = 5;
 		
-		tickLabelOffset_ = 5;
-		tickLabelFont_.setPixelSize(12);
+		tickLabelOffset_ = 0.02;
+		tickLabelFont_.setPointSize(12);
+		axisNameFont_.setPointSize(12);
 		
-		if(type_ == Top || type_ == Right)
+		if(type_ == Top || type_ == Right) {
 			tickLabelsVisible_ = false;
-		else
+			axisNameVisible_ = false;
+		}
+		else {
 			tickLabelsVisible_ = true;
+			axisNameVisible_ = true;
+		}
 		
 		gridPen_ = QPen(QBrush(QColor(Qt::blue)), 1, Qt::DotLine);
 		gridPen_.setCosmetic(true);
