@@ -1,6 +1,6 @@
 #include <QApplication>
 
-#include "MPlotWindow.h"
+#include "MPlotWidget.h"
 #include "MPlotSeriesData.h"
 #include "MPlotSeriesRaw.h"
 
@@ -15,15 +15,15 @@
 #include <cmath>
 
 
-// Major todo's: thursday:
+// Major todo's::
 /*
  - architecture: make MPlot a QGraphicsObject ; figure out scene/view geometry; remove need for mplotwindow
- - think: make mplotseries just a normal object that adds a bunch of separate objects to scene? raw painting instead of lists of markers? 
+ - think: make mplotseries just a normal object that adds a bunch of separate objects to scene? or raw painting instead of lists of markers?  [done: chose raw painting for performance]
  - read qpainter->worldTransform; look at 40000 chip example; look at bookmarked offscreen rendering example; qtconcurrent
  - smoothpixmap transform?
- - MPlotSeriesData: let MPlotSeries use a MPlotAbstractSeriesData interface; make MPlotSeriesDataFromTableModel and MPlotSeriesDataFromTreeModel wrappers.
+ - MPlotSeriesData: let MPlotSeries use a MPlotAbstractSeriesData interface; make MPlotSeriesDataFromTableModel and MPlotSeriesDataFromTreeModel wrappers. [done]
 	// and MPlotSeriesDataRealtime, which is optimized for queue-mode enter/leave data.
- - Think about how to optimize drawing for 100000pt realtime (change individual rows; add to front/back) use
+ - Think about how to optimize drawing for 100000pt realtime (change individual rows; add to front/back) [done]
  */
 
  int main(int argc, char *argv[])

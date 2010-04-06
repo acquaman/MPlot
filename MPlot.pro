@@ -11,7 +11,7 @@ INCLUDEPATH += . \
     src/MPlot
 
 # Input
-HEADERS += src/MPlot/MPlotWindow.h \
+HEADERS += src/MPlot/MPlotWidget.h \
     src/MPlot/MPlotAxis.h \
     src/MPlot/MPlot.h \
     src/MPlot/MPlotLegend.h \
