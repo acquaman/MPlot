@@ -5,10 +5,11 @@
 #include <QGraphicsLineItem>
 #include <QList>
 #include <QFont>
+#include <QPen>
 
 #include <math.h>
 
-// Coordinate system: draws self from 0 to 1, either horizontally (if type is Bottom or Top), or vertically (if type is Left or Right)
+// Coordinate system: draws self in the (0,0) to (1,1) coordinate space of MPlot's plotArea_.
 class MPlotAxis : public QGraphicsItem {
 
 public:
@@ -19,6 +20,8 @@ public:
 	// Axis ID:
 	MPlotAxis(AxisID type, QString name = QString(""), QGraphicsItem* parent = 0) : QGraphicsItem(parent) {
 		
+		setFlags(QGraphicsItem::ItemHasNoContents);
+
 		type_ = type;		
 		name_ = name;
 		
@@ -55,7 +58,7 @@ public:
 		delete extraGrid_;
 	}
 	
-	// Set the range (in data values)
+	// Set the range (in data-value coordinates)
 	void setRange(double min, double max) {
 		
 		min_ = min; max_ = max;		
@@ -72,8 +75,7 @@ public:
 			createTicks(num);
 		}
 		tickStyle_ = tstyle;
-		tickLength_ = tickLength;
-		scTickLength_ = tickLength_*scWidth_/100.0;
+		tickLength_ = tickLength/100;
 		placeAxis();
 	}
 	
@@ -84,10 +86,7 @@ public:
 	int numTicks() const { return ticks_.count(); }
 	const QString& name() const { return name_; }
 	// TODO: access font, labelOffset, etc.
-	
-	// Set the scene-coordinate-system length of the axis (needed to redraw when the size of the scene changes )
-	
-	void setExtent(double sceneCoordLength, double sceneCoordWidth) { scLength_ = sceneCoordLength; scWidth_ = sceneCoordWidth; scTickLength_ = tickLength_*scWidth_/100.0; placeAxis(); }
+		
 	void showTickLabels(bool valuesOn) { tickLabelsVisible_ = valuesOn;  placeAxis(); }
 	void showGrid(bool gridOn) { gridVisible_ = gridOn; placeAxis(); }
 	
@@ -121,14 +120,13 @@ protected:
 	AxisID type_;
 	TickStyle tickStyle_;
 	
-	// logical (% of plot) and scene-coordinate tick lengths:
-	double tickLength_, scTickLength_;
+	// tick lengths, in logical units (fraction of plot width)
+	double tickLength_;
 	double tickLabelOffset_;
+
 	bool tickLabelsVisible_, gridVisible_;
 	
 	QString name_;
-		
-	double scLength_, scWidth_;
 	
 	QPen axisPen_, tickPen_, gridPen_;
 	QFont tickLabelFont_, labelFont_;
@@ -152,7 +150,7 @@ protected:
 		intelliScale();
 		
 		// The ratio of scene coordinates to data coordinates:
-		double scPerDC = scLength_ / (max_ - min_);
+		double scPerDC = 1.0 / (max_ - min_);
 		double scIncrement = tickIncVal_ * scPerDC;
 		double scStart = (minTickVal_ - min_) * scPerDC;		
 		
@@ -161,49 +159,53 @@ protected:
 		
 		// Handle differences between vertical and horizontal axes:
 		if(type_ == Left || type_ == Right) {
-			mainLine_->setLine(0, 0, 0, -scLength_);
-			scIncP = QPointF(0, -scIncrement);
-			scStartP = QPointF(0, -scStart);
-			
+			scIncP = QPointF(0, scIncrement);
+			// Left axis:
 			if(type_ == Left) {
+				mainLine_->setLine(0, 0, 0, 1);
+				scStartP = QPointF(0, scStart);
+				gridLine.setLine(0, 0, 1, 0);
 				switch(tickStyle_) {
-					case Outside: tickLine.setLine(-scTickLength_, 0, 0, 0); break;
-					case Inside: tickLine.setLine(scTickLength_, 0, 0, 0); break;
-					case Middle: tickLine.setLine(-scTickLength_/2, 0, scTickLength_/2, 0); break;
+					case Outside: tickLine.setLine(-tickLength_, 0, 0, 0); break;
+					case Inside: tickLine.setLine(tickLength_, 0, 0, 0); break;
+					case Middle: tickLine.setLine(-tickLength_/2, 0, tickLength_/2, 0); break;
 				}
-				gridLine.setLine(scWidth_, 0, 0, 0);
 			}
+			// Right axis:
 			else {
+				mainLine_->setLine(1, 0, 1, 1);
+				scStartP = QPointF(1, scStart);
+				gridLine.setLine(1, 0, 0, 0);
 				switch(tickStyle_) {
-					case Outside: tickLine.setLine(scTickLength_, 0, 0, 0); break;
-					case Inside: tickLine.setLine(-scTickLength_, 0, 0, 0); break;
-					case Middle: tickLine.setLine(-scTickLength_/2, 0, scTickLength_/2, 0); break;
+					case Outside: tickLine.setLine(tickLength_, 0, 0, 0); break;
+					case Inside: tickLine.setLine(-tickLength_, 0, 0, 0); break;
+					case Middle: tickLine.setLine(-tickLength_/2, 0, tickLength_/2, 0); break;
 				}
-				gridLine.setLine(-scWidth_, 0, 0, 0);
 			}
 		}
 		
 		// Same for horizontal axes (increment is horizontal, tickline is vertical)
 		else{
-			mainLine_->setLine(0, 0, scLength_, 0);
-			scIncP = QPointF(scIncrement, 0);
-			scStartP = QPointF(scStart, 0);
-			
+			scIncP = QPointF(scIncrement, 0);			
 			if(type_ == Bottom) {
+				mainLine_->setLine(0, 0, 1, 0);
+				scStartP = QPointF(scStart, 0);
+				gridLine.setLine(0, 0, 0, 1);
 				switch(tickStyle_) {
-					case Outside: default: tickLine.setLine(0, scTickLength_, 0, 0); break;
-					case Inside: tickLine.setLine(0, -scTickLength_, 0, 0); break;
-					case Middle: tickLine.setLine(0, scTickLength_/2, 0, -scTickLength_/2); break;
+					case Inside: default: tickLine.setLine(0, tickLength_, 0, 0); break;
+					case Outside: tickLine.setLine(0, -tickLength_, 0, 0); break;
+					case Middle: tickLine.setLine(0, tickLength_/2, 0, -tickLength_/2); break;
 				}
-				gridLine.setLine(0, -scWidth_, 0, 0);
 			}
 			else {
+				mainLine_->setLine(0, 1, 1, 1);
+				scStartP = QPointF(scStart, 1);
+				gridLine.setLine(0, 1, 0, 0);
 				switch(tickStyle_) {
-					case Outside: default: tickLine.setLine(0, -scTickLength_, 0, 0); break;
-					case Inside: tickLine.setLine(0, +scTickLength_, 0, 0); break;
-					case Middle: tickLine.setLine(0, scTickLength_/2, 0, -scTickLength_/2); break;
+					case Inside: default: tickLine.setLine(0, -tickLength_, 0, 0); break;
+					case Outside: tickLine.setLine(0, +tickLength_, 0, 0); break;
+					case Middle: tickLine.setLine(0, tickLength_/2, 0, -tickLength_/2); break;
 				}
-				gridLine.setLine(0, scWidth_, 0, 0);
 			}
 		}
 		
@@ -213,6 +215,7 @@ protected:
 			ticks_[i]->setPen(tickPen_);
 			ticks_[i]->setLine(tickLine);
 			ticks_[i]->setPos(scStartP + i*scIncP);
+
 			
 			// Place Tick Labels:
 			if(tickLabelsVisible_) {
@@ -235,7 +238,7 @@ protected:
 		}
 		
 		// Is there room left for the extra tick on the axis?
-		if(ticks_.count() > 1 && scStart + ticks_.count()*scIncrement < scLength_) {
+		if(ticks_.count() > 1 && scStart + ticks_.count()*scIncrement < 1) {
 			extraTick_->setPen(tickPen_);
 			extraTick_->setLine(tickLine);
 			extraTick_->setPos(scStartP + ticks_.count()*scIncP);
@@ -332,11 +335,7 @@ protected:
 			minTickVal_ = (min_ + max_) / 2;
 			tickIncVal_ = 1;
 		}
-	} // TODO: Sometimes you can fit in an extra tick above (for ex: data from -.3 to +0.8), or it might make more sense to remove an additional tick
-		// (ie: tickIncVal_ goes from min to max, instead of minTickVal to max, and just don't add the ticks that overflow the edge)
-	// Handle changing the approximate number of ticks.
-	
-	
+	}
 	
 	void setDefaults() {
 		
@@ -344,7 +343,7 @@ protected:
 		max_ = 10;
 		
 		tickStyle_ = Outside;
-		tickLength_ = 2;
+		tickLength_ = .02;
 		
 		tickLabelOffset_ = 5;
 		tickLabelFont_.setPixelSize(12);

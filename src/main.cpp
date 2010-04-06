@@ -35,10 +35,10 @@
 	 // 1. Creating Plots:
 	 ////////////////////////////
 	 
-	 // An MPlotWindow is needed to view a plot:
-	 MPlotWindow plotWindow;
+	 // An MPlotWidget is needed to view a plot:
+	 MPlotWidget plotWindow;
 	 
-	 // An MPlot is the QGraphicsView representing a 2D Plot:
+	 // An MPlot is the QGraphicsItem representing a 2D Plot:
 	 MPlot plot;
 	 // Connecting the window to view the plot:
 	 plotWindow.setPlot(&plot);	
@@ -95,8 +95,8 @@
 	 	// data2.insertPointBack(double(rand())/RAND_MAX/2, double(rand())/RAND_MAX/2);
 	 
 	 // many-point sine wave:
-	 for(int i=0; i<1000; i++)
-	 	 data2.insertPointBack(-0.5+i/1000.0, sin((-0.5+i/1000.0)*4*3.1415));
+	 for(int i=0; i<100000; i++)
+		 data2.insertPointBack(-0.5+i/100000.0, sin((-0.5+i/100000.0)*4*3.1415));
 
 	 
 	 // 4.  View the data.  A basic scatter/line plot is an MPlotSeries:

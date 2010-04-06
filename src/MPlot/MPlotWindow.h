@@ -9,18 +9,19 @@
 
 #include <QDebug>
 
-// Note on versions:
-// GraphicsView in Qt 4.6.0 gets very slow with >= 10,000 items added to the scene.  This is due to a performance bug in QGraphicsScenePrivate::_q_polishItems,
-// which is fixed in 4.6.1.  This library will build/work with all versions of Qt 4, but recommend using Qt >= 4.6.1.
+// TODO: test performance of:
+// setItemIndexMethod(NoIndex);
+// makes a big difference if drawing plots using many separate QGraphicsItem elements (for ex: separate QGraphicsLineItems for each line element in a series)
+
 
 // When selecting lines on plots with the mouse, this is how wide the selection ballpark is, in pixels
 #define MPLOT_SELECTION_WIDTH 10
 
-class MPlotWindow : public QGraphicsView {
+class MPlotWidget : public QGraphicsView {
     Q_OBJECT
 
 public:
-	MPlotWindow(QWidget* parent = 0) : QGraphicsView(parent) {
+	MPlotWidget(QWidget* parent = 0) : QGraphicsView(parent) {
 		
 		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -30,21 +31,36 @@ public:
 		setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing /*| QPainter::HighQualityAntialiasing*/);
 		
 		selectedSeries_ = 0;
+
+		// Create a scene to hold a plot:
+		QGraphicsScene* scene = new QGraphicsScene(this);
+		setScene(scene);
+
+		// Not holding a plot right now:
+		plot_ = 0;
 	}
 	
 	
-	virtual ~MPlotWindow() {
+	virtual ~MPlotWidget() {
 	}
 
-	void setPlot(MPlot* plot) { 
+	void setPlot(MPlot* plot) {
+
 		if(plot) {
+
+			// remove old plot?
+			if(plot_)
+				scene()->removeItem(plot_);
+
 			// todo: disconnect any signals? detach highlightSeries_ from old plot?
-			setScene(plot);
+
+			scene()->addItem(plot);
+			plot_ = plot;
 		}
 	}
 	
 	MPlot* plot() {
-		return qobject_cast<MPlot*>(scene());
+		return plot_;
 	}
 	
 	// Returns the currently-selected series in the plot (0 if none).
@@ -61,16 +77,18 @@ signals:
 	
 protected:
 	// Member variables:
+	MPlot* plot_;
+
 	MPlotAbstractSeries* selectedSeries_;
 	
-	// On resize events: notify the canvas if the aspect ratio needs to change, and fill the viewport with the canvas.
+	// On resize events: notify the plot to resize it, and fill the viewport with the canvas.
 	virtual void resizeEvent ( QResizeEvent * event ) {
 		QGraphicsView::resizeEvent(event);
 		
-		if(plot()) {
-			plot()->setAspectRatio( double(event->size().height()) / event->size().width() );
-		
-			fitInView(plot()->sceneRect(), Qt::KeepAspectRatioByExpanding);
+		if(plot_) {
+			plot_->setRect(QRectF(QPointF(0,0), event->size()));
+			scene()->setSceneRect(plot_->rect());
+			fitInView(plot_->rect(), Qt::KeepAspectRatioByExpanding);
 		}
 	}
 	
