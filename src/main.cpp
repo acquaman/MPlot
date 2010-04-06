@@ -14,6 +14,7 @@
  #include <QGLWidget>
 #include <cmath>
 
+#include "MPlotTools.h"
 
 // Major todo's::
 /*
@@ -52,8 +53,8 @@
 	 //plot.axisRight()->setTickPen(QPen(QBrush(QColor(Qt::blue)), 0));
 	 plot.axisRight()->setTicks(3, MPlotAxis::Inside, 2);	// Set the approximate number and style of axis tick marks:
 	 // plot.axisRight()->showTickLabels(false);
-	 plot.axisRight()->setAxisName("y_right");
-	 plot.axisRight()->showAxisName(true);
+	 // plot.axisRight()->setAxisName("y_right");
+	 // plot.axisRight()->showAxisName(true);
 
 	 plot.axisBottom()->setAxisName("eV");
 	 plot.axisLeft()->setAxisName("Intensity (arb. units)");
@@ -61,7 +62,7 @@
 	 
 	 // Change the margins: (in % of the plot width/height)
 	 plot.setMarginTop(5);
-	 plot.setMarginRight(10);
+	 plot.setMarginRight(5);
 	 plot.setMarginLeft(15);
 	 plot.setMarginBottom(15);
 
@@ -235,6 +236,10 @@
 	 // Try out openGl viewport: (instead of CoreGraphics on Mac OS X)
 	 //plotWindow.setViewport(new QGLWidget);
 
+	// 12: Testing plot tools: MPlotPlotSelectorTool:
+	MPlotPlotSelectorTool psTool;
+	plot.addTool(&psTool);
+	// psTool.setEnabled(false);
 	 
 	return app.exec();
  }

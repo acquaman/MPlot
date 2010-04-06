@@ -5,6 +5,8 @@
 #include "MPlotLegend.h"
 #include "MPlotAbstractSeries.h"
 #include "MPlotSeriesBasic.h"
+#include "MPlotAbstractTool.h"
+
 #include <QList>
 #include <QGraphicsObject>
 #include <QGraphicsScene>
@@ -93,6 +95,28 @@ public:
 
 	QList<MPlotAbstractSeries*> series() const { return series_; }
 
+	/// Add a tool to the plot:
+	void addTool(MPlotAbstractTool* newTool) {
+		newTool->setParentItem(plotArea_);
+		tools_ << newTool;
+
+		placeTool(newTool);
+		newTool->setPlot(this);
+	}
+
+	/// Remove a tool from a plot. (Note: Does not delete the tool...)
+	bool removeTool(MPlotAbstractTool* removeMe) {
+		if(tools_.contains(removeMe)) {
+			removeMe->setPlot(0);
+			removeMe->setParentItem(0);
+			if(scene())
+				scene()->removeItem(removeMe);
+			tools_.removeAll(removeMe);
+			return true;
+		}
+		else
+			return false;
+	}
 
 
 	// access elements of the canvas:
@@ -164,20 +188,7 @@ public:
 		enableAutoScaleRight(axisFlags & MPlotAxis::Right);
 	}
 
-	// Call this to change the aspect ratio of the scene to match the view (ie: so that text appears normal-height when the view is rectangular
-	/*
-	void setAspectRatio(double ar) {	// Margins stay scaled as percentage of scene size.
-		if(ar_ != ar) {					// either use x/ar or y*ar (depending on ar>1 or ar<1) so that we always grow or maintain the scene size for either axis... never shrink it below (-0.5...0.5)
-			ar_ = ar;
-			if(ar_<1)
-				setSceneRect(0, 0, (SCENESIZE/ar_), (SCENESIZE));
-			else
-				setSceneRect(0, 0, (SCENESIZE), (SCENESIZE*ar_));
 
-			// Recalculate positions of: background, plotArea, axes, series...
-			placeComponents();
-		}
-	}*/
 
 	void setScalePadding(double percent) {
 		scalePadding_ = percent/100;
@@ -188,6 +199,8 @@ public:
 
 		foreach(MPlotAbstractSeries* series, series_)
 			placeSeries(series);
+		foreach(MPlotAbstractTool* tool, tools_)
+			placeTool(tool);
 	}
 
 	double scalePadding() { return scalePadding_ * 100; }
@@ -200,6 +213,8 @@ public:
 		foreach(MPlotAbstractSeries* series, series_) {
 			placeSeries(series);
 		}
+		foreach(MPlotAbstractTool* tool, tools_)
+			placeTool(tool);
 
 	}
 
@@ -211,6 +226,8 @@ public:
 		foreach(MPlotAbstractSeries* series, series_) {
 			placeSeries(series);
 		}
+		foreach(MPlotAbstractTool* tool, tools_)
+			placeTool(tool);
 	}
 
 	void setYDataRangeRight(double min, double max, bool autoscale = false) {
@@ -218,9 +235,10 @@ public:
 		setYDataRangeRightImp(min, max, autoscale);
 
 		// Apply new transforms:
-		foreach(MPlotAbstractSeries* series, series_) {
+		foreach(MPlotAbstractSeries* series, series_)
 			placeSeries(series);
-		}
+		foreach(MPlotAbstractTool* tool, tools_)
+			placeTool(tool);
 	}
 
 public slots:
@@ -241,9 +259,12 @@ protected slots:
 			setYDataRangeRightImp(0, 0, true);
 
 		// We have new transforms.  Need to apply them:
-		if(autoScaleBottomEnabled_ | autoScaleLeftEnabled_ | autoScaleRightEnabled_)
+		if(autoScaleBottomEnabled_ | autoScaleLeftEnabled_ | autoScaleRightEnabled_) {
 			foreach(MPlotAbstractSeries* series, series_)
 				placeSeries(series);
+			foreach(MPlotAbstractTool* tool, tools_)
+				placeTool(tool);
+		}
 
 		// Possible optimizations:
 		/*
@@ -265,6 +286,7 @@ protected:
 	MPlotLegend* legend_;
 	MPlotAxis* axes_[9];		// We only use [1], [2], [4], and [8]...
 	QList<MPlotAbstractSeries*> series_;	// list of current series displayed on plot
+	QList<MPlotAbstractTool*> tools_;	// list of tools that have been installed on the plot
 
 	double margins_[9];			// We only use [1], [2], [4], and [8]...
 
@@ -283,13 +305,23 @@ protected:
 	double scalePadding_;
 
 
-	// Applies the leftAxis or rightAxis transformation matrix (depending on the
+	/// Applies the leftAxis or rightAxis transformation matrix (depending on the
 	void placeSeries(MPlotAbstractSeries* series) {
 		if(series->yAxisTarget() == MPlotAxis::Right) {
 			series->setTransform(rightAxisTransform_);
 		}
 		else {
 			series->setTransform(leftAxisTransform_);
+		}
+	}
+
+	/// Applies the leftAxis or rightAxis transformation matrix (depending on the
+	void placeTool(MPlotAbstractTool* tool) {
+		if(tool->yAxisTarget() == MPlotAxis::Right) {
+			tool->setTransform(rightAxisTransform_);
+		}
+		else {
+			tool->setTransform(leftAxisTransform_);
 		}
 	}
 
