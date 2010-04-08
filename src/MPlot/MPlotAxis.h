@@ -47,7 +47,8 @@ public:
 	}
 		
 	// Set the number and style of ticks:
-		// tStyle can be Inside, Outside, or Middle.  tickLength is in logical coordinates ("percent of plot") coordinates.
+	/*! \c tStyle can be Inside, Outside, or Middle.  \c tickLength is in logical coordinates ("percent of plot") coordinates.
+	\c num is really just suggestion... there might be one less or up to three(?) more, depending on what we think would make nice label values.*/
 	void setTicks(int num, TickStyle tstyle = Outside, double tickLength = 2) {
 		
 		numTicks_ = num;
@@ -121,7 +122,7 @@ public:
 
 		// Draw the ticks:
 		painter->setPen(tickPen_);
-		for(unsigned i=0; i<numTicks_; i++) {
+		for(unsigned i=0; scStart_ + i*scIncrement_ < 1; i++) {
 			painter->drawLine(tickLine_.translated(scStartP_ + i*scIncP_));
 		}
 
@@ -150,18 +151,19 @@ public:
 		if(tickLabelsVisible_) {
 			painter->setPen(axisPen_);
 			painter->setFont(tickLabelFont_);
-			for(unsigned i=0; i<numTicks_; i++)
+			for(unsigned i=0; scStart_ + i*scIncrement_ < 1; i++)
 				drawLabel(painter, QString("%1").arg(minTickVal_+i*tickIncVal_), scStartP_ + i*scIncP_);
 		}
 
 		// Draw grids:
 		if(gridVisible_) {
 			painter->setPen(gridPen_);
-			for(unsigned i=0; i<numTicks_; i++)
+			for(unsigned i=0; scStart_ + i*scIncrement_ < 1; i++)
 				painter->drawLine(gridLine_.translated(scStartP_ + i*scIncP_));
 		}
 
-		// Is there room left for the extra tick on the axis?
+		/* obsoleted...
+		// Is there room left for an extra tick or two at the top of the axis?
 		if(numTicks_ > 1 && scStart_ + numTicks_*scIncrement_ < 1) {
 			// draw extra tick:
 			painter->setPen(tickPen_);
@@ -178,7 +180,7 @@ public:
 				painter->setPen(gridPen_);
 				painter->drawLine(gridLine_.translated(scStartP_ + numTicks_*scIncP_));
 			}
-		}
+		}*/
 
 		// Draw axis name?
 		if(axisNameVisible_) {
@@ -426,22 +428,31 @@ protected:
 	// IntelliScale: Calculate "nice" values for starting tick and tick increment.
 	// Sets minTickVal_ and tickIncVal_ for nice values of axis ticks.
 	// Prior to calling, numTicks() and max_ and min_ must be correct.
+	// Desired outcome: labels are nice values like "0.2 0.4 0.6..." or "0.024 0.026 0.028" instead of irrational numbers.
+	// Additionally, if the axis range passes through 0, it would be nice to have a tick at 0.
 	void intelliScale() {
 		if(numTicks() > 1) {
 			
 			// normalize range so difference between max and min goes to 10(max):
 			double norm = pow(10, trunc(log10(max_ - min_)) - 1);
-			// Round off:
-			minTickVal_ = trunc(min_/norm);
+			// Round off to get nice numbers. Note that minTickVal_ must be > min_, otherwise it falls off the bottom of the plot.
+			minTickVal_ = ceil(min_/norm);
 			tickIncVal_  = trunc( (max_/norm-minTickVal_)/(numTicks()-1) );
-			if((int)tickIncVal_ == 0)
-				tickIncVal_ = 1;
+
+			// if the tickIncVal is 0, that'll be trouble. Normalize smaller to avoid this.
+			while((int)tickIncVal_ == 0) {
+				norm /= 2;
+				minTickVal_ = ceil(min_/norm);
+				tickIncVal_  = trunc( (max_/norm-minTickVal_)/(numTicks()-1) );
+			}
 
 			
 			// Hit Zero if possible: (while passing through origin)
 			if(min_ < 0 && max_ > 0) {
 				double potentialminTickVal = minTickVal_ + ( (int)(-minTickVal_) % (int)tickIncVal_ );
-				if( (potentialminTickVal + tickIncVal_*(numTicks()-1))*norm < max_)	// Just making sure we don't go past the end of the axis with this tweak
+				// Disabled: not necessary now that we draw an arbitrary number of ticks:
+					// previously: // Just making sure we don't go past the end of the axis with this tweak
+					// if( (potentialminTickVal + tickIncVal_*(numTicks()-1))*norm < max_)
 					minTickVal_ = potentialminTickVal;
 			}
 			

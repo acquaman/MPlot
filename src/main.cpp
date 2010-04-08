@@ -244,6 +244,13 @@
 	MPlotDragZoomerTool dzTool;
 	plot.addTool(&dzTool);
 	// dzTool.setEnabled(false);
+
+	// 14: temporary: diagnosing bug where 0-axis line drawn below plot-area.
+	// Axis value placement bug: draws zero line below plot area for zoom to rect: QRectF(-0.430307,0.0237622 0.219718x0.35574)
+	plot.setXDataRange(-0.430307, -0.430307+0.219718);
+	plot.setYDataRangeLeft(0.0237622, 0.0237622+0.35574);
+
+	// this causes lines above the plot now. zoom to rect: QRectF(-0.400401,0.0380083 0.147242x0.329389)
 	 
 	return app.exec();
  }
