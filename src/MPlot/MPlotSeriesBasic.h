@@ -10,9 +10,9 @@
 
 
 // When drawing large datasets, we won't draw more than MPLOT_MAX_LINES_PER_PIXEL lines per x-axis pixel.
-// We sub-sample by plotting only the maximum and minimum values over the corresponding increment. 
-// The value that makes sense here is 1 (since you can't see any more... they'll just look like vertical lines on top of each other.)
-#define MPLOT_MAX_LINES_PER_PIXEL 1.0
+// We sub-sample by plotting only the maximum and minimum values over the x-axis increment that corresponds to 1px.
+// The value that makes sense here is 1 (since you can't see any more... they would just look like vertical lines on top of each other anyway.)  When drawing anti-aliased, changing this to 2 makes smoother plots.
+#define MPLOT_MAX_LINES_PER_PIXEL 2.0
 
 /// \bug Using test plot in main.cpp with 100,000 pts... resize plot in x and note how slope of connecting line between end of sinusoid and the other points changes as you slide across. should not.
 
@@ -120,7 +120,9 @@ public:
 				// (Brain hurt? imagine a simple example: (0,2) (0,1) (0,0), (5,0).  It should be a vertical line from (0,2) to (0,0), and then a horizontal line from (0,0) to (5,0).  The xinc range is from i=0 (xstart = x(0)) to i=2. The point outside is i=3.
 				// For normal/small datasets where the x-point spacing is >> pixel spacing , what will happen is ymax = ymin = ystart (all the same point), and (x(i), y(i)) is the next point.
 				else {
-					painter->drawLine(QPointF(xstart, ymin), QPointF(xstart, ymax));
+					if(ymin != ymax)
+						painter->drawLine(QPointF(xstart, ymin), QPointF(xstart, ymax));
+
 					painter->drawLine(QPointF(data_->x(i-1), data_->y(i-1)), QPointF(data_->x(i), data_->y(i)));
 					//painter->drawLine(QPointF(xstart, ystart), QPointF(data_->x(i), data_->y(i)));
 					

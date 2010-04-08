@@ -166,6 +166,8 @@ public:
 	
 protected slots:
 	virtual void onDataChanged(unsigned fromIndex, unsigned toIndex) {
+		Q_UNUSED(fromIndex)
+		Q_UNUSED(toIndex)
 		emit dataChanged(this);
 	}
 	

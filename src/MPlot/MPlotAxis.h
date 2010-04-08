@@ -11,6 +11,8 @@
 
 #include <math.h>
 
+/// \bug Axis value placement bug: draws zero line below plot area for zoom to rect: QRectF(-0.430307,0.0237622 0.219718x0.35574)
+
 // Coordinate system: draws self in the (0,0) to (1,1) coordinate space of MPlot's plotArea_.
 class MPlotAxis : public QGraphicsItem {
 
@@ -108,9 +110,10 @@ public:
 		Q_UNUSED(option)
 
 
-		// Disable anti-aliasing, because these horizontal lines look best non-AA'd.
+		// Disable anti-aliasing, because these horizontal and vertical lines look best non-AA'd.
 		/// \todo: check for rotation, and leave AA on if rotated.
-		painter->setRenderHint(QPainter::Antialiasing, false);
+		/// \todo: figure out why gridlines and ticks don't round to the same pixel when AA is off. Leaving on until then.
+		// painter->setRenderHint(QPainter::Antialiasing, false);
 
 		// Draw the main axis line:
 		painter->setPen(axisPen_);
@@ -118,7 +121,7 @@ public:
 
 		// Draw the ticks:
 		painter->setPen(tickPen_);
-		for(int i=0; i<numTicks_; i++) {
+		for(unsigned i=0; i<numTicks_; i++) {
 			painter->drawLine(tickLine_.translated(scStartP_ + i*scIncP_));
 		}
 
@@ -147,14 +150,14 @@ public:
 		if(tickLabelsVisible_) {
 			painter->setPen(axisPen_);
 			painter->setFont(tickLabelFont_);
-			for(int i=0; i<numTicks_; i++)
+			for(unsigned i=0; i<numTicks_; i++)
 				drawLabel(painter, QString("%1").arg(minTickVal_+i*tickIncVal_), scStartP_ + i*scIncP_);
 		}
 
 		// Draw grids:
 		if(gridVisible_) {
 			painter->setPen(gridPen_);
-			for(int i=0; i<numTicks_; i++)
+			for(unsigned i=0; i<numTicks_; i++)
 				painter->drawLine(gridLine_.translated(scStartP_ + i*scIncP_));
 		}
 
