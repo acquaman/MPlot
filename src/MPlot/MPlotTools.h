@@ -15,6 +15,9 @@
 /// This is the distance (in pixels/scene coordinates) that a user must drag with the MPlotDragZoomerTool before it becomes active. This is to avoid a "click" or a "click and very small drag" causing an inadvertent zoom into a very small rectangle.
 #define MPLOT_RUBBERBAND_DEADZONE 6
 
+/// The opacity level (0=transparent, 1=opaque) of selection rectangles:
+#define MPLOT_SELECTION_OPACITY 0.35
+
 
 /// This class provides a plot tool that can be used to select a single series in a plot:
 class MPlotPlotSelectorTool : public MPlotAbstractTool {
@@ -99,7 +102,7 @@ protected:
 #include <QGraphicsRectItem>
 #include <QStack>
 
-/// This class provides a plot tool that can be used to select a single series in a plot:
+/// This class provides a plot tool that can be used to choose a selection rectangle with a "rubber-band", and zoom into that region. Right-clicking will restore the zoom to the previous state. (Infinite zoom/restore levels are available.)
 class MPlotDragZoomerTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:
@@ -113,7 +116,7 @@ public:
 		selectionRect_->setPen(selectionPen);
 
 		QColor brushColor = MPLOT_SELECTION_COLOR;
-		brushColor.setAlphaF(0.35);
+		brushColor.setAlphaF(MPLOT_SELECTION_OPACITY);
 		selectionRect_->setBrush(brushColor);
 
 		dragInProgress_ = false;
@@ -130,6 +133,7 @@ protected:
 
 		if(event->button() == Qt::LeftButton) {
 			dragStarted_ = true;
+			// don't display the rubberband rectangle until dragInProgress_
 			// selectionRect_->setRect(QRectF(event->buttonDownPos(Qt::LeftButton), event->buttonDownPos(Qt::LeftButton)));
 		}
 
@@ -141,12 +145,13 @@ protected:
 		// Possible transition: A drag event has started, and the user exceeded the drag deadzone to count as a real drag.
 		if(dragStarted_) {
 			QPointF dragDistance = event->buttonDownScenePos(Qt::LeftButton) - event->scenePos();
-			qDebug() << "drag Distance: " << dragDistance;
+
 			// if we've gone far enough, this counts as a real drag:
 			if(dragDistance.manhattanLength() > MPLOT_RUBBERBAND_DEADZONE) {
 				// flag drag event in progress
 				dragInProgress_ = true;
 				dragStarted_ = false;
+
 				// Disable auto-scaling on the plot... the user probably wants to take over manual control...
 				plot()->enableAutoScaleBottom(false);
 				if(yAxisTarget_ == MPlotAxis::Right)
@@ -156,24 +161,29 @@ protected:
 			}
 		}
 
-		// In both cases, update the selection rectangle:
-		if(dragInProgress_ /*|| dragStarted_*/) {
+		// If we're dragging, draw/update the selection rectangle:
+		if(dragInProgress_) {
 			selectionRect_->setRect(QRectF(event->buttonDownPos(Qt::LeftButton), event->pos()));
 		}
 	}
 
 	/// Handles release events. If a drag was in progress and the user lets go of the left button, zoom to the new rectangle and save the old one on the recall stack.  If the user lets go of the right button, this is a restore to a zoom position on the stack.
 	virtual void	mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) {
-		// left mouse button: drag event is done.
+
+		// left mouse button release: drag event is done.
 		if(event->button() == Qt::LeftButton) {
+
 			dragStarted_ = false;
+			// disable the selection rectangle:
 			selectionRect_->setRect(QRectF());
 
 			if(dragInProgress_) {
+				// This is a zoom change!
 				dragInProgress_ = false;
 
 				QRectF oldZoom, newZoom;
-				// Zoom either the left y axis or the right y axis, depending on our axis affiliation:
+
+				// Zoom either the left y-axis or the right y-axis, depending on our axis affiliation:
 				if(yAxisTarget_ == MPlotAxis::Right) {
 					// Get old axis coordinates:
 					oldZoom = QRectF(QPointF(plot()->xMin(), plot()->yRightMin()), QPointF(plot()->xMax(), plot()->yRightMax()));
@@ -186,6 +196,7 @@ protected:
 					plot()->setXDataRange(qMin(newZoom.left(), newZoom.right()), qMax(newZoom.left(), newZoom.right()));
 					plot()->setYDataRangeRight(qMin(newZoom.bottom(), newZoom.top()), qMax(newZoom.bottom(), newZoom.top()));
 				}
+
 				else {
 					oldZoom = QRectF(QPointF(plot()->xMin(), plot()->yLeftMin()), QPointF(plot()->xMax(), plot()->yLeftMax()));
 					zoomStack_.push(oldZoom);

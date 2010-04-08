@@ -34,7 +34,7 @@ public:
 	
 	MPlotSeriesBasic(const MPlotAbstractSeriesData* data = 0, QGraphicsItem* parent = 0) : MPlotAbstractSeries(data, parent) {
 		
-		// unique setup for MPlotSeriesBasic?
+		// no unique setup for MPlotSeriesBasic?
 	
 		
 	}
@@ -105,7 +105,8 @@ public:
 			xstart = data_->x(0);
 			ymin = ymax = ystart = data_->y(0);
 			
-			for(size_t i=1; i<data_->count(); i++) {
+			// move through the datapoints along x. (Note that x could be jumping forward or backward here... it's not necessarily sorted)
+			for(unsigned i=1; i<data_->count(); i++) {
 				// if within the range around xstart: update max/min to be representative of this range
 				if(fabs(data_->x(i) - xstart) < xinc) {
 					if(data_->y(i) > ymax)
@@ -115,11 +116,13 @@ public:
 				}
 				// otherwise draw the lines and move on to next range...
 				// The first line represents everything within the range [xstart, xstart+xinc).  Note that these will all be plotted at same x-pixel.
-				// The second line connects this range to the next.  Note that (if the x-axis point spacing is not uniform) x(i) may be many pixels from xstart. All we know is that it's outside of our 1px range.
+				// The second line connects this range to the next.  Note that (if the x-axis point spacing is not uniform) x(i) may be many pixels from xstart, to the left or right. All we know is that it's outside of our 1px range. If it _is_ far outside the range, to get the slope of the connecting line correct, we need to connect it to the last point preceding it. The point (x_(i-1), y_(i-1)) is within the 1px range [xstart, x_(i-1)] represented by the vertical line.
+				// (Brain hurt? imagine a simple example: (0,2) (0,1) (0,0), (5,0).  It should be a vertical line from (0,2) to (0,0), and then a horizontal line from (0,0) to (5,0).  The xinc range is from i=0 (xstart = x(0)) to i=2. The point outside is i=3.
 				// For normal/small datasets where the x-point spacing is >> pixel spacing , what will happen is ymax = ymin = ystart (all the same point), and (x(i), y(i)) is the next point.
 				else {
 					painter->drawLine(QPointF(xstart, ymin), QPointF(xstart, ymax));
-					painter->drawLine(QPointF(xstart, ystart), QPointF(data_->x(i), data_->y(i)));
+					painter->drawLine(QPointF(data_->x(i-1), data_->y(i-1)), QPointF(data_->x(i), data_->y(i)));
+					//painter->drawLine(QPointF(xstart, ystart), QPointF(data_->x(i), data_->y(i)));
 					
 					xstart = data_->x(i);
 					ymin = ymax = ystart = data_->y(i);
@@ -134,7 +137,7 @@ public:
 		wtInverse.scale(1/wt.m11(), 1/wt.m22());
 		
 		if(data_ && marker_) {
-			for(size_t i=0; i<data_->count(); i++) {
+			for(unsigned i=0; i<data_->count(); i++) {
 				// Paint marker:
 				painter->save();
 				painter->translate(data_->x(i), data_->y(i));
@@ -150,7 +153,7 @@ public:
 	
 protected slots:
 	
-	virtual void onDataChanged( size_t, size_t ) {
+	virtual void onDataChanged( unsigned, unsigned ) {
 		
 		emit dataChanged(this);
 		update();

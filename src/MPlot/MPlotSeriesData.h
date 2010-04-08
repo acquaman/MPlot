@@ -15,11 +15,11 @@ public:
 	MPlotAbstractSeriesData(QObject* parent = 0) : QObject(parent) {}
 	
 	// Return the x-value (y-value) at index:
-	virtual double x(size_t index) const = 0;
-	virtual double y(size_t index) const = 0;
+	virtual double x(unsigned index) const = 0;
+	virtual double y(unsigned index) const = 0;
 	
 	// Return the number of elements
-	virtual size_t count() const = 0;
+	virtual unsigned count() const = 0;
 	
 	
 	// Return the bounds of the data (the rectangle containing the max/min x- and y-values)
@@ -29,7 +29,7 @@ signals:
 	// Emit this when the data has been changed (will trigger a plot update)
 	// The arguments let you specify the range of data that has been changed (inclusive)
 	// To force an update of the entire plot, specify fromIndex > toIndex.
-	void dataChanged(size_t fromIndex, size_t toIndex);
+	void dataChanged(unsigned fromIndex, unsigned toIndex);
  
 	// todo: to support multi-threading, consider a 
 	// void pauseUpdates();	// to tell nothing to redraw using the plot because the data is currently invalid; a dataChanged will be emitted when it is valid again.
@@ -65,8 +65,8 @@ public:
 	int count() const { return xval_.count(); }
 	int columnCount(const QModelIndex & /*parent*/) const { return 2; }
 	
-	double x(size_t index) const { if(index<(size_t)xval_.count()) return xval_.at(index); else return 0.0; }
-	double y(size_t index) const { if(index<(size_t)yval_.count()) return yval_.at(index); else return 0.0; }
+	double x(unsigned index) const { if(index<(unsigned)xval_.count()) return xval_.at(index); else return 0.0; }
+	double y(unsigned index) const { if(index<(unsigned)yval_.count()) return yval_.at(index); else return 0.0; }
 	
 	
 	QVariant data(const QModelIndex &index, int role) const {
@@ -258,7 +258,7 @@ public:
 	// TODO: add properties: set and read axis names
 
 signals:
-	void dataChanged(size_t fromIndex, size_t toIndex);
+	void dataChanged(unsigned fromIndex, unsigned toIndex);
 	
 protected:
 	
@@ -387,15 +387,15 @@ class MPlotRealtimeModelSeriesData : public MPlotAbstractSeriesData {
 public:
 	MPlotRealtimeModelSeriesData(MPlotRealtimeModel& model, QObject* parent = 0) : MPlotAbstractSeriesData(parent), model_(model) {
 
-		connect(&model_, SIGNAL(dataChanged(size_t, size_t)), this, SIGNAL(dataChanged(size_t, size_t)));
+		connect(&model_, SIGNAL(dataChanged(unsigned, unsigned)), this, SIGNAL(dataChanged(unsigned, unsigned)));
 	}
 	
 	// Return the x-value (y-value) at index:
-	virtual double x(size_t index) const { return model_.x(index); }
-	virtual double y(size_t index) const { return model_.y(index); }
+	virtual double x(unsigned index) const { return model_.x(index); }
+	virtual double y(unsigned index) const { return model_.y(index); }
 	
 	// Return the number of elements
-	virtual size_t count() const { return model_.count(); }
+	virtual unsigned count() const { return model_.count(); }
 	
 	
 	// Return the bounds of the data (the rectangle containing the max/min x- and y-values)

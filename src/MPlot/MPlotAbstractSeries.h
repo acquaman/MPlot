@@ -111,8 +111,8 @@ public:
 		// If there's a new valid model:
 		if(data_) {
 			
-			// Connect model signals to slots: dataChanged(size_t fromIndex, size_t toIndex);
-			connect(data_, SIGNAL(dataChanged(size_t, size_t)), this, SLOT(onDataChanged(size_t, size_t)));
+			// Connect model signals to slots: dataChanged(unsigned fromIndex, unsigned toIndex);
+			connect(data_, SIGNAL(dataChanged(unsigned, unsigned)), this, SLOT(onDataChanged(unsigned, unsigned)));
 		}
 		
 		emit dataChanged(this);
@@ -153,7 +153,7 @@ public:
 		
 		else if(data_ && data_->count() > 0) {
 			shape.moveTo(data_->x(0), data_->y(0));
-			for(size_t i=0; i<data_->count(); i++)
+			for(unsigned i=0; i<data_->count(); i++)
 				shape.lineTo(data_->x(i), data_->y(i));
 			
 			for(int i=data_->count()-2; i>=0; i--)
@@ -165,7 +165,7 @@ public:
 	}
 	
 protected slots:
-	virtual void onDataChanged(size_t fromIndex, size_t toIndex) {
+	virtual void onDataChanged(unsigned fromIndex, unsigned toIndex) {
 		emit dataChanged(this);
 	}
 	
