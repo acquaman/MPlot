@@ -53,7 +53,21 @@ public:
 	// Required functions:
 	//////////////////////////
 	// boundingRect: reported in our PlotSeries coordinates, which are just the actual data coordinates.
-	// using parent implementation
+	// using parent implementation, but adding extra room on edges for our selection highlight and markers.
+	virtual QRectF boundingRect() const {
+		QRectF br = MPlotAbstractSeries::boundingRect();
+		if(br.isValid()) {
+			// create rectangle at least as big as our selection highlight, and if we have a marker, the marker size.
+			QRectF hs = QRectF(0, 0, MPLOT_SELECTION_LINEWIDTH, MPLOT_SELECTION_LINEWIDTH);
+			if(marker())
+				hs |= QRectF(0,0, marker()->size(), marker()->size());
+			// these sizes so far are in pixels (hopefully scene coordinates... trusting on an untransformed view.) Converting to local coordinates.
+			hs = mapRectFromScene(hs);
+			// really we just need 1/2 the marker size and 1/2 the selection highlight width. But extra doesn't hurt.
+			br.adjust(-hs.width(),-hs.height(),hs.width(), hs.height());
+		}
+		return br;
+	}
 	
 	// Paint:
 	virtual void paint(QPainter* painter,

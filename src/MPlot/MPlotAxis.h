@@ -10,6 +10,7 @@
 #include <QDebug>
 
 #include <math.h>
+#include <float.h>
 
 /// \bug Axis value placement bug: draws zero line below plot area for zoom to rect: QRectF(-0.430307,0.0237622 0.219718x0.35574)
 
@@ -122,7 +123,7 @@ public:
 
 		// Draw the ticks:
 		painter->setPen(tickPen_);
-		for(unsigned i=0; scStart_ + i*scIncrement_ < 1; i++) {
+		for(unsigned i=0; numTicks_ > 0 && scStart_ + i*scIncrement_ < 1; i++) {
 			painter->drawLine(tickLine_.translated(scStartP_ + i*scIncP_));
 		}
 
@@ -151,36 +152,17 @@ public:
 		if(tickLabelsVisible_) {
 			painter->setPen(axisPen_);
 			painter->setFont(tickLabelFont_);
-			for(unsigned i=0; scStart_ + i*scIncrement_ < 1; i++)
+			for(unsigned i=0; numTicks_ > 0 && scStart_ + i*scIncrement_ < 1; i++)
 				drawLabel(painter, QString("%1").arg(minTickVal_+i*tickIncVal_), scStartP_ + i*scIncP_);
 		}
 
 		// Draw grids:
 		if(gridVisible_) {
 			painter->setPen(gridPen_);
-			for(unsigned i=0; scStart_ + i*scIncrement_ < 1; i++)
+			for(unsigned i=0; numTicks_ > 0 && scStart_ + i*scIncrement_ < 1; i++)
 				painter->drawLine(gridLine_.translated(scStartP_ + i*scIncP_));
 		}
 
-		/* obsoleted...
-		// Is there room left for an extra tick or two at the top of the axis?
-		if(numTicks_ > 1 && scStart_ + numTicks_*scIncrement_ < 1) {
-			// draw extra tick:
-			painter->setPen(tickPen_);
-			painter->drawLine(tickLine_.translated(scStartP_ + numTicks_*scIncP_));
-
-			// draw extra tick label:
-			if(tickLabelsVisible_) {
-				painter->setPen(axisPen_);
-				drawLabel(painter, QString("%1").arg(minTickVal_+numTicks_*tickIncVal_), scStartP_ + numTicks_*scIncP_);
-			}
-
-			// draw extra grid:
-			if(gridVisible_) {
-				painter->setPen(gridPen_);
-				painter->drawLine(gridLine_.translated(scStartP_ + numTicks_*scIncP_));
-			}
-		}*/
 
 		// Draw axis name?
 		if(axisNameVisible_) {
@@ -461,9 +443,10 @@ protected:
 			tickIncVal_ *= norm;
 		}
 		
-		else {	// 1 or zero ticks.
+		else {	// 1 or zero ticks: 1 tick should go at the average/middle of the axis
 			minTickVal_ = (min_ + max_) / 2;
-			tickIncVal_ = 1;
+			// make sure the next tick is _well_ past the end of the axis.
+			tickIncVal_ = DBL_MAX / 1e10; // Setting this to DLB_MAX causes an overflow that breaks minTickVal_.
 		}
 	}
 	

@@ -161,8 +161,10 @@ protected:
 			}
 		}
 
-		// If we're dragging, draw/update the selection rectangle:
-		if(dragInProgress_) {
+		// If we're dragging, draw/update the selection rectangle.
+		// Figure out why this gets slow for high zoom settings.
+		// attempted: Only do this if we've moved a true pixel, otherwise this gets really slow for high zoom settings.
+		if(dragInProgress_ /*&& (event->buttonDownScenePos(Qt::LeftButton) - event->scenePos()).manhattanLength() > 1*/ ) {
 			selectionRect_->setRect(QRectF(event->buttonDownPos(Qt::LeftButton), event->pos()));
 		}
 	}

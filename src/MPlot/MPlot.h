@@ -364,7 +364,7 @@ protected:
 
 			QRectF bounds;
 			foreach(MPlotAbstractSeries* series, series_) {
-				bounds |= series->boundingRect();
+				bounds |= series->dataRect();
 			}
 			if(bounds.isValid()) {
 				min = bounds.left();
@@ -413,7 +413,7 @@ protected:
 			QRectF bounds;
 			foreach(MPlotAbstractSeries* series, series_) {
 				if(series->yAxisTarget() == MPlotAxis::Left)
-					bounds |= series->boundingRect();
+					bounds |= series->dataRect();
 			}
 			if(bounds.isValid()) {
 				min = bounds.top();
@@ -453,7 +453,7 @@ protected:
 			QRectF bounds;
 			foreach(MPlotAbstractSeries* series, series_) {
 				if(series->yAxisTarget() == MPlotAxis::Right)
-					bounds |= series->boundingRect();
+					bounds |= series->dataRect();
 			}
 			if(bounds.isValid()) {
 				min = bounds.top();
