@@ -6,11 +6,14 @@
 
 #include <QDebug>
 
-// When selecting lines on plots with the mouse, this is how wide the selection ballpark is, in pixels. (Actually, in sceneCoordinates, but we prefer that you don't transform the view, so viewCoordinates = sceneCoordinates)
-#define MPLOT_SELECTION_WIDTH 10
+/// When selecting lines on plots with the mouse, this is how wide the selection ballpark is, in pixels. (Actually, in sceneCoordinates, but we prefer that you don't transform the view, so viewCoordinates = sceneCoordinates)
+#define MPLOT_SELECTION_BALLPARK 10
 
 /// This is the width of the rubber-band cursor when selecting plot ranges:
 #define MPLOT_RUBBERBAND_WIDTH 2
+
+/// This is the distance (in pixels/scene coordinates) that a user must drag with the MPlotDragZoomerTool before it becomes active. This is to avoid a "click" or a "click and very small drag" causing an inadvertent zoom into a very small rectangle.
+#define MPLOT_RUBBERBAND_DEADZONE 6
 
 
 /// This class provides a plot tool that can be used to select a single series in a plot:
@@ -43,8 +46,8 @@ protected:
 		MPlotAbstractSeries* s;
 		QList<MPlotAbstractSeries*> selectedPossibilities;	// this will become a filtered list containing all the MPlotAbstractSeries that are in range from this click.
 
-		// Construct a QPolygon "in the ballpark" of the mouse click: (switching from QPainterPath to QPolygon for performance)
-		QRectF clickRegion(event->scenePos().x()-MPLOT_SELECTION_WIDTH, event->scenePos().y()-MPLOT_SELECTION_WIDTH, 2*MPLOT_SELECTION_WIDTH, 2*MPLOT_SELECTION_WIDTH);
+		// Construct a rectangle "in the ballpark" of the mouse click:
+		QRectF clickRegion(event->scenePos().x()-MPLOT_SELECTION_BALLPARK, event->scenePos().y()-MPLOT_SELECTION_BALLPARK, 2*MPLOT_SELECTION_BALLPARK, 2*MPLOT_SELECTION_BALLPARK);
 
 		// Check all series for intersections
 		foreach(MPlotAbstractSeries* s2, plot()->series() ) {
@@ -114,6 +117,7 @@ public:
 		selectionRect_->setBrush(brushColor);
 
 		dragInProgress_ = false;
+		dragStarted_ = false;
 	}
 
 
@@ -125,59 +129,80 @@ protected:
 	virtual void	mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
 
 		if(event->button() == Qt::LeftButton) {
-			dragInProgress_ = true;
-			selectionRect_->setRect(QRectF(event->buttonDownPos(Qt::LeftButton), event->buttonDownPos(Qt::LeftButton)));
-			// Disable auto-scaling... we're taking over manual control...
-			plot()->enableAutoScaleBottom(false);
-			if(yAxisTarget_ == MPlotAxis::Right)
-				plot()->enableAutoScaleRight(false);
-			else
-				plot()->enableAutoScaleLeft(false);
+			dragStarted_ = true;
+			// selectionRect_->setRect(QRectF(event->buttonDownPos(Qt::LeftButton), event->buttonDownPos(Qt::LeftButton)));
 		}
-
 
 	}
 
+	/// Handles drag events, redraws the selection retangle to follow the mouse, and handles state transitions between dragStarted_ and dragInProgress_
 	virtual void	mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) {
-		if(dragInProgress_) {
+
+		// Possible transition: A drag event has started, and the user exceeded the drag deadzone to count as a real drag.
+		if(dragStarted_) {
+			QPointF dragDistance = event->buttonDownScenePos(Qt::LeftButton) - event->scenePos();
+			qDebug() << "drag Distance: " << dragDistance;
+			// if we've gone far enough, this counts as a real drag:
+			if(dragDistance.manhattanLength() > MPLOT_RUBBERBAND_DEADZONE) {
+				// flag drag event in progress
+				dragInProgress_ = true;
+				dragStarted_ = false;
+				// Disable auto-scaling on the plot... the user probably wants to take over manual control...
+				plot()->enableAutoScaleBottom(false);
+				if(yAxisTarget_ == MPlotAxis::Right)
+					plot()->enableAutoScaleRight(false);
+				else
+					plot()->enableAutoScaleLeft(false);
+			}
+		}
+
+		// In both cases, update the selection rectangle:
+		if(dragInProgress_ /*|| dragStarted_*/) {
 			selectionRect_->setRect(QRectF(event->buttonDownPos(Qt::LeftButton), event->pos()));
 		}
 	}
 
+	/// Handles release events. If a drag was in progress and the user lets go of the left button, zoom to the new rectangle and save the old one on the recall stack.  If the user lets go of the right button, this is a restore to a zoom position on the stack.
 	virtual void	mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) {
-		if(dragInProgress_ && event->button() == Qt::LeftButton) {
+		// left mouse button: drag event is done.
+		if(event->button() == Qt::LeftButton) {
+			dragStarted_ = false;
 			selectionRect_->setRect(QRectF());
-			dragInProgress_ = false;
 
-			QRectF oldZoom, newZoom;
-			// Get old axis coordinates:
-			if(yAxisTarget_ == MPlotAxis::Right) {
-				oldZoom = QRectF(QPointF(plot()->xMin(), plot()->yRightMin()), QPointF(plot()->xMax(), plot()->yRightMax()));
-				zoomStack_.push(oldZoom);
+			if(dragInProgress_) {
+				dragInProgress_ = false;
 
-				QPointF new1(event->buttonDownPos(Qt::LeftButton).x(), event->buttonDownPos(Qt::LeftButton).y());
-				QPointF new2(event->pos().x(), event->pos().y());
-				newZoom = QRectF(new1, new2);
-				newZoom = plot()->rightAxisTransform().inverted().mapRect(newZoom);
-				plot()->setXDataRange(qMin(newZoom.left(), newZoom.right()), qMax(newZoom.left(), newZoom.right()));
-				plot()->setYDataRangeRight(qMin(newZoom.bottom(), newZoom.top()), qMax(newZoom.bottom(), newZoom.top()));
+				QRectF oldZoom, newZoom;
+				// Zoom either the left y axis or the right y axis, depending on our axis affiliation:
+				if(yAxisTarget_ == MPlotAxis::Right) {
+					// Get old axis coordinates:
+					oldZoom = QRectF(QPointF(plot()->xMin(), plot()->yRightMin()), QPointF(plot()->xMax(), plot()->yRightMax()));
+					zoomStack_.push(oldZoom);
+
+					QPointF new1(event->buttonDownPos(Qt::LeftButton).x(), event->buttonDownPos(Qt::LeftButton).y());
+					QPointF new2(event->pos().x(), event->pos().y());
+					newZoom = QRectF(new1, new2);
+					newZoom = plot()->rightAxisTransform().inverted().mapRect(newZoom);
+					plot()->setXDataRange(qMin(newZoom.left(), newZoom.right()), qMax(newZoom.left(), newZoom.right()));
+					plot()->setYDataRangeRight(qMin(newZoom.bottom(), newZoom.top()), qMax(newZoom.bottom(), newZoom.top()));
+				}
+				else {
+					oldZoom = QRectF(QPointF(plot()->xMin(), plot()->yLeftMin()), QPointF(plot()->xMax(), plot()->yLeftMax()));
+					zoomStack_.push(oldZoom);
+
+					QPointF new1(qMin(event->buttonDownPos(Qt::LeftButton).x(), event->pos().x()), qMin(event->buttonDownPos(Qt::LeftButton).y(), event->pos().y()));
+					QPointF new2(qMax(event->buttonDownPos(Qt::LeftButton).x(), event->pos().x()), qMax(event->buttonDownPos(Qt::LeftButton).y(), event->pos().y()));
+					newZoom = QRectF(new1, new2);
+					newZoom = plot()->leftAxisTransform().inverted().mapRect(newZoom);
+					plot()->setXDataRange(qMin(newZoom.left(), newZoom.right()), qMax(newZoom.left(), newZoom.right()));
+					plot()->setYDataRangeLeft(qMin(newZoom.bottom(), newZoom.top()), qMax(newZoom.bottom(), newZoom.top()));
+
+				}
+				qDebug() << "zoom to rect:" << newZoom;
 			}
-			else {
-				oldZoom = QRectF(QPointF(plot()->xMin(), plot()->yLeftMin()), QPointF(plot()->xMax(), plot()->yLeftMax()));
-				zoomStack_.push(oldZoom);
-
-				QPointF new1(qMin(event->buttonDownPos(Qt::LeftButton).x(), event->pos().x()), qMin(event->buttonDownPos(Qt::LeftButton).y(), event->pos().y()));
-				QPointF new2(qMax(event->buttonDownPos(Qt::LeftButton).x(), event->pos().x()), qMax(event->buttonDownPos(Qt::LeftButton).y(), event->pos().y()));
-				newZoom = QRectF(new1, new2);
-				newZoom = plot()->leftAxisTransform().inverted().mapRect(newZoom);
-				plot()->setXDataRange(qMin(newZoom.left(), newZoom.right()), qMax(newZoom.left(), newZoom.right()));
-				plot()->setYDataRangeLeft(qMin(newZoom.bottom(), newZoom.top()), qMax(newZoom.bottom(), newZoom.top()));
-
-			}
-			qDebug() << "zoom to rect:" << newZoom;
 		}
 
-		// Right mouse button let's you go back
+		// Right mouse button let's you go back to an old zoom setting
 		if(!dragInProgress_ && event->button() == Qt::RightButton) {
 			// If we have old zoom settings to go back to:
 			if(zoomStack_.count() > 0) {
@@ -204,6 +229,10 @@ protected:
 
 	QGraphicsRectItem* selectionRect_;
 	QStack<QRectF> zoomStack_;
+
+	/// Means that a click has happened, but we might not yet have exceeded the drag deadzone to count as a zoom drag event.
+	bool dragStarted_;
+	/// Means that a zoom drag event is currently happening. We're in between exceeding the drag deadzone and finishing the drag.
 	bool dragInProgress_;
 
 };

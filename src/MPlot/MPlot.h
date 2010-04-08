@@ -12,6 +12,10 @@
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
 
+#include <float.h>
+
+/// Defines the minimum distance between min- and max- values for the range of an axis. Without this check, calling setXDataRange(3, 3) or set___DataRange(f, g=f) will cause a segfault within Qt's drawing functions... it can't handle a clipPath with a width of 0.
+#define MPLOT_MIN_AXIS_RANGE DBL_EPSILON
 
 /// This class provides plotting capabilities within a QGraphicsItem that can be added to any QGraphicsScene,
 class MPlot : public QGraphicsObject {
@@ -371,7 +375,15 @@ protected:
 
 		}
 
-		xmin_ = min; xmax_ = max;
+		// ensure minimum range not violated:
+		if(max - min < MPLOT_MIN_AXIS_RANGE)
+			max = min + MPLOT_MIN_AXIS_RANGE;
+
+		// Before padding, remember these as our actual axis limits:
+		xmin_ = min;
+		xmax_ = max;
+
+
 
 		double padding = (max-min)*scalePadding_;
 		min -= padding; max += padding;
@@ -411,7 +423,13 @@ protected:
 				return;	// no series found... Autoscale does nothing.
 		}
 
-		yleftmin_ = min; yleftmax_ = max;
+		// ensure minimum range not violated:
+		if(max - min < MPLOT_MIN_AXIS_RANGE)
+			max = min + MPLOT_MIN_AXIS_RANGE;
+
+		// Before padding, remember these as our actual axis limits:
+		yleftmin_ = min;
+		yleftmax_ = max;
 
 		double padding = (max-min)*scalePadding_;
 		min -= padding; max += padding;
@@ -445,7 +463,13 @@ protected:
 				return;	// no series found... Autoscale does nothing.
 		}
 
-		yrightmin_ = min; yrightmax_ = max;
+		// ensure minimum range not violated:
+		if(max - min < MPLOT_MIN_AXIS_RANGE)
+			max = min + MPLOT_MIN_AXIS_RANGE;
+
+		// Before padding, remember these as our actual axis limits:
+		yrightmin_ = min;
+		yrightmax_ = max;
 
 		double padding = (max-min)*scalePadding_;
 		min -= padding; max += padding;
