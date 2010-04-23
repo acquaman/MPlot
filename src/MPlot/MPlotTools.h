@@ -19,7 +19,7 @@
 #define MPLOT_SELECTION_OPACITY 0.35
 
 
-/// This class provides a plot tool that can be used to select a single series in a plot:
+/// This class provides a plot tool that can be used to select a single series in a plot.
 class MPlotPlotSelectorTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:
@@ -42,8 +42,6 @@ protected:
 	// If multiple series are on top of each other (or are within the selection range), this will alternate between them on successive clicks.
 
 	virtual void	mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
-
-		qDebug() << "press event: " << event;
 
 		static unsigned int selIndex = 0;	// If two or more series are on top of each other, this is used to alternate between them
 		MPlotAbstractSeries* s;
@@ -87,6 +85,9 @@ protected:
 			emit deselected();
 		}
 
+		// ignore the mouse press event, so that it will be propagated to other tools below us:
+		event->ignore();
+
 	}
 
 	virtual void	mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) { QGraphicsObject::mouseMoveEvent(event); }
@@ -103,6 +104,8 @@ protected:
 #include <QStack>
 
 /// This class provides a plot tool that can be used to choose a selection rectangle with a "rubber-band", and zoom into that region. Right-clicking will restore the zoom to the previous state. (Infinite zoom/restore levels are available.)
+/*! Limitation: when adding multiple MPlotTools to a plot, this one must be added first (ie: "on the bottom").  To track the mouse drag, it needs to become the QGraphicsScene::mouseGrabberItem(), which will prevent other tools from receiving mouse clicks if it is "on top" of them.
+  */
 class MPlotDragZoomerTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:

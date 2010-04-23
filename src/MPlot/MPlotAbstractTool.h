@@ -6,8 +6,8 @@
 
 class MPlot;
 
-/// MPlotTools are objects that can be added to an MPlot to provide functionality for interacting with it.
-/*! This class defines the interface for all tools. */
+/// MPlotTools are objects that can be added to an MPlot to allow different kinds of interaction with it.
+/*! This class defines the interface for all plot tools. */
 class MPlotAbstractTool : public QGraphicsObject
 {
 	Q_OBJECT
