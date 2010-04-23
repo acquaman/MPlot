@@ -407,45 +407,111 @@ protected:
 
 	}
 	
-	// IntelliScale: Calculate "nice" values for starting tick and tick increment.
-	// Sets minTickVal_ and tickIncVal_ for nice values of axis ticks.
-	// Prior to calling, numTicks() and max_ and min_ must be correct.
-	// Desired outcome: labels are nice values like "0.2 0.4 0.6..." or "0.024 0.026 0.028" instead of irrational numbers.
-	// Additionally, if the axis range passes through 0, it would be nice to have a tick at 0.
+	/* This method to adjust axis ticks to nice values is from C++ Gui Programming with Qt. It moves the max and min values instead of the starting tick.
+void PlotSettings::adjustAxis(double &min, double &max,
+int &numTicks)
+{
+	const int MinTicks = 4;
+	double grossStep = (max - min) / MinTicks;
+	double step = pow(10.0, floor(log10(grossStep)));
+	if (5 * step < grossStep) {
+		step *= 5;
+	} else if (2 * step < grossStep) {
+		step *= 2;
+	}
+	numTicks = int(ceil(max / step) - floor(min / step));
+	if (numTicks < MinTicks)
+		numTicks = MinTicks;
+	min = floor(min / step) * step;
+	max = ceil(max / step) * step;
+}
+*/
+
+/// IntelliScale: Calculate "nice" values for starting tick and tick increment.
+/*! Sets minTickVal_ and tickIncVal_ for nice values of axis ticks.
+- Prior to calling, numTicks() and max_ and min_ must be correct.
+- Desired outcome: labels are nice values like "0.2 0.4 0.6..." or "0.024 0.026 0.028" instead of irrational numbers.
+- Additionally, if the axis range passes through 0, it would be nice to have a tick at 0.
+
+Implementation: This algorithm is based on one from C++ Gui Programming with Qt (below), but we move the starting tick position instead of the max and min values.
+\code
+void PlotSettings::adjustAxis(double &min, double &max,
+int &numTicks)
+{
+	const int MinTicks = 4;
+	double grossStep = (max - min) / MinTicks;
+	double step = pow(10.0, floor(log10(grossStep)));
+	if (5 * step < grossStep) {
+		step *= 5;
+	} else if (2 * step < grossStep) {
+		step *= 2;
+	}
+	numTicks = int(ceil(max / step) - floor(min / step));
+	if (numTicks < MinTicks)
+		numTicks = MinTicks;
+	min = floor(min / step) * step;
+	max = ceil(max / step) * step;
+}
+\endcode
+
+We used to do it this way:
+\code
+// normalize range so difference between max and min goes to 10(max):
+double norm = pow(10, trunc(log10(max_ - min_)) - 1);
+// Round off to get nice numbers. Note that minTickVal_ must be > min_, otherwise it falls off the bottom of the plot.
+minTickVal_ = ceil(min_/norm);
+tickIncVal_  = trunc( (max_/norm-minTickVal_)/(numTicks()-1) );
+
+// if the tickIncVal is 0, that'll be trouble. Normalize smaller to avoid this.
+while((int)tickIncVal_ == 0) {
+	norm /= 2;
+	minTickVal_ = ceil(min_/norm);
+	tickIncVal_  = trunc( (max_/norm-minTickVal_)/(numTicks()-1) );
+}
+
+
+// Hit Zero if possible: (while passing through origin)
+if(min_ < 0 && max_ > 0) {
+	double potentialminTickVal = minTickVal_ + ( (int)(-minTickVal_) % (int)tickIncVal_ );
+	// Disabled: not necessary now that we draw an arbitrary number of ticks:
+		// previously: // Just making sure we don't go past the end of the axis with this tweak
+		// if( (potentialminTickVal + tickIncVal_*(numTicks()-1))*norm < max_)
+		minTickVal_ = potentialminTickVal;
+}
+
+//Rescale:
+minTickVal_ *= norm;
+tickIncVal_ *= norm;
+		}
+\endcode
+*/
 	void intelliScale() {
 		if(numTicks() > 1) {
-			
-			// normalize range so difference between max and min goes to 10(max):
-			double norm = pow(10, trunc(log10(max_ - min_)) - 1);
-			// Round off to get nice numbers. Note that minTickVal_ must be > min_, otherwise it falls off the bottom of the plot.
-			minTickVal_ = ceil(min_/norm);
-			tickIncVal_  = trunc( (max_/norm-minTickVal_)/(numTicks()-1) );
 
-			// if the tickIncVal is 0, that'll be trouble. Normalize smaller to avoid this.
-			while((int)tickIncVal_ == 0) {
-				norm /= 2;
-				minTickVal_ = ceil(min_/norm);
-				tickIncVal_  = trunc( (max_/norm-minTickVal_)/(numTicks()-1) );
-			}
+			// numTicks() is a suggestion for the minimum number of ticks.
+			double crudeStep = (max_ - min_) / numTicks();
 
+			double step = pow(10, floor(log10(crudeStep)));
+			if(5*step < crudeStep)
+				step *= 5;
+			else if(2*step < crudeStep)
+				step *= 2;
+
+			tickIncVal_ = step;
+			minTickVal_ = ceil(min_/step) * step;
 			
 			// Hit Zero if possible: (while passing through origin)
+
 			if(min_ < 0 && max_ > 0) {
-				double potentialminTickVal = minTickVal_ + ( (int)(-minTickVal_) % (int)tickIncVal_ );
-				// Disabled: not necessary now that we draw an arbitrary number of ticks:
-					// previously: // Just making sure we don't go past the end of the axis with this tweak
-					// if( (potentialminTickVal + tickIncVal_*(numTicks()-1))*norm < max_)
-					minTickVal_ = potentialminTickVal;
+				// the distance between 0 and the nearest tick is... the remainder in division of (0-minTickVal)/tickIncVal_.
+				double offset = remainder(-minTickVal_, tickIncVal_);
+				minTickVal_ += offset;
 			}
-			
-			//Rescale:
-			minTickVal_ *= norm;
-			tickIncVal_ *= norm;
 		}
 		
 		else {	// 1 or zero ticks: 1 tick should go at the average/middle of the axis
 			minTickVal_ = (min_ + max_) / 2;
-			// make sure the next tick is _well_ past the end of the axis.
+			// make sure the next tick is _well_ past the end of the axis, so that it doesn't get drawn.
 			tickIncVal_ = DBL_MAX / 1e10; // Setting this to DLB_MAX causes an overflow that breaks minTickVal_.
 		}
 	}
@@ -457,7 +523,7 @@ protected:
 		
 		tickStyle_ = Outside;
 		tickLength_ = .02;
-		numTicks_ = 5;
+		numTicks_ = 4;
 		
 		tickLabelOffset_ = 0.02;
 		tickLabelFont_.setPointSize(12);
