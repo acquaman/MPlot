@@ -4,7 +4,7 @@
 #include "MPlotAxis.h"
 #include "MPlotLegend.h"
 #include "MPlotItem.h"
-#include "MPlotSeriesBasic.h"
+#include "MPlotSeries.h"
 #include "MPlotAbstractTool.h"
 
 #include <QList>

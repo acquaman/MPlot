@@ -2,7 +2,7 @@
 
 #include "MPlotWidget.h"
 #include "MPlotSeriesData.h"
-#include "MPlotSeriesBasic.h"
+#include "MPlotSeries.h"
 
 #include <QTableView>
 #include <QPen>

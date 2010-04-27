@@ -16,10 +16,13 @@ HEADERS += src/MPlot/MPlotWidget.h \
     src/MPlot/MPlot.h \
     src/MPlot/MPlotLegend.h \
     src/MPlot/MPlotMarker.h \
-    src/MPlot/MPlotAbstractSeries.h \
     src/MPlot/MPlotSeriesBasic.h \
     src/MPlot/MPlotSeriesData.h \
     src/MPlot/MPlotTools.h \
     src/MPlot/MPlotAbstractTool.h \
-    src/MPlot/MPlotItem.h
+    src/MPlot/MPlotItem.h \
+    src/MPlot/MPlotSeries.h \
+    src/MPlot/MPlotColorMap.h \
+    src/MPlot/MPlotImage.h \
+    src/MPlot/MPlotImageData.h
 SOURCES += src/main.cpp
