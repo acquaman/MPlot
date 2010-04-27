@@ -14,9 +14,6 @@
 // The value that makes sense here is 1 (since you can't see any more... they would just look like vertical lines on top of each other anyway.)  When drawing anti-aliased, changing this to 2 makes smoother plots.
 #define MPLOT_MAX_LINES_PER_PIXEL 2.0
 
-/// \bug Using test plot in main.cpp with 100,000 pts... resize plot in x and note how slope of connecting line between end of sinusoid and the other points changes as you slide across. should not.
-
-
 // If you're going to add a lot of points to the model (without caring about updates in between), recommend this for performance reasons:
 /*
 	MPlotSeriesBasic series;
@@ -32,7 +29,7 @@ class MPlotSeriesBasic : public MPlotAbstractSeries {
 	
 public:
 	
-	MPlotSeriesBasic(const MPlotAbstractSeriesData* data = 0, QGraphicsItem* parent = 0) : MPlotAbstractSeries(data, parent) {
+	MPlotSeriesBasic(const MPlotAbstractSeriesData* data = 0) : MPlotAbstractSeries(data) {
 		
 		// no unique setup for MPlotSeriesBasic?
 	

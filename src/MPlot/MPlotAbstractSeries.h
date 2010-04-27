@@ -29,7 +29,7 @@ class MPlotAbstractSeries : public QGraphicsObject {
 	
 public:
 	
-	MPlotAbstractSeries(const MPlotAbstractSeriesData* data = 0, QGraphicsItem* parent = 0) : QGraphicsObject(parent) {
+	MPlotAbstractSeries(const MPlotAbstractSeriesData* data = 0) : QGraphicsObject() {
 		
 		data_ = 0;
 		marker_ = 0;
