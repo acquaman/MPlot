@@ -20,5 +20,6 @@ HEADERS += src/MPlot/MPlotWidget.h \
     src/MPlot/MPlotSeriesBasic.h \
     src/MPlot/MPlotSeriesData.h \
     src/MPlot/MPlotTools.h \
-    src/MPlot/MPlotAbstractTool.h
+    src/MPlot/MPlotAbstractTool.h \
+    src/MPlot/MPlotItem.h
 SOURCES += src/main.cpp

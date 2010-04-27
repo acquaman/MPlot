@@ -19,39 +19,39 @@
 #define MPLOT_SELECTION_OPACITY 0.35
 
 
-/// This class provides a plot tool that can be used to select a single series in a plot.
+/// This class provides a plot tool that can be used to select a single data-item in a plot.
 class MPlotPlotSelectorTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:
 	MPlotPlotSelectorTool() : MPlotAbstractTool() {
-		selectedSeries_ = 0;
+		selectedItem_ = 0;
 	}
 
-	/// Returns the currently-selected series in the plot (0 if none).
-	MPlotAbstractSeries* selectedSeries() { return selectedSeries_; }
+	/// Returns the currently-selected item in the plot (0 if none).
+	MPlotItem* selectedItem() { return selectedItem_; }
 
 signals:
-	// Emitted by the view when a series in the plot is selected
-		// Note that selection happens on a per-scene basis.  The same series can be in multiple views, and will be selected in multiple views.
-	void seriesSelected(MPlotAbstractSeries*);
+	// Emitted by the view when an item in the plot is selected
+		// Note that selection happens on a per-scene basis.  The same item can be in multiple views, and will be selected in multiple views.
+	void itemSelected(MPlotItem*);
 	// Emitted when nothing is selected:
 	void deselected();
 
 protected:
-	// This is used to detect PlotSeries selection.
-	// If multiple series are on top of each other (or are within the selection range), this will alternate between them on successive clicks.
+	// This is used to detect PlotItem selection.
+	// If multiple items are on top of each other (or are within the selection range), this will alternate between them on successive clicks.
 
 	virtual void	mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
 
-		static unsigned int selIndex = 0;	// If two or more series are on top of each other, this is used to alternate between them
-		MPlotAbstractSeries* s;
-		QList<MPlotAbstractSeries*> selectedPossibilities;	// this will become a filtered list containing all the MPlotAbstractSeries that are in range from this click.
+		static unsigned int selIndex = 0;	// If two or more items are on top of each other, this is used to alternate between them
+		MPlotItem* s;
+		QList<MPlotItem*> selectedPossibilities;	// this will become a filtered list containing all the MPlotItem that are in range from this click.
 
 		// Construct a rectangle "in the ballpark" of the mouse click:
 		QRectF clickRegion(event->scenePos().x()-MPLOT_SELECTION_BALLPARK, event->scenePos().y()-MPLOT_SELECTION_BALLPARK, 2*MPLOT_SELECTION_BALLPARK, 2*MPLOT_SELECTION_BALLPARK);
 
-		// Check all series for intersections
-		foreach(MPlotAbstractSeries* s2, plot()->series() ) {
+		// Check all items for intersections
+		foreach(MPlotItem* s2, plot()->plotItems() ) {
 
 			// Have to verify that we actually intersect the shape...
 			if(s2->shape().intersects(s2->mapRectFromScene(clickRegion))) {
@@ -67,21 +67,21 @@ protected:
 			s = 0;
 
 		// If we found one, and it's not the same as the old one:
-		if(s && s != selectedSeries_) {
-			// tell the old series to unselect:
-			if(selectedSeries_)
-				selectedSeries_->setSelected(false);
+		if(s && s != selectedItem_) {
+			// tell the old item to unselect:
+			if(selectedItem_)
+				selectedItem_->setSelected(false);
 			// Tell the new one to select:
 			s->setSelected(true);
 			// Assign, and emit signal:
-			emit seriesSelected(selectedSeries_ = s);
+			emit itemSelected(selectedItem_ = s);
 		}
 
-		// If the click didn't land on any series, and there was one previously selected:
-		if(!s && selectedSeries_) {
+		// If the click didn't land on any item, and there was one previously selected:
+		if(!s && selectedItem_) {
 			// Tell the old one to unselect:
-			selectedSeries_->setSelected(false);
-			selectedSeries_ = 0;
+			selectedItem_->setSelected(false);
+			selectedItem_ = 0;
 			emit deselected();
 		}
 
@@ -95,7 +95,7 @@ protected:
 	virtual void	wheelEvent ( QGraphicsSceneWheelEvent * event ) { QGraphicsObject::wheelEvent(event); }
 	virtual void	mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event ) { QGraphicsObject::mouseDoubleClickEvent(event); }
 
-	MPlotAbstractSeries* selectedSeries_;
+	MPlotItem* selectedItem_;
 
 };
 

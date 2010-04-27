@@ -3,7 +3,7 @@
 
 #include "MPlotAxis.h"
 #include "MPlotLegend.h"
-#include "MPlotAbstractSeries.h"
+#include "MPlotItem.h"
 #include "MPlotSeriesBasic.h"
 #include "MPlotAbstractTool.h"
 
@@ -69,27 +69,27 @@ public:
 		return rect_;
 	}
 
-	/// Use this to add a series to a plot:
-	void addSeries(MPlotAbstractSeries* newSeries) {
-		newSeries->setParentItem(dataArea_);
-		series_ << newSeries;
+	/// Use this to add a new data-item to a plot:
+	void addItem(MPlotItem* newItem) {
+		newItem->setParentItem(dataArea_);
+		items_ << newItem;
 
-		connect(newSeries, SIGNAL(dataChanged(MPlotAbstractSeries*)), this, SLOT(onDataChanged(MPlotAbstractSeries*)));
-		// Possible optimization: only connect series to this slot when continuous autoscaling is enabled.
+		connect(newItem, SIGNAL(dataChanged(MPlotItem*)), this, SLOT(onDataChanged(MPlotItem*)));
+		// Possible optimization: only connect items to this slot when continuous autoscaling is enabled.
 		// That way non-autoscaling plots don't fire in a bunch of non-required signals.
 
 		// Apply transforms as needed
-		placeSeries(newSeries);
+		placeItem(newItem);
 
 	}
 
-	/// Remove a series from a plot. (Note: Does not delete the series...)
-	bool removeSeries(MPlotAbstractSeries* removeMe) {
-		if(series_.contains(removeMe)) {
+	/// Remove a data-item from a plot. (Note: Does not delete the item...)
+	bool removeItem(MPlotItem* removeMe) {
+		if(items_.contains(removeMe)) {
 			removeMe->setParentItem(0);
 			if(scene())
 				scene()->removeItem(removeMe);
-			series_.removeAll(removeMe);
+			items_.removeAll(removeMe);
 			disconnect(removeMe, 0, this, 0);
 			return true;
 		}
@@ -97,7 +97,7 @@ public:
 			return false;
 	}
 
-	QList<MPlotAbstractSeries*> series() const { return series_; }
+	QList<MPlotItem*> plotItems() const { return items_; }
 
 	/// Add a tool to the plot:
 	void addTool(MPlotAbstractTool* newTool) {
@@ -203,8 +203,8 @@ public:
 		setYDataRangeLeftImp(yleftmin_, yleftmax_);
 		setYDataRangeRightImp(yrightmin_, yrightmax_);
 
-		foreach(MPlotAbstractSeries* series, series_)
-			placeSeries(series);
+		foreach(MPlotItem* item, items_)
+			placeItem(item);
 	}
 
 	double scalePadding() { return scalePadding_ * 100; }
@@ -213,9 +213,9 @@ public:
 
 		setXDataRangeImp(min, max, autoscale);
 
-		// We have new transforms.  Need to apply them to all series:
-		foreach(MPlotAbstractSeries* series, series_) {
-			placeSeries(series);
+		// We have new transforms.  Need to apply them to all item:
+		foreach(MPlotItem* item, items_) {
+			placeItem(item);
 		}
 
 	}
@@ -225,8 +225,8 @@ public:
 		setYDataRangeLeftImp(min, max, autoscale);
 
 		// We have new transforms.  Need to apply them:
-		foreach(MPlotAbstractSeries* series, series_) {
-			placeSeries(series);
+		foreach(MPlotItem* item, items_) {
+			placeItem(item);
 		}
 	}
 
@@ -235,8 +235,8 @@ public:
 		setYDataRangeRightImp(min, max, autoscale);
 
 		// Apply new transforms:
-		foreach(MPlotAbstractSeries* series, series_)
-			placeSeries(series);
+		foreach(MPlotItem* item, items_)
+			placeItem(item);
 	}
 
 public slots:
@@ -244,32 +244,30 @@ public slots:
 
 protected slots:
 
-	// This is called when a series updates it's data.  We may have to autoscale/rescale:
-	void onDataChanged(MPlotAbstractSeries* series) {
+	// This is called when a item updates it's data.  We may have to autoscale/rescale:
+	void onDataChanged(MPlotItem* item1) {
 
 		if(autoScaleBottomEnabled_)
 			setXDataRangeImp(0, 0, true);
 
-		if(autoScaleLeftEnabled_ && series->yAxisTarget() == MPlotAxis::Left)
+		if(autoScaleLeftEnabled_ && item1->yAxisTarget() == MPlotAxis::Left)
 			setYDataRangeLeftImp(0, 0, true);
 
-		if(autoScaleRightEnabled_ && series->yAxisTarget() == MPlotAxis::Right)
+		if(autoScaleRightEnabled_ && item1->yAxisTarget() == MPlotAxis::Right)
 			setYDataRangeRightImp(0, 0, true);
 
 		// We have new transforms.  Need to apply them:
 		if(autoScaleBottomEnabled_ | autoScaleLeftEnabled_ | autoScaleRightEnabled_) {
-			foreach(MPlotAbstractSeries* series, series_)
-				placeSeries(series);
+			foreach(MPlotItem* item, items_)
+				placeItem(item);
 		}
 
 		// Possible optimizations:
 		/*
-		 - COMPLETED: setXDataRange() and setYDataRange____() both call placeSeries(), which applies the transform to all series (expensive).
-		   We could only call this once only (if we knew that both setXDataRange() and setYDataRangeLeft() were going to be called.)
 
-		 - set_DataRange___(0, 0, true) currently loops through all series (see above).
+		 - set_DataRange___(0, 0, true) currently loops through all items (see above).
 		   If we stored the combined QRectF bounds (for all series),
-		   we could just subtract this series bounds (nope.. it's changed... don't have old) and |= on the new one.
+		   we could just subtract this item's bounds (nope.. it's changed... don't have old) and |= on the new one.
 		 */
 	}
 
@@ -281,7 +279,7 @@ protected:
 
 	MPlotLegend* legend_;
 	MPlotAxis* axes_[9];		// We only use [1], [2], [4], and [8]...
-	QList<MPlotAbstractSeries*> series_;	// list of current series displayed on plot
+	QList<MPlotItem*> items_;	// list of current data items displayed on plot
 	QList<MPlotAbstractTool*> tools_;	// list of tools that have been installed on the plot
 
 	double margins_[9];			// We only use [1], [2], [4], and [8]...
@@ -301,26 +299,17 @@ protected:
 	double scalePadding_;
 
 
-	/// Applies the leftAxis or rightAxis transformation matrix (depending on the
-	void placeSeries(MPlotAbstractSeries* series) {
-		if(series->yAxisTarget() == MPlotAxis::Right) {
-			series->setTransform(rightAxisTransform_);
+	/// Applies the leftAxis or rightAxis transformation matrix (depending on the yAxis target)
+	void placeItem(MPlotItem* theItem) {
+		if(theItem->yAxisTarget() == MPlotAxis::Right) {
+			theItem->setTransform(rightAxisTransform_);
 		}
 		else {
-			series->setTransform(leftAxisTransform_);
+			theItem->setTransform(leftAxisTransform_);
 		}
 	}
 
-	/// Applies the leftAxis or rightAxis transformation matrix (depending on the
-	/*
-	void placeTool(MPlotAbstractTool* tool) {
-		if(tool->yAxisTarget() == MPlotAxis::Right) {
-			tool->setTransform(rightAxisTransform_);
-		}
-		else {
-			tool->setTransform(leftAxisTransform_);
-		}
-	}*/
+
 
 
 	/// Sets the defaults for the drawing options: margins, scale padding, background colors, initial data range.
@@ -354,7 +343,7 @@ protected:
 	}
 
 
-	// These implementations leave out the loop that applies the new transforms to all the series.
+	// These implementations leave out the loop that applies the new transforms to all the items.
 	// If this happens to be expensive, then internally we can just do that loop once after a combination of x- and y-scaling
 	// (Cuts down on dual x- y- autoscale time)
 	void setXDataRangeImp(double min, double max, bool autoscale = false) {
@@ -363,15 +352,15 @@ protected:
 		if(autoscale) {
 
 			QRectF bounds;
-			foreach(MPlotAbstractSeries* series, series_) {
-				bounds |= series->dataRect();
+			foreach(MPlotItem* itm, items_) {
+				bounds |= itm->dataRect();
 			}
 			if(bounds.isValid()) {
 				min = bounds.left();
 				max = bounds.right();
 			}
 			else
-				return;	// no series found... Autoscale does nothing.
+				return;	// no item found... Autoscale does nothing.
 
 		}
 
@@ -411,16 +400,16 @@ protected:
 		if(autoscale) {
 
 			QRectF bounds;
-			foreach(MPlotAbstractSeries* series, series_) {
-				if(series->yAxisTarget() == MPlotAxis::Left)
-					bounds |= series->dataRect();
+			foreach(MPlotItem* itm, items_) {
+				if(itm->yAxisTarget() == MPlotAxis::Left)
+					bounds |= itm->dataRect();
 			}
 			if(bounds.isValid()) {
 				min = bounds.top();
 				max = bounds.bottom();
 			}
 			else
-				return;	// no series found... Autoscale does nothing.
+				return;	// no items found... Autoscale does nothing.
 		}
 
 		// ensure minimum range not violated:
@@ -451,16 +440,16 @@ protected:
 		if(autoscale) {
 
 			QRectF bounds;
-			foreach(MPlotAbstractSeries* series, series_) {
-				if(series->yAxisTarget() == MPlotAxis::Right)
-					bounds |= series->dataRect();
+			foreach(MPlotItem* itm, items_) {
+				if(itm->yAxisTarget() == MPlotAxis::Right)
+					bounds |= itm->dataRect();
 			}
 			if(bounds.isValid()) {
 				min = bounds.top();
 				max = bounds.bottom();
 			}
 			else
-				return;	// no series found... Autoscale does nothing.
+				return;	// no items found... Autoscale does nothing.
 		}
 
 		// ensure minimum range not violated:

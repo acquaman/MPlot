@@ -1,14 +1,15 @@
 #ifndef __MPlotAbstractSeries_H__
 #define __MPlotAbstractSeries_H__
 
-#include <QGraphicsObject>
-#include <QPen>
-#include <QBrush>
+
+
 
 #include "MPlotMarker.h"
-#include "MPlotAxis.h"
+#include "MPlotItem.h"
 #include "MPlotSeriesData.h"
 
+#include <QPen>
+#include <QBrush>
 #include <QDebug>
 
 // This is the color of the selection highlight
@@ -22,14 +23,14 @@
 // Put markers on top of plot lines...
 // Optimize placeAllMarkers to not set Brush
 
-class MPlotAbstractSeries : public QGraphicsObject {
+class MPlotAbstractSeries : public MPlotItem {
 	
 	Q_OBJECT
 	Q_PROPERTY(bool selected READ selected WRITE setSelected NOTIFY selectedChanged);
 	
 public:
 	
-	MPlotAbstractSeries(const MPlotAbstractSeriesData* data = 0) : QGraphicsObject() {
+	MPlotAbstractSeries(const MPlotAbstractSeriesData* data = 0) : MPlotItem() {
 		
 		data_ = 0;
 		marker_ = 0;
@@ -95,8 +96,6 @@ public:
 		}
 	}
 	
-	MPlotAxis::AxisID yAxisTarget() { return yAxisTarget_;}
-	void setYAxisTarget(MPlotAxis::AxisID axis) { yAxisTarget_ = axis; }
 	
 	// Sets this series to view the model in 'data';
 	virtual void setModel(const MPlotAbstractSeriesData* data) {
@@ -120,16 +119,7 @@ public:
 	}
 	
 	virtual const MPlotAbstractSeriesData* model() const { return data_; }
-	
-	virtual void setSelected(bool selected = true) { 
-		bool updateNeeded = (selected != isSelected_); 
-		isSelected_ = selected; 
-		if(updateNeeded) {
-			update();	// todo: maybe should move into subclasses; not all implementations will require update()?
-			emit selectedChanged(isSelected_);
-		}
-	}
-	virtual bool selected() { return isSelected_; }
+
 	
 	// Required functions:
 	//////////////////////////
@@ -176,8 +166,8 @@ protected slots:
 	
 signals:
 	
-	void dataChanged(MPlotAbstractSeries* series);	// listen to this if you want to auto-scale on changes.
-	void selectedChanged(bool isSelected);
+	// in base class: void dataChanged(MPlotAbstractSeries* series);	// listen to this if you want to auto-scale on changes.
+	// in base class: void selectedChanged(bool isSelected);
 		
 	
 protected:
@@ -185,10 +175,6 @@ protected:
 	MPlotAbstractMarker* marker_;
 	
 	const MPlotAbstractSeriesData* data_;
-	
-	MPlotAxis::AxisID yAxisTarget_;
-	
-	bool isSelected_;
 	
 	virtual void setDefaults() {
 		

@@ -162,6 +162,15 @@ public:
 	}
 	
 
+	/// re-implemented from MPlotItem base to draw an update if we're now selected (with our selection highlight)
+	virtual void setSelected(bool selected = true) {
+
+		bool wasSelected = isSelected();
+		MPlotItem::setSelected(selected);
+		if(isSelected() != wasSelected)
+			update();
+
+	}
 	
 	
 protected slots:

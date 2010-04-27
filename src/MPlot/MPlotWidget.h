@@ -48,7 +48,7 @@ public:
 			if(plot_)
 				scene()->removeItem(plot_);
 
-			// todo: disconnect any signals? detach highlightSeries_ from old plot?
+			// todo: disconnect any signals?
 
 			scene()->addItem(plot);
 			plot_ = plot;
