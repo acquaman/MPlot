@@ -90,8 +90,9 @@
 		 for(int xx=0; xx<1024; xx++) {
 			 double x = data2d.x(xx);
 			 double y = data2d.y(yy);
-			 double r = sqrt(x*x + y*y);
-			 data2d.setZ(r, xx, yy);
+			 //double r2 = x*x + y*y;
+			 //data2d.setZ(exp(-r2/0.1), xx, yy);
+			 data2d.setZ(sin(x*4*M_PI)*sin(y*2*M_PI), xx, yy);
 		 }
 	 }
 

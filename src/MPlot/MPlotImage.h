@@ -151,7 +151,6 @@ public:
 				selectionColor.setAlphaF(MPLOT_SELECTION_OPACITY);
 				painter->setBrush(selectionColor);
 				painter->drawRect(data_->boundingRect());
-				qDebug() << "bounding rect:" << data_->boundingRect();
 			}
 		}
 
