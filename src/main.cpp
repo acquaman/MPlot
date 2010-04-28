@@ -268,6 +268,9 @@
 	plot.addTool(&psTool);
 	// psTool.setEnabled(false);
 
+	MPlotWheelZoomerTool wzTool;
+	plot.addTool(&wzTool);
+
 
 	 
 	return app.exec();

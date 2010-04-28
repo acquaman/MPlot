@@ -209,9 +209,9 @@ public:
 
 	double scalePadding() { return scalePadding_ * 100; }
 
-	void setXDataRange(double min, double max, bool autoscale = false) {
+	void setXDataRange(double min, double max, bool autoscale = false, bool applyPadding = true) {
 
-		setXDataRangeImp(min, max, autoscale);
+		setXDataRangeImp(qMin(min, max), qMax(min, max), autoscale, applyPadding);
 
 		// We have new transforms.  Need to apply them to all item:
 		foreach(MPlotItem* item, items_) {
@@ -220,9 +220,9 @@ public:
 
 	}
 
-	void setYDataRangeLeft(double min, double max, bool autoscale = false) {
+	void setYDataRangeLeft(double min, double max, bool autoscale = false, bool applyPadding = true) {
 
-		setYDataRangeLeftImp(min, max, autoscale);
+		setYDataRangeLeftImp(qMin(min, max), qMax(min, max), autoscale, applyPadding);
 
 		// We have new transforms.  Need to apply them:
 		foreach(MPlotItem* item, items_) {
@@ -230,9 +230,9 @@ public:
 		}
 	}
 
-	void setYDataRangeRight(double min, double max, bool autoscale = false) {
+	void setYDataRangeRight(double min, double max, bool autoscale = false, bool applyPadding = true) {
 
-		setYDataRangeRightImp(min, max, autoscale);
+		setYDataRangeRightImp(qMin(min, max), qMax(min, max), autoscale, applyPadding);
 
 		// Apply new transforms:
 		foreach(MPlotItem* item, items_)
@@ -346,7 +346,7 @@ protected:
 	// These implementations leave out the loop that applies the new transforms to all the items.
 	// If this happens to be expensive, then internally we can just do that loop once after a combination of x- and y-scaling
 	// (Cuts down on dual x- y- autoscale time)
-	void setXDataRangeImp(double min, double max, bool autoscale = false) {
+	void setXDataRangeImp(double min, double max, bool autoscale = false, bool applyPadding = true) {
 
 		// Autoscale?
 		if(autoscale) {
@@ -373,9 +373,10 @@ protected:
 		xmax_ = max;
 
 
-
-		double padding = (max-min)*scalePadding_;
-		min -= padding; max += padding;
+		if(applyPadding) {
+			double padding = (max-min)*scalePadding_;
+			min -= padding; max += padding;
+		}
 
 		// Transforms: m31 is x-translate. m32 is y-translate. m11 is x-scale; m22 is y-scale. m21=m12=0 (no shear) m33 = 1 (no affine scaling)
 		double yscale, ytranslate, xscale, xtranslate;
@@ -395,7 +396,7 @@ protected:
 		axes_[MPlotAxis::Top]->setRange(min, max);
 	}
 
-	void setYDataRangeLeftImp(double min, double max, bool autoscale = false) {
+	void setYDataRangeLeftImp(double min, double max, bool autoscale = false, bool applyPadding = true) {
 		// Autoscale?
 		if(autoscale) {
 
@@ -420,9 +421,10 @@ protected:
 		yleftmin_ = min;
 		yleftmax_ = max;
 
-		double padding = (max-min)*scalePadding_;
-		min -= padding; max += padding;
-
+		if(applyPadding) {
+			double padding = (max-min)*scalePadding_;
+			min -= padding; max += padding;
+		}
 		double xscale, xtranslate, yscale, ytranslate;
 		xscale = leftAxisTransform_.m11();
 		xtranslate = leftAxisTransform_.m31();
@@ -434,7 +436,7 @@ protected:
 		axes_[MPlotAxis::Left]->setRange(min, max);
 	}
 
-	void setYDataRangeRightImp(double min, double max, bool autoscale = false) {
+	void setYDataRangeRightImp(double min, double max, bool autoscale = false, bool applyPadding = true) {
 
 		// Autoscale?
 		if(autoscale) {
@@ -460,8 +462,10 @@ protected:
 		yrightmin_ = min;
 		yrightmax_ = max;
 
-		double padding = (max-min)*scalePadding_;
-		min -= padding; max += padding;
+		if(applyPadding) {
+			double padding = (max-min)*scalePadding_;
+			min -= padding; max += padding;
+		}
 
 		double xscale, xtranslate, yscale, ytranslate;
 		xscale = rightAxisTransform_.m11();

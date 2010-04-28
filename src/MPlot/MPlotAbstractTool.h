@@ -14,7 +14,7 @@ class MPlotAbstractTool : public QGraphicsObject
 public:
 	MPlotAbstractTool() : QGraphicsObject() {
 		plot_ = 0;
-		yAxisTarget_ = MPlotAxis::Left;
+		axisTargets_ = MPlotAxis::Left | MPlotAxis::Right | MPlotAxis::Bottom;
 	}
 
 	// isEnabled() and setEnabled(true/false) are used to enable or disable a tool's functionality.
@@ -34,8 +34,9 @@ public:
 	void setPlot(MPlot* plot) { plot_ = plot; }
 	MPlot* plot() const { return plot_; }
 
-	MPlotAxis::AxisID yAxisTarget() const { return yAxisTarget_; }
-	void setYAxisTarget(MPlotAxis::AxisID yAxisTarget) { yAxisTarget_ = yAxisTarget; }
+	/// Some plot tools might be able to operate on a single axis, or a combination of them. This is an OR-combination of MPlotAxis::AxisID flags for all the axes that this tool affects.
+	int axisTargets() const { return axisTargets_; }
+	void setAxisTargets(int axisTargets) { axisTargets_ = axisTargets; }
 
 
 protected:
@@ -47,7 +48,8 @@ protected:
 
 	MPlot* plot_;
 
-	MPlotAxis::AxisID yAxisTarget_;
+private:
+	int axisTargets_;
 
 };
 
