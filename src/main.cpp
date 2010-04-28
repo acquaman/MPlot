@@ -264,10 +264,12 @@
 	plot.addTool(&dzTool);
 	// dzTool.setEnabled(false);
 
+	// this tool selects a plot with the mouse
 	MPlotPlotSelectorTool psTool;
 	plot.addTool(&psTool);
 	// psTool.setEnabled(false);
 
+	// this tool adds mouse-wheel based zooming
 	MPlotWheelZoomerTool wzTool;
 	plot.addTool(&wzTool);
 
