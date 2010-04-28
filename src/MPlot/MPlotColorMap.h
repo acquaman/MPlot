@@ -4,15 +4,16 @@
 #include <QPair>
 #include <QColor>
 
+/// only required for MPlotInterval typedef. \todo: move somewhere more appropriate?
+#include "MPlotImageData.h"
 
-
-/// This class defines the interface for color maps, which are used by image plots to turn a z-value into a color.  Additionally, color maps must have a working copy constructor and be fast to copy.
+/// This class defines the interface for color maps, which are used by image plots to turn a z-value into a color.
 class MPlotAbstractColorMap {
 public:
 	///  return a QRgb (unsigned int) representing the color for a given \c value within a \c range. (Faster than returning a full QColor)
-	QRgb rgb(double value, QPair<double,double> range = QPair<double, double>(0.0, 1.1) ) const = 0;
+	virtual QRgb rgb(double value, MPlotInterval range = MPlotInterval(0.0, 1.1) ) const = 0;
 	/// return the color representing a given \c value within a \c range.
-	QColor color(double value, QPair<double, double> range = QPair<double,double>(0, 1) ) const = 0;
+	virtual QColor color(double value, MPlotInterval range = MPlotInterval(0, 1) ) const = 0;
 
 };
 
@@ -23,7 +24,7 @@ public:
 
 
 /// This implementation of a color map linearly interpolates between two colors.
-class MPlotLinearColorMap {
+class MPlotLinearColorMap : public MPlotAbstractColorMap {
 public:
 
 	/// Constructs a color map with \c start and \c end values.
@@ -32,14 +33,15 @@ public:
 		finish_(finish) {}
 
 	///  return a QRgb (unsigned int) representing the color for a given \c value within a \c range. (Faster than returning a full QColor)
-	QRgb rgb(double value, QPair<double,double> range = QPair<double, double>(0.0, 1.1) ) const {
+	virtual QRgb rgb(double value, MPlotInterval range = MPlotInterval(0.0, 1.1) ) const {
 
 		double Ratio = (value - range.first)/(range.second - range.first);
-		int Col1 = start_.rgba();
-		int Col2 = finish_.rgba();
+		QRgb Col1 = start_.rgba();
+		QRgb Col2 = finish_.rgba();
 
-		int A1=(Col1>>24)&0xFF, R1=(Col1>>16)&0xFF, G1=(Col1>>8)&0xFF, B1=Col1&0xFF;
-		int A2=(Col2>>24)&0xFF, R2=(Col2>>16)&0xFF, G2=(Col2>>8)&0xFF, B2=Col2&0xFF;
+		int A1=qAlpha(Col1), R1=qRed(Col1), G1=qGreen(Col1), B1=qBlue(Col1);
+		int A2=qAlpha(Col2), R2=qRed(Col2), G2=qGreen(Col2), B2=qBlue(Col2);
+		//int A2=(Col2>>24)&0xFF, R2=(Col2>>16)&0xFF, G2=(Col2>>8)&0xFF, B2=Col2&0xFF;
 		int Color;
 		if (Ratio<=0) return Col1;	// Ratio parameter must be between 0 and 1
 		else if (Ratio>=1) return Col2;
@@ -51,7 +53,7 @@ public:
 
 	}
 	/// return the color representing a given \c value within a \c range.
-	QColor color(double value, QPair<double, double> range = QPair<double,double>(0, 1) ) const {
+	virtual QColor color(double value, MPlotInterval range = MPlotInterval(0, 1) ) const {
 		return QColor::fromRgba(rgb(value, range));
 	}
 

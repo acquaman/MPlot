@@ -16,7 +16,6 @@ HEADERS += src/MPlot/MPlotWidget.h \
     src/MPlot/MPlot.h \
     src/MPlot/MPlotLegend.h \
     src/MPlot/MPlotMarker.h \
-    src/MPlot/MPlotSeriesBasic.h \
     src/MPlot/MPlotSeriesData.h \
     src/MPlot/MPlotTools.h \
     src/MPlot/MPlotAbstractTool.h \

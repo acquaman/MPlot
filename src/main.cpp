@@ -4,6 +4,9 @@
 #include "MPlotSeriesData.h"
 #include "MPlotSeries.h"
 
+#include "MPlotImageData.h"
+#include "MPlotImage.h"
+
 #include <QTableView>
 #include <QPen>
 #include <QBrush>
@@ -80,6 +83,21 @@
 
 	// plot.axisTop()->showTickLabels(true);
 	 
+
+	 // 13: Adding 2d data and Image plots:
+	 MPlotSimpleImageData data2d(QRectF(-0.5,-0.5,1,1), QSize(1024,1024));
+	 for(int yy=0; yy<1024; yy++) {
+		 for(int xx=0; xx<1024; xx++) {
+			 double x = data2d.x(xx);
+			 double y = data2d.y(yy);
+			 double r = sqrt(x*x + y*y);
+			 data2d.setZ(r, xx, yy);
+		 }
+	 }
+
+	 MPlotImageBasic plot2d(&data2d);
+	 plot.addItem(&plot2d);
+
 
 	 // 3. Add data. Data is contained in the first two columns of an MPlotSeriesData:
 	 //////////////////////////////
@@ -248,7 +266,6 @@
 	MPlotPlotSelectorTool psTool;
 	plot.addTool(&psTool);
 	// psTool.setEnabled(false);
-
 
 
 	 

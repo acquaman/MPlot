@@ -10,9 +10,6 @@
 #include <QPainter>
 #include <QDebug>
 
-// This is the color of the selection highlight
-#define MPLOT_SELECTION_COLOR QColor(255, 210, 129)
-#define MPLOT_SELECTION_LINEWIDTH 10
 
 // When the number of points exceeds this, we simply return the bounding box instead of the exact shape of the plot.  Makes selection less precise, but faster.
 #define MPLOT_EXACTSHAPE_POINT_LIMIT 2000
@@ -21,7 +18,6 @@
 class MPlotAbstractSeries : public MPlotItem {
 
 	Q_OBJECT
-	Q_PROPERTY(bool selected READ selected WRITE setSelected NOTIFY selectedChanged);
 
 public:
 
@@ -30,15 +26,11 @@ public:
 		data_ = 0;
 		marker_ = 0;
 
-		setFlag(QGraphicsItem::ItemIsSelectable, false);	// We're implementing our own selection mechanism... ignoring QGraphicsView's selection system.
-
 		// Set style defaults:
 		setDefaults();	// override in subclasses
 
 		// Set model (will check that data != 0)
 		setModel(data);
-
-		isSelected_ = false;
 
 	}
 
@@ -173,7 +165,7 @@ protected:
 
 	virtual void setDefaults() {
 
-		yAxisTarget_ = MPlotAxis::Left;
+		setYAxisTarget(MPlotAxis::Left);
 
 		setLinePen(QPen(QColor(Qt::red)));	// Red solid lines on plot
 
@@ -182,7 +174,9 @@ protected:
 		setMarkerBrush(QBrush());	// default: NoBrush
 
 
-		selectedPen_ = QPen(QBrush(MPLOT_SELECTION_COLOR), MPLOT_SELECTION_LINEWIDTH);
+		QColor selectionColor = MPLOT_SELECTION_COLOR;
+		selectionColor.setAlphaF(MPLOT_SELECTION_OPACITY);
+		selectedPen_ = QPen(QBrush(selectionColor), MPLOT_SELECTION_LINEWIDTH);
 		selectedPen_.setCosmetic(true);
 	}
 };
@@ -270,7 +264,7 @@ public:
 		
 		// Render lines (this runs fairly fast, even for large datasets, due to subsampling)
 		////////////////////////////////////////////
-		if(isSelected_) {
+		if(selected()) {
 			painter->setPen(selectedPen_);
 			paintLines(painter);
 		}

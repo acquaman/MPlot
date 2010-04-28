@@ -15,8 +15,6 @@
 /// This is the distance (in pixels/scene coordinates) that a user must drag with the MPlotDragZoomerTool before it becomes active. This is to avoid a "click" or a "click and very small drag" causing an inadvertent zoom into a very small rectangle.
 #define MPLOT_RUBBERBAND_DEADZONE 6
 
-/// The opacity level (0=transparent, 1=opaque) of selection rectangles:
-#define MPLOT_SELECTION_OPACITY 0.35
 
 
 /// This class provides a plot tool that can be used to select a single data-item in a plot.

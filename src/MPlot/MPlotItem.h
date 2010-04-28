@@ -4,13 +4,26 @@
 #include <QGraphicsObject>
 #include "MPlotAxis.h"
 
+/// This is the color of the selection highlight
+#define MPLOT_SELECTION_COLOR QColor(255, 210, 129)
+/// The opacity level (0=transparent, 1=opaque) of selection rectangles:
+#define MPLOT_SELECTION_OPACITY 0.35
+/// This is the width of selection highlight lines
+#define MPLOT_SELECTION_LINEWIDTH 10
+
 /// This class defines the interface for all data-representation objects which can be added to an MPlot (ex: series/curves, images and spectrograms, contour maps, etc.)
 class MPlotItem : public QGraphicsObject {
 	Q_OBJECT
+
+	Q_PROPERTY(bool selected READ selected WRITE setSelected NOTIFY selectedChanged);
+
 public:
 
 	/// Constructor calls base class (QGraphicsObject)
-	MPlotItem() : QGraphicsObject() {}
+	MPlotItem() : QGraphicsObject() {
+		setFlag(QGraphicsItem::ItemIsSelectable, false);	// We're implementing our own selection mechanism... ignoring QGraphicsView's selection system.
+		isSelected_ = false;
+	}
 
 	/// returns which y-axis this data should be plotted against
 	MPlotAxis::AxisID yAxisTarget() { return yAxisTarget_;}
@@ -37,12 +50,12 @@ public:
 	// Data rect: also reported in our PlotItem coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
 	virtual QRectF dataRect() const = 0;
 
-	// Paint: must be implemented in subclass.
+	/// Paint: must be implemented in subclass.
 	virtual void paint(QPainter* painter,
 					   const QStyleOptionGraphicsItem* option,
 					   QWidget* widget) = 0;
 
-	// return the active shape where clicking willselect this object in the plot
+	/// return the active shape where clicking will select this object in the plot. Subclasses can re-implement for more accuracy.
 	virtual QPainterPath shape() const {
 		QPainterPath shape;
 		shape.addRect(boundingRect());
@@ -52,11 +65,13 @@ public:
 
 signals:
 
-	void dataChanged(MPlotItem* item);	// listen to this if you want to auto-scale on changes.
+	/// emitted if the x- or y- data changes, so that the plot might need to be re-auto-scaled.
+	void dataChanged(MPlotItem* item);
+	/// emitted when the selection state of the item changes
 	void selectedChanged(bool isSelected);
 
 
-protected:
+private:
 	bool isSelected_;
 	MPlotAxis::AxisID yAxisTarget_;
 };
