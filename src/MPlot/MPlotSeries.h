@@ -12,7 +12,7 @@
 
 
 // When the number of points exceeds this, we simply return the bounding box instead of the exact shape of the plot.  Makes selection less precise, but faster.
-#define MPLOT_EXACTSHAPE_POINT_LIMIT 2000
+#define MPLOT_EXACTSHAPE_POINT_LIMIT 10000
 
 /// MPlotAbstractSeries is the base class for all MPlotItems that display series curves (2D curve data) on a plot.  Different drawing implementations are possible. One implementation is provided in MPlotSeriesBasic.
 class MPlotAbstractSeries : public MPlotItem {
@@ -203,29 +203,29 @@ protected:
 /// MPlotSeriesBasic provides one drawing implementation for a 2D plot curve.  It is optimized to efficiently draw curves with 1,000,000+ data points along the x-axis, by only drawing as many lines as would be visible.
 
 class MPlotSeriesBasic : public MPlotAbstractSeries {
-	
+
 	Q_OBJECT
-	
+
 public:
-	
+
 	MPlotSeriesBasic(const MPlotAbstractSeriesData* data = 0) : MPlotAbstractSeries(data) {
-		
+
 		// no unique setup for MPlotSeriesBasic?
-	
-		
+
+
 	}
-	
+
 	// Sets this series to view the model in 'data';
 	virtual void setModel(const MPlotAbstractSeriesData* data) {
-		
+
 		MPlotAbstractSeries::setModel(data);
-		
+
 		// All we need to do extra: schedule a draw update.  (Note: update() only schedules an painting update. The repaint isn't performed until we get back to Qt's main run loop, so there's no performance hit for calling update() multiple times.)
 		update();
 
 	}
-	
-	
+
+
 	// Required functions:
 	//////////////////////////
 	// boundingRect: reported in our PlotSeries coordinates, which are just the actual data coordinates.
@@ -244,15 +244,15 @@ public:
 		}
 		return br;
 	}
-	
+
 	// Paint:
 	virtual void paint(QPainter* painter,
 					   const QStyleOptionGraphicsItem* option,
 					   QWidget* widget) {
-		
+
 		Q_UNUSED(option);
 		Q_UNUSED(widget);
-		
+
 		// Plot the markers. Here what makes sense is one marker per data point.  This will be slow for large datasets.
 			// use plot->setMarkerShape(MPlotMarkerShape::None) for large sets.
 		/////////////////////////////////////////
@@ -261,7 +261,7 @@ public:
 			painter->setBrush(marker_->brush());
 			paintMarkers(painter);
 		}
-		
+
 		// Render lines (this runs fairly fast, even for large datasets, due to subsampling)
 		////////////////////////////////////////////
 		if(selected()) {
@@ -270,31 +270,31 @@ public:
 		}
 		painter->setPen(linePen_);
 		paintLines(painter);
-		
+
 	}
-	
+
 	virtual void paintLines(QPainter* painter) {
 		// todo: if it's a small dataset (< 500 lines), just draw it asap
-		
+
 		// xinc is the delta-x that corresponds to 1 pixel-width on the screen.  It makes no sense to plot many points inside one delta-x.
 		QTransform wt = painter->deviceTransform();	// equivalent to worldTransform and combinedTransform
-		
+
 		/*
 		qDebug() << "worldT m11" << painter->worldTransform().m11();
 		qDebug() << "deviceT m11" << painter->deviceTransform().m11();
 		qDebug() << "combinedT m11" << painter->combinedTransform().m11();
 		 */
-		
+
 		double xinc = 1.0 / wt.m11() / MPLOT_MAX_LINES_PER_PIXEL;
-		
+
 		// Instead, we'll just plot the max and min value within every xinc range.  This ensures that if there is noise/jumps within a subsample (xinc) range, we'll still see it on the plot.
 		if(data_ && data_->count() > 0) {
 			double xstart;
 			double ystart, ymin, ymax;
-			
+
 			xstart = data_->x(0);
 			ymin = ymax = ystart = data_->y(0);
-			
+
 			// move through the datapoints along x. (Note that x could be jumping forward or backward here... it's not necessarily sorted)
 			for(unsigned i=1; i<data_->count(); i++) {
 				// if within the range around xstart: update max/min to be representative of this range
@@ -315,19 +315,19 @@ public:
 
 					painter->drawLine(QPointF(data_->x(i-1), data_->y(i-1)), QPointF(data_->x(i), data_->y(i)));
 					//painter->drawLine(QPointF(xstart, ystart), QPointF(data_->x(i), data_->y(i)));
-					
+
 					xstart = data_->x(i);
 					ymin = ymax = ystart = data_->y(i);
 				}
 			}
 		}
 	}
-	
+
 	virtual void paintMarkers(QPainter* painter) {
 		QTransform wt = painter->deviceTransform();	// equivalent to worldTransform and combinedTransform
 		QTransform wtInverse;
 		wtInverse.scale(1/wt.m11(), 1/wt.m22());
-		
+
 		if(data_ && marker_) {
 			for(unsigned i=0; i<data_->count(); i++) {
 				// Paint marker:
@@ -339,7 +339,7 @@ public:
 			}
 		}
 	}
-	
+
 
 	/// re-implemented from MPlotItem base to draw an update if we're now selected (with our selection highlight)
 	virtual void setSelected(bool selected = true) {
@@ -350,25 +350,25 @@ public:
 			update();
 
 	}
-	
-	
+
+
 protected slots:
-	
+
 	virtual void onDataChanged( unsigned, unsigned ) {
-		
+
 		emit dataChanged(this);
 		update();
 	}
-	
-	
+
+
 protected:
-	
+
 	// Customize this if needed for MPlotSeries. For now we use the parent class implementation
 	/*
 	 virtual void setDefaults() {
-	 
+
 	 }*/
-	
+
 };
 
 #endif
