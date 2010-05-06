@@ -51,8 +51,8 @@ protected:
 		// Check all items for intersections
 		foreach(MPlotItem* s2, plot()->plotItems() ) {
 
-			// Have to verify that we actually intersect the shape...
-			if(s2->shape().intersects(s2->mapRectFromScene(clickRegion))) {
+			// Have to verify that we actually intersect the shape... and that this guy is selectable
+			if(s2->selectable() && s2->shape().intersects(s2->mapRectFromScene(clickRegion))) {
 
 				selectedPossibilities << s2;	// add it to the list of selected possibilities
 			}
@@ -423,5 +423,140 @@ protected:
 
 };
 
+
+
+
+#include "MPlotPoint.h"
+
+/// this is a hack: plot markers for the cursor tool are created with this size (in pixels).  Make it as big as you expect screen resolution to be.
+#define MPLOT_CURSOR_SCREEN_SIZE 3000
+
+/// This class provides a plot tool that can be used to place one or more cursors on a plot and read the data value there.
+/*! The visibility and scale is controlled by axisTargets().  If axisTargets() includes MPlotAxis::Bottom, a vertical bar cursor is displayed.  If axisTargets() includes MPlotAxis::Left or MPlotAxis::Right, the horizontal line cursor is displayed.  The y-value read from position() will correspond to the right-axis value only if axisTargets() includes MPlotAxis::Right.
+
+ The tool supports multiple cursors.  One cursor is created by default and added to the plot.  More can be added with addCursor(), or removed with removeCursor().  For now, we alternate between cursors with every click.
+
+ \todo set active cursor (how? by selection? click and drag? programmatically?)
+
+  \todo multiple cursor modes: click, hover, dataSnap
+  */
+class MPlotCursorTool : public MPlotAbstractTool {
+	Q_OBJECT
+public:
+	MPlotCursorTool()
+		: MPlotAbstractTool() {
+
+		addCursor();
+	}
+
+	virtual ~MPlotCursorTool() {
+		foreach(MPlotPoint* c, cursors_) {
+			if(plot())
+				plot()->removeItem(c);
+			delete c;
+		}
+		cursors_.clear();
+	}
+
+	unsigned numCursors() const { return cursors_.count(); }
+
+	/// Returns the currently-selected item in the plot (0 if none).
+	QPointF value(unsigned cursorIndex = 0) const {
+		if(cursorIndex < numCursors())
+			return cursors_.at(cursorIndex)->value();
+		else
+			return QPointF(0,0);
+	}
+
+	/// Returns the MPlotPoint used to represent a specific cursor, so you can adjust it's color, marker, etc, or place it manually using MPlotPoint::setValue().
+	MPlotPoint* cursor(unsigned cursorIndex = 0) const {
+		if(cursorIndex < numCursors())
+			return cursors_.at(cursorIndex);
+		else
+			return 0;
+	}
+
+	/// remove a cursor. Note: you cannot remove the final cursor... there must always be 1.
+	void removeCursor() {
+		if(numCursors() > 1) {
+			MPlotPoint* removeMe = cursors_.takeLast();
+			if(plot())
+				plot()->removeItem(removeMe);
+			delete removeMe;
+		}
+	}
+
+	/// add a cursor.  Cursors are added to the center of the existing plot.
+	void addCursor(const QPointF& initialPos = QPointF(0,0)) {
+		MPlotPoint* newCursor = new MPlotPoint();
+		newCursor->setSelectable(false);
+		newCursor->setMarker(MPlotMarkerShape::Cross, MPLOT_CURSOR_SCREEN_SIZE);
+		/// \todo automatically vary the colors.
+		newCursor->setValue(initialPos);
+
+		if(plot()) {
+			plot()->addItem(newCursor);
+		}
+		cursors_ << newCursor;
+	}
+
+signals:
+	// emitted when a new point is selected
+	void valueChanged(unsigned cursorIndex, const QPointF& position);
+
+protected:
+
+	/// list of plot point markers used as cursors
+	QList<MPlotPoint*> cursors_;
+
+	/// a helper function to return the y-Axis that we belong to, based on axisTargets().
+	/*! Since axisTargets() could contain both MPlotAxis::Left and MPlotAxis::Right, we resolve ambiguity like this:
+	- If axisTargets() includes the left axis (and anything else), we belong to the left axis.
+	- If axisTargets() doesn't include the left axis, but includes the right axis, we belong to the right axis.
+	- If axisTargets() doesn't include any y-axis, we belong to the left axis.
+	*/
+
+	MPlotAxis::AxisID yAxis() const {
+		if(axisTargets() & MPlotAxis::Left)
+			return MPlotAxis::Left;
+		if(axisTargets() & MPlotAxis::Right)
+			return MPlotAxis::Right;
+		return MPlotAxis::Left;
+	}
+
+	virtual void	mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
+
+		if(event->button() == Qt::LeftButton) {
+			static unsigned activeCursor = 0;
+
+			unsigned c = activeCursor % numCursors();
+
+			QPointF newPos;
+			if(yAxis() == MPlotAxis::Right)
+				newPos = plot()->rightAxisTransform().inverted().map(event->pos());
+			else
+				newPos = plot()->leftAxisTransform().inverted().map(event->pos());
+
+			/// \todo clean this up... If a cursor was added prior to this tool being assigned to a plot, it won't be on the plot.  Add it here:
+			if(cursors_.at(c)->plot() != plot())
+				plot()->addItem(cursors_.at(c));
+
+			cursors_.at(c)->setValue(newPos);
+			emit valueChanged(c, newPos);
+
+			activeCursor++;
+		}
+
+		// ignore the mouse press event, so that it will be propagated to other tools below us:
+		event->ignore();
+
+	}
+
+	virtual void	mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) { QGraphicsObject::mouseMoveEvent(event); }
+	virtual void	mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) { QGraphicsObject::mouseReleaseEvent(event); }
+	virtual void	wheelEvent ( QGraphicsSceneWheelEvent * event ) { QGraphicsObject::wheelEvent(event); }
+	virtual void	mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event ) { QGraphicsObject::mouseDoubleClickEvent(event); }
+
+};
 
 #endif // MPLOTTOOLS_H

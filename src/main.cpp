@@ -7,6 +7,8 @@
 #include "MPlotImageData.h"
 #include "MPlotImage.h"
 
+#include "MPlotPoint.h"
+
 #include <QTableView>
 #include <QPen>
 #include <QBrush>
@@ -154,18 +156,17 @@
 	 series1.setLinePen( redSkinny);	// set the pen for drawing the series
 	 series2.setLinePen( greenFat );
 
-	 // Marker size and shape: (always set shape before size/pen/brush)
-	  // series2.setMarkerShape(MPlotMarkerShape::StarCircle);
-	 series2.setMarkerShape(MPlotMarkerShape::None);
-	 series2.setMarkerSize(12);
+	 // Marker size and shape
+	  // series2.setMarker(MPlotMarkerShape::StarCircle, 6);
+	 series2.setMarker(MPlotMarkerShape::None);
 
-	 // Can also configure the marker pen and brush:
-	 series2.setMarkerPen(pinkSkinny);
-	 series2.setMarkerBrush(QBrush(QColor(Qt::black)));
+	 // Can also configure the marker pen and brush: (only can do this when MPlotMarkerShape != None)
+	 //series2.marker()->setPen(pinkSkinny);
+	 // series2.marker()->setBrush(QBrush(QColor(Qt::black)));
 
 	 // Gridlines:
-	 // plot.axisRight()->showGrid(true);
-	 // plot.axisRight()->setGridPen(greenFat);
+	 plot.axisRight()->showGrid(true);
+	 plot.axisRight()->setGridPen(greenFat);
 
 
 	 // 6. Adding a series to a plot:
@@ -218,9 +219,15 @@
 
 	// 5. (continued) More fun with marker shapes... Testing changes after a plot is created:
 	//////////////////
-	series1.setMarkerShape(MPlotMarkerShape::Cross);
-	series1.setMarkerSize(24);
-	series1.setMarkerPen(QPen(QColor(Qt::yellow), 0));
+	series1.setMarker(MPlotMarkerShape::Cross, 12, QPen(QColor(Qt::yellow), 0));
+
+
+	// 10: single markers:
+	MPlotPoint p1;
+	p1.setValue(QPointF(0.5,0.5));
+	p1.setMarker(MPlotMarkerShape::CrossCircle, 24, QPen(QColor(Qt::red)));
+
+	plot.addItem(&p1);
 
 
 	 // 11. Enable, disable, and selection?
@@ -273,6 +280,9 @@
 	MPlotWheelZoomerTool wzTool;
 	plot.addTool(&wzTool);
 
+	MPlotCursorTool crsrTool;
+	plot.addTool(&crsrTool);
+	crsrTool.addCursor();
 
 
 	return app.exec();

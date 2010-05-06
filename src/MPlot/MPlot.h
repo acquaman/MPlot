@@ -14,6 +14,8 @@
 
 #include <float.h>
 
+#include <QDebug>
+
 /// Defines the minimum distance between min- and max- values for the range of an axis. Without this check, calling setXDataRange(3, 3) or set___DataRange(f, g=f) will cause a segfault within Qt's drawing functions... it can't handle a clipPath with a width of 0.
 #define MPLOT_MIN_AXIS_RANGE DBL_EPSILON
 
@@ -71,22 +73,28 @@ public:
 
 	/// Use this to add a new data-item to a plot:
 	void addItem(MPlotItem* newItem) {
+
+
 		newItem->setParentItem(dataArea_);
 		items_ << newItem;
+		newItem->setPlot(this);
 
 		connect(newItem, SIGNAL(dataChanged(MPlotItem*)), this, SLOT(onDataChanged(MPlotItem*)));
 		// Possible optimization: only connect items to this slot when continuous autoscaling is enabled.
 		// That way non-autoscaling plots don't fire in a bunch of non-required signals.
 
+		// if autoscaling is active already, could need to rescale already
+		onDataChanged(newItem);
+
 		// Apply transforms as needed
 		placeItem(newItem);
-
 	}
 
 	/// Remove a data-item from a plot. (Note: Does not delete the item...)
 	bool removeItem(MPlotItem* removeMe) {
 		if(items_.contains(removeMe)) {
 			removeMe->setParentItem(0);
+			removeMe->setPlot(0);
 			if(scene())
 				scene()->removeItem(removeMe);
 			items_.removeAll(removeMe);
@@ -350,6 +358,7 @@ protected:
 
 		// Autoscale?
 		if(autoscale) {
+
 
 			QRectF bounds;
 			foreach(MPlotItem* itm, items_) {

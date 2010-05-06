@@ -59,7 +59,7 @@ signals:
 	/*! The arguments let you specify the range of data that has been changed (inclusive). fromIndex is the lower-left bound, and toIndex is the upper-right (max x, max y) bound.
 		To force an update of the entire plot, specify fromIndex > toIndex.
 		*/
-	void dataChanged(const QPoint& fromIndex, const QPoint& toIndex);
+	void dataChanged(const QPoint& fromIndex = QPoint(1,1), const QPoint& toIndex = QPoint(0,0));
 	/// Emitted when the boundaries (x- and y- values) of the data change.
 	void boundsChanged(const QRectF& newBounds);
 

@@ -13,10 +13,10 @@ public:
 
 	MPlotAbstractImage(const MPlotAbstractImageData* data = 0)
 		: MPlotItem(),
-		defaultColorMap_(),
-		map_(defaultColorMap_)
+		defaultColorMap_()
 	{
 
+		map_ = &defaultColorMap_;
 		data_ = 0;
 
 		// Set style defaults:
@@ -31,12 +31,15 @@ public:
 
 	// Properties:
 	/// Set the color map, used to convert numeric values into pixel colors. \c map must be a reference to a color map that exists elsewhere, and must exist as long as it is set. (We don't make a copy of the map).
-	virtual void setColorMap(MPlotAbstractColorMap& map) {
-		map_ = map;
+	virtual void setColorMap(MPlotAbstractColorMap* map) {
+		if(map) {
+			map_ = map;
+			onDataChanged();
+		}
 	}
 
 	/// Returns a reference to the active color map.
-	virtual MPlotAbstractColorMap& colorMap() {
+	virtual MPlotAbstractColorMap* colorMap() {
 		return map_;
 	}
 
@@ -87,7 +90,7 @@ protected slots:
 		emit dataChanged(this);
 	}
 	/// When the z-data changes, this is called to allow an update:
-	virtual void onDataChanged(const QPoint &fromIndex, const QPoint &toIndex) = 0;
+	virtual void onDataChanged(const QPoint& fromIndex = QPoint(1,1), const QPoint& toIndex = QPoint(0,0)) = 0;
 
 signals:
 
@@ -96,12 +99,12 @@ protected:
 	const MPlotAbstractImageData* data_;
 
 	MPlotLinearColorMap defaultColorMap_;
-	MPlotAbstractColorMap& map_;
+	MPlotAbstractColorMap* map_;
 
 	virtual void setDefaults() {
 
 		defaultColorMap_ = MPlotLinearColorMap(QColor(Qt::white), QColor(Qt::darkBlue));
-		setColorMap(defaultColorMap_);
+		map_ = &defaultColorMap_;
 	}
 };
 
@@ -118,7 +121,7 @@ public:
 		image_(1,1, QImage::Format_ARGB32)
 	{
 		if(data)
-			onDataChanged(QPoint(1,1), QPoint(0,0));
+			onDataChanged();
 	}
 
 
@@ -128,7 +131,7 @@ public:
 		MPlotAbstractImage::setModel(data);
 
 		// fill the pixmap and trigger an update
-		onDataChanged(QPoint(1,1), QPoint(0,0));
+		onDataChanged();
 		update();
 
 	}
@@ -176,7 +179,7 @@ public:
 
 protected slots:
 	/// Called when the z-data changes, so that the plot needs to be updated. This fills the pixmap buffer
-	virtual void onDataChanged(const QPoint& fromIndex, const QPoint& toIndex) {
+	virtual void onDataChanged(const QPoint& fromIndex = QPoint(1,1), const QPoint& toIndex = QPoint(0,0)) {
 		/// \todo performance optimizations: could use fromIndex and toIndex to only update the necessary parts
 		Q_UNUSED(fromIndex)
 		Q_UNUSED(toIndex)
@@ -190,12 +193,13 @@ protected slots:
 
 			for(int yy=0; yy<dataSize.height(); yy++)
 				for(int xx=0; xx<dataSize.width(); xx++)
-					image_.setPixel(xx, yy, map_.rgb(data_->z(QPoint(xx,yy)), data_->range()));
+					image_.setPixel(xx, yy, map_->rgb(data_->z(QPoint(xx,yy)), data_->range()));
 
 		}
 
 		// schedule a draw update
 		update();
+		emit dataChanged(this);
 	}
 
 	/// If the bounds of the data change (in x- and y-) this might require re-auto-scaling of a plot.

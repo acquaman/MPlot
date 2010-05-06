@@ -11,6 +11,8 @@
 /// This is the width of selection highlight lines
 #define MPLOT_SELECTION_LINEWIDTH 10
 
+class MPlot;
+
 /// This class defines the interface for all data-representation objects which can be added to an MPlot (ex: series/curves, images and spectrograms, contour maps, etc.)
 class MPlotItem : public QGraphicsObject {
 	Q_OBJECT
@@ -43,6 +45,16 @@ public:
 	/// ask if this item is currently selected on the plot
 	virtual bool selected() { return isSelected_; }
 
+	/// use this if you don't want a plot item to be selectable:
+	virtual bool selectable() { return isSelectable_; }
+	virtual void setSelectable(bool selectable = true) { isSelectable_ = selectable; }
+
+
+	/// Don't call this. Unfortunately public because it's required by MPlot::addItem and MPlot::removeItem.
+	void setPlot(MPlot* plot) { plot_ = plot; }
+	/// returns the plot we are attached to
+	MPlot* plot() const { return plot_; }
+
 
 	// Bounding rect: reported in our PlotItem coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.
 	virtual QRectF boundingRect() const { return dataRect(); }
@@ -72,8 +84,10 @@ signals:
 
 
 private:
-	bool isSelected_;
+	bool isSelected_, isSelectable_;
 	MPlotAxis::AxisID yAxisTarget_;
+
+	MPlot* plot_;
 };
 
 #endif // MPLOTITEM_H

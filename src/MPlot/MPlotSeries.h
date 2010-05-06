@@ -46,41 +46,15 @@ public:
 		// If the plot has no marker (or MPlotMarkerShape::None), then this will be a null pointer. Must check before setting.
 	virtual MPlotAbstractMarker* marker() const { return marker_; }
 
-	virtual void setMarkerShape(MPlotMarkerShape::Shape shape) {
-		double oldsize = 6;
-		QPen oldpen;
-		QBrush oldbrush;
-		if(marker_) {
-			oldsize = marker_->size();
-			oldpen = marker_->pen();
-			oldbrush = marker_->brush();
+	virtual void setMarker(MPlotMarkerShape::Shape shape, double size = 6, const QPen& pen = QPen(QColor(Qt::red)), const QBrush& brush = QBrush()) {
+		if(marker_)
 			delete marker_;
-		}
-		marker_ = MPlotMarker::create(shape, oldsize, oldpen, oldbrush);
+
+		QPen realPen = pen;
+		realPen.setCosmetic(true);
+
+		marker_ = MPlotMarker::create(shape, size, realPen, brush);
 		update();
-	}
-
-	// Note: must use setMarkerShape to something besides MPlotMarkerShape::None before using these, otherwise changes will be lost.
-	virtual void setMarkerPen(const QPen& pen) {
-		if(marker_) {
-			marker_->setPen(pen);
-			update();
-		}
-	}
-
-	virtual void setMarkerBrush(const QBrush& brush) {
-		if(marker_) {
-			marker_->setBrush(brush);
-			update();
-		}
-	}
-
-
-	virtual void setMarkerSize(double size) {
-		if(marker_) {
-			marker_->setSize(size);
-			update();
-		}
 	}
 
 
@@ -169,9 +143,7 @@ protected:
 
 		setLinePen(QPen(QColor(Qt::red)));	// Red solid lines on plot
 
-		setMarkerShape(MPlotMarkerShape::Square);
-		setMarkerPen(QPen(QColor(Qt::blue), 0)); // Blue outlines on markers
-		setMarkerBrush(QBrush());	// default: NoBrush
+		setMarker(MPlotMarkerShape::Square, 6, QPen(QColor(Qt::blue), 0), QBrush()); // Blue outlines on markers, No Brush
 
 
 		QColor selectionColor = MPLOT_SELECTION_COLOR;
@@ -256,6 +228,7 @@ public:
 		// Plot the markers. Here what makes sense is one marker per data point.  This will be slow for large datasets.
 			// use plot->setMarkerShape(MPlotMarkerShape::None) for large sets.
 		/////////////////////////////////////////
+
 		if(marker_) {
 			painter->setPen(marker_->pen());
 			painter->setBrush(marker_->brush());
@@ -324,11 +297,13 @@ public:
 	}
 
 	virtual void paintMarkers(QPainter* painter) {
+
 		QTransform wt = painter->deviceTransform();	// equivalent to worldTransform and combinedTransform
 		QTransform wtInverse;
 		wtInverse.scale(1/wt.m11(), 1/wt.m22());
 
 		if(data_ && marker_) {
+
 			for(unsigned i=0; i<data_->count(); i++) {
 				// Paint marker:
 				painter->save();
