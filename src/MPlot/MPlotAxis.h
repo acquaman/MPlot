@@ -249,7 +249,7 @@ protected:
 			else {
 				mainLine_.setLine(1, 0, 1, 1);
 				scStartP_ = QPointF(1, scStart_);
-				gridLine_.setLine(1, 0, 0, 0);
+				gridLine_.setLine(0, 0, -1, 0);
 				switch(tickStyle_) {
 					case Outside: tickLine_.setLine(0, 0, tickLength_, 0); break;
 					case Inside: tickLine_.setLine(-tickLength_, 0, 0, 0); break;
@@ -274,7 +274,7 @@ protected:
 			else {
 				mainLine_.setLine(0, 1, 1, 1);
 				scStartP_ = QPointF(scStart_, 1);
-				gridLine_.setLine(0, 1, 0, 0);
+				gridLine_.setLine(0, 0, 0, -1);
 				switch(tickStyle_) {
 					case Inside: default: tickLine_.setLine(0, -tickLength_, 0, 0); break;
 					case Outside: tickLine_.setLine(0, 0, 0, tickLength_); break;

@@ -165,8 +165,8 @@
 	 // series2.marker()->setBrush(QBrush(QColor(Qt::black)));
 
 	 // Gridlines:
-	 plot.axisRight()->showGrid(true);
-	 plot.axisRight()->setGridPen(greenFat);
+	 //plot.axisRight()->showGrid(true);
+	 //plot.axisRight()->setGridPen(greenFat);
 
 
 	 // 6. Adding a series to a plot:

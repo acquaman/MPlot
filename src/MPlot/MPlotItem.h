@@ -25,7 +25,11 @@ public:
 	MPlotItem() : QGraphicsObject() {
 		setFlag(QGraphicsItem::ItemIsSelectable, false);	// We're implementing our own selection mechanism... ignoring QGraphicsView's selection system.
 		isSelected_ = false;
+		plot_ = 0;
 	}
+
+	/// \todo Someday (when this becomes a full library, with .cpp files)... have the destructor remove this item from it's plot_, if there is an assocated plot_.  Also, what about being connected to multiple plots?
+
 
 	/// returns which y-axis this data should be plotted against
 	MPlotAxis::AxisID yAxisTarget() { return yAxisTarget_;}

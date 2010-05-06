@@ -86,12 +86,14 @@ public:
 		// if autoscaling is active already, could need to rescale already
 		onDataChanged(newItem);
 
+
 		// Apply transforms as needed
 		placeItem(newItem);
 	}
 
 	/// Remove a data-item from a plot. (Note: Does not delete the item...)
 	bool removeItem(MPlotItem* removeMe) {
+
 		if(items_.contains(removeMe)) {
 			removeMe->setParentItem(0);
 			removeMe->setPlot(0);
