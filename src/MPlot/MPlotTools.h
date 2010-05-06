@@ -191,6 +191,7 @@ protected:
 			newMax = y + F*(plot()->axisLeft()->max() - y);
 
 			plot()->setYDataRangeLeft(newMin, newMax, false, false);
+			plot()->enableAutoScaleLeft(false);
 
 		}
 
@@ -201,6 +202,7 @@ protected:
 			newMax = y + F*(plot()->axisRight()->max() - y);
 
 			plot()->setYDataRangeRight(newMin, newMax, false, false);
+			plot()->enableAutoScaleRight(false);
 
 		}
 
@@ -211,6 +213,7 @@ protected:
 			newMax = x + F*(plot()->axisBottom()->max() - x);
 
 			plot()->setXDataRange(newMin, newMax, false, false);
+			plot()->enableAutoScaleBottom(false);
 		}
 	
 	
