@@ -87,6 +87,8 @@ public slots:
 					   const QStyleOptionGraphicsItem* option,
 					   QWidget* widget)
 	{
+		Q_UNUSED(option)
+		Q_UNUSED(widget)
 
 		if(marker_) {
 			QTransform wt = painter->deviceTransform();	// equivalent to worldTransform and combinedTransform

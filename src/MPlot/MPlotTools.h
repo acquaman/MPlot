@@ -446,9 +446,10 @@ protected:
 class MPlotCursorTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:
-	MPlotCursorTool()
+	MPlotCursorTool(int axisTargets = (MPlotAxis::Left | MPlotAxis::Right | MPlotAxis::Bottom))
 		: MPlotAbstractTool() {
 
+		setAxisTargets(axisTargets);
 		addCursor();
 	}
 
