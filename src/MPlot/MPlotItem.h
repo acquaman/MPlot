@@ -25,6 +25,7 @@ public:
 	MPlotItem() : QGraphicsObject() {
 		setFlag(QGraphicsItem::ItemIsSelectable, false);	// We're implementing our own selection mechanism... ignoring QGraphicsView's selection system.
 		isSelected_ = false;
+		isSelectable_ = true;
 		plot_ = 0;
 	}
 

@@ -17,7 +17,7 @@
 #include <QDebug>
 
 /// Defines the minimum distance between min- and max- values for the range of an axis. Without this check, calling setXDataRange(3, 3) or set___DataRange(f, g=f) will cause a segfault within Qt's drawing functions... it can't handle a clipPath with a width of 0.
-#define MPLOT_MIN_AXIS_RANGE DBL_EPSILON*1024
+#define MPLOT_MIN_AXIS_RANGE 1e-60
 
 /// This class provides plotting capabilities within a QGraphicsItem that can be added to any QGraphicsScene,
 class MPlot : public QGraphicsObject {
@@ -132,6 +132,7 @@ public:
 			return false;
 	}
 
+	QGraphicsRectItem* plotArea() const { return plotArea_; }
 
 	// access elements of the canvas:
 	MPlotAxis* axisBottom() { return axes_[MPlotAxis::Bottom]; }

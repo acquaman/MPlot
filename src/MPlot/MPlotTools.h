@@ -431,8 +431,8 @@ protected:
 
 #include "MPlotPoint.h"
 
-/// this is a hack: plot markers for the cursor tool are created with this size (in pixels).  Make it as big as you expect screen resolution to be.
-#define MPLOT_CURSOR_SCREEN_SIZE 3000
+/// this is a hack: plot markers for the cursor tool are created with this size (in pixels).  Make it as big as you expect screen resolution to be.  (NO! It's worse... because cursor may not be centered at center of data coordinates.  Needs to be REALLY BIG...) \todo solve this intelligently.
+#define MPLOT_CURSOR_BIG_HACK 1.0e9
 
 /// This class provides a plot tool that can be used to place one or more cursors on a plot and read the data value there.
 /*! The visibility and scale is controlled by axisTargets().  If axisTargets() includes MPlotAxis::Bottom, a vertical bar cursor is displayed.  If axisTargets() includes MPlotAxis::Left or MPlotAxis::Right, the horizontal line cursor is displayed.  The y-value read from position() will correspond to the right-axis value only if axisTargets() includes MPlotAxis::Right.
@@ -494,7 +494,7 @@ public:
 	void addCursor(const QPointF& initialPos = QPointF(0,0)) {
 		MPlotPoint* newCursor = new MPlotPoint();
 		newCursor->setSelectable(false);
-		newCursor->setMarker(MPlotMarkerShape::Cross, MPLOT_CURSOR_SCREEN_SIZE);
+		newCursor->setMarker(MPlotMarkerShape::Cross, MPLOT_CURSOR_BIG_HACK);
 		/// \todo automatically vary the colors.
 		newCursor->setValue(initialPos);
 

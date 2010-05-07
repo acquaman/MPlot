@@ -40,16 +40,15 @@ public:
 	virtual ~MPlotWidget() {
 	}
 
+	/// Sets the plot attached to this widget. to remove a plot, pass \c plot = 0.
 	void setPlot(MPlot* plot) {
 
+		// remove old plot?
+		if(plot_)
+			scene()->removeItem(plot_);
+		// todo: disconnect any signals?
+
 		if(plot) {
-
-			// remove old plot?
-			if(plot_)
-				scene()->removeItem(plot_);
-
-			// todo: disconnect any signals?
-
 			scene()->addItem(plot);
 			plot_ = plot;
 		}
