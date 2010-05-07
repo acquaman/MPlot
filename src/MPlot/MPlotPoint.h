@@ -26,13 +26,13 @@ public:
 		// If the plot has no marker (or MPlotMarkerShape::None), then this will be a null pointer. Must check before setting.
 	virtual MPlotAbstractMarker* marker() const { return marker_; }
 
-	virtual void setMarker(MPlotMarkerShape::Shape shape, double size = 6, const QPen& pen = QPen(QColor(Qt::red)), const QBrush& brush = QBrush(), MPlotMarkerSizeMode::Mode sizeMode = MPlotMarkerSizeMode::Pixels) {
+	virtual void setMarker(MPlotMarkerShape::Shape shape, double size = 6, const QPen& pen = QPen(QColor(Qt::red)), const QBrush& brush = QBrush()) {
 		if(marker_)
 			delete marker_;
 
 		QPen realPen(pen);
 		realPen.setCosmetic(true);
-		marker_ = MPlotMarker::create(shape, size, realPen, brush, sizeMode);
+		marker_ = MPlotMarker::create(shape, size, realPen, brush);
 		update();
 	}
 
@@ -67,19 +67,13 @@ public slots:
 		QRectF hs = QRectF(0, 0, MPLOT_SELECTION_LINEWIDTH, MPLOT_SELECTION_LINEWIDTH);
 
 		// expand by marker size (if expressed in pixels)
-		if(marker() && marker()->sizeMode() == MPlotMarkerSizeMode::Pixels)
+		if(marker())
 				hs |= QRectF(0,0, marker()->size(), marker()->size());
 
 
 		// these sizes so far are in pixels (hopefully scene coordinates... trusting on an untransformed view.) Converting to local (data) coordinates.
 		hs = mapRectFromScene(hs);
 
-		// if the marker size mode is in "percent of plot", its size (converted from percentage) would be in the "parent" coordinates which go from (0, 0) to (1,1). (our plot's dataArea_)
-		if(marker() && marker()->sizeMode() == MPlotMarkerSizeMode::PercentOfPlot) {
-			QRectF fixedSize = mapRectFromParent(0,0, marker()->size()/100., marker()->size()/100.);
-			hs |= QRectF(0,0, fixedSize.width(), fixedSize.height());
-			qDebug() << "Marker size in local (data) coordinates:" << QRectF(0,0, fixedSize.width(), fixedSize.height());
-		}
 
 
 		// really we just need 1/2 the marker size and 1/2 the selection highlight width. But extra doesn't hurt.
@@ -100,13 +94,7 @@ public slots:
 		Q_UNUSED(widget)
 
 		if(marker_) {
-			QTransform wt; //our "world transform"
-			// If in "percent of plot" coordinates, the transform is just up to our parent dataArea_ (0,0->1,1), and then corrected for percentage
-			if(marker_->sizeMode() == MPlotMarkerSizeMode::PercentOfPlot)
-				if(parentItem())
-					wt = itemTransform(parentItem()).scale(100, 100);
-			else
-				wt = painter->deviceTransform();	// equivalent to worldTransform() and combinedTransform()
+			QTransform wt = painter->deviceTransform();	// equivalent to worldTransform() and combinedTransform()
 
 
 			QTransform wtInverse(QTransform::fromScale(1/wt.m11(), 1/wt.m22()));

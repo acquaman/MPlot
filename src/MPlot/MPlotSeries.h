@@ -207,10 +207,14 @@ public:
 		if(br.isValid()) {
 			// create rectangle at least as big as our selection highlight, and if we have a marker, the marker size.
 			QRectF hs = QRectF(0, 0, MPLOT_SELECTION_LINEWIDTH, MPLOT_SELECTION_LINEWIDTH);
+			// expand by marker size (if expressed in pixels)
 			if(marker())
-				hs |= QRectF(0,0, marker()->size(), marker()->size());
-			// these sizes so far are in pixels (hopefully scene coordinates... trusting on an untransformed view.) Converting to local coordinates.
+					hs |= QRectF(0,0, marker()->size(), marker()->size());
+
+
+			// these sizes so far are in pixels (hopefully scene coordinates... trusting on an untransformed view.) Converting to local (data) coordinates.
 			hs = mapRectFromScene(hs);
+
 			// really we just need 1/2 the marker size and 1/2 the selection highlight width. But extra doesn't hurt.
 			br.adjust(-hs.width(),-hs.height(),hs.width(), hs.height());
 		}
