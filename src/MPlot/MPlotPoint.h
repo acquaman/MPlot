@@ -8,8 +8,6 @@
 /// This Plot Item is useful for displaying a single data point on a plot.
 class MPlotPoint : public MPlotItem {
 
-	Q_OBJECT
-
 public:
 
 	/// Default constructor. Override setDefaults() for a custom look off the bat.
@@ -41,14 +39,14 @@ public:
 		return point_;
 	}
 
-public slots:
+
 	/// set the point location of this marker:
 	void setValue(const QPointF& point) {
 
 		prepareGeometryChange();
 
 		point_ = point;
-		emit dataChanged(this);
+		Emit(0, "dataChanged");
 
 		update();
 	}

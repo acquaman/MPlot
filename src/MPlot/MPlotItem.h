@@ -1,8 +1,9 @@
 #ifndef MPLOTITEM_H
 #define MPLOTITEM_H
 
-#include <QGraphicsObject>
+#include <QGraphicsItem>
 #include "MPlotAxis.h"
+#include "MPlotObservable.h"
 
 /// This is the color of the selection highlight
 #define MPLOT_SELECTION_COLOR QColor(255, 210, 129)
@@ -14,15 +15,13 @@
 class MPlot;
 
 /// This class defines the interface for all data-representation objects which can be added to an MPlot (ex: series/curves, images and spectrograms, contour maps, etc.)
-class MPlotItem : public QGraphicsObject {
-	Q_OBJECT
+class MPlotItem : public QGraphicsItem, public MPlotObservable {
 
-	Q_PROPERTY(bool selected READ selected WRITE setSelected NOTIFY selectedChanged);
 
 public:
 
 	/// Constructor calls base class (QGraphicsObject)
-	MPlotItem() : QGraphicsObject() {
+	MPlotItem() : QGraphicsItem(), MPlotObservable() {
 		setFlag(QGraphicsItem::ItemIsSelectable, false);	// We're implementing our own selection mechanism... ignoring QGraphicsView's selection system.
 		isSelected_ = false;
 		isSelectable_ = true;
@@ -44,7 +43,7 @@ public:
 		isSelected_ = selected;
 		if(updateNeeded) {
 			update();	// todo: maybe should move into subclasses; not all implementations will require update()?
-			emit selectedChanged(isSelected_);
+			Emit(1, "selectedChanged", isSelected_);
 		}
 	}
 	/// ask if this item is currently selected on the plot
@@ -80,12 +79,7 @@ public:
 	}
 
 
-signals:
-
-	/// emitted if the x- or y- data changes, so that the plot might need to be re-auto-scaled.
-	void dataChanged(MPlotItem* item);
-	/// emitted when the selection state of the item changes
-	void selectedChanged(bool isSelected);
+/// signals: Implements MPlotObservable.  Will Emit(0, "dataChanged") when x- or y- data changes, so the plot might need to be re-autoscaled.  Will Emit(1, "selectedChanged", 1) when the selection state of the item changes to true, and Emit(1, "selectedChanged", 0) when the selection state ofthe item changes to false.
 
 
 private:

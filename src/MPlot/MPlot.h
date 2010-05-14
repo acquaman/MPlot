@@ -6,9 +6,10 @@
 #include "MPlotItem.h"
 #include "MPlotSeries.h"
 #include "MPlotAbstractTool.h"
+#include "MPlotObserver.h"
 
 #include <QList>
-#include <QGraphicsObject>
+#include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
 
@@ -20,12 +21,11 @@
 #define MPLOT_MIN_AXIS_RANGE 1e-60
 
 /// This class provides plotting capabilities within a QGraphicsItem that can be added to any QGraphicsScene,
-class MPlot : public QGraphicsObject {
-	Q_OBJECT
+class MPlot : public QGraphicsItem, public MPlotObserver {
 
 public:
 	MPlot(QRectF rect = QRectF(0,0,100,100), QGraphicsItem* parent = 0) :
-		QGraphicsObject(parent),
+		QGraphicsItem(parent),
 		rect_(rect) {
 
 		setFlags(QGraphicsItem::ItemHasNoContents);
@@ -79,9 +79,8 @@ public:
 		items_ << newItem;
 		newItem->setPlot(this);
 
-		connect(newItem, SIGNAL(dataChanged(MPlotItem*)), this, SLOT(onDataChanged(MPlotItem*)));
-		// Possible optimization: only connect items to this slot when continuous autoscaling is enabled.
-		// That way non-autoscaling plots don't fire in a bunch of non-required signals.
+		// hook up "signals"
+		newItem->addObserver(this);
 
 		// if autoscaling is active already, could need to rescale already
 		onDataChanged(newItem);
@@ -100,7 +99,8 @@ public:
 			if(scene())
 				scene()->removeItem(removeMe);
 			items_.removeAll(removeMe);
-			disconnect(removeMe, 0, this, 0);
+			// remove "signals"
+			removeMe->removeObserver(this);
 			return true;
 		}
 		else
@@ -250,36 +250,41 @@ public:
 			placeItem(item);
 	}
 
-public slots:
+public: // "slots"
+
+	// This is called when a item updates it's data.  We may have to autoscale/rescale.  Assumption: the only update messages we get are from MPlotItems. (Don't hook up anything else.)
+	virtual void onObservableChanged(MPlotObservable* source, int code, const char* msg, int payload) {
+
+		Q_UNUSED(msg)
+		Q_UNUSED(payload)
+
+		/// respond to code 0 ("dataChanged" signal) only.
+		if(code == 0) {
+			onDataChanged(static_cast<MPlotItem*>(source));
+		}
+
+	}
 
 
-protected slots:
 
-	// This is called when a item updates it's data.  We may have to autoscale/rescale:
 	void onDataChanged(MPlotItem* item1) {
 
 		if(autoScaleBottomEnabled_)
 			setXDataRangeImp(0, 0, true);
 
-		if(autoScaleLeftEnabled_ && item1->yAxisTarget() == MPlotAxis::Left)
-			setYDataRangeLeftImp(0, 0, true);
+		if(item1) {
+			if(autoScaleLeftEnabled_ && item1->yAxisTarget() == MPlotAxis::Left)
+				setYDataRangeLeftImp(0, 0, true);
 
-		if(autoScaleRightEnabled_ && item1->yAxisTarget() == MPlotAxis::Right)
-			setYDataRangeRightImp(0, 0, true);
+			if(autoScaleRightEnabled_ && item1->yAxisTarget() == MPlotAxis::Right)
+				setYDataRangeRightImp(0, 0, true);
+		}
 
 		// We have new transforms.  Need to apply them:
 		if(autoScaleBottomEnabled_ | autoScaleLeftEnabled_ | autoScaleRightEnabled_) {
 			foreach(MPlotItem* item, items_)
 				placeItem(item);
 		}
-
-		// Possible optimizations:
-		/*
-
-		 - set_DataRange___(0, 0, true) currently loops through all items (see above).
-		   If we stored the combined QRectF bounds (for all series),
-		   we could just subtract this item's bounds (nope.. it's changed... don't have old) and |= on the new one.
-		 */
 	}
 
 

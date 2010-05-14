@@ -6,7 +6,7 @@
 #include <QRectF>
 #include <QPair>
 #include <QVector>
-
+#include "MPlotObservable.h"
 
 /// An MPlotInterval is just a typedef for a pair of doubles
 typedef QPair<double,double> MPlotInterval;
@@ -18,30 +18,33 @@ typedef QPair<double,double> MPlotInterval;
 
   // copied=pasted from MPlotSeriesData. Fix.
   // todo: figure out resolution question. Data sets resolution? plot sets resoution>?
-class MPlotAbstractImageData : public QObject {
-	Q_OBJECT
+class MPlotAbstractImageData : public MPlotObservable {
 
 public:
-	MPlotAbstractImageData(QObject* parent = 0) : QObject(parent) {}
+	MPlotAbstractImageData() : MPlotObservable() {}
 
 	/// Return the x (data value) corresponding an (x,y) \c index:
-	virtual double x(const QPoint& index) const { return x(index.x()); }
 	virtual double x(unsigned indexX) const = 0;
-
 	/// Return the y (data value) corresponding an (x,y) \c index:
-	virtual double y(const QPoint& index) const { return y(index.y()); }
 	virtual double y(unsigned indexY) const = 0;
-
 	/// Return the z = f(x,y) value corresponding an (x,y) \c index:
+	virtual double z(unsigned xIndex, unsigned yIndex) const = 0;
+
+	/// Convenience function overloads:
+	virtual double x(const QPoint& index) const { return x(index.x()); }
+	virtual double y(const QPoint& index) const { return y(index.y()); }
 	virtual double z(const QPoint& index) const { return z(index.x(), index.y()); }
 	virtual double value(const QPoint& index) const { return z(index); }
 	virtual double value(unsigned xIndex, unsigned yIndex) const { return z(xIndex, yIndex); }
-	virtual double z(unsigned xIndex, unsigned yIndex) const = 0;
+
 
 	/// Set the z value at \c index
+	virtual void setZ(double value, unsigned xIndex, unsigned yIndex) = 0;
+
+	/// Convenience function overloads:
 	virtual void setZ(double value, const QPoint& index) { setZ(value, index.x(), index.y() ); }
 	virtual void setValue(double value, const QPoint& index) { setZ(value, index); }
-	virtual void setZ(double value, unsigned xIndex, unsigned yIndex) = 0;
+
 
 	/// Return the number of elements in x and y
 	virtual QPoint count() const = 0;
@@ -54,14 +57,8 @@ public:
 	/// Return the minimum and maximum z values:
 	virtual MPlotInterval range() const = 0;
 
-signals:
-	/// Emit this when the z-data has been changed (will trigger a plot update)
-	/*! The arguments let you specify the range of data that has been changed (inclusive). fromIndex is the lower-left bound, and toIndex is the upper-right (max x, max y) bound.
-		To force an update of the entire plot, specify fromIndex > toIndex.
-		*/
-	void dataChanged(const QPoint& fromIndex = QPoint(1,1), const QPoint& toIndex = QPoint(0,0));
-	/// Emitted when the boundaries (x- and y- values) of the data change.
-	void boundsChanged(const QRectF& newBounds);
+/// Signals: Implements MPlotObservable. Will Emit(0, "dataChanged") when the z-data has been changed.  Will Emit(1, "boundsChanged") when the x- or y-limits have been changed and the plot scaling might need to be recalculated.
+
 
 	// todo: to support multi-threading, consider a
 	// void pauseUpdates();	// to tell nothing to redraw using the plot because the data is currently invalid; a dataChanged will be emitted when it is valid again.
@@ -73,8 +70,8 @@ class MPlotSimpleImageData : public MPlotAbstractImageData {
 
 public:
 	/// Constructor: represent image data with physical coordinate boundaries \c dataBounds, and a resolution (number of "pixels") \c resolution.  Data values are initialized to 0.
-	MPlotSimpleImageData(const QRectF& dataBounds, const QSize& resolution, QObject* parent = 0)
-		: MPlotAbstractImageData(parent),
+	MPlotSimpleImageData(const QRectF& dataBounds, const QSize& resolution)
+		: MPlotAbstractImageData(),
 		num_(resolution.expandedTo(QSize(1,1)).width(), resolution.expandedTo(QSize(1,1)).height()),
 		d_(num_.y(), QVector<double>(num_.x(), 0)),
 		bounds_(dataBounds)
@@ -134,8 +131,6 @@ public:
 	/// set the z value at \c index:
 	virtual void setZ(double value, unsigned indexX, unsigned indexY) {
 
-
-
 		// if we're modifying what used to be the maximum value, and this new one is smaller, we've lost our max tracking. Don't know anymore.
 		if((int)indexX == maxIndex_.x() && (int)indexY == maxIndex_.y() && value < d_[maxIndex_.y()][maxIndex_.x()])
 			maxIndex_ = QPoint(-1,-1);
@@ -143,7 +138,6 @@ public:
 		// if we're modifying what used to be the minimum value, and this new one is larger, we've lost our min tracking. Don't know anymore.
 		if((int)indexX == minIndex_.x() && (int)indexY == minIndex_.y() && value > d_[minIndex_.y()][minIndex_.x()])
 			minIndex_ = QPoint(-1, -1);
-
 
 		// if we're tracking the min index, and this new value is smaller, it becomes the new min.
 		if(minIndex_.x()>=0 && value < d_[minIndex_.y()][minIndex_.x()])
@@ -155,6 +149,8 @@ public:
 
 		// store value:
 		d_[indexY][indexX] = value;
+		Emit(0, "dataChanged");
+
 	}
 
 

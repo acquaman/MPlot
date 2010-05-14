@@ -4,15 +4,14 @@
 #include "MPlotImageData.h"
 #include "MPlotColorMap.h"
 #include "MPlotItem.h"
+#include "MPlotObserver.h"
 
-class MPlotAbstractImage : public MPlotItem {
-
-	Q_OBJECT
+class MPlotAbstractImage : public MPlotItem, public MPlotObserver {
 
 public:
 
 	MPlotAbstractImage(const MPlotAbstractImageData* data = 0)
-		: MPlotItem(),
+		: MPlotItem(), MPlotObserver(),
 		defaultColorMap_()
 	{
 
@@ -51,7 +50,7 @@ public:
 
 		// If there was an old model, disconnect old signals:
 		if(data_)
-			disconnect(data_, 0, this, 0);
+			data_->removeObserver(this);
 
 		// new data from here:
 		data_ = data;
@@ -59,12 +58,11 @@ public:
 		// If there's a new valid model:
 		if(data_) {
 
-			// Connect model signals to slots: dataChanged(unsigned fromIndex, unsigned toIndex);
-			connect(data_, SIGNAL(boundsChanged(const QRectF&)), this, SLOT(onBoundsChanged(const QRectF&)));
-			connect(data_, SIGNAL(dataChanged(const QPoint&, const QPoint&)), this, SLOT(onDataChanged(const QPoint&, const QPoint&)));
+			// Connect model signals to slots: Emit(0, dataChanged) and Emit(1, boundsChanged).
+			data_->addObserver(this);
 		}
 
-		emit dataChanged(this);
+		Emit(0, "dataChanged");
 
 	}
 
@@ -81,18 +79,27 @@ public:
 
 
 
-protected slots:
+public: // "slots"
 
-	/// If the bounds of the data change (in x- and y-) this might require re-auto-scaling of a plot.
-	virtual void onBoundsChanged(const QRectF& newBounds) {
-		Q_UNUSED(newBounds)
+	virtual void onObservableChanged(MPlotObservable* source, int code, const char* msg, int payload) {
 
-		emit dataChanged(this);
+		Q_UNUSED(source)
+		Q_UNUSED(msg)
+		Q_UNUSED(payload)
+
+		switch(code) {
+
+		case 0: // dataChanged:
+			onDataChanged();
+			break;
+
+		case 1: // boundsChanged.  This could require re-scaling on the 2D plot, so we MPlotItem::Emit(0, "dataChanged").  Sorry for the confusing names.
+			if(data_)
+				onBoundsChanged(data_->boundingRect());
+			Emit(0, "dataChanged");
+		}
 	}
-	/// When the z-data changes, this is called to allow an update:
-	virtual void onDataChanged(const QPoint& fromIndex = QPoint(1,1), const QPoint& toIndex = QPoint(0,0)) = 0;
 
-signals:
 
 protected:
 
@@ -106,13 +113,17 @@ protected:
 		defaultColorMap_ = MPlotLinearColorMap(QColor(Qt::white), QColor(Qt::darkBlue));
 		map_ = &defaultColorMap_;
 	}
+
+	/// When the z-data changes, this is called to allow an update:
+	virtual void onDataChanged() = 0;
+	/// When the bounds change, this is called to allow whatever needs to happen for computing a new raster grid, etc.
+	virtual void onBoundsChanged(const QRectF& newBounds) = 0;
+
 };
 
 
 /// This class implements an image (2d intensity plot), using a cached, scaled QPixmap for drawing
 class MPlotImageBasic : public MPlotAbstractImage {
-
-	Q_OBJECT
 
 public:
 	/// Constructor
@@ -177,12 +188,9 @@ public:
 	}
 
 
-protected slots:
+protected:
 	/// Called when the z-data changes, so that the plot needs to be updated. This fills the pixmap buffer
-	virtual void onDataChanged(const QPoint& fromIndex = QPoint(1,1), const QPoint& toIndex = QPoint(0,0)) {
-		/// \todo performance optimizations: could use fromIndex and toIndex to only update the necessary parts
-		Q_UNUSED(fromIndex)
-		Q_UNUSED(toIndex)
+	virtual void onDataChanged() {
 
 		if(data_) {
 			// resize if req'd:
@@ -199,13 +207,16 @@ protected slots:
 
 		// schedule a draw update
 		update();
-		emit dataChanged(this);
+
+		/// \todo Determine if needed: Emit(0, "dataChanged");
 	}
 
 	/// If the bounds of the data change (in x- and y-) this might require re-auto-scaling of a plot.
 	virtual void onBoundsChanged(const QRectF& newBounds) {
-		// base class implementation
-		MPlotAbstractImage::onBoundsChanged(newBounds);
+		Q_UNUSED(newBounds)
+		// signal a re-scaling needed on the plot:
+		Emit(0, "dataChanged");
+
 		// schedule an update of the plot, but computing a new pixmap is not needed
 		update();
 	}

@@ -15,9 +15,7 @@
 #define MPLOT_EXACTSHAPE_POINT_LIMIT 10000
 
 /// MPlotAbstractSeries is the base class for all MPlotItems that display series curves (2D curve data) on a plot.  Different drawing implementations are possible. One implementation is provided in MPlotSeriesBasic.
-class MPlotAbstractSeries : public MPlotItem {
-
-	Q_OBJECT
+class MPlotAbstractSeries : public MPlotItem, public MPlotObserver {
 
 public:
 
@@ -63,7 +61,7 @@ public:
 
 		// If there was an old model, disconnect old signals:
 		if(data_)
-			disconnect(data_, 0, this, 0);
+			data_->removeObserver(this);
 
 		// new data from here:
 		data_ = data;
@@ -71,13 +69,16 @@ public:
 		// If there's a new valid model:
 		if(data_) {
 
-			// Connect model signals to slots: dataChanged(unsigned fromIndex, unsigned toIndex);
-			connect(data_, SIGNAL(dataChanged(unsigned, unsigned)), this, SLOT(onDataChanged(unsigned, unsigned)));
+			// Connect model signals to slots: "dataChanged"
+			data_->addObserver(this);
 		}
 
-		emit dataChanged(this);
+		Emit(0, "dataChanged");
 
 	}
+
+	virtual QString name() const { return name_; }
+	virtual void setName(const QString& name) { name_ = name; }
 
 	virtual const MPlotAbstractSeriesData* model() const { return data_; }
 
@@ -118,22 +119,27 @@ public:
 		return shape;
 	}
 
-protected slots:
-	virtual void onDataChanged(unsigned fromIndex, unsigned toIndex) {
-		Q_UNUSED(fromIndex)
-		Q_UNUSED(toIndex)
-		emit dataChanged(this);
+public: // "slots"
+
+	/// these update messages would come from our model, which will Emit(0, "dataChanged");
+	virtual void onObservableChanged(MPlotObservable* source, int code, const char* msg, int payload) {
+		Q_UNUSED(msg)
+		Q_UNUSED(payload)
+		Q_UNUSED(source)
+
+		if(code == 0) {
+			Emit(0, "dataChanged");
+			onDataChanged();
+		}
 	}
 
-signals:
-
-	// in base class: void dataChanged(MPlotAbstractSeries* series);	// listen to this if you want to auto-scale on changes.
-	// in base class: void selectedChanged(bool isSelected);
-
+	virtual void onDataChanged() = 0;
 
 protected:
 	QPen linePen_, selectedPen_;
 	MPlotAbstractMarker* marker_;
+
+	QString name_;
 
 	const MPlotAbstractSeriesData* data_;
 
@@ -175,8 +181,6 @@ protected:
 /// MPlotSeriesBasic provides one drawing implementation for a 2D plot curve.  It is optimized to efficiently draw curves with 1,000,000+ data points along the x-axis, by only drawing as many lines as would be visible.
 
 class MPlotSeriesBasic : public MPlotAbstractSeries {
-
-	Q_OBJECT
 
 public:
 
@@ -331,11 +335,9 @@ public:
 	}
 
 
-protected slots:
+public: //"slots"
 
-	virtual void onDataChanged( unsigned, unsigned ) {
-
-		emit dataChanged(this);
+	virtual void onDataChanged() {
 		update();
 	}
 
