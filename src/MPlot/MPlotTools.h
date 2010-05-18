@@ -101,22 +101,22 @@ protected:
 class MPlotWheelZoomerTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:
-	/// Constructor. By default, this tool operates on all axes (Left, Right, and Bottom), and changes the axis scale by a factor of 0.75 on each mousewheel click.  Use setZoomFactor() and setYAxisTargets() to change these later.
-	MPlotWheelZoomerTool(double zoomFactor = 0.75, int axisTargets = (MPlotAxis::Left | MPlotAxis::Right | MPlotAxis::Bottom)) : MPlotAbstractTool() {
+	/// Constructor. By default, this tool operates on all axes (Left, Right, and Bottom), and adds/subtracts 25% to the axis range on each mousewheel click.  Use setZoomIncrement() and setYAxisTargets() to change these later.
+	MPlotWheelZoomerTool(double zoomIncrement = 0.25, int axisTargets = (MPlotAxis::Left | MPlotAxis::Right | MPlotAxis::Bottom)) : MPlotAbstractTool() {
 
-		setZoomFactor(zoomFactor);
+		setZoomIncrement(zoomIncrement);
 
 		setAxisTargets(axisTargets);
 	}
 
-	/// returns the factor that will multiply the range of an axis on each mouse-wheel "click"
-	double zoomFactor() const {
-		return zf_ / 120;
+	/// returns the fraction of the axis scale that will be added/subtracted on each mouse wheel click. (0.25 = 25% by default)
+	double zoomIncrement() const {
+		return zf_;
 	}
 
-	/// set the zoom factor. On every mousewheel click, the range of the axis will be multiplied by this amount.
-	void setZoomFactor(double factor) {
-		zf_ = factor * 120;
+	/// set the zoom increment. On every mousewheel click, the range of the axis will be increased or decreased by this fraction.
+	void setZoomIncrement(double zi) {
+		zf_ = fabs(zi);
 	}
 
 signals:
@@ -177,11 +177,11 @@ protected:
 
 		// delta: mouse wheel rotation amount. 120 corresponds to 1 "click", or 15 degrees rotation on most mice.  Units are 1/8th of a degree.
 
-		double F = zf_ / event->delta();
+		double F = (1 - qMin(zf_ * fabs(event->delta()) / 120, 0.9));
 
-		// If the rotation is backwards, we don't want negative zoom factors, we want reciprocal zoom factors.
+		// negative scrolling: we don't want a negative, we want the reciprocal: (zoom out, instead of in)
 		if(event->delta() < 0)
-			F = -1/F;
+			F = 1/F;
 
 		if(axisTargets() & MPlotAxis::Left) {
 
