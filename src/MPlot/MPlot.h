@@ -498,4 +498,33 @@ protected:
 
 };
 
+#include <QGraphicsWidget>
+#include <QGraphicsSceneResizeEvent>
+
+/// this class is used instead of MPlot when you need a QGraphicsWidget (instead of a simple QGraphicsItem).
+class MPlotGW : public QGraphicsWidget {
+	Q_OBJECT
+public:
+	MPlotGW(QGraphicsItem* parent = 0, Qt::WindowFlags flags = 0) : QGraphicsWidget(parent, flags) {
+		plot_ = new MPlot(QRectF(0,0,100,100), this);
+	}
+
+	virtual ~MPlotGW() {
+		delete plot_;
+	}
+
+	MPlot* plot() const { return plot_; }
+
+
+
+protected:
+	MPlot* plot_;
+
+	virtual void resizeEvent ( QGraphicsSceneResizeEvent * event ) {
+		QGraphicsWidget::resizeEvent(event);
+
+		plot_->setRect(QRectF(QPointF(0,0), event->newSize() ));
+	}
+};
+
 #endif

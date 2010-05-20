@@ -1,37 +1,19 @@
 #ifndef __MPlotWidget_H__
 #define __MPlotWidget_H__
 
-#include <QGraphicsView>
+#include "MPlotSceneAndView.h"
 #include "MPlot.h"
-#include <QResizeEvent>
-#include <QMouseEvent>
-#include <QPainterPath>
-
-#include <QDebug>
 
 // TODO: test performance of:
 // setItemIndexMethod(NoIndex);
 // makes a big difference if drawing plots using many separate QGraphicsItem elements (for ex: separate QGraphicsLineItems for each line element in a series)
 
 
-class MPlotWidget : public QGraphicsView {
+class MPlotWidget : public MPlotSceneAndView {
     Q_OBJECT
 
 public:
-	MPlotWidget(QWidget* parent = 0) : QGraphicsView(parent) {
-		
-		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-		// TODO: research this:
-		//setDragMode(QGraphicsView::RubberBandDrag);
-		
-		setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing /*| QPainter::HighQualityAntialiasing*/);
-		
-
-		// Create a scene to hold a plot:
-		QGraphicsScene* scene = new QGraphicsScene(this);
-		setScene(scene);
-
+	MPlotWidget(QWidget* parent = 0) : MPlotSceneAndView(parent) {
 		// Not holding a plot right now:
 		plot_ = 0;
 	}
@@ -70,11 +52,10 @@ protected:
 	
 	// On resize events: notify the plot to resize it, and fill the viewport with the canvas.
 	virtual void resizeEvent ( QResizeEvent * event ) {
-		QGraphicsView::resizeEvent(event);
+		MPlotSceneAndView::resizeEvent(event);
 		
 		if(plot_) {
-			plot_->setRect(QRectF(QPointF(0,0), event->size()));
-			scene()->setSceneRect(plot_->rect());
+			plot_->setRect(scene()->sceneRect());
 			fitInView(plot_->rect(), Qt::KeepAspectRatioByExpanding);
 		}
 	}
