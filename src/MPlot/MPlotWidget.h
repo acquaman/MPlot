@@ -1,12 +1,58 @@
 #ifndef __MPlotWidget_H__
 #define __MPlotWidget_H__
 
-#include "MPlotSceneAndView.h"
+#include <QGraphicsView>
+#include <QResizeEvent>
 #include "MPlot.h"
 
 // TODO: test performance of:
 // setItemIndexMethod(NoIndex);
 // makes a big difference if drawing plots using many separate QGraphicsItem elements (for ex: separate QGraphicsLineItems for each line element in a series)
+
+
+class MPlotSceneAndView : public QGraphicsView {
+	Q_OBJECT
+
+public:
+	MPlotSceneAndView(QWidget* parent = 0) : QGraphicsView(parent) {
+
+		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+		enableAntiAliasing();
+
+
+		// Create a scene that we will link to the size of the view:
+		QGraphicsScene* scene = new QGraphicsScene(this);
+		setScene(scene);
+
+	}
+
+	void enableAntiAliasing(bool antiAliasingOn = true) {
+		if(antiAliasingOn)
+			setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing /*| QPainter::HighQualityAntialiasing*/);
+		else
+			setRenderHints(QPainter::TextAntialiasing);
+	}
+
+
+	virtual ~MPlotSceneAndView() {
+		QGraphicsScene* scene = this->scene();
+		setScene(0);
+		delete scene;
+	}
+
+protected:
+
+	// On resize events: keep the scene the same size as the view, and make the view look at this part of the scene.
+	virtual void resizeEvent ( QResizeEvent * event ) {
+		QGraphicsView::resizeEvent(event);
+
+		scene()->setSceneRect(QRectF(QPointF(0,0), event->size()));
+		setSceneRect(scene()->sceneRect());
+	}
+
+};
 
 
 class MPlotWidget : public MPlotSceneAndView {
@@ -40,12 +86,6 @@ public:
 		return plot_;
 	}
 	
-
-	
-
-
-
-	
 protected:
 	// Member variables:
 	MPlot* plot_;
@@ -56,7 +96,6 @@ protected:
 		
 		if(plot_) {
 			plot_->setRect(scene()->sceneRect());
-			fitInView(plot_->rect(), Qt::KeepAspectRatioByExpanding);
 		}
 	}
 

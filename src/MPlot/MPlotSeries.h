@@ -86,7 +86,12 @@ public:
 	// Required functions:
 	//////////////////////////
 	// Bounding rect: reported in our PlotSeries coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.
-	virtual QRectF boundingRect() const { if(data_) return data_->boundingRect(); else return QRectF(); }
+	virtual QRectF boundingRect() const {
+		if(data_)
+			return data_->boundingRect();
+		else
+			return QRectF();
+	}
 
 	// Data rect: also reported in our PlotSeries coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
 	virtual QRectF dataRect() const { if(data_) return data_->boundingRect(); else return QRectF(); }

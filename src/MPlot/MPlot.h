@@ -94,13 +94,16 @@ public:
 	bool removeItem(MPlotItem* removeMe) {
 
 		if(items_.contains(removeMe)) {
-			removeMe->setParentItem(0);
 			removeMe->setPlot(0);
 			if(scene())
 				scene()->removeItem(removeMe);
+			else
+				removeMe->setParentItem(0);
 			items_.removeAll(removeMe);
 			// remove "signals"
 			removeMe->removeObserver(this);
+			// this might need to trigger a re-scale... for ex: if removeMe had the largest/smallest bounds of all plots associated with an auto-scaling axis.
+			onDataChanged(removeMe);
 			return true;
 		}
 		else
@@ -267,18 +270,17 @@ public: // "slots"
 
 
 
-	void onDataChanged(MPlotItem* item1) {
+	/// called when item data changes in a way that could affect the plot scaling.  item1 could be a plot that was just added, and it could also be a plot item on it's way out. (ie: no longer part of items_, but just recently removed.)
+	void onDataChanged(MPlotItem* item1 = 0) {
 
 		if(autoScaleBottomEnabled_)
 			setXDataRangeImp(0, 0, true);
 
-		if(item1) {
-			if(autoScaleLeftEnabled_ && item1->yAxisTarget() == MPlotAxis::Left)
-				setYDataRangeLeftImp(0, 0, true);
+		if(autoScaleLeftEnabled_ && (item1==0 || item1->yAxisTarget() == MPlotAxis::Left))
+			setYDataRangeLeftImp(0, 0, true);
 
-			if(autoScaleRightEnabled_ && item1->yAxisTarget() == MPlotAxis::Right)
-				setYDataRangeRightImp(0, 0, true);
-		}
+		if(autoScaleRightEnabled_ && (item1==0 || item1->yAxisTarget() == MPlotAxis::Right))
+			setYDataRangeRightImp(0, 0, true);
 
 		// We have new transforms.  Need to apply them:
 		if(autoScaleBottomEnabled_ | autoScaleLeftEnabled_ | autoScaleRightEnabled_) {
@@ -369,9 +371,9 @@ protected:
 
 
 			QRectF bounds;
-			foreach(MPlotItem* itm, items_) {
+			foreach(MPlotItem* itm, items_)
 				bounds |= itm->dataRect();
-			}
+
 			if(bounds.isValid()) {
 				min = bounds.left();
 				max = bounds.right();

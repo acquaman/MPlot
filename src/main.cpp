@@ -21,16 +21,6 @@
 
 #include "MPlotTools.h"
 
-// Major todo's::
-/*
- - architecture: make MPlot a QGraphicsObject ; figure out scene/view geometry; remove need for mplotwindow
- - think: make mplotseries just a normal object that adds a bunch of separate objects to scene? or raw painting instead of lists of markers?  [done: chose raw painting for performance]
- - read qpainter->worldTransform; look at 40000 chip example; look at bookmarked offscreen rendering example; qtconcurrent
- - smoothpixmap transform?
- - MPlotSeriesData: let MPlotSeries use a MPlotAbstractSeriesData interface; make MPlotSeriesDataFromTableModel and MPlotSeriesDataFromTreeModel wrappers. [done]
-	// and MPlotSeriesDataRealtime, which is optimized for queue-mode enter/leave data.
- - Think about how to optimize drawing for 100000pt realtime (change individual rows; add to front/back) [done]
- */
 
  int main(int argc, char *argv[])
  {
@@ -137,7 +127,7 @@
 	 series1.setName("series1");
 	 series2.setName("series2");
 
-	 // Enable to plot on the right axis instead of the left axis
+	 // Set to plot on the right axis instead of the left axis
 	 // series1.setYAxisTarget(MPlotAxis::Right);
 
 	 // connect this plot series as a view on its model (data1, data2)
@@ -245,7 +235,7 @@
 		 QPainter painter(&printer);
 		 painter.setRenderHint(QPainter::Antialiasing);
 		 plotWindow.scene()->render(&painter);
-	 } // Print this to a PDF to see vector-graphics export.  Wow that was easy!
+	 } // Print this to a PDF to see vector-graphics export.
 */
 
 	 // PNG export:
@@ -279,9 +269,12 @@
 	MPlotWheelZoomerTool wzTool;
 	plot.addTool(&wzTool);
 
+	// this tool adds a cursor (or more) to a plot
 	MPlotCursorTool crsrTool;
 	plot.addTool(&crsrTool);
+	// add an extra cursor
 	crsrTool.addCursor();
+	crsrTool.cursor(1)->marker()->setPen(QPen(QColor(Qt::blue)));
 
 
 	return app.exec();

@@ -495,7 +495,6 @@ public:
 		MPlotPoint* newCursor = new MPlotPoint();
 		newCursor->setSelectable(false);
 		newCursor->setMarker(MPlotMarkerShape::Cross, MPLOT_CURSOR_BIG_HACK);
-		/// \todo automatically vary the colors.
 		newCursor->setValue(initialPos);
 
 		if(plot()) {
