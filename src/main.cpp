@@ -34,6 +34,9 @@
 	 // An MPlotWidget is needed to view a plot:
 	 MPlotWidget plotWindow;
 
+	 // Enable or disable anti-aliasing. (The drawing engine on Mac OS X creates double-width lines for some window sizes, unless anti-aliasing is turned on.)
+	 plotWindow.enableAntiAliasing(true);
+
 	 // An MPlot is the QGraphicsItem representing a 2D Plot:
 	 MPlot plot;
 	 // Connecting the window to view the plot:

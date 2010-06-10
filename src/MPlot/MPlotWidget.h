@@ -5,6 +5,7 @@
 #include <QResizeEvent>
 #include "MPlot.h"
 
+
 // TODO: test performance of:
 // setItemIndexMethod(NoIndex);
 // makes a big difference if drawing plots using many separate QGraphicsItem elements (for ex: separate QGraphicsLineItems for each line element in a series)
