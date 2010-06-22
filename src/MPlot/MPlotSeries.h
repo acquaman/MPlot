@@ -66,11 +66,19 @@ public:
 		// new data from here:
 		data_ = data;
 
+		prepareGeometryChange();
+
 		// If there's a new valid model:
 		if(data_) {
 
 			// Connect model signals to slots: "dataChanged"
 			data_->addObserver(this);
+
+			cachedDataRect_ = data_->boundingRect();
+		}
+
+		else {
+			cachedDataRect_ = QRectF();
 		}
 
 		Emit(0, "dataChanged");
@@ -85,15 +93,12 @@ public:
 
 	// Required functions:
 	//////////////////////////
-	// Bounding rect: reported in our PlotSeries coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.
+	// Bounding rect: reported in our PlotSeries coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.  This value is cached to the last redraw/update(), so that it is in sync with what is on the screen.
 	virtual QRectF boundingRect() const {
-		if(data_)
-			return data_->boundingRect();
-		else
-			return QRectF();
+		return cachedDataRect_;
 	}
 
-	// Data rect: also reported in our PlotSeries coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
+	// Data rect: also reported in our PlotSeries coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.  This value is not cached -- it is the real-time extent of the data, as reported by the model.
 	virtual QRectF dataRect() const { if(data_) return data_->boundingRect(); else return QRectF(); }
 
 	// Paint: must be implemented in subclass.
@@ -133,8 +138,16 @@ public: // "slots"
 		Q_UNUSED(source)
 
 		if(code == 0) {
-			Emit(0, "dataChanged");
+			if(data_) {
+				QRectF newDataRect = data_->boundingRect();
+				if(cachedDataRect_ != newDataRect) {
+					prepareGeometryChange();
+					cachedDataRect_ = newDataRect;
+				}
+			}
+
 			onDataChanged();
+			Emit(0, "dataChanged");
 		}
 	}
 
@@ -147,6 +160,8 @@ protected:
 	QString name_;
 
 	const MPlotAbstractSeriesData* data_;
+
+	QRectF cachedDataRect_;
 
 	virtual void setDefaults() {
 
