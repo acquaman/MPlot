@@ -32,6 +32,12 @@ public:
 
 	}
 
+	virtual ~MPlotAbstractSeries() {
+		// If we have a model, need to disconnect it before we get deleted.
+		if(data_)
+			data_->removeObserver(this);
+	}
+
 
 
 	// Properties:
