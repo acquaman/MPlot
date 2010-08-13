@@ -199,9 +199,9 @@ public:
 	QTransform rightAxisTransform() { return rightAxisTransform_; }
 
 
-	void enableAutoScaleBottom(bool autoScaleOn) { if(autoScaleBottomEnabled_ = autoScaleOn) setXDataRange(0, 0, true); }
-	void enableAutoScaleLeft(bool autoScaleOn) { if(autoScaleLeftEnabled_ = autoScaleOn) setYDataRangeLeft(0, 0, true); }
-	void enableAutoScaleRight(bool autoScaleOn) { if(autoScaleRightEnabled_ = autoScaleOn) setYDataRangeRight(0, 0, true);}
+	void enableAutoScaleBottom(bool autoScaleOn) { if((autoScaleBottomEnabled_ = autoScaleOn)) setXDataRange(0, 0, true); }
+	void enableAutoScaleLeft(bool autoScaleOn) { if((autoScaleLeftEnabled_ = autoScaleOn)) setYDataRangeLeft(0, 0, true); }
+	void enableAutoScaleRight(bool autoScaleOn) { if((autoScaleRightEnabled_ = autoScaleOn)) setYDataRangeRight(0, 0, true);}
 	void enableAutoScale(int axisFlags) {
 		enableAutoScaleBottom(axisFlags & MPlotAxis::Bottom);
 		enableAutoScaleLeft(axisFlags & MPlotAxis::Left);
