@@ -29,6 +29,9 @@ public:
 	}
 
 	/// \todo Someday (when this becomes a full library, with .cpp files)... have the destructor remove this item from it's plot_, if there is an assocated plot_.  Also, what about being connected to multiple plots?
+	~MPlotItem() {
+
+	}
 
 
 	/// returns which y-axis this data should be plotted against

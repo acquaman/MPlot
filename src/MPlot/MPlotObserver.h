@@ -8,6 +8,10 @@ class MPlotObserver {
 public:
 	MPlotObserver() {}
 
+	virtual ~MPlotObserver() {
+
+	}
+
 	virtual void onObservableChanged(MPlotObservable* source, int code, const char* msg, int payload) = 0;
 
 };

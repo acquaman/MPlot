@@ -12,7 +12,6 @@
 #include <math.h>
 #include <float.h>
 
-/// \bug Axis value placement bug: draws zero line below plot area for zoom to rect: QRectF(-0.430307,0.0237622 0.219718x0.35574)
 
 // Coordinate system: draws self in the (0,0) to (1,1) coordinate space of MPlot's plotArea_.
 class MPlotAxis : public QGraphicsItem {
@@ -21,44 +20,44 @@ public:
 	// Types:
 	enum AxisID { Left = 1, Bottom = 2, Right = 4, Top = 8 };
 	enum TickStyle { Outside, Inside, Middle };
-	
+
 	// Axis ID:
 	MPlotAxis(AxisID type, QString name = QString(""), QGraphicsItem* parent = 0) : QGraphicsItem(parent) {
 
-		type_ = type;		
+		type_ = type;
 		name_ = name;
-		
+
 		numTicks_ = 5;
-		setDefaults();	
-		
+		setDefaults();
+
 		// Put everything in the right spot:
-		placeAxis();		
+		placeAxis();
 	}
-	
+
 	virtual ~MPlotAxis() {
 	}
-	
+
 	// Set the range (in data-value coordinates)
 	void setRange(double min, double max) {
-		
-		min_ = min; max_ = max;		
-		
+
+		min_ = min; max_ = max;
+
 		placeAxis();
-		
+
 	}
-		
+
 	// Set the number and style of ticks:
 	/*! \c tStyle can be Inside, Outside, or Middle.  \c tickLength is in logical coordinates ("percent of plot") coordinates.
 	\c num is really just suggestion... there might be one less or up to three(?) more, depending on what we think would make nice label values.*/
 	void setTicks(int num, TickStyle tstyle = Outside, double tickLength = 2) {
-		
+
 		numTicks_ = num;
 		tickStyle_ = tstyle;
 		tickLength_ = tickLength/100;
 		placeAxis();
 	}
-	
-	
+
+
 	// Access properties:
 	double min() const { return min_; }
 	double max() const { return max_; }
@@ -72,7 +71,7 @@ public:
 	void showGrid(bool gridOn = true) { gridVisible_ = gridOn; update(); }
 	/// show or hide the axis name
 	void showAxisName(bool axisNameOn = true) { axisNameVisible_ = axisNameOn; placeAxis(); }
-	
+
 	/// Set the pen for the axis line and axis name text:
 	void setAxisPen(const QPen& pen) { axisPen_ = pen; axisPen_.setCosmetic(true); update(); }
 	/// set the pen for the ticks along the axis:
@@ -87,7 +86,7 @@ public:
 	/// Set the axis name:
 	void setAxisName(const QString& name) { name_ = name; placeAxis(); }
 	// TODO: minor ticks
-	
+
 	// Required functions:
 	//////////////////////////
 	// Bounding rect:
@@ -177,33 +176,33 @@ public:
 	// TODO: finer shape?
 	/*
 	QPainterPath shape() {
-		return 
+		return
 	}*/
-	
+
 
 protected:
-	
+
 	// Properties:
 	double min_, max_;
-	
+
 	AxisID type_;
 	TickStyle tickStyle_;
 	unsigned numTicks_;
-	
+
 	// tick lengths, in logical units (fraction of plot width)
 	double tickLength_;
 	double tickLabelOffset_;
 
 	bool tickLabelsVisible_, gridVisible_, axisNameVisible_;
-	
+
 	QString name_;
-	
+
 	QPen axisPen_, tickPen_, gridPen_;
 	QFont tickLabelFont_, axisNameFont_;
-	
+
 	// Actual tick values:
 	double minTickVal_, tickIncVal_;
-	
+
 	// Coordinates, computed by placeAxis and used for paint()ing:
 	QLineF mainLine_, tickLine_, gridLine_;
 	QPointF scStartP_, scIncP_;
@@ -215,20 +214,20 @@ protected:
 	QRectF nameBr_;
 	// textTransform: A transform based on our true device coordinates, used to draw undistorted text at a nice size:
 	QTransform tt_;
-	
-	
+
+
 	//Helper Functions:
-	
+
 	// Adjust the length of the main line, and determine the locations for the ticks.
 	void placeAxis() {
-		
+
 		// Determine "nice" values for the axis labels. (Sets minTickVal_ and tickIncVal_)
 		intelliScale();
-		
+
 		// Tick increment and initial value, in our painting coordinates which go from 0 to 1
 		scIncrement_ = tickIncVal_ / (max_ - min_);
 		scStart_ = (minTickVal_ - min_) / (max_ - min_);
-		
+
 		// Handle differences between vertical and horizontal axes.
 		// Set QLineFs mainLine_, gridLine_, and tickLine_
 		// and QPointFs scIncP_, scStartP_ for use by the paint() function
@@ -257,7 +256,7 @@ protected:
 				}
 			}
 		}
-		
+
 		// Same for horizontal axes (increment is horizontal, tickLine_ is vertical)
 		else{
 			scIncP_ = QPointF(scIncrement_, 0);
@@ -286,7 +285,7 @@ protected:
 		// repaint:
 		update();
 	}
-	
+
 	/// Calculates a transform suitable for applying to the painter to draw undistorted text.
 	/*! The text will shrink and grow with the size of the plot, but only within a reasonable range. (ie: infinitely small text isn't helpful, and super-humongous text isn't helpful).
 		Result is saved in tt_ */
@@ -301,9 +300,9 @@ protected:
 		// use the smaller dimension as the relevant one to base this on.
 		double scaleFactor;
 		if(fabs(wt.m11()) > fabs(wt.m22()))
-			scaleFactor = qBound((qreal)0.6, fabs(wt.m22()/250), (qreal)1.4);
+			scaleFactor = qBound((qreal)0.8, fabs(wt.m22()/250), (qreal)1.2);
 		else
-			scaleFactor = qBound((qreal)0.6, fabs(wt.m11()/250), (qreal)1.4);
+			scaleFactor = qBound((qreal)0.8, fabs(wt.m11()/250), (qreal)1.2);
 		tt_.scale(scaleFactor, scaleFactor);
 
 
@@ -337,7 +336,7 @@ protected:
 			flags |= (Qt::AlignLeft | Qt::AlignVCenter);
 			tt.translate(tickLine_.x2()+tickLabelOffset_, 0);
 			break;
-		}		
+		}
 
 		// apply scaling to get rid of x-y distortion and reach a nice size for text.
 		// (Note that tt_ was calculated once before all calls to drawLabel() )
@@ -406,7 +405,7 @@ protected:
 		painter->restore();
 
 	}
-	
+
 
 /// IntelliScale: Calculate "nice" values for starting tick and tick increment.
 /*! Sets minTickVal_ and tickIncVal_ for nice values of axis ticks.
@@ -488,7 +487,7 @@ tickIncVal_ *= norm;
 
 			tickIncVal_ = step;
 			minTickVal_ = ceil(min_/step) * step;
-			
+
 			// Hit Zero if possible: (while passing through origin)
 
 			if(min_ < 0 && max_ > 0) {
@@ -497,27 +496,27 @@ tickIncVal_ *= norm;
 				minTickVal_ += offset;
 			}
 		}
-		
+
 		else {	// 1 or zero ticks: 1 tick should go at the average/middle of the axis
 			minTickVal_ = (min_ + max_) / 2;
 			// make sure the next tick is _well_ past the end of the axis, so that it doesn't get drawn.
 			tickIncVal_ = DBL_MAX / 1e10; // Setting this to DLB_MAX causes an overflow that breaks minTickVal_.
 		}
 	}
-	
+
 	void setDefaults() {
-		
+
 		min_ = 0;
 		max_ = 10;
-		
+
 		tickStyle_ = Outside;
 		tickLength_ = .02;
 		numTicks_ = 4;
-		
+
 		tickLabelOffset_ = 0.02;
 		tickLabelFont_.setPointSize(12);
 		axisNameFont_.setPointSize(12);
-		
+
 		if(type_ == Top || type_ == Right) {
 			tickLabelsVisible_ = false;
 			axisNameVisible_ = false;
@@ -526,13 +525,13 @@ tickIncVal_ *= norm;
 			tickLabelsVisible_ = true;
 			axisNameVisible_ = true;
 		}
-		
+
 		gridPen_ = QPen(QBrush(QColor(Qt::blue)), 1, Qt::DotLine);
 		gridPen_.setCosmetic(true);
 		QVector<qreal> dashes;
 		dashes << 4 << 4;
 		gridPen_.setDashPattern(dashes);
-		
+
 		if(type_ == Left)
 			gridVisible_ = true;
 		else

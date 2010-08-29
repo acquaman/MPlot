@@ -12,8 +12,6 @@
 typedef QPair<double,double> MPlotInterval;
 
 /// this class defines the interface to represent 3D data z = f(x,y), used by image plots and contour plots.
-/*!
-// Unfortunately, because QObject doesn't support multiple inheritance, if you want your data object to inherit from another QObject-derived class, wrapper classes might be needed.*/
 
 
   // copied=pasted from MPlotSeriesData. Fix.
@@ -22,6 +20,8 @@ class MPlotAbstractImageData : public MPlotObservable {
 
 public:
 	MPlotAbstractImageData() : MPlotObservable() {}
+
+	~MPlotAbstractImageData() {}
 
 	/// Return the x (data value) corresponding an (x,y) \c index:
 	virtual double x(unsigned indexX) const = 0;

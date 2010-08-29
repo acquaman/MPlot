@@ -17,6 +17,9 @@ public:
 		axisTargets_ = MPlotAxis::Left | MPlotAxis::Right | MPlotAxis::Bottom;
 	}
 
+	/// \todo Write a destructor in the .cpp that calls MPlot::removeTool().
+	virtual ~MPlotAbstractTool() {}
+
 	// isEnabled() and setEnabled(true/false) are used to enable or disable a tool's functionality.
 
 	/// Some tools don't need to draw anything. This provides an empty paint() function. Reimplement if drawing is needed.

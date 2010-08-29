@@ -60,6 +60,11 @@ public:
 
 	}
 
+
+	virtual ~MPlot() {
+
+	}
+
 	/// Required paint function. (All painting is done by children)
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) {
 		Q_UNUSED(painter)

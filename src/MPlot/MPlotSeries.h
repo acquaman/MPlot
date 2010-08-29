@@ -72,6 +72,7 @@ public:
 		// new data from here:
 		data_ = data;
 
+		dataChangedUpdateNeeded_ = true;
 		prepareGeometryChange();
 
 		// If there's a new valid model:
@@ -80,11 +81,6 @@ public:
 			// Connect model signals to slots: "dataChanged"
 			data_->addObserver(this);
 
-			cachedDataRect_ = data_->boundingRect();
-		}
-
-		else {
-			cachedDataRect_ = QRectF();
 		}
 
 		Emit(0, "dataChanged");
@@ -101,11 +97,17 @@ public:
 	//////////////////////////
 	// Bounding rect: reported in our PlotSeries coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.  This value is cached to the last redraw/update(), so that it is in sync with what is on the screen.
 	virtual QRectF boundingRect() const {
+
+		if(dataChangedUpdateNeeded_) {
+			cachedDataRect_ = data_? data_->boundingRect() : QRectF();
+			dataChangedUpdateNeeded_ = false;
+		}
+
 		return cachedDataRect_;
 	}
 
 	// Data rect: also reported in our PlotSeries coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.  This value is not cached -- it is the real-time extent of the data, as reported by the model.
-	virtual QRectF dataRect() const { if(data_) return data_->boundingRect(); else return QRectF(); }
+	virtual QRectF dataRect() const { return data_? data_->boundingRect() : QRectF(); }
 
 	// Paint: must be implemented in subclass.
 	virtual void paint(QPainter* painter,
@@ -144,19 +146,15 @@ public: // "slots"
 		Q_UNUSED(source)
 
 		if(code == 0) {
-			if(data_) {
-				QRectF newDataRect = data_->boundingRect();
-				if(cachedDataRect_ != newDataRect) {
-					prepareGeometryChange();
-					cachedDataRect_ = newDataRect;
-				}
-			}
 
+			dataChangedUpdateNeeded_ = true;
+			prepareGeometryChange();
 			onDataChanged();
 			Emit(0, "dataChanged");
 		}
 	}
 
+	/// This virtual function is called to let subclasses know when the internal data has changed, and let's them handle this however they need to.
 	virtual void onDataChanged() = 0;
 
 protected:
@@ -167,7 +165,10 @@ protected:
 
 	const MPlotAbstractSeriesData* data_;
 
-	QRectF cachedDataRect_;
+	/// Implements caching of the bounding rectangle
+	mutable QRectF cachedDataRect_;
+	/// If true, indicates that the cachedDataRect_ is stale. Set true when the model indicates data changed; set false when the cachedDataRect_ is updated inside boundingRect().
+	mutable bool dataChangedUpdateNeeded_;
 
 	virtual void setDefaults() {
 
@@ -364,6 +365,7 @@ public:
 public: //"slots"
 
 	virtual void onDataChanged() {
+
 		update();
 	}
 

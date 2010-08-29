@@ -26,6 +26,11 @@ public:
 
 	}
 
+	virtual ~MPlotAbstractImage() {
+		if(data_)
+			data_->removeObserver(this);
+	}
+
 
 
 	// Properties:
