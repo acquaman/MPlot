@@ -99,6 +99,8 @@
 	 //////////////////////////////
 	 MPlotRealtimeModel data1, data2;
 
+
+
 	 /*
 	 data1.insertPointBack(0.55, 0.57);
 	 data1.insertPointFront(0.4, 0.43);
@@ -109,6 +111,7 @@
 	 data1.insertPointBack(0, 0);
 	 data1.insertPointBack(10, 10);
 	  */
+
 
 	 // Fill with parabola:
 	 for(double i=-.9; i<.99; i+=0.01)
@@ -257,6 +260,7 @@
 	 //plotWindow.setViewport(new QGLWidget);
 
 	// 12: Testing plot tools: MPlotPlotSelectorTool:
+
 
 	// DragZoomerTools need to be added first ("on the bottom") so they don't steal everyone else's mouse events
 	MPlotDragZoomerTool dzTool;

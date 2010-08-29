@@ -21,50 +21,36 @@ class MPlotItem : public QGraphicsItem, public MPlotObservable {
 public:
 
 	/// Constructor calls base class (QGraphicsObject)
-	MPlotItem() : QGraphicsItem(), MPlotObservable() {
-		setFlag(QGraphicsItem::ItemIsSelectable, false);	// We're implementing our own selection mechanism... ignoring QGraphicsView's selection system.
-		isSelected_ = false;
-		isSelectable_ = true;
-		plot_ = 0;
-	}
+	MPlotItem();
 
 	/// \todo Someday (when this becomes a full library, with .cpp files)... have the destructor remove this item from it's plot_, if there is an assocated plot_.  Also, what about being connected to multiple plots?
-	~MPlotItem() {
-
-	}
+	~MPlotItem();
 
 
 	/// returns which y-axis this data should be plotted against
-	MPlotAxis::AxisID yAxisTarget() { return yAxisTarget_;}
+	MPlotAxis::AxisID yAxisTarget();
 
 	/// set the y-axis this data should be plotted against
-	void setYAxisTarget(MPlotAxis::AxisID axis) { yAxisTarget_ = axis; }
+	void setYAxisTarget(MPlotAxis::AxisID axis);
 
 	/// tell this item that it is 'selected' within the plot
-	virtual void setSelected(bool selected = true) {
-		bool updateNeeded = (selected != isSelected_);
-		isSelected_ = selected;
-		if(updateNeeded) {
-			update();	// todo: maybe should move into subclasses; not all implementations will require update()?
-			Emit(1, "selectedChanged", isSelected_);
-		}
-	}
+	virtual void setSelected(bool selected = true);
 	/// ask if this item is currently selected on the plot
-	virtual bool selected() { return isSelected_; }
+	virtual bool selected();
 
 	/// use this if you don't want a plot item to be selectable:
-	virtual bool selectable() { return isSelectable_; }
-	virtual void setSelectable(bool selectable = true) { isSelectable_ = selectable; }
+	virtual bool selectable();
+	virtual void setSelectable(bool selectable = true);
 
 
 	/// Don't call this. Unfortunately public because it's required by MPlot::addItem and MPlot::removeItem.
-	void setPlot(MPlot* plot) { plot_ = plot; }
+	void setPlot(MPlot* plot);
 	/// returns the plot we are attached to
-	MPlot* plot() const { return plot_; }
+	MPlot* plot() const;
 
 
 	// Bounding rect: reported in our PlotItem coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.
-	virtual QRectF boundingRect() const { return dataRect(); }
+	virtual QRectF boundingRect() const;
 
 	// Data rect: also reported in our PlotItem coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
 	virtual QRectF dataRect() const = 0;
@@ -75,11 +61,7 @@ public:
 					   QWidget* widget) = 0;
 
 	/// return the active shape where clicking will select this object in the plot. Subclasses can re-implement for more accuracy.
-	virtual QPainterPath shape() const {
-		QPainterPath shape;
-		shape.addRect(boundingRect());
-		return shape;
-	}
+	virtual QPainterPath shape() const;
 
 
 /// signals: Implements MPlotObservable.  Will Emit(0, "dataChanged") when x- or y- data changes, so the plot might need to be re-autoscaled.  Will Emit(1, "selectedChanged", 1) when the selection state of the item changes to true, and Emit(1, "selectedChanged", 0) when the selection state ofthe item changes to false.

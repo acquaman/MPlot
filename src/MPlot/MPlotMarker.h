@@ -24,17 +24,17 @@ namespace MPlotMarkerShape {
 class MPlotAbstractMarker {
 
 public:
-	MPlotAbstractMarker(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) : size_(size), pen_(pen), brush_(brush) {}
-	~MPlotAbstractMarker() {}
+	MPlotAbstractMarker(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
+	~MPlotAbstractMarker();
 
-	virtual void setSize(double size) { size_ = size; }
-	virtual double size() { return size_; }
+	virtual void setSize(double size);
+	virtual double size();
 
-	virtual QPen pen() const { return pen_; }
-	virtual void setPen(const QPen &pen1) { pen_ = pen1; pen_.setCosmetic(true); }
+	virtual QPen pen() const;
+	virtual void setPen(const QPen &pen1);
 
-	virtual QBrush brush() const { return brush_; }
-	virtual void setBrush(const QBrush &brush) { brush_ = brush; }
+	virtual QBrush brush() const;
+	virtual void setBrush(const QBrush &brush);
 
 
 	virtual void paint(QPainter* painter) = 0;
@@ -56,42 +56,27 @@ public:
 class MPlotMarkerSquare : public MPlotAbstractMarker {
 
 public:
-	MPlotMarkerSquare(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) : MPlotAbstractMarker(size, pen, brush) {}
+	MPlotMarkerSquare(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
 
-	virtual void paint(QPainter* painter) {
-		QRectF me(-size_/2, -size_/2, size_, size_);
-		painter->drawRect(me);
-	}
+	virtual void paint(QPainter* painter);
 };
 
 class MPlotMarkerCircle : public MPlotAbstractMarker {
 
 public:
-	MPlotMarkerCircle(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) : MPlotAbstractMarker(size, pen, brush) {}
-	virtual void paint(QPainter* painter) {
-		painter->drawEllipse(-size_/2, -size_/2, size_, size_);
-	}
+	MPlotMarkerCircle(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
+	virtual void paint(QPainter* painter);
 };
 
 class MPlotMarkerTriangle : public MPlotAbstractMarker {
 
 
 public:
-	MPlotMarkerTriangle(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) : MPlotAbstractMarker(size, pen, brush) {
-		setSize(size);
-	}
+	MPlotMarkerTriangle(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
 
-	virtual void setSize(double width) {
-		size_ = width;
-		triangle_ << QPointF(-width/2, width/2/sqrt(3));
-		triangle_ << QPointF(width/2, width/2/sqrt(3));
-		triangle_ << QPointF(0, -width/sqrt(3));
-		triangle_ << QPointF(-width/2, width/2/sqrt(3));
-	}
+	virtual void setSize(double width);
 
-	virtual void paint(QPainter* painter) {
-		painter->drawPolygon(triangle_);
-	}
+	virtual void paint(QPainter* painter);
 
 protected:
 	QPolygonF triangle_;
@@ -99,18 +84,11 @@ protected:
 
 class MPlotMarkerVerticalBeam : public MPlotAbstractMarker {
 public:
-	MPlotMarkerVerticalBeam(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) : MPlotAbstractMarker(size, pen, brush) {
-		setSize(size);
-	}
+	MPlotMarkerVerticalBeam(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
 
-	virtual void setSize(double width) {
-		size_ = width;
-		line_.setLine(0, size_/2, 0, -size_/2);
-	}
+	virtual void setSize(double width);
 
-	virtual void paint(QPainter* painter) {
-		painter->drawLine(line_);
-	}
+	virtual void paint(QPainter* painter);
 
 protected:
 	QLineF line_;
@@ -119,18 +97,11 @@ protected:
 
 class MPlotMarkerHorizontalBeam : public MPlotAbstractMarker {
 public:
-	MPlotMarkerHorizontalBeam(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) : MPlotAbstractMarker(size, pen, brush) {
-		setSize(size);
-	}
+	MPlotMarkerHorizontalBeam(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
 
-	virtual void setSize(double width) {
-		size_ = width;
-		line_.setLine(size_/2, 0, -size_/2, 0);
-	}
+	virtual void setSize(double width);
 
-	virtual void paint(QPainter* painter) {
-		painter->drawLine(line_);
-	}
+	virtual void paint(QPainter* painter);
 
 protected:
 	QLineF line_;
@@ -138,18 +109,11 @@ protected:
 
 class MPlotMarkerPoint : public MPlotAbstractMarker {
 public:
-	MPlotMarkerPoint(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) : MPlotAbstractMarker(size, pen, brush) {
-		setSize(size);
-	}
+	MPlotMarkerPoint(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
 
-	virtual void setSize(double) {
-		size_ = 0.1;
-		line_.setLine(size_/2, 0, -size_/2, 0);
-	}
+	virtual void setSize(double);
 
-	virtual void paint(QPainter* painter) {
-		painter->drawLine(line_);
-	}
+	virtual void paint(QPainter* painter);
 
 protected:
 	QLineF line_;
@@ -158,18 +122,11 @@ protected:
 
 class MPlotMarkerDiagDownLeft : public MPlotAbstractMarker {
 public:
-	MPlotMarkerDiagDownLeft(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) : MPlotAbstractMarker(size, pen, brush) {
-		setSize(size);
-	}
+	MPlotMarkerDiagDownLeft(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
 
-	virtual void setSize(double size) {
-		size_ = size;
-		line_.setLine(-size/2, size/2, size/2, -size/2);
-	}
+	virtual void setSize(double size);
 
-	virtual void paint(QPainter* painter) {
-		painter->drawLine(line_);
-	}
+	virtual void paint(QPainter* painter);
 
 protected:
 	QLineF line_;
@@ -179,19 +136,11 @@ protected:
 // A shorter version... This one has a length of size instead of size*sqrt(2). (Matches dia. of a circle of 'size')
 class MPlotMarkerDiagDownLeftR : public MPlotAbstractMarker {
 public:
-	MPlotMarkerDiagDownLeftR(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) : MPlotAbstractMarker(size, pen, brush) {
-		setSize(size);
-	}
+	MPlotMarkerDiagDownLeftR(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
 
-	virtual void setSize(double size) {
-		size_ = size;
-		double lo2 = size_/2/sqrt(2);
-		line_.setLine(-lo2, lo2, lo2, -lo2);
-	}
+	virtual void setSize(double size);
 
-	virtual void paint(QPainter* painter) {
-		painter->drawLine(line_);
-	}
+	virtual void paint(QPainter* painter);
 
 protected:
 	QLineF line_;
@@ -200,18 +149,11 @@ protected:
 
 class MPlotMarkerDiagDownRight : public MPlotAbstractMarker {
 public:
-	MPlotMarkerDiagDownRight(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) : MPlotAbstractMarker(size, pen, brush) {
-		setSize(size);
-	}
+	MPlotMarkerDiagDownRight(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
 
-	virtual void setSize(double size) {
-		size_ = size;
-		line_.setLine(-size/2, -size/2, size/2, size/2);
-	}
+	virtual void setSize(double size);
 
-	virtual void paint(QPainter* painter) {
-		painter->drawLine(line_);
-	}
+	virtual void paint(QPainter* painter);
 
 protected:
 	QLineF line_;
@@ -220,19 +162,11 @@ protected:
 
 class MPlotMarkerDiagDownRightR : public MPlotAbstractMarker {
 public:
-	MPlotMarkerDiagDownRightR(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) : MPlotAbstractMarker(size, pen, brush) {
-		setSize(size);
-	}
+	MPlotMarkerDiagDownRightR(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
 
-	virtual void setSize(double size) {
-		size_ = size;
-		double lo2 = size_/2/sqrt(2);
-		line_.setLine(-lo2, -lo2, lo2, lo2);
-	}
+	virtual void setSize(double size);
 
-	virtual void paint(QPainter* painter) {
-		painter->drawLine(line_);
-	}
+	virtual void paint(QPainter* painter);
 
 protected:
 	QLineF line_;
@@ -276,73 +210,18 @@ protected:
 
 class MPlotMarkerCombined : public MPlotAbstractMarker {
 public:
-	MPlotMarkerCombined(int shapeCode, double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) : MPlotAbstractMarker(size, pen, brush) {
+	MPlotMarkerCombined(int shapeCode, double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
 
-		if(shapeCode & MPlotMarkerShape::Square) {
-			elements_ << new MPlotMarkerSquare(size, pen, brush);
-		}
-		if(shapeCode & MPlotMarkerShape::Circle) {
-			elements_ << new MPlotMarkerCircle(size, pen, brush);
-		}
-		if(shapeCode & MPlotMarkerShape::Triangle) {
-			elements_ << new MPlotMarkerTriangle(size, pen, brush);
-		}
-		if(shapeCode & MPlotMarkerShape::VerticalBeam) {
-			elements_ << new MPlotMarkerVerticalBeam(size, pen, brush);
-		}
-		if(shapeCode & MPlotMarkerShape::HorizontalBeam) {
-			elements_ << new MPlotMarkerHorizontalBeam(size, pen, brush);
-		}
-		if(shapeCode & MPlotMarkerShape::DiagDownLeft) {
-			elements_ << new MPlotMarkerDiagDownLeft(size, pen, brush);
-		}
-		if(shapeCode & MPlotMarkerShape::DiagDownRight) {
-			elements_ << new MPlotMarkerDiagDownRight(size, pen, brush);
-		}
-		if(shapeCode & MPlotMarkerShape::DiagDownLeftR) {
-			elements_ << new MPlotMarkerDiagDownLeftR(size, pen, brush);
-		}
-		if(shapeCode & MPlotMarkerShape::DiagDownRightR) {
-			elements_ << new MPlotMarkerDiagDownRightR(size, pen, brush);
-		}
-		if(shapeCode & MPlotMarkerShape::Point) {
-			elements_ << new MPlotMarkerPoint(size, pen, brush);
-		}
+	virtual ~MPlotMarkerCombined();
+	virtual void setSize(double size);
 
-	}
+	virtual void setPen(const QPen &pen);
 
-	virtual ~MPlotMarkerCombined() {
-		while(!elements_.isEmpty())
-			delete elements_.takeFirst();
-	}
-
-	virtual void setSize(double size) {
-		foreach(MPlotAbstractMarker* element, elements_) {
-			element->setSize(size);
-		}
-	}
-
-	virtual void setPen(const QPen &pen) {
-		pen_ = pen;
-		foreach(MPlotAbstractMarker* element, elements_) {
-			element->setPen(pen);
-		}
-	}
-
-	virtual void setBrush(const QBrush &brush) {
-		brush_ = brush;
-		foreach(MPlotAbstractMarker* element, elements_) {
-			element->setBrush(brush);
-		}
-	}
+	virtual void setBrush(const QBrush &brush);
 
 
 
-	virtual void paint(QPainter* painter) {
-		foreach(MPlotAbstractMarker* element, elements_) {
-			element->paint(painter);
-		}
-	}
+	virtual void paint(QPainter* painter);
 
 protected:
 	QList<MPlotAbstractMarker*> elements_;
@@ -354,60 +233,8 @@ class MPlotMarker {
 public:
 
 	// Static creator function:
-	static MPlotAbstractMarker* create(MPlotMarkerShape::Shape type = MPlotMarkerShape::Square, double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush()) {
+	static MPlotAbstractMarker* create(MPlotMarkerShape::Shape type = MPlotMarkerShape::Square, double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
 
-		switch(type) {
-		case MPlotMarkerShape::None: return 0;
-			break;
-		case MPlotMarkerShape::Square: return new MPlotMarkerSquare(size, pen, brush);
-			break;
-		case MPlotMarkerShape::Circle: return new MPlotMarkerCircle(size, pen, brush);
-			break;
-		case MPlotMarkerShape::Triangle: return new MPlotMarkerTriangle(size, pen, brush);
-			break;
-		case MPlotMarkerShape::VerticalBeam: return new MPlotMarkerVerticalBeam(size, pen, brush);
-			break;
-		case MPlotMarkerShape::HorizontalBeam: return new MPlotMarkerHorizontalBeam(size, pen, brush);
-			break;
-		case MPlotMarkerShape::DiagDownLeft: return new MPlotMarkerDiagDownLeft(size, pen, brush);
-			break;
-		case MPlotMarkerShape::DiagDownRight: return new MPlotMarkerDiagDownRight(size, pen, brush);
-			break;
-		case MPlotMarkerShape::DiagDownLeftR: return new MPlotMarkerDiagDownLeftR(size, pen, brush);
-			break;
-		case MPlotMarkerShape::DiagDownRightR: return new MPlotMarkerDiagDownRightR(size, pen, brush);
-			break;
-		case MPlotMarkerShape::Cross: return new MPlotMarkerCombined(MPlotMarkerShape::VerticalBeam | MPlotMarkerShape::HorizontalBeam, size, pen, brush);
-			break;
-		case MPlotMarkerShape::CrossSquare: return new MPlotMarkerCombined(MPlotMarkerShape::Square | MPlotMarkerShape::VerticalBeam | MPlotMarkerShape::HorizontalBeam, size, pen, brush);
-			break;
-		case MPlotMarkerShape::CrossCircle: return new MPlotMarkerCombined(MPlotMarkerShape::Circle | MPlotMarkerShape::VerticalBeam | MPlotMarkerShape::HorizontalBeam, size, pen, brush);
-			break;
-		case MPlotMarkerShape::X: return new MPlotMarkerCombined(MPlotMarkerShape::DiagDownLeft | MPlotMarkerShape::DiagDownRight, size, pen, brush);
-			break;
-		case MPlotMarkerShape::XSquare: return new MPlotMarkerCombined(MPlotMarkerShape::DiagDownLeft | MPlotMarkerShape::DiagDownRight | MPlotMarkerShape::Square, size, pen, brush);
-			break;
-		case MPlotMarkerShape::XCircle: return new MPlotMarkerCombined(MPlotMarkerShape::DiagDownLeftR | MPlotMarkerShape::DiagDownRightR | MPlotMarkerShape::Circle, size, pen, brush);
-			break;
-		case MPlotMarkerShape::Star: return new MPlotMarkerCombined(MPlotMarkerShape::DiagDownLeftR | MPlotMarkerShape::DiagDownRightR | MPlotMarkerShape::VerticalBeam | MPlotMarkerShape::HorizontalBeam, size, pen, brush);
-			break;
-		case MPlotMarkerShape::StarCircle: return new MPlotMarkerCombined(MPlotMarkerShape::DiagDownLeftR | MPlotMarkerShape::DiagDownRightR | MPlotMarkerShape::VerticalBeam | MPlotMarkerShape::HorizontalBeam | MPlotMarkerShape::Circle, size, pen, brush);
-			break;
-		case MPlotMarkerShape::StarSquare: return new MPlotMarkerCombined(MPlotMarkerShape::DiagDownLeft | MPlotMarkerShape::DiagDownRight | MPlotMarkerShape::VerticalBeam | MPlotMarkerShape::HorizontalBeam | MPlotMarkerShape::Square, size, pen, brush);
-			break;
-		case MPlotMarkerShape::Point: return new MPlotMarkerPoint(size, pen, brush);
-			break;
-		case MPlotMarkerShape::PointSquare: return new MPlotMarkerCombined(MPlotMarkerShape::Point | MPlotMarkerShape::Square, size, pen, brush);
-			break;
-		case MPlotMarkerShape::PointCircle: return new MPlotMarkerCombined(MPlotMarkerShape::Point | MPlotMarkerShape::Circle, size, pen, brush);
-			break;
-
-		default: return new MPlotMarkerSquare(size, pen, brush);
-
-			break;
-		}
-
-	}
 };
 
 

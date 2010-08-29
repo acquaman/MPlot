@@ -7,13 +7,11 @@ class MPlotLegend: public QGraphicsItem {
 
 	// Required functions:
 	// Bounding rect:
-	virtual QRectF boundingRect() const { return childrenBoundingRect(); }
+	virtual QRectF boundingRect() const;
 	// Paint:
 	virtual void paint(QPainter * /*painter*/,
 			   const QStyleOptionGraphicsItem * /*option*/,
-			   QWidget * /*widget*/) {
-		// Do nothing... drawn with children
-	}
+			   QWidget * /*widget*/);
 
 };
 

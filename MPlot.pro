@@ -27,4 +27,19 @@ HEADERS += src/MPlot/MPlotWidget.h \
     src/MPlot/MPlotPoint.h \
     src/MPlot/MPlotObserver.h \
     src/MPlot/MPlotObservable.h
-SOURCES += src/main.cpp
+SOURCES += src/main.cpp \
+    src/MPlot/MPlot.cpp \
+    src/MPlot/MPlotAbstractTool.cpp \
+    src/MPlot/MPlotAxis.cpp \
+    src/MPlot/MPlotColorMap.cpp \
+    src/MPlot/MPlotImage.cpp \
+    src/MPlot/MPlotImageData.cpp \
+    src/MPlot/MPlotItem.cpp \
+    src/MPlot/MPlotLegend.cpp \
+    src/MPlot/MPlotMarker.cpp \
+    src/MPlot/MPlotObservable.cpp \
+    src/MPlot/MPlotPoint.cpp \
+    src/MPlot/MPlotSeries.cpp \
+    src/MPlot/MPlotSeriesData.cpp \
+    src/MPlot/MPlotTools.cpp \
+    src/MPlot/MPlotWidget.cpp
