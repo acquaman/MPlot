@@ -59,7 +59,7 @@ public:
 
 public: // "slots"
 
-	/// these update messages would come from our model, which will Emit(0, "dataChanged");
+	/// these update messages would come from our data_, which will Emit(0, "dataChanged");
 	virtual void onObservableChanged(MPlotObservable* source, int code, const char* msg, int payload);
 
 	/// This virtual function is called to let subclasses know when the internal data has changed, and let's them handle this however they need to.

@@ -14,8 +14,41 @@
 
 class MPlot;
 
+/// This class is a proxy that emits signals for an MPlotItem.
+/*! To avoid multipler-inheritance restrictions, MPlotItems do not inherit QObject.  However, they need some way to emit signals to notify plots of relevant events.  Therefore, they each contain an MPlotItemSignalSource, which emits signals on their behalf.  You can access it with MPlotItem::signalSource().
+
+  There are two relevant signals:
+  - boundsChanged() is emitted when the extent of this item's x- or y-data might have changed such that a re-autoscale is necessary.
+  - selectedChanged(bool isSelected) is emitted whenever the selection state of this item changes.
+  */
+
+class MPlotItem;
+
+class MPlotItemSignalSource : public QObject {
+	Q_OBJECT
+public:
+	MPlotItem* plotItem() const { return plotItem_; }
+
+protected:
+	MPlotItemSignalSource(MPlotItem* parent);
+
+	/// called within MPlotItem to forward this signal
+	void emitBoundsChanged() { emit boundsChanged(); }
+	/// called within MPlotItem to forward this signal
+	void emitSelectedChanged(bool isSelected) { emit selectedChanged(isSelected); }
+	/// Allow MPlotItem access to these protected functions:
+	friend class MPlotItem;
+
+	MPlotItem* plotItem_;
+
+signals:
+	void boundsChanged();
+	void selectedChanged(bool);
+
+};
+
 /// This class defines the interface for all data-representation objects which can be added to an MPlot (ex: series/curves, images and spectrograms, contour maps, etc.)
-class MPlotItem : public QGraphicsItem, public MPlotObservable {
+class MPlotItem : public QGraphicsItem {
 
 
 public:
@@ -23,9 +56,13 @@ public:
 	/// Constructor calls base class (QGraphicsObject)
 	MPlotItem();
 
-	/// \todo Someday (when this becomes a full library, with .cpp files)... have the destructor remove this item from it's plot_, if there is an assocated plot_.  Also, what about being connected to multiple plots?
+	/// \todo What to do about being connected to multiple plots?
+
+	/// Removes this item from plot(), if it is attached to a plot.
 	~MPlotItem();
 
+	/// Connect to this proxy object to receive MPlotItem signals:
+	MPlotItemSignalSource* signalSource() const { return signalSource_; }
 
 	/// returns which y-axis this data should be plotted against
 	MPlotAxis::AxisID yAxisTarget();
@@ -64,7 +101,7 @@ public:
 	virtual QPainterPath shape() const;
 
 
-/// signals: Implements MPlotObservable.  Will Emit(0, "dataChanged") when x- or y- data changes, so the plot might need to be re-autoscaled.  Will Emit(1, "selectedChanged", 1) when the selection state of the item changes to true, and Emit(1, "selectedChanged", 0) when the selection state ofthe item changes to false.
+	/// signals: The signalSource() will emit boundsChanged() when the extent of this item's x- or y-data might have changed such that a re-autoscale is necessary.  It will emit selectedChanged(bool isSelected) whenever the selection state of this item changes.
 
 
 private:
@@ -72,6 +109,15 @@ private:
 	MPlotAxis::AxisID yAxisTarget_;
 
 	MPlot* plot_;
+
+protected:
+	MPlotItemSignalSource* signalSource_;
+	friend class MPlotItemSignalSource;
+
+	/// called within MPlotItem to forward this signal
+	void emitBoundsChanged() { signalSource_->emitBoundsChanged(); }
+	/// called within MPlotItem to forward this signal
+	void emitSelectedChanged(bool isSelected) { signalSource_->emitSelectedChanged(isSelected); }
 };
 
 #endif // MPLOTITEM_H

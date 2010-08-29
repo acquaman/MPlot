@@ -71,7 +71,7 @@ void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data) {
 
 	}
 
-	Emit(0, "dataChanged");
+	emitBoundsChanged();
 
 }
 
@@ -140,7 +140,7 @@ void MPlotAbstractSeries::onObservableChanged(MPlotObservable* source, int code,
 		dataChangedUpdateNeeded_ = true;
 		prepareGeometryChange();
 		onDataChanged();
-		Emit(0, "dataChanged");
+		emitBoundsChanged();
 	}
 }
 

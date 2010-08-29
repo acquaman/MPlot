@@ -20,8 +20,30 @@
 /// Defines the minimum distance between min- and max- values for the range of an axis. Without this check, calling setXDataRange(3, 3) or set___DataRange(f, g=f) will cause a segfault within Qt's drawing functions... it can't handle a clipPath with a width of 0.
 #define MPLOT_MIN_AXIS_RANGE 1e-60
 
+
+class MPlot;
+
+/// This class handles signals as a proxy for MPlot.  You should never need to use this class directly.
+/*! To avoid restrictions on multipler inheritance, MPlot does not inherit QObject.  Still, it needs a way to respond to events from MPlotItems (such as re-scale and selected events).  This QObject receives signals from MPlotItem and calls the appropriate functions within MPlot.
+  */
+class MPlotSignalHandler : public QObject {
+	Q_OBJECT
+protected:
+	MPlotSignalHandler(MPlot* parent);
+	friend class MPlot;
+
+protected slots:
+	void onBoundsChanged();
+	void onSelectedChanged(bool);
+
+	void doDelayedAutoscale();
+
+protected:
+	MPlot* plot_;
+};
+
 /// This class provides plotting capabilities within a QGraphicsItem that can be added to any QGraphicsScene,
-class MPlot : public QGraphicsItem, public MPlotObserver {
+class MPlot : public QGraphicsItem {
 
 public:
 	MPlot(QRectF rect = QRectF(0,0,100,100), QGraphicsItem* parent = 0);
@@ -103,13 +125,15 @@ public:
 
 	void setYDataRangeRight(double min, double max, bool autoscale = false, bool applyPadding = true);
 
-public: // "slots"
 
-	// This is called when a item updates it's data.  We may have to autoscale/rescale.  Assumption: the only update messages we get are from MPlotItems. (Don't hook up anything else.)
-	virtual void onObservableChanged(MPlotObservable* source, int code, const char* msg, int payload);
 
-	/// called when item data changes in a way that could affect the plot scaling.  item1 could be a plot that was just added, and it could also be a plot item on it's way out. (ie: no longer part of items_, but just recently removed.)
-	void onDataChanged(MPlotItem* item1);
+protected: // "slots" (proxied through MPlotSignalHandler)
+	/// called when the x-y data in a plot item might have changed, such that a re-autoscale is necessary
+	void onBoundsChanged(MPlotItem* source);
+	/// called when the selected state of a plot item changes
+	void onSelectedChanged(MPlotItem* source, bool isSelected);
+	/// called when control returns to the event loop, this completes a delayed autoscale
+	void doDelayedAutoScale();
 
 
 
@@ -131,6 +155,12 @@ protected:
 	bool autoScaleLeftEnabled_;
 	bool autoScaleRightEnabled_;
 
+	/// Indicates that a re-autoscale has been scheduled (Actually doing it is deferred until returning back to the event loop)
+	bool autoScaleScheduled_;
+	/// Or-combination of MPlotAxis::AxisId flags, indicating which axes need to be auto-scaled.
+	int axesNeedingAutoScale_;
+
+
 
 	// Data ranges: (specify axis range __prior to padding__)
 	double xmin_, xmax_, yleftmin_, yleftmax_, yrightmin_, yrightmax_;
@@ -138,6 +168,8 @@ protected:
 
 	double scalePadding_;
 
+	MPlotSignalHandler* signalHandler_;
+	friend class MPlotSignalHandler;
 
 	/// Applies the leftAxis or rightAxis transformation matrix (depending on the yAxis target)
 	void placeItem(MPlotItem* theItem);

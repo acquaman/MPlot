@@ -61,7 +61,7 @@ void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data) {
 		data_->addObserver(this);
 	}
 
-	Emit(0, "dataChanged");
+	emitBoundsChanged();
 
 }
 
@@ -104,7 +104,7 @@ void MPlotAbstractImage::onObservableChanged(MPlotObservable* source, int code, 
 	case 1: // boundsChanged.  This could require re-scaling on the 2D plot, so we MPlotItem::Emit(0, "dataChanged").  Sorry for the confusing names.
 		if(data_)
 			onBoundsChanged(data_->boundingRect());
-		Emit(0, "dataChanged");
+		emitBoundsChanged();
 	}
 }
 
@@ -203,14 +203,13 @@ void MPlotImageBasic::onDataChanged() {
 	// schedule a draw update
 	update();
 
-	/// \todo Determine if needed: Emit(0, "dataChanged");
 }
 
 /// If the bounds of the data change (in x- and y-) this might require re-auto-scaling of a plot.
 void MPlotImageBasic::onBoundsChanged(const QRectF& newBounds) {
 	Q_UNUSED(newBounds)
-	// signal a re-scaling needed on the plot:
-	Emit(0, "dataChanged");
+	// signal a re-scaling needed on the plot: (REDUNDANT... already done in base class)
+	// signalSource()->emitBoundsChanged();
 
 	// schedule an update of the plot, but computing a new pixmap is not needed
 	update();

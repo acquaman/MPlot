@@ -40,7 +40,7 @@ void MPlotPoint::setValue(const QPointF& point) {
 	prepareGeometryChange();
 
 	point_ = point;
-	Emit(0, "dataChanged");
+	emitBoundsChanged();
 
 	update();
 }

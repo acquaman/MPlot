@@ -7,10 +7,36 @@
 /// Defines the minimum distance between min- and max- values for the range of an axis. Without this check, calling setXDataRange(3, 3) or set___DataRange(f, g=f) will cause a segfault within Qt's drawing functions... it can't handle a clipPath with a width of 0.
 #define MPLOT_MIN_AXIS_RANGE 1e-60
 
+
+
+MPlotSignalHandler::MPlotSignalHandler(MPlot* parent)
+	: QObject(0) {
+	plot_ = parent;
+}
+
+void MPlotSignalHandler::onBoundsChanged() {
+	MPlotItemSignalSource* source = qobject_cast<MPlotItemSignalSource*>(sender());
+	if(source)
+		plot_->onBoundsChanged(source->plotItem());
+}
+
+void MPlotSignalHandler::onSelectedChanged(bool isSelected) {
+	MPlotItemSignalSource* source = qobject_cast<MPlotItemSignalSource*>(sender());
+	if(source)
+		plot_->onSelectedChanged(source->plotItem(), isSelected);
+}
+
+void MPlotSignalHandler::doDelayedAutoscale() {
+	plot_->doDelayedAutoScale();
+}
+
+
 /// This class provides plotting capabilities within a QGraphicsItem that can be added to any QGraphicsScene,
 MPlot::MPlot(QRectF rect, QGraphicsItem* parent) :
 		QGraphicsItem(parent), rect_(rect)
 {
+	signalHandler_ = new MPlotSignalHandler(this);
+
 	setFlags(QGraphicsItem::ItemHasNoContents);
 
 	// Create background rectangle of the given size, as a child of this QGraphicsObject.
@@ -46,6 +72,7 @@ MPlot::MPlot(QRectF rect, QGraphicsItem* parent) :
 
 MPlot::~MPlot() {
 
+	delete signalHandler_;
 }
 
 /// Required paint function. (All painting is done by children)
@@ -66,11 +93,11 @@ void MPlot::addItem(MPlotItem* newItem) {
 	newItem->setPlot(this);
 
 	// hook up "signals"
-	newItem->addObserver(this);
+	QObject::connect(newItem->signalSource(), SIGNAL(boundsChanged()), signalHandler_, SLOT(onBoundsChanged()));
+	QObject::connect(newItem->signalSource(), SIGNAL(selectedChanged(bool)), signalHandler_, SLOT(onSelectedChanged()));
 
 	// if autoscaling is active already, could need to rescale already
-	onDataChanged(newItem);
-
+	onBoundsChanged(newItem);
 
 	// Apply transforms as needed
 	placeItem(newItem);
@@ -85,10 +112,10 @@ bool MPlot::removeItem(MPlotItem* removeMe) {
 		else
 			removeMe->setParentItem(0);
 		items_.removeAll(removeMe);
-		// remove "signals"
-		removeMe->removeObserver(this);
+		// remove signals
+		QObject::disconnect(removeMe->signalSource(), 0, signalHandler_, 0);
 		// this might need to trigger a re-scale... for ex: if removeMe had the largest/smallest bounds of all plots associated with an auto-scaling axis.
-		onDataChanged(removeMe);
+		onBoundsChanged(removeMe);
 		return true;
 	}
 	else
@@ -320,39 +347,71 @@ void MPlot::setYDataRangeRight(double min, double max, bool autoscale, bool appl
 		placeItem(item);
 }
 
-// This is called when a item updates it's data.  We may have to autoscale/rescale.  Assumption: the only update messages we get are from MPlotItems. (Don't hook up anything else.)
-void MPlot::onObservableChanged(MPlotObservable* source, int code, const char* msg, int payload) {
 
-	Q_UNUSED(msg)
-	Q_UNUSED(payload)
+#include <QTimer>
+void MPlot::onBoundsChanged(MPlotItem *source) {
+	bool autoScaleNeeded = false;
 
-	/// respond to code 0 ("dataChanged" signal) only.
-	if(code == 0) {
-		onDataChanged(static_cast<MPlotItem*>(source));
+	if(autoScaleBottomEnabled_) {
+		autoScaleNeeded = true;
+		axesNeedingAutoScale_ |= MPlotAxis::Bottom;
+	}
+
+	if(autoScaleLeftEnabled_ && (source==0 || source->yAxisTarget() == MPlotAxis::Left)) {
+		autoScaleNeeded = true;
+		axesNeedingAutoScale_ |= MPlotAxis::Left;
+	}
+
+	if(autoScaleRightEnabled_ && (source==0 || source->yAxisTarget() == MPlotAxis::Right)){
+		autoScaleNeeded = true;
+		axesNeedingAutoScale_ |= MPlotAxis::Right;
+	}
+
+	if(autoScaleNeeded && !autoScaleScheduled_) {
+		autoScaleScheduled_ = true;
+		QTimer::singleShot(0, signalHandler_, SLOT(doDelayedAutoscale()));
 	}
 
 }
 
+void MPlot::onSelectedChanged(MPlotItem *source, bool isSelected) {
+	Q_UNUSED(source)
+	Q_UNUSED(isSelected)
+	// no action required for now...
+}
 
+void MPlot::doDelayedAutoScale() {
 
-/// called when item data changes in a way that could affect the plot scaling.  item1 could be a plot that was just added, and it could also be a plot item on it's way out. (ie: no longer part of items_, but just recently removed.)
-void MPlot::onDataChanged(MPlotItem* item1) {
+	bool scalesModified = false;
 
-	if(autoScaleBottomEnabled_)
+	if(autoScaleBottomEnabled_ && (axesNeedingAutoScale_ & MPlotAxis::Bottom) ) {
+		scalesModified = true;
 		setXDataRangeImp(0, 0, true);
+	}
 
-	if(autoScaleLeftEnabled_ && (item1==0 || item1->yAxisTarget() == MPlotAxis::Left))
+	if(autoScaleLeftEnabled_  && (axesNeedingAutoScale_ & MPlotAxis::Left) ) {
+		scalesModified = true;
 		setYDataRangeLeftImp(0, 0, true);
+	}
 
-	if(autoScaleRightEnabled_ && (item1==0 || item1->yAxisTarget() == MPlotAxis::Right))
+	if(autoScaleRightEnabled_  && (axesNeedingAutoScale_ & MPlotAxis::Right) ) {
+		scalesModified = true;
 		setYDataRangeRightImp(0, 0, true);
+	}
 
 	// We have new transforms.  Need to apply them:
-	if(autoScaleBottomEnabled_ | autoScaleLeftEnabled_ | autoScaleRightEnabled_) {
+	if(scalesModified) {
 		foreach(MPlotItem* item, items_)
 			placeItem(item);
 	}
+
+
+	// Clear this flag... we're completing this scheduled autoscale right now
+	autoScaleScheduled_ = false;
+	axesNeedingAutoScale_ = 0;
 }
+
+
 
 
 /// Applies the leftAxis or rightAxis transformation matrix (depending on the yAxis target)
