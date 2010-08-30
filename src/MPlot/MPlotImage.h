@@ -29,7 +29,7 @@ class MPlotAbstractImage : public MPlotItem {
 
 public:
 
-	MPlotAbstractImage(const MPlotAbstractImageData* data = 0);
+	MPlotAbstractImage();
 
 	virtual ~MPlotAbstractImage();
 
@@ -92,8 +92,6 @@ public:
 	/// Constructor
 	MPlotImageBasic(const MPlotAbstractImageData* data = 0);
 
-	/// Sets this plot item to view the model in 'data';
-	virtual void setModel(const MPlotAbstractImageData* data);
 
 	/// Paint: must be implemented in subclass.
 	virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget);

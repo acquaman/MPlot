@@ -16,7 +16,7 @@ void MPlotImageSignalHandler::onDataChanged() {
 	image_->onDataChangedPrivate();
 }
 
-MPlotAbstractImage::MPlotAbstractImage(const MPlotAbstractImageData* data)
+MPlotAbstractImage::MPlotAbstractImage()
 	: MPlotItem(),
 	defaultColorMap_()
 {
@@ -28,9 +28,6 @@ MPlotAbstractImage::MPlotAbstractImage(const MPlotAbstractImageData* data)
 
 	// Set style defaults:
 	setDefaults();	// override in subclasses for custom appearance
-
-	// Set model (will check that data != 0)
-	setModel(data);
 
 }
 
@@ -77,8 +74,10 @@ void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data) {
 		QObject::connect(data_->signalSource(), SIGNAL(boundsChanged()), signalHandler_, SLOT(onBoundsChanged()));
 	}
 
-	QTimer::singleShot(0, this->signalHandler_, SLOT(onBoundsChanged()));
-	QTimer::singleShot(0, this->signalHandler_, SLOT(onDataChanged()));
+
+	onBoundsChanged(data_ ? data_->boundingRect() : QRectF());
+	onDataChanged();
+	emitBoundsChanged();
 
 }
 
@@ -130,24 +129,13 @@ void MPlotAbstractImage::setDefaults() {
 
 /// Constructor
 MPlotImageBasic::MPlotImageBasic(const MPlotAbstractImageData* data)
-	: MPlotAbstractImage(data),
+	: MPlotAbstractImage(),
 	image_(1,1, QImage::Format_ARGB32)
 {
-	if(data)
-		onDataChanged();
+	setModel(data);
 }
 
 
-/// Sets this plot item to view the model in 'data';
-void MPlotImageBasic::setModel(const MPlotAbstractImageData* data) {
-
-	MPlotAbstractImage::setModel(data);
-
-	// fill the pixmap and trigger an update
-	onDataChanged();
-	update();
-
-}
 
 /// Paint: must be implemented in subclass.
 void MPlotImageBasic::paint(QPainter* painter,

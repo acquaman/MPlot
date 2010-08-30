@@ -12,7 +12,7 @@ void MPlotSeriesSignalHandler::onDataChanged() {
 	series_->onDataChangedPrivate();
 }
 
-MPlotAbstractSeries::MPlotAbstractSeries(const MPlotAbstractSeriesData* data) :
+MPlotAbstractSeries::MPlotAbstractSeries() :
 		MPlotItem()
 {
 	data_ = 0;
@@ -25,7 +25,7 @@ MPlotAbstractSeries::MPlotAbstractSeries(const MPlotAbstractSeriesData* data) :
 	setDefaults();	// override in subclasses
 
 	// Set model (will check that data != 0)
-	setModel(data);
+	// No! We need a fully instantiated subclass first. [setModel(data);]
 
 }
 
@@ -83,7 +83,7 @@ void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data) {
 	}
 
 	emitBoundsChanged();
-	// QTimer::singleShot(0, signalHandler_, SLOT(onDataChanged()));
+	onDataChanged();
 
 }
 
@@ -187,8 +187,9 @@ void MPlotAbstractSeries::setDefaults() {
 ////////////////////////////
 
 MPlotSeriesBasic::MPlotSeriesBasic(const MPlotAbstractSeriesData* data)
-	: MPlotAbstractSeries(data) {
+	: MPlotAbstractSeries() {
 
+	setModel(data);
 }
 
 
