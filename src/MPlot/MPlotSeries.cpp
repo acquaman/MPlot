@@ -62,7 +62,6 @@ void MPlotAbstractSeries::setMarker(MPlotMarkerShape::Shape shape, double size, 
 	update();
 }
 
-#include <QTimer>
 
 // Sets this series to view the model in 'data';
 void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data) {

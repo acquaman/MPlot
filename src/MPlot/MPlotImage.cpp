@@ -56,7 +56,6 @@ MPlotAbstractColorMap* MPlotAbstractImage::colorMap() {
 }
 
 
-#include <QTimer>
 
 // Sets this series to view the model in 'data';
 void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data) {
