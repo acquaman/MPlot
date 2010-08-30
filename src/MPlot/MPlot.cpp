@@ -67,12 +67,19 @@ MPlot::MPlot(QRectF rect, QGraphicsItem* parent) :
 	// Place
 	setRect(rect_);
 
+	/// No auto-scale scheduled, and no axes requiring it:
+	autoScaleScheduled_ = false;
+	axesNeedingAutoScale_ = 0;
+	gettingDeleted_ = false;
+
 }
 
 
 MPlot::~MPlot() {
 
+	gettingDeleted_ = true;
 	delete signalHandler_;
+	signalHandler_ = 0;
 }
 
 /// Required paint function. (All painting is done by children)
@@ -80,7 +87,7 @@ void MPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
 	Q_UNUSED(painter)
 	Q_UNUSED(option)
 	Q_UNUSED(widget)
-}
+	}
 
 QRectF MPlot::boundingRect() const {
 	return rect_;
@@ -105,6 +112,10 @@ void MPlot::addItem(MPlotItem* newItem) {
 
 /// Remove a data-item from a plot. (Note: Does not delete the item...)
 bool MPlot::removeItem(MPlotItem* removeMe) {
+	// optimization: speeds up the ~MPlot() destructor, which will eventually call delete on all child plot items, which will call removeItem() on their plot... us! Don't bother with this whole process.
+	if(gettingDeleted_)
+		return true;
+
 	if(items_.contains(removeMe)) {
 		removeMe->setPlot(0);
 		if(scene())
@@ -280,16 +291,19 @@ QTransform MPlot::rightAxisTransform() {
 
 
 void MPlot::enableAutoScaleBottom(bool autoScaleOn) {
+	/// \todo defer autoscaling using the delay-to-even-loop method
 	if((autoScaleBottomEnabled_ = autoScaleOn))
 		setXDataRange(0, 0, true);
 }
 
 void MPlot::enableAutoScaleLeft(bool autoScaleOn) {
+	/// \todo defer autoscaling using the delay-to-even-loop method
 	if((autoScaleLeftEnabled_ = autoScaleOn))
 		setYDataRangeLeft(0, 0, true);
 }
 
 void MPlot::enableAutoScaleRight(bool autoScaleOn) {
+	/// \todo defer autoscaling using the delay-to-even-loop method
 	if((autoScaleRightEnabled_ = autoScaleOn))
 		setYDataRangeRight(0, 0, true);
 }
@@ -319,32 +333,54 @@ double MPlot::scalePadding() {
 
 void MPlot::setXDataRange(double min, double max, bool autoscale, bool applyPadding) {
 
-	setXDataRangeImp(qMin(min, max), qMax(min, max), autoscale, applyPadding);
+	if(autoscale) {
+		axesNeedingAutoScale_ |= MPlotAxis::Bottom;
+		scheduleDelayedAutoScale();
+	}
 
-	// We have new transforms.  Need to apply them to all item:
-	foreach(MPlotItem* item, items_) {
-		placeItem(item);
+	else {
+		setXDataRangeImp(qMin(min, max), qMax(min, max), autoscale, applyPadding);
+
+		// We have new transforms.  Need to apply them to all item:
+		foreach(MPlotItem* item, items_) {
+			placeItem(item);
+		}
 	}
 
 }
 
 void MPlot::setYDataRangeLeft(double min, double max, bool autoscale, bool applyPadding) {
 
-	setYDataRangeLeftImp(qMin(min, max), qMax(min, max), autoscale, applyPadding);
+	if(autoscale) {
+		axesNeedingAutoScale_ |= MPlotAxis::Left;
+		scheduleDelayedAutoScale();
+	}
 
-	// We have new transforms.  Need to apply them:
-	foreach(MPlotItem* item, items_) {
-		placeItem(item);
+	else {
+
+		setYDataRangeLeftImp(qMin(min, max), qMax(min, max), autoscale, applyPadding);
+
+		// We have new transforms.  Need to apply them:
+		foreach(MPlotItem* item, items_) {
+			placeItem(item);
+		}
 	}
 }
 
 void MPlot::setYDataRangeRight(double min, double max, bool autoscale, bool applyPadding) {
 
-	setYDataRangeRightImp(qMin(min, max), qMax(min, max), autoscale, applyPadding);
+	if(autoscale) {
+		axesNeedingAutoScale_ |= MPlotAxis::Right;
+		scheduleDelayedAutoScale();
+	}
 
-	// Apply new transforms:
-	foreach(MPlotItem* item, items_)
-		placeItem(item);
+	else {
+		setYDataRangeRightImp(qMin(min, max), qMax(min, max), autoscale, applyPadding);
+
+		// Apply new transforms:
+		foreach(MPlotItem* item, items_)
+			placeItem(item);
+	}
 }
 
 
@@ -367,34 +403,39 @@ void MPlot::onBoundsChanged(MPlotItem *source) {
 		axesNeedingAutoScale_ |= MPlotAxis::Right;
 	}
 
-	if(autoScaleNeeded && !autoScaleScheduled_) {
+	if(autoScaleNeeded)
+		scheduleDelayedAutoScale();
+
+}
+
+void MPlot::scheduleDelayedAutoScale() {
+	if(!autoScaleScheduled_) {
 		autoScaleScheduled_ = true;
 		QTimer::singleShot(0, signalHandler_, SLOT(doDelayedAutoscale()));
 	}
-
 }
 
 void MPlot::onSelectedChanged(MPlotItem *source, bool isSelected) {
 	Q_UNUSED(source)
 	Q_UNUSED(isSelected)
 	// no action required for now...
-}
+	}
 
 void MPlot::doDelayedAutoScale() {
 
 	bool scalesModified = false;
 
-	if(autoScaleBottomEnabled_ && (axesNeedingAutoScale_ & MPlotAxis::Bottom) ) {
+	if( (axesNeedingAutoScale_ & MPlotAxis::Bottom) ) {
 		scalesModified = true;
 		setXDataRangeImp(0, 0, true);
 	}
 
-	if(autoScaleLeftEnabled_  && (axesNeedingAutoScale_ & MPlotAxis::Left) ) {
+	if( (axesNeedingAutoScale_ & MPlotAxis::Left) ) {
 		scalesModified = true;
 		setYDataRangeLeftImp(0, 0, true);
 	}
 
-	if(autoScaleRightEnabled_  && (axesNeedingAutoScale_ & MPlotAxis::Right) ) {
+	if( (axesNeedingAutoScale_ & MPlotAxis::Right) ) {
 		scalesModified = true;
 		setYDataRangeRightImp(0, 0, true);
 	}

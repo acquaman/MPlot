@@ -159,6 +159,11 @@ protected:
 	bool autoScaleScheduled_;
 	/// Or-combination of MPlotAxis::AxisId flags, indicating which axes need to be auto-scaled.
 	int axesNeedingAutoScale_;
+	/// Request a deferred auto-scale:
+	void scheduleDelayedAutoScale();
+
+	/// Normally, when plot items are removed, they can trigger a re-autoscale. This is expensive if the MPlot is just about to be deleted anyway, and we have a lot of plots. This optimization omits this useless process and speeds up the destructor.
+	bool gettingDeleted_;
 
 
 
