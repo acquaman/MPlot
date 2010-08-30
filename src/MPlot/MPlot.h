@@ -125,6 +125,9 @@ public:
 
 	void setYDataRangeRight(double min, double max, bool autoscale = false, bool applyPadding = true);
 
+	/// called automatically when control returns to the event loop, this completes a delayed autoscale. (Recomputing the scale limits is optimized to be only done when necessary, rather than whenever the values change.)  If you need the scene to be updated NOW! (for example, you're working outside of an event loop, or rendering before returning to the event loop), you can call this manually.
+	void doDelayedAutoScale();
+
 
 
 protected: // "slots" (proxied through MPlotSignalHandler)
@@ -132,8 +135,7 @@ protected: // "slots" (proxied through MPlotSignalHandler)
 	void onBoundsChanged(MPlotItem* source);
 	/// called when the selected state of a plot item changes
 	void onSelectedChanged(MPlotItem* source, bool isSelected);
-	/// called when control returns to the event loop, this completes a delayed autoscale
-	void doDelayedAutoScale();
+
 
 
 
