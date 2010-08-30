@@ -17,6 +17,7 @@ MPlotAbstractSeries::MPlotAbstractSeries(const MPlotAbstractSeriesData* data) :
 {
 	data_ = 0;
 	marker_ = 0;
+	dataChangedUpdateNeeded_ = true;
 
 	signalHandler_ = new MPlotSeriesSignalHandler(this);
 
@@ -61,6 +62,7 @@ void MPlotAbstractSeries::setMarker(MPlotMarkerShape::Shape shape, double size, 
 	update();
 }
 
+#include <QTimer>
 
 // Sets this series to view the model in 'data';
 void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data) {
@@ -81,7 +83,7 @@ void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data) {
 	}
 
 	emitBoundsChanged();
-	onDataChanged();
+	// QTimer::singleShot(0, signalHandler_, SLOT(onDataChanged()));
 
 }
 
@@ -102,7 +104,11 @@ const MPlotAbstractSeriesData* MPlotAbstractSeries::model() const { return data_
 QRectF MPlotAbstractSeries::boundingRect() const {
 
 	if(dataChangedUpdateNeeded_) {
-		cachedDataRect_ = data_? data_->boundingRect() : QRectF();
+		if(data_)
+			cachedDataRect_ = data_->boundingRect();
+		else
+			cachedDataRect_ = QRectF();
+
 		dataChangedUpdateNeeded_ = false;
 	}
 
@@ -180,13 +186,12 @@ void MPlotAbstractSeries::setDefaults() {
 // MPlotSeriesBasic
 ////////////////////////////
 
-
-
 MPlotSeriesBasic::MPlotSeriesBasic(const MPlotAbstractSeriesData* data)
-	: MPlotAbstractSeries(data)
-{
-	// no unique setup for MPlotSeriesBasic?
+	: MPlotAbstractSeries(data) {
+
 }
+
+
 
 MPlotSeriesBasic::~MPlotSeriesBasic() {
 
@@ -218,8 +223,8 @@ QRectF MPlotSeriesBasic::boundingRect() const {
 
 // Paint:
 void MPlotSeriesBasic::paint(QPainter* painter,
-		   const QStyleOptionGraphicsItem* option,
-		   QWidget* widget) {
+							 const QStyleOptionGraphicsItem* option,
+							 QWidget* widget) {
 
 	Q_UNUSED(option);
 	Q_UNUSED(widget);

@@ -59,7 +59,7 @@ MPlotAbstractColorMap* MPlotAbstractImage::colorMap() {
 }
 
 
-
+#include <QTimer>
 
 // Sets this series to view the model in 'data';
 void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data) {
@@ -77,11 +77,8 @@ void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data) {
 		QObject::connect(data_->signalSource(), SIGNAL(boundsChanged()), signalHandler_, SLOT(onBoundsChanged()));
 	}
 
-	onBoundsChanged(data_? data_->boundingRect() : QRectF());
-	onDataChanged();
-
-	// Notify plots watching that we might need autoscaling
-	emitBoundsChanged();
+	QTimer::singleShot(0, this->signalHandler_, SLOT(onBoundsChanged()));
+	QTimer::singleShot(0, this->signalHandler_, SLOT(onDataChanged()));
 
 }
 

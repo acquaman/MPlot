@@ -153,6 +153,11 @@ public:
 	/// re-implemented from MPlotItem base to draw an update if we're now selected (with our selection highlight)
 	virtual void setSelected(bool selected = true);
 
+	virtual void setModel(const MPlotAbstractSeriesData *data) {
+		MPlotAbstractSeries::setModel(data);
+		update();
+	}
+
 
 protected: //"slots"
 
