@@ -3,13 +3,22 @@
 
 #include "MPlotImageData.h"
 
-MPlotAbstractImageData::MPlotAbstractImageData() :
-		MPlotObservable()
+MPlotImageDataSignalSource::MPlotImageDataSignalSource(MPlotAbstractImageData *parent)
+	: QObject(0) {
+	data_ = parent;
+}
+
+
+
+MPlotAbstractImageData::MPlotAbstractImageData()
 {
+	signalSource_ = new MPlotImageDataSignalSource(this);
 }
 
 MPlotAbstractImageData::~MPlotAbstractImageData()
 {
+	delete signalSource_;
+	signalSource_ = 0;
 }
 
 /// Convenience function overloads:
@@ -128,7 +137,7 @@ void MPlotSimpleImageData::setZ(double value, unsigned indexX, unsigned indexY) 
 
 	// store value:
 	d_[indexY][indexX] = value;
-	Emit(0, "dataChanged");
+	emitDataChanged();
 
 }
 

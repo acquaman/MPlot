@@ -4,9 +4,28 @@
 #include "MPlotImageData.h"
 #include "MPlotColorMap.h"
 #include "MPlotItem.h"
-#include "MPlotObserver.h"
 
-class MPlotAbstractImage : public MPlotItem, public MPlotObserver {
+
+class MPlotAbstractImage;
+
+/// This class receives and processes signals for MPlotAbstractImage. You should never need to use it directly.
+/*! To avoid multiple-inheritance restrictions, MPlotAbstractImage does not inherit from QObject.  However, it needs a way to receive signals from MPlotAbstractImageData. This proxy signal handling is enabled by this class.*/
+class MPlotImageSignalHandler : public QObject {
+	Q_OBJECT
+protected:
+	MPlotImageSignalHandler(MPlotAbstractImage* parent);
+	friend class MPlotAbstractImage;
+
+protected slots:
+	void onDataChanged();
+	void onBoundsChanged();
+
+protected:
+	MPlotAbstractImage* image_;
+};
+
+/// This class represents a plot item that represents a function z = f(x, y) as a color map / image
+class MPlotAbstractImage : public MPlotItem {
 
 public:
 
@@ -39,10 +58,6 @@ public:
 
 
 
-public: // "slots"
-
-	virtual void onObservableChanged(MPlotObservable* source, int code, const char* msg, int payload);
-
 
 protected:
 
@@ -57,6 +72,15 @@ protected:
 	virtual void onDataChanged() = 0;
 	/// When the bounds change, this is called to allow whatever needs to happen for computing a new raster grid, etc.
 	virtual void onBoundsChanged(const QRectF& newBounds) = 0;
+
+
+	MPlotImageSignalHandler* signalHandler_;
+	friend class MPlotImageSignalHandler;
+
+private:
+	/// This is called within the base class to handle signals from the signal handler
+	void onBoundsChangedPrivate();
+	void onDataChangedPrivate();
 
 };
 

@@ -3,7 +3,7 @@
 
 #include <QGraphicsItem>
 #include "MPlotAxis.h"
-#include "MPlotObservable.h"
+
 
 /// This is the color of the selection highlight
 #define MPLOT_SELECTION_COLOR QColor(255, 210, 129)

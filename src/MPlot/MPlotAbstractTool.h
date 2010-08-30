@@ -14,7 +14,6 @@ class MPlotAbstractTool : public QGraphicsObject
 public:
 	MPlotAbstractTool();
 
-	/// \todo Write a destructor in the .cpp that calls MPlot::removeTool().
 	virtual ~MPlotAbstractTool();
 
 	// isEnabled() and setEnabled(true/false) are used to enable or disable a tool's functionality.

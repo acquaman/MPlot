@@ -3,6 +3,7 @@
 
 #include "MPlotAbstractTool.h"
 
+#include "MPlot.h"
 
 MPlotAbstractTool::MPlotAbstractTool() :
 		QGraphicsObject()
@@ -11,8 +12,11 @@ MPlotAbstractTool::MPlotAbstractTool() :
 	axisTargets_ = MPlotAxis::Left | MPlotAxis::Right | MPlotAxis::Bottom;
 }
 
-/// \todo Write a destructor in the .cpp that calls MPlot::removeTool().
-MPlotAbstractTool::~MPlotAbstractTool() {}
+MPlotAbstractTool::~MPlotAbstractTool() {
+	if(plot()) {
+		plot()->removeTool(this);
+	}
+}
 
 // isEnabled() and setEnabled(true/false) are used to enable or disable a tool's functionality.
 

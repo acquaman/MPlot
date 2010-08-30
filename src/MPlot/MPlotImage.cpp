@@ -3,11 +3,25 @@
 
 #include "MPlotImage.h"
 
+MPlotImageSignalHandler::MPlotImageSignalHandler(MPlotAbstractImage *parent)
+	: QObject(0) {
+	image_ = parent;
+}
+
+void MPlotImageSignalHandler::onBoundsChanged() {
+	image_->onBoundsChangedPrivate();
+}
+
+void MPlotImageSignalHandler::onDataChanged() {
+	image_->onDataChangedPrivate();
+}
 
 MPlotAbstractImage::MPlotAbstractImage(const MPlotAbstractImageData* data)
-	: MPlotItem(), MPlotObserver(),
+	: MPlotItem(),
 	defaultColorMap_()
 {
+
+	signalHandler_ = new MPlotImageSignalHandler(this);
 
 	map_ = &defaultColorMap_;
 	data_ = 0;
@@ -22,7 +36,10 @@ MPlotAbstractImage::MPlotAbstractImage(const MPlotAbstractImageData* data)
 
 MPlotAbstractImage::~MPlotAbstractImage() {
 	if(data_)
-		data_->removeObserver(this);
+		QObject::disconnect(data_->signalSource(), 0, signalHandler_, 0);
+
+	delete signalHandler_;
+	signalHandler_ = 0;
 }
 
 
@@ -49,18 +66,21 @@ void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data) {
 
 	// If there was an old model, disconnect old signals:
 	if(data_)
-		data_->removeObserver(this);
+		QObject::disconnect(data_->signalSource(), 0, signalHandler_, 0);
 
 	// new data from here:
 	data_ = data;
 
 	// If there's a new valid model:
 	if(data_) {
-
-		// Connect model signals to MPlotImageBasicslots: Emit(0, dataChanged) and Emit(1, boundsChanged).
-		data_->addObserver(this);
+		QObject::connect(data_->signalSource(), SIGNAL(dataChanged()), signalHandler_, SLOT(onDataChanged()));
+		QObject::connect(data_->signalSource(), SIGNAL(boundsChanged()), signalHandler_, SLOT(onBoundsChanged()));
 	}
 
+	onBoundsChanged(data_? data_->boundingRect() : QRectF());
+	onDataChanged();
+
+	// Notify plots watching that we might need autoscaling
 	emitBoundsChanged();
 
 }
@@ -88,25 +108,15 @@ QRectF MPlotAbstractImage::dataRect() const {
 		return QRectF();
 }
 
-
-void MPlotAbstractImage::onObservableChanged(MPlotObservable* source, int code, const char* msg, int payload) {
-
-	Q_UNUSED(source)
-	Q_UNUSED(msg)
-	Q_UNUSED(payload)
-
-	switch(code) {
-
-	case 0: // dataChanged:
-		onDataChanged();
-		break;
-
-	case 1: // boundsChanged.  This could require re-scaling on the 2D plot, so we MPlotItem::Emit(0, "dataChanged").  Sorry for the confusing names.
-		if(data_)
-			onBoundsChanged(data_->boundingRect());
-		emitBoundsChanged();
-	}
+void MPlotAbstractImage::onBoundsChangedPrivate() {
+	onBoundsChanged(data_? data_->boundingRect() : QRectF());
+	emitBoundsChanged();
 }
+
+void MPlotAbstractImage::onDataChangedPrivate() {
+	onDataChanged();
+}
+
 
 
 

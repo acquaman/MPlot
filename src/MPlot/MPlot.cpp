@@ -101,7 +101,7 @@ void MPlot::addItem(MPlotItem* newItem) {
 
 	// hook up "signals"
 	QObject::connect(newItem->signalSource(), SIGNAL(boundsChanged()), signalHandler_, SLOT(onBoundsChanged()));
-	QObject::connect(newItem->signalSource(), SIGNAL(selectedChanged(bool)), signalHandler_, SLOT(onSelectedChanged()));
+	QObject::connect(newItem->signalSource(), SIGNAL(selectedChanged(bool)), signalHandler_, SLOT(onSelectedChanged(bool)));
 
 	// if autoscaling is active already, could need to rescale already
 	onBoundsChanged(newItem);

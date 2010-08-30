@@ -5,15 +5,39 @@
 #include <QQueue>
 #include <QList>
 #include <QRectF>
-#include "MPlotObservable.h"
 
-// This defines the interface for classes which may be used for Series (XY) plot data.
-// Unfortunately, because QObject doesn't support multiple inheritance, if you want your data object to inherit from another QObject-derived class, wrapper classes are needed as shown in the example below.
-class MPlotAbstractSeriesData : public MPlotObservable {
+
+
+class MPlotAbstractSeriesData;
+
+
+/// This class acts as a proxy to emit signals for MPlotAbstractSeriesData. You can receive the dataChanged() signal by hooking up to MPlotAbstractSeries::signalSource().
+/*! To allow classes that implement MPlotAbstractSeriesData to also inherit QObject, MPlotAbstractSeriesData does NOT inherit QObject.  However, it still needs a way to emit signals notifying of changes to the data, which is the role of this class.
+  */
+class MPlotSeriesDataSignalSource : public QObject {
+	Q_OBJECT
+public:
+	MPlotAbstractSeriesData* seriesData() const { return data_; }
+protected:
+	MPlotSeriesDataSignalSource(MPlotAbstractSeriesData* parent);
+	void emitDataChanged() { emit dataChanged(); }
+
+	MPlotAbstractSeriesData* data_;
+	friend class MPlotAbstractSeriesData;
+
+signals:
+	void dataChanged();
+};
+
+/// This defines the interface for classes which may be used for Series (XY) plot data.
+class MPlotAbstractSeriesData  {
 
 public:
 	MPlotAbstractSeriesData();
-	~MPlotAbstractSeriesData();
+	virtual ~MPlotAbstractSeriesData();
+
+	/// Use this object to receive signals from the data when the data has changed in any way (ie: new points, deleted points, or values changed)
+	MPlotSeriesDataSignalSource* signalSource() const { return signalSource_; }
 
 	// Return the x-value (y-value) at index:
 	virtual double x(unsigned index) const = 0;
@@ -26,7 +50,12 @@ public:
 	// Return the bounds of the data (the rectangle containing the max/min x- and y-values)
 	virtual QRectF boundingRect() const = 0;
 
-	// Implements MPlotObservable and will Emit(0, "dataChanged") when the data changes and a re-scale + re-plot is required.
+protected:
+	MPlotSeriesDataSignalSource* signalSource_;
+	/// Implementing classes should call this when their x- y- data changes in any way (ie: points added, points removed, or even values changed such that the bounds of the plot might be different.)
+	void emitDataChanged() { signalSource_->emitDataChanged(); }
+
+	friend class MPlotSeriesDataSignalSource;
 
 
 	// todo: to support multi-threading, consider a
@@ -83,8 +112,6 @@ public:
 	virtual QRectF boundingRect() const;
 
 	// TODO: add properties: set and read axis names
-
-	// implements MPlotObservable, and will Emit(0, "dataChanged") when x- or y- data changes.
 
 protected:
 

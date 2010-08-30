@@ -6,7 +6,7 @@
 #include "MPlotItem.h"
 #include "MPlotSeries.h"
 #include "MPlotAbstractTool.h"
-#include "MPlotObserver.h"
+
 
 #include <QList>
 #include <QGraphicsItem>

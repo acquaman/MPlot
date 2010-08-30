@@ -6,22 +6,47 @@
 #include <QRectF>
 #include <QPair>
 #include <QVector>
-#include "MPlotObservable.h"
+
 
 /// An MPlotInterval is just a typedef for a pair of doubles
 typedef QPair<double,double> MPlotInterval;
 
+class MPlotAbstractImageData;
+
+
+/// This class acts as a proxy to emit signals for MPlotAbstractImageData. You can receive the dataChanged() signal by hooking up to MPlotAbstractImage::signalSource().
+/*! To allow classes that implement MPlotAbstractImageData to also inherit QObject, MPlotAbstractImageData does NOT inherit QObject.  However, it still needs a way to emit signals notifying of changes to the data, which is the role of this class.
+  */
+class MPlotImageDataSignalSource : public QObject {
+	Q_OBJECT
+public:
+	MPlotAbstractImageData* imageData() const { return data_; }
+protected:
+	MPlotImageDataSignalSource(MPlotAbstractImageData* parent);
+	void emitDataChanged() { emit dataChanged(); }
+	void emitBoundsChanged() { emit boundsChanged(); }
+
+	MPlotAbstractImageData* data_;
+	friend class MPlotAbstractImageData;
+
+signals:
+	void dataChanged();	/// < the z = f(x,y) data has changed
+	void boundsChanged();/// < The limits / bounds of the x-y grid have changed
+};
+
+
 /// this class defines the interface to represent 3D data z = f(x,y), used by image plots and contour plots.
-
-
   // copied=pasted from MPlotSeriesData. Fix.
   // todo: figure out resolution question. Data sets resolution? plot sets resoution>?
-class MPlotAbstractImageData : public MPlotObservable {
+class MPlotAbstractImageData {
 
 public:
 	MPlotAbstractImageData();
 
 	~MPlotAbstractImageData();
+
+	/// Use this proxy object to receive dataChanged() and boundsChanged() signals from the data
+	MPlotImageDataSignalSource* signalSource() const { return signalSource_; }
 
 	/// Return the x (data value) corresponding an (x,y) \c index:
 	virtual double x(unsigned indexX) const = 0;
@@ -57,13 +82,27 @@ public:
 	/// Return the minimum and maximum z values:
 	virtual MPlotInterval range() const = 0;
 
-/// Signals: Implements MPlotObservable. Will Emit(0, "dataChanged") when the z-data has been changed.  Will Emit(1, "boundsChanged") when the x- or y-limits have been changed and the plot scaling might need to be recalculated.
+protected:
+	/// Proxy object for emitting signals:
+	MPlotImageDataSignalSource* signalSource_;
+	friend class MPlotImageDataSignalSource;
+
+	/// Implementing classes should call this when their z- data changes in value
+	void emitDataChanged() { signalSource_->emitDataChanged(); }
+	/// Implementing classes should call this when their x- y- data changes in extent
+	void emitBoundsChanged() { signalSource_->emitBoundsChanged(); }
+
 
 
 	// todo: to support multi-threading, consider a
 	// void pauseUpdates();	// to tell nothing to redraw using the plot because the data is currently invalid; a dataChanged will be emitted when it is valid again.
 	// This would need to be deterministic, so maybe we need to use function calls instead of signals.
 };
+
+
+
+
+
 
 /// This class is a very basic 2D array which implements the MPlotAbstractImageData interface
 class MPlotSimpleImageData : public MPlotAbstractImageData {

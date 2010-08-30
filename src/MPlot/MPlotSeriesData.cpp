@@ -3,14 +3,20 @@
 
 #include "MPlotSeriesData.h"
 
+MPlotSeriesDataSignalSource::MPlotSeriesDataSignalSource(MPlotAbstractSeriesData* parent)
+	: QObject(0) {
+	data_ = parent;
+}
 
-MPlotAbstractSeriesData::MPlotAbstractSeriesData() :
-		MPlotObservable()
+MPlotAbstractSeriesData::MPlotAbstractSeriesData()
 {
+	signalSource_ = new MPlotSeriesDataSignalSource(this);
 }
 
 MPlotAbstractSeriesData::~MPlotAbstractSeriesData()
 {
+	delete signalSource_;
+	signalSource_ = 0;
 }
 
 MPlotRealtimeModel::MPlotRealtimeModel(QObject *parent) :
@@ -106,14 +112,14 @@ bool MPlotRealtimeModel::setData(const QModelIndex &index, const QVariant &value
 		if(index.column() == 0) {
 			minMaxChangeCheckX(dval, index.row());
 			emit QAbstractItemModel::dataChanged(index, index);
-			Emit(0, "dataChanged");
+			emitDataChanged();
 			return true;
 		}
 		// Setting a y value?
 		if(index.column() == 1) {
 			minMaxChangeCheckY(dval, index.row());
 			emit QAbstractItemModel::dataChanged(index, index);
-			Emit(0, "dataChanged");
+			emitDataChanged();
 			return true;
 		}
 	}
@@ -148,7 +154,7 @@ void MPlotRealtimeModel::insertPointFront(double x, double y) {
 	endInsertRows();
 
 	// Signal a full-plot update
-	Emit(0, "dataChanged");
+	emitDataChanged();
 }
 
 // This allows you to add data points at the end:
@@ -162,7 +168,7 @@ void MPlotRealtimeModel::insertPointBack(double x, double y) {
 
 	endInsertRows();
 	// Signal a full-plot update
-	Emit(0, "dataChanged");
+	emitDataChanged();
 }
 
 // Remove a point at the front (Returns true if successful).
@@ -195,7 +201,7 @@ bool MPlotRealtimeModel::removePointFront() {
 	endRemoveRows();
 
 	// Signal a full-plot update
-	Emit(0, "dataChanged");
+	emitDataChanged();
 	return true;
 }
 
@@ -223,7 +229,7 @@ bool MPlotRealtimeModel::removePointBack() {
 	endRemoveRows();
 
 	// Signal a full-plot update
-	Emit(0, "dataChanged");
+	emitDataChanged();
 	return true;
 }
 
@@ -235,9 +241,6 @@ QRectF MPlotRealtimeModel::boundingRect() const {
 
 }
 
-// TODO: add properties: set and read axis names
-
-// implements MPlotObservable, and will Emit(0, "dataChanged") when x- or y- data changes.
 
 
 // Helper functions:

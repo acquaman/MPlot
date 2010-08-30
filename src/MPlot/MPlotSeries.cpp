@@ -3,12 +3,22 @@
 
 #include "MPlotSeries.h"
 
+MPlotSeriesSignalHandler::MPlotSeriesSignalHandler(MPlotAbstractSeries *parent)
+	: QObject(0) {
+	series_ = parent;
+}
+
+void MPlotSeriesSignalHandler::onDataChanged() {
+	series_->onDataChangedPrivate();
+}
 
 MPlotAbstractSeries::MPlotAbstractSeries(const MPlotAbstractSeriesData* data) :
 		MPlotItem()
 {
 	data_ = 0;
 	marker_ = 0;
+
+	signalHandler_ = new MPlotSeriesSignalHandler(this);
 
 	// Set style defaults:
 	setDefaults();	// override in subclasses
@@ -19,9 +29,11 @@ MPlotAbstractSeries::MPlotAbstractSeries(const MPlotAbstractSeriesData* data) :
 }
 
 MPlotAbstractSeries::~MPlotAbstractSeries() {
-	// If we have a model, need to disconnect it before we get deleted.
+	// If we have a model, need to disconnect from its updates before we get deleted.
 	if(data_)
-		data_->removeObserver(this);
+		QObject::disconnect(data_->signalSource(), 0, signalHandler_, 0);
+	delete signalHandler_;
+	signalHandler_ = 0;
 }
 
 
@@ -55,7 +67,7 @@ void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data) {
 
 	// If there was an old model, disconnect old signals:
 	if(data_)
-		data_->removeObserver(this);
+		QObject::disconnect(data_->signalSource(), 0, signalHandler_, 0);
 
 	// new data from here:
 	data_ = data;
@@ -65,13 +77,11 @@ void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data) {
 
 	// If there's a new valid model:
 	if(data_) {
-
-		// Connect model signals to slots: "dataChanged"
-		data_->addObserver(this);
-
+		QObject::connect(data_->signalSource(), SIGNAL(dataChanged()), signalHandler_, SLOT(onDataChanged()));
 	}
 
 	emitBoundsChanged();
+	onDataChanged();
 
 }
 
@@ -129,19 +139,17 @@ QPainterPath MPlotAbstractSeries::shape() const {
 
 
 
-/// these update messages would come from our model, which will Emit(0, "dataChanged");
-void MPlotAbstractSeries::onObservableChanged(MPlotObservable* source, int code, const char* msg, int payload) {
-	Q_UNUSED(msg)
-	Q_UNUSED(payload)
-	Q_UNUSED(source)
 
-	if(code == 0) {
+void MPlotAbstractSeries::onDataChangedPrivate() {
+	// flag cached bounding rect as dirty:
+	dataChangedUpdateNeeded_ = true;
+	// warn that bounding rect is going to change:
+	prepareGeometryChange();
+	// Our shape has probably changed, so the plot might need a re-autoscale
+	emitBoundsChanged();
 
-		dataChangedUpdateNeeded_ = true;
-		prepareGeometryChange();
-		onDataChanged();
-		emitBoundsChanged();
-	}
+	// call any base-class specific re-drawing
+	onDataChanged();
 }
 
 
@@ -160,19 +168,27 @@ void MPlotAbstractSeries::setDefaults() {
 	selectedPen_.setCosmetic(true);
 }
 
-MPlotSeriesBasic::MPlotSeriesBasic(const MPlotAbstractSeriesData* data) :
-		MPlotAbstractSeries(data)
+
+
+
+
+
+
+
+
+/////////////////////////////
+// MPlotSeriesBasic
+////////////////////////////
+
+
+
+MPlotSeriesBasic::MPlotSeriesBasic(const MPlotAbstractSeriesData* data)
+	: MPlotAbstractSeries(data)
 {
 	// no unique setup for MPlotSeriesBasic?
 }
 
-// Sets this series to view the model in 'data';
-void MPlotSeriesBasic::setModel(const MPlotAbstractSeriesData* data) {
-
-	MPlotAbstractSeries::setModel(data);
-
-	// All we need to do extra: schedule a draw update.  (Note: update() only schedules an painting update. The repaint isn't performed until we get back to Qt's main run loop, so there's no performance hit for calling update() multiple times.)
-	update();
+MPlotSeriesBasic::~MPlotSeriesBasic() {
 
 }
 
@@ -309,6 +325,7 @@ void MPlotSeriesBasic::setSelected(bool selected) {
 
 }
 
+/// All the specific re-drawing we need to do when the data changes (or a new model is set) is contained in update().
 void MPlotSeriesBasic::onDataChanged() {
 	update();
 }
