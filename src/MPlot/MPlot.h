@@ -38,6 +38,8 @@ protected slots:
 
 	void doDelayedAutoscale();
 
+	void onPlotItemLegendContentChanged();
+
 protected:
 	MPlot* plot_;
 };
@@ -65,47 +67,101 @@ public:
 	/// Remove a tool from a plot. (Note: Does not delete the tool...)
 	bool removeTool(MPlotAbstractTool* removeMe);
 
-	QGraphicsRectItem* plotArea() const;
+	QGraphicsRectItem* plotArea() const { return plotArea_; }
 	// access elements of the canvas:
-	MPlotAxis* axisBottom();
-	MPlotAxis* axisTop();
-	MPlotAxis* axisLeft();
-	MPlotAxis* axisRight();
 
+	MPlotAxis* axisBottom() { return axes_[MPlotAxis::Bottom]; }
 
-	// Access properties of the Canvas: (TODO: add to property system)
-	QGraphicsRectItem* background();
+	MPlotAxis* axisTop() { return axes_[MPlotAxis::Top]; }
+
+	MPlotAxis* axisLeft() { return axes_[MPlotAxis::Left]; }
+
+	MPlotAxis* axisRight() { return axes_[MPlotAxis::Right]; }
+
+	MPlotLegend* legend() { return legend_; }
+
+	QGraphicsRectItem* background() { return background_; }
 
 	/// returns the rectangle filled by this plot (in scene or parent QGraphicsItem coordinates)
-	QRectF rect() const;
+	QRectF rect() const { return rect_; }
 
 	/// Sets the rectangle to be filled by this plot (in scene or parent QGraphicsItem coordinates).
 	/*! Also rescales and re-applies the margins and transform for the plotArea). Can call with setRect(rect()) to re-compute margins.)*/
 	void setRect(const QRectF& rect);
+
 	// Margins: are set in logical coordinates (ie: as a percentage of the chart width or chart height);
-	double margin(MPlotAxis::AxisID margin) const;
+	double margin(MPlotAxis::AxisID margin) const {
+		return margins_[margin];
+	}
 
-	double marginLeft() const;
-	double marginRight() const;
-	double marginTop() const;
-	double marginBottom() const;
+	double marginLeft() const {
+		return margins_[MPlotAxis::Left];
+	}
 
-	void setMargin(MPlotAxis::AxisID margin, double value);
+	double marginRight() const {
+		return margins_[MPlotAxis::Right];
+	}
 
-	void setMarginLeft(double value);
-	void setMarginRight(double value);
-	void setMarginTop(double value);
-	void setMarginBottom(double value);
+	double marginTop() const {
+		return margins_[MPlotAxis::Top];
+	}
+
+	double marginBottom() const {
+		return margins_[MPlotAxis::Bottom];
+	}
+
+	void setMargin(MPlotAxis::AxisID margin, double value) {
+		margins_[margin] = value; setRect(rect_);
+	}
+
+	void setMarginLeft(double value) {
+		setMargin(MPlotAxis::Left, value);
+	}
+
+	void setMarginRight(double value) {
+		setMargin(MPlotAxis::Right, value);
+	}
+
+	void setMarginTop(double value) {
+		setMargin(MPlotAxis::Top, value);
+	}
+
+	void setMarginBottom(double value) {
+		setMargin(MPlotAxis::Bottom, value);
+	}
 
 
-	double xMin();
-	double xMax();
-	double yLeftMin();
-	double yRightMin();
-	double yLeftMax();
-	double yRightMax();
-	QTransform leftAxisTransform();
-	QTransform rightAxisTransform();
+	double xMin() {
+		return xmin_;
+	}
+
+	double xMax() {
+		return xmax_;
+	}
+
+	double yLeftMin() {
+		return yleftmin_;
+	}
+
+	double yRightMin() {
+		return yrightmin_;
+	}
+
+	double yLeftMax() {
+		return yleftmax_;
+	}
+
+	double yRightMax() {
+		return yrightmax_;
+	}
+
+	QTransform leftAxisTransform() {
+		return leftAxisTransform_;
+	}
+
+	QTransform rightAxisTransform() {
+		return rightAxisTransform_;
+	}
 
 
 	void enableAutoScaleBottom(bool autoScaleOn);
@@ -129,12 +185,18 @@ public:
 	void doDelayedAutoScale();
 
 
+	/// Returns the number of items currently displayed in the plot:
+	int numItems() const { return items_.count(); }
+	/// Returns one of the plot items, by index:
+	MPlotItem* item(int index) const { if(index>=0 && index<items_.count()) return items_.at(index); else return 0; }
 
 protected: // "slots" (proxied through MPlotSignalHandler)
 	/// called when the x-y data in a plot item might have changed, such that a re-autoscale is necessary
 	void onBoundsChanged(MPlotItem* source);
 	/// called when the selected state of a plot item changes
 	void onSelectedChanged(MPlotItem* source, bool isSelected);
+	/// called when the legend content (color, description, etc.) of a plot item changes
+	void onPlotItemLegendContentChanged(MPlotItem* changedItem);
 
 
 
@@ -152,6 +214,8 @@ protected:
 
 	QGraphicsRectItem* background_;
 	QGraphicsRectItem* plotArea_, *dataArea_;
+	/// The rectangle containing the plotting area, in scene coordinates. (plotArea_ and dataArea_ are scaled so that their local coordinates are from (0,0) to (1,1) instead.)
+	QRectF plotAreaRect_;
 
 	bool autoScaleBottomEnabled_;
 	bool autoScaleLeftEnabled_;

@@ -43,6 +43,7 @@ MPlotAbstractSeries::~MPlotAbstractSeries() {
 void MPlotAbstractSeries::setLinePen(const QPen& pen) {
 	linePen_ = pen;
 	linePen_.setCosmetic(true);
+	emitLegendContentChanged(); // this changes the legendColor();
 }
 
 // Returns the current marker, which can be used to access it's pen, brush, and size.
@@ -86,13 +87,7 @@ void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data) {
 
 }
 
-QString MPlotAbstractSeries::name() const {
-	return name_;
-}
 
-void MPlotAbstractSeries::setName(const QString& name) {
-	name_ = name;
-}
 
 const MPlotAbstractSeriesData* MPlotAbstractSeries::model() const { return data_; }
 

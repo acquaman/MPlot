@@ -36,6 +36,9 @@ protected:
 	void emitBoundsChanged() { emit boundsChanged(); }
 	/// called within MPlotItem to forward this signal
 	void emitSelectedChanged(bool isSelected) { emit selectedChanged(isSelected); }
+	/// called within MPlotItem to forward this signal
+	void emitLegendContentChanged() { emit legendContentChanged(); }
+
 	/// Allow MPlotItem access to these protected functions:
 	friend class MPlotItem;
 
@@ -44,6 +47,7 @@ protected:
 signals:
 	void boundsChanged();
 	void selectedChanged(bool);
+	void legendContentChanged();
 
 };
 
@@ -79,6 +83,15 @@ public:
 	virtual bool selectable();
 	virtual void setSelectable(bool selectable = true);
 
+	// Legend information
+	//////////////////////////////
+	/// The name of this plot item / data series. Plot Item descriptions can be displayed in an MPlotLegend.
+	virtual QString description() const { return description_; }
+	/// Set the name of this plot item
+	virtual void setDescription(const QString& description) { description_ = description; emitLegendContentChanged(); }
+	/// The color used to represent this plot item in the legend.  Subclasses can re-implement this for more detail.
+	virtual QBrush legendColor() const { return QBrush(QColor(121, 121, 121)); }
+
 
 	/// Don't call this. Unfortunately public because it's required by MPlot::addItem and MPlot::removeItem.
 	void setPlot(MPlot* plot);
@@ -110,6 +123,8 @@ private:
 
 	MPlot* plot_;
 
+	QString description_;
+
 protected:
 	MPlotItemSignalSource* signalSource_;
 	friend class MPlotItemSignalSource;
@@ -118,6 +133,8 @@ protected:
 	void emitBoundsChanged() { signalSource_->emitBoundsChanged(); }
 	/// called within MPlotItem to forward this signal
 	void emitSelectedChanged(bool isSelected) { signalSource_->emitSelectedChanged(isSelected); }
+	/// called within MPlotItem to forward this signal
+	void emitLegendContentChanged() { signalSource_->emitLegendContentChanged(); }
 };
 
 #endif // MPLOTITEM_H

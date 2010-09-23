@@ -54,10 +54,11 @@ public:
 	/// Sets this series to view the model in 'data';
 	virtual void setModel(const MPlotAbstractSeriesData* data);
 
-	virtual QString name() const;
-	virtual void setName(const QString& name);
 
 	virtual const MPlotAbstractSeriesData* model() const;
+
+	/// Re-implemented from MPlotItem to provide our line color as the legend color:
+	virtual QBrush legendColor() const { return QBrush(linePen_.color()); }
 
 
 	/// Required functions:

@@ -26,6 +26,12 @@ void MPlotSignalHandler::onSelectedChanged(bool isSelected) {
 		plot_->onSelectedChanged(source->plotItem(), isSelected);
 }
 
+void MPlotSignalHandler::onPlotItemLegendContentChanged() {
+	MPlotItemSignalSource* source = qobject_cast<MPlotItemSignalSource*>(sender());
+	if(source)
+		plot_->onPlotItemLegendContentChanged(source->plotItem());
+}
+
 void MPlotSignalHandler::doDelayedAutoscale() {
 	plot_->doDelayedAutoScale();
 }
@@ -57,14 +63,14 @@ MPlot::MPlot(QRectF rect, QGraphicsItem* parent) :
 
 	// Create Legend:
 	/// \todo
-	legend_ = new MPlotLegend();
-	legend_->setParentItem(plotArea_);
+	legend_ = new MPlotLegend(this);
+	legend_->setZValue(1e12);	// legends should display above everything else...
 
 
 	// Set apperance defaults (override for custom plots)
 	setDefaults();
 
-	// Place
+	// Place and scale everything as required...
 	setRect(rect_);
 
 	/// No auto-scale scheduled, and no axes requiring it:
@@ -112,7 +118,7 @@ void MPlot::addItem(MPlotItem* newItem) {
 
 /// Remove a data-item from a plot. (Note: Does not delete the item...)
 bool MPlot::removeItem(MPlotItem* removeMe) {
-	// optimization: speeds up the ~MPlot() destructor, which will eventually call delete on all child plot items, which will call removeItem() on their plot... us! Don't bother with this whole process.
+	// optimization: speeds up the ~MPlot() destructor, which will eventually call delete on all child plot items, which will call removeItem() on their plot (ie: us!) Don't bother with this whole process.
 	if(gettingDeleted_)
 		return true;
 
@@ -160,37 +166,8 @@ bool MPlot::removeTool(MPlotAbstractTool* removeMe) {
 		return false;
 }
 
-QGraphicsRectItem* MPlot::plotArea() const {
-	return plotArea_;
-}
-
-// access elements of the canvas:
-MPlotAxis* MPlot::axisBottom() {
-	return axes_[MPlotAxis::Bottom];
-}
-
-MPlotAxis* MPlot::axisTop() {
-	return axes_[MPlotAxis::Top];
-}
-
-MPlotAxis* MPlot::axisLeft() {
-	return axes_[MPlotAxis::Left];
-}
-
-MPlotAxis* MPlot::axisRight() {
-	return axes_[MPlotAxis::Right];
-}
 
 
-// Access properties of the Canvas: (TODO: add to property system)
-QGraphicsRectItem* MPlot::background() {
-	return background_;
-}
-
-/// returns the rectangle filled by this plot (in scene or parent QGraphicsItem coordinates)
-QRectF MPlot::rect() const {
-	return rect_;
-}
 
 /// Sets the rectangle to be filled by this plot (in scene or parent QGraphicsItem coordinates).
 /*! Also rescales and re-applies the margins and transform for the plotArea). Can call with setRect(rect()) to re-compute margins.)*/
@@ -199,11 +176,13 @@ void MPlot::setRect(const QRectF& rect) {
 	rect_ = rect;
 
 	// margins and dimensions of the plotArea in scene coordinates:
-	double left, bottom, w, h;
+	double left, top, bottom, w, h;
 	left = marginLeft()/100*rect_.width();
+	top = marginTop()/100*rect_.height();
 	bottom = (1-marginBottom()/100)*rect_.height();
 	w = rect_.width()*(1 - marginLeft()/100 - marginRight()/100);
 	h = rect_.height()*(1 - marginBottom()/100 - marginTop()/100);
+	plotAreaRect_ = QRectF(left, top, w, h);
 
 	// scale the background to correct size:
 	background_->setRect(rect_);
@@ -212,82 +191,13 @@ void MPlot::setRect(const QRectF& rect) {
 	// It now believes to be drawing itself in a cartesian (right-handed) 0,0 -> 1,1 box.
 	plotArea_->setTransform(QTransform::fromTranslate(left, bottom).scale(w,-h));
 
+	legend_->setPos(left, top);
+	legend_->setWidth(w);
+
 }
 
 
-// Margins: are set in logical coordinates (ie: as a percentage of the chart width or chart height);
-double MPlot::margin(MPlotAxis::AxisID margin) const {
-	return margins_[margin];
-}
 
-double MPlot::marginLeft() const {
-	return margins_[MPlotAxis::Left];
-}
-
-double MPlot::marginRight() const {
-	return margins_[MPlotAxis::Right];
-}
-
-double MPlot::marginTop() const {
-	return margins_[MPlotAxis::Top];
-}
-
-double MPlot::marginBottom() const {
-	return margins_[MPlotAxis::Bottom];
-}
-
-void MPlot::setMargin(MPlotAxis::AxisID margin, double value) {
-	margins_[margin] = value; setRect(rect_);
-}
-
-void MPlot::setMarginLeft(double value) {
-	setMargin(MPlotAxis::Left, value);
-}
-
-void MPlot::setMarginRight(double value) {
-	setMargin(MPlotAxis::Right, value);
-}
-
-void MPlot::setMarginTop(double value) {
-	setMargin(MPlotAxis::Top, value);
-}
-
-void MPlot::setMarginBottom(double value) {
-	setMargin(MPlotAxis::Bottom, value);
-}
-
-
-double MPlot::xMin() {
-	return xmin_;
-}
-
-double MPlot::xMax() {
-	return xmax_;
-}
-
-double MPlot::yLeftMin() {
-	return yleftmin_;
-}
-
-double MPlot::yRightMin() {
-	return yrightmin_;
-}
-
-double MPlot::yLeftMax() {
-	return yleftmax_;
-}
-
-double MPlot::yRightMax() {
-	return yrightmax_;
-}
-
-QTransform MPlot::leftAxisTransform() {
-	return leftAxisTransform_;
-}
-
-QTransform MPlot::rightAxisTransform() {
-	return rightAxisTransform_;
-}
 
 
 void MPlot::enableAutoScaleBottom(bool autoScaleOn) {
@@ -635,6 +545,15 @@ void MPlot::setYDataRangeRightImp(double min, double max, bool autoscale, bool a
 	axes_[MPlotAxis::Right]->setRange(min, max);
 }
 
+
+void MPlot::onPlotItemLegendContentChanged(MPlotItem* changedItem) {
+	legend()->onLegendContentChanged(changedItem);
+}
+
+
+
+
+
 MPlotGW::MPlotGW(QGraphicsItem* parent, Qt::WindowFlags flags) :
 		QGraphicsWidget(parent, flags)
 {
@@ -655,5 +574,8 @@ void MPlotGW::resizeEvent ( QGraphicsSceneResizeEvent * event ) {
 
 	plot_->setRect(QRectF(QPointF(0,0), event->newSize() ));
 }
+
+
+
 
 #endif
