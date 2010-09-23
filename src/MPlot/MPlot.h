@@ -59,7 +59,14 @@ public:
 	/// Remove a data-item from a plot. (Note: Does not delete the item...)
 	bool removeItem(MPlotItem* removeMe);
 
-	QList<MPlotItem*> plotItems() const;
+
+	/// Returns the number of items currently displayed in the plot:
+	int numItems() const { return items_.count(); }
+	/// Returns one of the plot items, by index:
+	MPlotItem* item(int index) const { if(index>=0 && index<items_.count()) return items_.at(index); else return 0; }
+	/// Returns all the plot items in this plot
+	QList<MPlotItem*> plotItems() const { return items_; }
+
 
 	/// Add a tool to the plot:
 	void addTool(MPlotAbstractTool* newTool);
@@ -184,11 +191,6 @@ public:
 	/// called automatically when control returns to the event loop, this completes a delayed autoscale. (Recomputing the scale limits is optimized to be only done when necessary, rather than whenever the values change.)  If you need the scene to be updated NOW! (for example, you're working outside of an event loop, or rendering before returning to the event loop), you can call this manually.
 	void doDelayedAutoScale();
 
-
-	/// Returns the number of items currently displayed in the plot:
-	int numItems() const { return items_.count(); }
-	/// Returns one of the plot items, by index:
-	MPlotItem* item(int index) const { if(index>=0 && index<items_.count()) return items_.at(index); else return 0; }
 
 protected: // "slots" (proxied through MPlotSignalHandler)
 	/// called when the x-y data in a plot item might have changed, such that a re-autoscale is necessary

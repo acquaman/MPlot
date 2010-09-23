@@ -30,6 +30,8 @@ void MPlotSignalHandler::onPlotItemLegendContentChanged() {
 	MPlotItemSignalSource* source = qobject_cast<MPlotItemSignalSource*>(sender());
 	if(source)
 		plot_->onPlotItemLegendContentChanged(source->plotItem());
+	else
+		plot_->onPlotItemLegendContentChanged(0);
 }
 
 void MPlotSignalHandler::doDelayedAutoscale() {
@@ -63,7 +65,7 @@ MPlot::MPlot(QRectF rect, QGraphicsItem* parent) :
 
 	// Create Legend:
 	/// \todo
-	legend_ = new MPlotLegend(this);
+	legend_ = new MPlotLegend(this, this);
 	legend_->setZValue(1e12);	// legends should display above everything else...
 
 
@@ -108,12 +110,15 @@ void MPlot::addItem(MPlotItem* newItem) {
 	// hook up "signals"
 	QObject::connect(newItem->signalSource(), SIGNAL(boundsChanged()), signalHandler_, SLOT(onBoundsChanged()));
 	QObject::connect(newItem->signalSource(), SIGNAL(selectedChanged(bool)), signalHandler_, SLOT(onSelectedChanged(bool)));
+	QObject::connect(newItem->signalSource(), SIGNAL(legendContentChanged()), signalHandler_, SLOT(onPlotItemLegendContentChanged()));
 
 	// if autoscaling is active already, could need to rescale already
 	onBoundsChanged(newItem);
 
 	// Apply transforms as needed
 	placeItem(newItem);
+
+	legend()->onLegendContentChanged(newItem);
 }
 
 /// Remove a data-item from a plot. (Note: Does not delete the item...)
@@ -129,6 +134,7 @@ bool MPlot::removeItem(MPlotItem* removeMe) {
 		else
 			removeMe->setParentItem(0);
 		items_.removeAll(removeMe);
+		legend()->onLegendContentChanged(removeMe);
 		// remove signals
 		QObject::disconnect(removeMe->signalSource(), 0, signalHandler_, 0);
 		// this might need to trigger a re-scale... for ex: if removeMe had the largest/smallest bounds of all plots associated with an auto-scaling axis.
@@ -139,9 +145,7 @@ bool MPlot::removeItem(MPlotItem* removeMe) {
 		return false;
 }
 
-QList<MPlotItem*> MPlot::plotItems() const {
-	return items_;
-}
+
 
 /// Add a tool to the plot:
 void MPlot::addTool(MPlotAbstractTool* newTool) {
