@@ -29,6 +29,9 @@ class MPlotAbstractImage : public MPlotItem {
 
 public:
 
+	enum { Type = MPlotItem::Image };
+	int type() const { return Type; }
+
 	MPlotAbstractImage();
 
 	virtual ~MPlotAbstractImage();

@@ -69,6 +69,11 @@ MPlot::MPlot(QRectF rect, QGraphicsItem* parent) :
 	legend_->setZValue(1e12);	// legends should display above everything else...
 
 
+	autoScaleBottomEnabled_ = autoScaleLeftEnabled_ = autoScaleRightEnabled_ = false;
+	normBottomEnabled_ = normLeftEnabled_ = normRightEnabled_ = false;
+
+	waterfallLeftAmount_ = waterfallRightAmount_ = 0;
+
 	// Set apperance defaults (override for custom plots)
 	setDefaults();
 
@@ -112,6 +117,21 @@ void MPlot::addItem(MPlotItem* newItem) {
 	QObject::connect(newItem->signalSource(), SIGNAL(selectedChanged(bool)), signalHandler_, SLOT(onSelectedChanged(bool)));
 	QObject::connect(newItem->signalSource(), SIGNAL(legendContentChanged()), signalHandler_, SLOT(onPlotItemLegendContentChanged()));
 
+	// if axis normalization is on already, apply to this series too... (Obviously, only if this item is a series)
+	MPlotAbstractSeries* s = qgraphicsitem_cast<MPlotAbstractSeries*>(newItem);
+	if(s) {
+		s->enableXAxisNormalization(normBottomEnabled_, normBottomRange_.first, normBottomRange_.second);
+		if(s->yAxisTarget() == MPlotAxis::Left)
+			s->enableYAxisNormalization(normLeftEnabled_, normLeftRange_.first, normLeftRange_.second);
+		if(s->yAxisTarget() == MPlotAxis::Right)
+			s->enableYAxisNormalization(normRightEnabled_, normRightRange_.first, normRightRange_.second);
+
+		if(s->yAxisTarget() == MPlotAxis::Left)
+			s->setOffset(0, waterfallLeftAmount_*seriesCounterLeft_++);
+		if(s->yAxisTarget() == MPlotAxis::Right)
+			s->setOffset(0, waterfallRightAmount_*seriesCounterRight_++);
+	}
+
 	// if autoscaling is active already, could need to rescale already
 	onBoundsChanged(newItem);
 
@@ -137,8 +157,17 @@ bool MPlot::removeItem(MPlotItem* removeMe) {
 		legend()->onLegendContentChanged(removeMe);
 		// remove signals
 		QObject::disconnect(removeMe->signalSource(), 0, signalHandler_, 0);
-		// this might need to trigger a re-scale... for ex: if removeMe had the largest/smallest bounds of all plots associated with an auto-scaling axis.
+
+		// this might need to re-apply the waterfall...
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(removeMe);
+		if(series && series->yAxisTarget() == MPlotAxis::Left && waterfallLeftAmount_ != 0.0)
+			setWaterfallLeft(waterfallLeftAmount_);
+		if(series && series->yAxisTarget() == MPlotAxis::Right && waterfallRightAmount_ != 0.0)
+			setWaterfallRight(waterfallRightAmount_);
+
+		// this also might need to trigger a re-scale... for ex: if removeMe had the largest/smallest bounds of all plots associated with an auto-scaling axis.
 		onBoundsChanged(removeMe);
+
 		return true;
 	}
 	else
@@ -556,6 +585,75 @@ void MPlot::onPlotItemLegendContentChanged(MPlotItem* changedItem) {
 
 
 
+void MPlot::enableAxisNormalizationBottom(bool normalizationOn, double min, double max) {
+	if( (normBottomEnabled_ = normalizationOn) ) {
+		normBottomRange_.first = min;
+		normBottomRange_.second = max;
+	}
+
+	for(int i=0; i<items_.count(); i++) {
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(items_.at(i));
+		if(series) {
+			series->enableXAxisNormalization(normalizationOn, min, max);
+		}
+	}
+
+}
+
+void MPlot::enableAxisNormalizationLeft(bool normalizationOn, double min, double max) {
+	if( (normLeftEnabled_ = normalizationOn) ) {
+		normLeftRange_.first = min;
+		normLeftRange_.second = max;
+	}
+
+	for(int i=0; i<items_.count(); i++) {
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(items_.at(i));
+		if(series && series->yAxisTarget() == MPlotAxis::Left) {
+			series->enableYAxisNormalization(normalizationOn, min, max);
+		}
+	}
+}
+
+
+void MPlot::enableAxisNormalizationRight(bool normalizationOn, double min, double max) {
+	if( (normRightEnabled_ = normalizationOn) ) {
+		normRightRange_.first = min;
+		normRightRange_.second = max;
+	}
+
+	for(int i=0; i<items_.count(); i++) {
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(items_.at(i));
+		if(series && series->yAxisTarget() == MPlotAxis::Right) {
+			series->enableYAxisNormalization(normalizationOn, min, max);
+		}
+	}
+}
+
+void MPlot::enableAxisNormalization(int axisFlags) {
+	enableAxisNormalizationBottom(axisFlags & MPlotAxis::Bottom);
+	enableAxisNormalizationLeft(axisFlags & MPlotAxis::Left);
+	enableAxisNormalizationRight(axisFlags & MPlotAxis::Right);
+}
+
+void MPlot::setWaterfallLeft(double amount) {
+	waterfallLeftAmount_ = amount;
+	seriesCounterLeft_ = 0;
+	for(int i=0; i<items_.count(); i++) {
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(items_.at(i));
+		if(series && series->yAxisTarget() == MPlotAxis::Left)
+			series->setOffset(0, amount*seriesCounterLeft_++);
+	}
+}
+
+void MPlot::setWaterfallRight(double amount) {
+	waterfallRightAmount_ = amount;
+	seriesCounterRight_ = 0;
+	for(int i=0; i<items_.count(); i++) {
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(items_.at(i));
+		if(series && series->yAxisTarget() == MPlotAxis::Right)
+			series->setOffset(0, amount*seriesCounterRight_++);
+	}
+}
 
 
 MPlotGW::MPlotGW(QGraphicsItem* parent, Qt::WindowFlags flags) :

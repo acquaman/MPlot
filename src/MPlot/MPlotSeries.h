@@ -32,10 +32,23 @@ protected:
 };
 
 
-/// MPlotAbstractSeries is the base class for all MPlotItems that display series curves (2D curve data) on a plot.  Different drawing implementations are possible. One implementation is provided in MPlotSeriesBasic.
+/// MPlotAbstractSeries is the base class for all MPlotItems that display series curves (2D curve data) on a plot.
+/*! Different drawing implementations of MPlotAbstractSeries are possible, with various performance trade-offs. One implementation is provided in MPlotSeriesBasic.
+
+	Series curves have the ability to apply transformations on top of their underlying data (MPlotAbstractSeriesData).  This allows (for example) for two series to share the same data model(), but display it scaled or shifted in different ways:
+
+	- applyTransform(double sx, double sy, double dx, double dy) applies a constant transformation to all the data points. They are first scaled by (sx, sy) and then shifted by (dx, dy).
+	- Alternatively, you can use enableYAxisNormalization(bool on, double min, double max) or enableXAxisTransformation(bool on, double min, double max) to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform().
+	- Finally, you can apply an offset (commonly used for "waterfall" plots) using setOffset(double dx, double dy). This offset is always applied last, after applyTransform() or normalization is applied.
+	- currentTransform() returns the current transformation being applied on top of the data, either due to an explicit setTransform() call, or the transform that was calculated for the last normalization.
+	*/
+
 class MPlotAbstractSeries : public MPlotItem {
 
 public:
+
+	enum { Type = MPlotItem::Series };
+	int type() const { return Type; }
 
 	MPlotAbstractSeries();
 
@@ -59,6 +72,38 @@ public:
 
 	/// Re-implemented from MPlotItem to provide our line color as the legend color:
 	virtual QBrush legendColor() const { return QBrush(linePen_.color()); }
+
+
+	// Transformation and normalization
+	//////////////////////////////
+	/// Use this function to apply a constant transformation to the series, on top of the underlying data. All data points are first scaled by (\c sx, \c sy) and then shifted by (\c dx, \c dy).
+	/*! Calling this function will only have an effect on axes which do not have normalization enabled (using enableYAxisNormalization() or enableXAxisNormalization()). If you want your changes to stick, be sure to disable normalization first.*/
+	void applyTransform(double sx = 1, double sy = 1, double dx = 0, double dy = 0);
+	/// Call this function to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform() in the y-axis.
+	void enableYAxisNormalization(bool on = true, double min = 0, double max = 1);
+	/// Call this function to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform() in the x-axis.
+	void enableXAxisNormalization(bool on = true, double min = 0, double max = 1);
+
+	/// You can apply an offset (commonly used for "waterfall" plots) using setOffset(double dx, double dy). This offset is always applied last, after applyTransform() or normalization is applied.
+	void setOffset(double dx = 0, double dy = 0);
+
+	/// This function returns the current transformation being applied on top of the data, either due to an explicit applyTransform() call, or due to the transform that was calculated for the last normalization.  It does not include the waterfall offset().
+	/*! For performance, re-normalization is only carried out every paint event. The transform due to the last normalization will not be valid until a paint event occurs. */
+	QTransform currentTransform() const { return QTransform(	sx_, 0, 0,
+															0, sy_, 0,
+															dx_, dy_, 1.0); }
+
+	/// Same as currentTransform(), but includes the waterfall offset() in the translation
+	QTransform completeTransform() const { return QTransform(	sx_, 0, 0,
+															0, sy_, 0,
+															dx_+offset_.x(), dy_+offset_.y(), 1.0); }
+
+	/// Perfectly flat lines can't be amplified to anything, even with an infinite scale factor. This is a limit on the smallest normalization range
+#define MPLOT_MIN_NORMALIZATION_RANGE 1e-30
+
+	/// This function returns the current offset, which is a shift applied after all transformation and normalization is complete.
+	QPointF offset() const { return offset_; }
+
 
 
 	/// Required functions:
@@ -97,6 +142,27 @@ protected:
 	mutable QRectF cachedDataRect_;
 	/// If true, indicates that the cachedDataRect_ is stale. Set true when the model indicates data changed; set false when the cachedDataRect_ is updated inside boundingRect().
 	mutable bool dataChangedUpdateNeeded_;
+
+
+	// transformation and normalization
+	/////////////////////////
+
+	/// Scale and shift factors
+	mutable double sx_, sy_, dx_, dy_;
+
+	/// Offsets (applied last)
+	QPointF offset_;
+
+	/// Indicates whether normalization is on:
+	bool yAxisNormalizationOn_, xAxisNormalizationOn_;
+	/// Normalization ranges:
+	double normYMin_, normYMax_, normXMin_, normXMax_;
+
+	/// Helper function to return a the transformed, normalized, offsetted x value. (Only call when model() is valid, and i<model().count()!)
+	double xx(unsigned i) const { return data_->x(i)*sx_+dx_+offset_.x(); }
+	/// Helper function to return a the transformed, normalized, offsetted x value. (Only call when model() is valid, and i<model().count()!)
+	double yy(unsigned i) const { return data_->y(i)*sy_+dy_+offset_.y(); }
+
 
 	virtual void setDefaults();
 

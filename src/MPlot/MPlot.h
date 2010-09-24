@@ -44,7 +44,46 @@ protected:
 	MPlot* plot_;
 };
 
-/// This class provides plotting capabilities within a QGraphicsItem that can be added to any QGraphicsScene,
+/// This class provides plotting capabilities within a QGraphicsItem that can be added to any QGraphicsScene.  It can plot various types of geometric items, including 1D (x-y) series (MPlotAbstractSeries) and 2D images (MPlotAbstractImage).
+/*!
+
+  To add an item to a plot, simply create the plot, create the item, and then call MPlot::addItem().  Once added, items become children of the plot, and will be deleted when the plot is deleted.  Deleting an item automatically removes it from the plot.  To remove an item from a plot <i>without</i> deleting it, you can call MPlot::removeItem().
+
+<b> Axes and Axes Ranges</b>
+MPlot supports two independent (left and right) y-axes.  Whether an item is plotted on the right or on the left y-axis depends on its MPlotItem::yAxisTarget().
+
+\todo (When changing the axis target on a plot item, this should probably trigger a re-autoscale and a re-application of the waterfall offsets. It currently doesn't, because the change isn't signalled to MPlot.)
+
+The axis ranges for all three axes can be set manually using setXDataRange(), setYDataRangeLeft(), and setYDataRangeRight().  You can also specify an 'autoscale' flag for these functions, which will conduct a one-time fit of the axis range to match the extent of all the items currently plotted on that axis.  If you want the axes to continue auto-scaling in realtime as the data within them changes, use enableAutoScaleBottom(), enableAutoScaleLeft(), and enableAutoScaleRight().
+
+\note Leaving auto-scaling enabled requires more CPU resources, especially for large datasets. Several approaches are used to optimize this, including deferring computation of the new range limits until absolutely necessary.  This can allow the plot data to change several times for a single autoscale recomputation, which is done right before re-drawing the plot.  If you need the autoscale to occur immediately (for example, when using MPlot outside of a Qt event loop, or doing off-screen rendering), you can call doDelayedAutoScale().
+
+  <b>Transformations</b>
+
+  Beyond auto-scaling, MPlot offers convenience functions to apply transformations to the items within the plots.  You can use enableAxisNormalizationBottom(), enableAxisNormalizationLeft(), and enableAxisNormalizationRight() to keep all MPlotSeries items always scaled within a given range. (This is useful, for example, when wanting to comparing several series of very different magnitudes on the same plot.  Note that this mode is merely a convenient way to automatically enable normalization for all current and future MPlotAbstractSeries added to the plot; alternatively, you can configure MPlotAbstractSeries::enableYAxisNormalization() / MPlotAbstractSeries::enableXAxisNormalization() individually for each series.)
+
+  Another convenience transformation is provided by setWaterfallLeft() and setWaterfalRight(), which will stagger plot series items by a constant vertical offset.  This is most useful when combined with enableAxisNormalizationLeft()/Right(), since in this case all the series will share a common vertical scale.  (Again, this mode is just a convenient way to call MPlotAbstractSeries::setOffset() on all of the current and future plot series items -- You can always configure each series individually for finer control.)  To disable the waterfall effect, simply call setWaterfallLeft(0) / setWaterfallRight(0).
+
+  <b>Look and Feel</b>
+  The look and feel of plots is configured by accessing the individual components of the plot and setting their properties (for example, setting pens, brushes and fonts using the usual Qt function calls). These components include:
+
+  - The plot area: QGraphicsRectItem* plotArea(); (Plot area color/brush)
+  - The background: QGraphicsRectItem* background(); (Background color/brush)
+  - The axes: MPlotAxis* axisBottom(), axisTop(), axisLeft(), axisRight();  (Ticks, labels, axis names and fonts, gridlines, etc.)
+  - The legend: MPlotLegend* legend();  (Title and description text, alignment, whether to show legend entries for each plot item, etc.)
+
+  The margin sizes are configured directly (in percent of the total plot size) using setMargin() or setMarginLeft(), setMarginBottom(), etc.
+
+  To set up your favorite look-and feel for a commonly-used plot style, you can subclass MPlot and re-implement setDefaults().
+
+  <b> Plot Tools and Interaction</b>
+  In addition to adding plot items with addItem(), various kinds of interactive tools can be added to a plot using addTool().  These tools include cursors, zoom tools, and item selection tools:
+  - MPlotPlotSelectorTool: select an item on the plot by clicking
+  - MPlotWheelZoomerTool: zoom in and out on the mouse pointer location using the scroll wheel. (Similar to CAD program zoom navigation)
+  - MPlotDragZoomerTool: zoom in to a selected area by clicking and dragging a rubber band.
+  - MPlotCursorTool: place one or more cursors on the plot, and read their locations.
+  */
+
 class MPlot : public QGraphicsItem {
 
 public:
@@ -177,6 +216,13 @@ public:
 	void enableAutoScale(int axisFlags);
 
 
+	void enableAxisNormalizationBottom(bool normalizationOn, double min = 0, double max = 1);
+	void enableAxisNormalizationLeft(bool normalizationOn, double min = 0, double max = 1);
+	void enableAxisNormalizationRight(bool normalizationOn, double min = 0, double max = 1);
+	void enableAxisNormalization(int axisFlags);
+
+	void setWaterfallLeft(double amount = 0.2);
+	void setWaterfallRight(double amount = 0.2);
 
 	void setScalePadding(double percent);
 
@@ -188,7 +234,7 @@ public:
 
 	void setYDataRangeRight(double min, double max, bool autoscale = false, bool applyPadding = true);
 
-	/// called automatically when control returns to the event loop, this completes a delayed autoscale. (Recomputing the scale limits is optimized to be only done when necessary, rather than whenever the values change.)  If you need the scene to be updated NOW! (for example, you're working outside of an event loop, or rendering before returning to the event loop), you can call this manually.
+	/// called automatically when control returns to the event loop, this completes a delayed autoscale. (Recomputing the scale limits is optimized to be only done when necessary, rather than whenever the data values change.)  If you need the scene to be updated NOW! (for example, you're working outside of an event loop, or rendering before returning to the event loop), you can call this manually.
 	void doDelayedAutoScale();
 
 
@@ -219,9 +265,15 @@ protected:
 	/// The rectangle containing the plotting area, in scene coordinates. (plotArea_ and dataArea_ are scaled so that their local coordinates are from (0,0) to (1,1) instead.)
 	QRectF plotAreaRect_;
 
-	bool autoScaleBottomEnabled_;
-	bool autoScaleLeftEnabled_;
-	bool autoScaleRightEnabled_;
+	bool autoScaleBottomEnabled_, autoScaleLeftEnabled_, autoScaleRightEnabled_;
+
+	bool normBottomEnabled_, normLeftEnabled_, normRightEnabled_;
+	QPair<double, double> normBottomRange_, normLeftRange_, normRightRange_;
+
+	double waterfallLeftAmount_, waterfallRightAmount_;
+
+	/// Caching/optimization: counts the number of MPlotAbstractSeries plotted on the left and right axes
+	mutable int seriesCounterLeft_, seriesCounterRight_;
 
 	/// Indicates that a re-autoscale has been scheduled (Actually doing it is deferred until returning back to the event loop)
 	bool autoScaleScheduled_;

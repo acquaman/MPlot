@@ -57,8 +57,20 @@ class MPlotItem : public QGraphicsItem {
 
 public:
 
+	/// Used to distinguish types/subclasses of MPlotItem.  See MPlotItem::type() and QGraphicsItem::type().
+	enum ItemTypes { PlotItem = QGraphicsItem::UserType + 3003, Series, Image };
+
+	enum { Type = PlotItem };
+
+	/// Returns the type of this item, to enable qgraphicsitem_cast() for casting to different MPlotItem subclasses.
+	int type() const {
+		return Type;
+	}
+
 	/// Constructor calls base class (QGraphicsObject)
 	MPlotItem();
+
+
 
 	/// \todo What to do about being connected to multiple plots?
 
