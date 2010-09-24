@@ -177,7 +177,7 @@ QPainterPath MPlotAbstractSeries::shape() const {
 
 
 
-void MPlotAbstractSeries::onDataChangedPrivate() {
+void	MPlotAbstractSeries::onDataChangedPrivate() {
 	// flag cached bounding rect as dirty:
 	dataChangedUpdateNeeded_ = true;
 	// warn that bounding rect is going to change:
@@ -224,6 +224,10 @@ void MPlotAbstractSeries::enableYAxisNormalization(bool on, double min, double m
 		normYMin_ = min;
 		normYMax_ = max;
 	}
+	else {
+		sy_ = 1.0;
+		dy_ = 0.0;
+	}
 
 	onDataChangedPrivate();
 }
@@ -234,6 +238,10 @@ void MPlotAbstractSeries::enableXAxisNormalization(bool on, double min, double m
 	if(on) {
 		normXMin_ = min;
 		normXMax_ = max;
+	}
+	else {
+		sx_ = 1.0;
+		sy_ = 0.0;
 	}
 
 	onDataChangedPrivate();

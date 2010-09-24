@@ -280,6 +280,8 @@ void MPlotAxis::placeAxis() {
 		}
 	}
 
+	// test: is this the right place for it?
+	prepareGeometryChange();
 	// repaint:
 	update();
 }
