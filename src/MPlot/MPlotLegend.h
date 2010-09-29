@@ -44,7 +44,7 @@ public:
 	}
 
 	/// Trigger an update to the legend:
-	void onLegendContentChanged(MPlotItem* changedItem);
+	void onLegendContentChanged(MPlotItem* changedItem = 0);
 
 protected:
 	QString titleText_, bodyText_, fullText_;

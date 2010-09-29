@@ -13,20 +13,21 @@ MPlotLegend::MPlotLegend(MPlot* plot, QGraphicsItem* parent) : QGraphicsTextItem
 
 void MPlotLegend::redoText() {
 
-	fullText_ = QString("<p align=right><font color=#%1%2%3 size=+1>")
-				.arg(titleTextColor_.red(), 2, 16, QChar('0'))
-				.arg(titleTextColor_.green(), 2, 16, QChar('0'))
-				.arg(titleTextColor_.blue(), 2, 16, QChar('0'));
-	fullText_.append(titleText_);
-	fullText_.append("</font>");
-
+	if(!titleText_.isEmpty()) {
+		fullText_ = QString("<p align=right><font color=#%1%2%3 size=+1>")
+					.arg(titleTextColor_.red(), 2, 16, QChar('0'))
+					.arg(titleTextColor_.green(), 2, 16, QChar('0'))
+					.arg(titleTextColor_.blue(), 2, 16, QChar('0'));
+		fullText_.append(titleText_);
+		fullText_.append("</font><br>");
+	}
 	if(!bodyText_.isEmpty()) {
-		fullText_.append(QString("<br><font color=#%1%2%3 size=-1>")
+		fullText_.append(QString("<font color=#%1%2%3 size=-1>")
 						 .arg(bodyTextColor_.red(), 2, 16, QChar('0'))
 						 .arg(bodyTextColor_.green(), 2, 16, QChar('0'))
 						 .arg(bodyTextColor_.blue(), 2, 16, QChar('0')));
 		fullText_.append(bodyText_);
-		fullText_.append("</font>");
+		fullText_.append("</font><br>");
 	}
 
 	if(defaultLegendEnabled_ && plot_) {
@@ -38,7 +39,7 @@ void MPlotLegend::redoText() {
 				description = QString("Item %1").arg(i);
 
 			QColor color = plot_->item(i)->legendColor().color();
-			fullText_.append(QString("<br><font color=#%1%2%3 size=-1>%4</font>")
+			fullText_.append(QString("<font color=#%1%2%3 size=-1>%4</font><br>")
 						 .arg(color.red(), 2, 16, QChar('0'))
 						 .arg(color.green(), 2, 16, QChar('0'))
 						 .arg(color.blue(), 2, 16, QChar('0'))

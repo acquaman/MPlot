@@ -168,6 +168,8 @@ bool MPlot::removeItem(MPlotItem* removeMe) {
 		// this also might need to trigger a re-scale... for ex: if removeMe had the largest/smallest bounds of all plots associated with an auto-scaling axis.
 		onBoundsChanged(removeMe);
 
+		legend()->onLegendContentChanged();
+
 		return true;
 	}
 	else
