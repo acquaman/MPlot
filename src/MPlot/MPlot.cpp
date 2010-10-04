@@ -106,10 +106,12 @@ QRectF MPlot::boundingRect() const {
 	return rect_;
 }
 
-/// Use this to add a new data-item to a plot:
-void MPlot::addItem(MPlotItem* newItem) {
+void MPlot::insertItem(MPlotItem* newItem, int index) {
+	if(index < 0 || index > numItems())
+		index = numItems();
+
 	newItem->setParentItem(dataArea_);
-	items_ << newItem;
+	items_.insert(index, newItem);
 	newItem->setPlot(this);
 
 	// hook up "signals"
