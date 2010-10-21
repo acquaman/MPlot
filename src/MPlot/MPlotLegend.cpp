@@ -59,8 +59,6 @@ void MPlotLegend::redoText() {
 void MPlotLegend::onLegendContentChanged(MPlotItem *changedItem) {
 	Q_UNUSED(changedItem)
 
-	qDebug() << "caught legend content changed";
-
 	if(defaultLegendEnabled_)
 		redoText();
 
