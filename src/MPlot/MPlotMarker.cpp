@@ -61,7 +61,7 @@ MPlotMarkerCircle::MPlotMarkerCircle(double size, const QPen& pen, const QBrush&
 }
 
 void MPlotMarkerCircle::paint(QPainter* painter) {
-	painter->drawEllipse(-size_/2, -size_/2, size_, size_);
+	painter->drawEllipse(QRectF(-size_/2, -size_/2, size_, size_));
 }
 
 
