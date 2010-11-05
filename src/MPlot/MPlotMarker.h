@@ -25,7 +25,7 @@ class MPlotAbstractMarker {
 
 public:
 	MPlotAbstractMarker(double size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
-	~MPlotAbstractMarker();
+	virtual ~MPlotAbstractMarker();
 
 	virtual void setSize(double size);
 	virtual double size();
