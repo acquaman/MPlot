@@ -43,7 +43,7 @@ class MPlotAbstractImageData {
 public:
 	MPlotAbstractImageData();
 
-	~MPlotAbstractImageData();
+	virtual ~MPlotAbstractImageData();
 
 	/// Use this proxy object to receive dataChanged() and boundsChanged() signals from the data
 	MPlotImageDataSignalSource* signalSource() const { return signalSource_; }

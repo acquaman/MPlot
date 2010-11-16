@@ -38,9 +38,7 @@
 	 plotWindow.enableAntiAliasing(true);
 
 	 // An MPlot is the QGraphicsItem representing a 2D Plot:
-	 MPlot plot;
-	 // Connecting the window to view the plot:
-	 plotWindow.setPlot(&plot);
+
 
 	 // 2. Configuring Axis settings (Look and style; placement and number of tick marks)
 	 //////////////////////////////////

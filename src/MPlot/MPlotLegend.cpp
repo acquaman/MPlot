@@ -13,11 +13,13 @@ MPlotLegend::MPlotLegend(MPlot* plot, QGraphicsItem* parent) : QGraphicsTextItem
 
 void MPlotLegend::redoText() {
 
+	fullText_ = QString();
+
 	if(!titleText_.isEmpty()) {
-		fullText_ = QString("<p align=right><font color=#%1%2%3 size=+1>")
+		fullText_.append(QString("<p align=right><font color=#%1%2%3 size=+1>")
 					.arg(titleTextColor_.red(), 2, 16, QChar('0'))
 					.arg(titleTextColor_.green(), 2, 16, QChar('0'))
-					.arg(titleTextColor_.blue(), 2, 16, QChar('0'));
+					.arg(titleTextColor_.blue(), 2, 16, QChar('0')));
 		fullText_.append(titleText_);
 		fullText_.append("</font><br>");
 	}
@@ -40,10 +42,10 @@ void MPlotLegend::redoText() {
 
 			QColor color = plot_->item(i)->legendColor().color();
 			fullText_.append(QString("<font color=#%1%2%3 size=-1>%4</font><br>")
-						 .arg(color.red(), 2, 16, QChar('0'))
-						 .arg(color.green(), 2, 16, QChar('0'))
-						 .arg(color.blue(), 2, 16, QChar('0'))
-						 .arg(description));
+							 .arg(color.red(), 2, 16, QChar('0'))
+							 .arg(color.green(), 2, 16, QChar('0'))
+							 .arg(color.blue(), 2, 16, QChar('0'))
+							 .arg(description));
 		}
 
 	}

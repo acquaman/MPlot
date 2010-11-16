@@ -7,7 +7,7 @@
 /// Defines the minimum distance between min- and max- values for the range of an axis. Without this check, calling setXDataRange(3, 3) or set___DataRange(f, g=f) will cause a segfault within Qt's drawing functions... it can't handle a clipPath with a width of 0.
 #define MPLOT_MIN_AXIS_RANGE 1e-60
 
-
+#include <QDebug>
 
 MPlotSignalHandler::MPlotSignalHandler(MPlot* parent)
 	: QObject(0) {
@@ -106,10 +106,12 @@ QRectF MPlot::boundingRect() const {
 	return rect_;
 }
 
-/// Use this to add a new data-item to a plot:
-void MPlot::addItem(MPlotItem* newItem) {
+void MPlot::insertItem(MPlotItem* newItem, int index) {
+	if(index < 0 || index > numItems())
+		index = numItems();
+
 	newItem->setParentItem(dataArea_);
-	items_ << newItem;
+	items_.insert(index, newItem);
 	newItem->setPlot(this);
 
 	// hook up "signals"

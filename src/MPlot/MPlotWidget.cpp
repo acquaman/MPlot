@@ -28,9 +28,10 @@ void MPlotSceneAndView::enableAntiAliasing(bool antiAliasingOn) {
 
 
 MPlotSceneAndView::~MPlotSceneAndView() {
-	QGraphicsScene* scene = this->scene();
-	setScene(0);
-	delete scene;
+	//QGraphicsScene* scene = this->scene();
+	//setScene(0);
+	if (scene())
+		delete scene();
 }
 
 

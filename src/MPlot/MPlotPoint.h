@@ -42,6 +42,10 @@ public:
 					   const QStyleOptionGraphicsItem* option,
 					   QWidget* widget);
 
+
+	/// Re-implemented from MPlotItem to provide our line color as the legend color:
+	virtual QBrush legendColor() const { if (marker_) return QBrush(marker_->pen().color()); else return QBrush(QColor(127, 127, 127)); }
+
 protected:
 	QPen selectedPen_;
 	MPlotAbstractMarker* marker_;

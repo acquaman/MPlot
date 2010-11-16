@@ -93,8 +93,10 @@ public:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 	virtual QRectF boundingRect() const;
 
-	/// Use this to add a new data-item to a plot:
-	void addItem(MPlotItem* newItem);
+	/// Use this to append a new data-item to a plot:
+	void addItem(MPlotItem* newItem) { insertItem(newItem, -1); }
+	/// Use this to insert a new data-item into the plot, at a given index. \c index must be between 0 and numItems(), or -1 to append.
+	void insertItem(MPlotItem* newItem, int index = -1);
 	/// Remove a data-item from a plot. (Note: Does not delete the item...)
 	bool removeItem(MPlotItem* removeMe);
 
