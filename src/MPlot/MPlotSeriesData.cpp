@@ -11,6 +11,7 @@ MPlotSeriesDataSignalSource::MPlotSeriesDataSignalSource(MPlotAbstractSeriesData
 MPlotAbstractSeriesData::MPlotAbstractSeriesData()
 {
 	signalSource_ = new MPlotSeriesDataSignalSource(this);
+	cachedDataRectUpdateRequired_ = true;
 }
 
 MPlotAbstractSeriesData::~MPlotAbstractSeriesData()
@@ -18,6 +19,61 @@ MPlotAbstractSeriesData::~MPlotAbstractSeriesData()
 	delete signalSource_;
 	signalSource_ = 0;
 }
+
+
+
+QRectF MPlotAbstractSeriesData::boundingRect() const {
+	if(count() == 0)
+		return QRectF();
+
+	if(cachedDataRectUpdateRequired_) {
+		double minY = searchMinY();
+		double maxY = searchMaxY();
+		double minX = searchMinX();
+		double maxX = searchMaxX();
+
+		cachedDataRect_ = QRectF(minX, minY, maxX-minX, maxY-minY);
+		cachedDataRectUpdateRequired_ = false;
+	}
+
+	return cachedDataRect_;
+}
+
+double MPlotAbstractSeriesData::searchMinY() const {
+	double extreme = y(0);
+	for(int i=1; i<count(); i++)
+		if(y(i) < extreme)
+			extreme = y(i);
+	return extreme;
+}
+double MPlotAbstractSeriesData::searchMaxY() const {
+	double extreme = y(0);
+	for(int i=1; i<count(); i++)
+		if(y(i) > extreme)
+			extreme = y(i);
+	return extreme;
+}
+double MPlotAbstractSeriesData::searchMinX() const {
+	double extreme = x(0);
+	for(int i=1; i<count(); i++)
+		if(x(i) < extreme)
+			extreme = x(i);
+	return extreme;
+
+}
+double MPlotAbstractSeriesData::searchMaxX() const {
+	double extreme = x(0);
+	for(int i=1; i<count(); i++)
+		if(x(i) > extreme)
+			extreme = x(i);
+	return extreme;
+}
+
+
+
+
+
+
 
 MPlotRealtimeModel::MPlotRealtimeModel(QObject *parent) :
 		QAbstractTableModel(parent), MPlotAbstractSeriesData(), xName_("x"), yName_("y")
@@ -32,7 +88,7 @@ int MPlotRealtimeModel::rowCount(const QModelIndex & /*parent*/) const {
 	return xval_.count();
 }
 
-unsigned MPlotRealtimeModel::count() const {
+int MPlotRealtimeModel::count() const {
 	return xval_.count();
 }
 

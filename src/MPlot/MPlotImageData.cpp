@@ -13,6 +13,7 @@ MPlotImageDataSignalSource::MPlotImageDataSignalSource(MPlotAbstractImageData *p
 MPlotAbstractImageData::MPlotAbstractImageData()
 {
 	signalSource_ = new MPlotImageDataSignalSource(this);
+	minMaxCacheUpdateRequired_ = true;
 }
 
 MPlotAbstractImageData::~MPlotAbstractImageData()
@@ -21,38 +22,51 @@ MPlotAbstractImageData::~MPlotAbstractImageData()
 	signalSource_ = 0;
 }
 
-/// Convenience function overloads:
-double MPlotAbstractImageData::x(const QPoint& index) const {
-	return x(index.x());
+/// Searches for minimum z value
+double MPlotAbstractImageData::minZ() const {
+	QPoint c = count();
+	double extreme = value(0,0);
+	for(int xx=0; xx<c.x(); xx++)
+		for(int yy=0; yy<c.y(); yy++)
+			if(value(xx, yy) < extreme)
+				extreme = value(xx, yy);
+	return extreme;
+}
+/// Searches for maximum z value
+double MPlotAbstractImageData::maxZ() const {
+	QPoint c = count();
+	double extreme = value(0,0);
+	for(int xx=0; xx<c.x(); xx++)
+		for(int yy=0; yy<c.y(); yy++)
+			if(value(xx, yy) > extreme)
+				extreme = value(xx, yy);
+	return extreme;
 }
 
-double MPlotAbstractImageData::y(const QPoint& index) const {
-	return y(index.y());
+MPlotInterval MPlotAbstractImageData::range() const {
+
+	// empty data set? Return default interval of (0,1)
+	QPoint c = count();
+	if(c.x() == 0 || c.y() == 0)
+		return MPlotInterval(0,1);
+
+	if(minMaxCacheUpdateRequired_) {
+		minMaxCache_ = MPlotInterval(minZ(), maxZ());
+		minMaxCacheUpdateRequired_ = false;
+	}
+
+	return minMaxCache_;
 }
 
-double MPlotAbstractImageData::z(const QPoint& index) const {
-	return z(index.x(), index.y());
-}
 
-double MPlotAbstractImageData::value(const QPoint& index) const {
-	return z(index);
-}
 
-double MPlotAbstractImageData::value(unsigned xIndex, unsigned yIndex) const {
-	return z(xIndex, yIndex);
-}
 
-/// Convenience function overloads:
-void MPlotAbstractImageData::setZ(double value, const QPoint& index) {
-	setZ(value, index.x(), index.y() );
-}
 
-void MPlotAbstractImageData::setValue(double value, const QPoint& index) {
-	setZ(value, index);
-}
 
-/// Identical to count(), but returning the information as a QSize instead of QPoint
-QSize MPlotAbstractImageData::size() const { return QSize(count().x(), count().y()); }
+
+
+
+
 
 
 /// This class is a very basic 2D array which implements the MPlotAbstractImageData interface
@@ -72,19 +86,19 @@ MPlotSimpleImageData::MPlotSimpleImageData(const QRectF& dataBounds, const QSize
 
 
 /// Return the x (data value) corresponding an (x,y) \c index:
-double MPlotSimpleImageData::x(unsigned indexX) const  {
+double MPlotSimpleImageData::x(int indexX) const  {
 
 	return bounds_.left() + bounds_.width()*indexX/num_.x();
 
 }
 /// Return the y (data value) corresponding an (x,y) \c index:
-double MPlotSimpleImageData::y(unsigned indexY) const {
+double MPlotSimpleImageData::y(int indexY) const {
 
 	return bounds_.top() + bounds_.height()*indexY/num_.y();
 }
 
 /// Return the z = f(x,y) value corresponding an (x,y) \c index:
-double MPlotSimpleImageData::z(unsigned indexX, unsigned indexY) const {
+double MPlotSimpleImageData::z(int indexX, int indexY) const {
 
 	if((int)indexX>=num_.x() || (int)indexY>=num_.y())
 		return -1.;
@@ -117,7 +131,7 @@ MPlotInterval MPlotSimpleImageData::range() const {
 
 
 /// set the z value at \c index:
-void MPlotSimpleImageData::setZ(double value, unsigned indexX, unsigned indexY) {
+void MPlotSimpleImageData::setZ(double value, int indexX, int indexY) {
 
 	// if we're modifying what used to be the maximum value, and this new one is smaller, we've lost our max tracking. Don't know anymore.
 	if((int)indexX == maxIndex_.x() && (int)indexY == maxIndex_.y() && value < d_[maxIndex_.y()][maxIndex_.x()])

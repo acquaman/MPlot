@@ -29,7 +29,7 @@ signals:
 	void dataChanged();
 };
 
-/// This defines the interface for classes which may be used for Series (XY) plot data.
+/// This defines the interface for classes which may be used for Series (XY scatter) plot data.
 class MPlotAbstractSeriesData  {
 
 public:
@@ -39,23 +39,43 @@ public:
 	/// Use this object to receive signals from the data when the data has changed in any way (ie: new points, deleted points, or values changed)
 	MPlotSeriesDataSignalSource* signalSource() const { return signalSource_; }
 
-	// Return the x-value (y-value) at index:
+	/// Return the x-value at index:
 	virtual double x(unsigned index) const = 0;
+	/// Return the y-value at index:
 	virtual double y(unsigned index) const = 0;
 
-	// Return the number of elements
-	virtual unsigned count() const = 0;
+	/// Return the number of elements
+	virtual int count() const = 0;
 
 
-	// Return the bounds of the data (the rectangle containing the max/min x- and y-values)
-	virtual QRectF boundingRect() const = 0;
+	/// Return the bounds of the data (the rectangle containing the max/min x- and y-values). It should be expressed as: QRectF(left, top, width, height) = QRectF(minX, minY, maxX-minX, maxY-minY);
+	/*! \todo Should we change this so that the QRectF's "top()" is actually maxY instead of minY?
+
+The base class implementation does a linear search through the data for the maximum and minimum values. It caches the result, and invalidates this result whenever the data changes (ie: emitDataChanged() is called). If you have a faster way of determining the bounds of the data, be sure to re-implement this. */
+	virtual QRectF boundingRect() const;
+
+private:
+	MPlotSeriesDataSignalSource* signalSource_;
+	friend class MPlotSeriesDataSignalSource;
 
 protected:
-	MPlotSeriesDataSignalSource* signalSource_;
 	/// Implementing classes should call this when their x- y- data changes in any way (ie: points added, points removed, or even values changed such that the bounds of the plot might be different.)
-	void emitDataChanged() { signalSource_->emitDataChanged(); }
+	void emitDataChanged() { cachedDataRectUpdateRequired_ = true; signalSource_->emitDataChanged(); }
 
-	friend class MPlotSeriesDataSignalSource;
+protected:
+	/// Implements caching for the search-based version of boundingRect().
+	mutable QRectF cachedDataRect_;
+	/// Implements caching for the search-based version of boundingRect().
+	mutable bool cachedDataRectUpdateRequired_;
+	/// Search for minimum Y value. Call only when count() > 0.
+	double searchMinY() const;
+	/// Search for extreme value. Call only when count() > 0.
+	double searchMaxY() const;
+	/// Search for extreme value. Call only when count() > 0.
+	double searchMinX() const;
+	/// Search for extreme value. Call only when count() > 0.
+	double searchMaxX() const;
+
 
 
 	// todo: to support multi-threading, consider a
@@ -81,7 +101,7 @@ public:
 	MPlotRealtimeModel(QObject *parent = 0);
 
 	int rowCount(const QModelIndex & /*parent*/) const;
-	virtual unsigned count() const;
+	virtual int count() const;
 	int columnCount(const QModelIndex & /*parent*/) const;
 
 	virtual double x(unsigned index) const;

@@ -163,7 +163,7 @@ QPainterPath MPlotAbstractSeries::shape() const {
 
 	else if(data_ && data_->count() > 0) {
 		shape.moveTo(xx(0), yy(0));
-		for(unsigned i=0; i<data_->count(); i++)
+		for(int i=0; i<data_->count(); i++)
 			shape.lineTo(xx(i), yy(i));
 
 		for(int i=data_->count()-2; i>=0; i--)
@@ -352,7 +352,7 @@ void MPlotSeriesBasic::paintLines(QPainter* painter) {
 		ymin = ymax = ystart = yy(0);
 
 		// move through the datapoints along x. (Note that x could be jumping forward or backward here... it's not necessarily sorted)
-		for(unsigned i=1; i<data_->count(); i++) {
+		for(int i=1; i<data_->count(); i++) {
 			// if within the range around xstart: update max/min to be representative of this range
 			if(fabs(xx(i) - xstart) < xinc) {
 				if(yy(i) > ymax)
@@ -387,7 +387,7 @@ void MPlotSeriesBasic::paintMarkers(QPainter* painter) {
 
 	if(data_ && marker_) {
 
-		for(unsigned i=0; i<data_->count(); i++) {
+		for(int i=0; i<data_->count(); i++) {
 			// Paint marker:
 			painter->save();
 			painter->translate(xx(i), yy(i));

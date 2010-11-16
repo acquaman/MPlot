@@ -35,9 +35,9 @@ signals:
 };
 
 
-/// this class defines the interface to represent 3D data z = f(x,y), used by image plots and contour plots.
-  // copied=pasted from MPlotSeriesData. Fix.
-  // todo: figure out resolution question. Data sets resolution? plot sets resoution>?
+/// This class defines the interface to represent 3D data z = f(x,y), used by image plots and contour plots.
+  /*! \todo: figure out resolution question. Data sets resolution? plot sets resoution>?
+	*/
 class MPlotAbstractImageData {
 
 public:
@@ -49,49 +49,52 @@ public:
 	MPlotImageDataSignalSource* signalSource() const { return signalSource_; }
 
 	/// Return the x (data value) corresponding an (x,y) \c index:
-	virtual double x(unsigned indexX) const = 0;
+	virtual double x(int indexX) const = 0;
 	/// Return the y (data value) corresponding an (x,y) \c index:
-	virtual double y(unsigned indexY) const = 0;
+	virtual double y(int indexY) const = 0;
 	/// Return the z = f(x,y) value corresponding an (x,y) \c index:
-	virtual double z(unsigned xIndex, unsigned yIndex) const = 0;
+	virtual double z(int xIndex, int yIndex) const = 0;
 
 	/// Convenience function overloads:
-	virtual double x(const QPoint& index) const;
-	virtual double y(const QPoint& index) const;
-	virtual double z(const QPoint& index) const;
-	virtual double value(const QPoint& index) const;
-	virtual double value(unsigned xIndex, unsigned yIndex) const;
+	double x(const QPoint& index) const { return x(index.x()); }
+	double y(const QPoint& index) const { return y(index.y()); }
+	double z(const QPoint& index) const { return z(index.x(), index.y()); }
+	double value(const QPoint& index) const { return z(index.x(), index.y()); }
+	double value(int xIndex, int yIndex) const { return z(xIndex, yIndex); }
 
-
-	/// Set the z value at \c index
-	virtual void setZ(double value, unsigned xIndex, unsigned yIndex) = 0;
-
-	/// Convenience function overloads:
-	virtual void setZ(double value, const QPoint& index);
-	virtual void setValue(double value, const QPoint& index);
 
 
 	/// Return the number of elements in x and y
 	virtual QPoint count() const = 0;
 	/// Identical to count(), but returning the information as a QSize instead of QPoint
-	virtual QSize size() const;
+	QSize size() const { QPoint c = count(); return QSize(c.x(), c.y()); }
 
 
 	/// Return the bounds of the data (the rectangle containing the max/min x- and y-values)
 	virtual QRectF boundingRect() const = 0;
-	/// Return the minimum and maximum z values:
-	virtual MPlotInterval range() const = 0;
+	/// Return the minimum and maximum z values. The base implementation does a search through all data values, and caches the result until the z-values change (ie: until emitDataChanged() is called.)  If your implementation has a faster way of doing this, please re-implement.
+	virtual MPlotInterval range() const;
 
-protected:
+private:
 	/// Proxy object for emitting signals:
 	MPlotImageDataSignalSource* signalSource_;
 	friend class MPlotImageDataSignalSource;
 
+protected:
+
 	/// Implementing classes should call this when their z- data changes in value
-	void emitDataChanged() { signalSource_->emitDataChanged(); }
+	void emitDataChanged() { minMaxCacheUpdateRequired_ = true; signalSource_->emitDataChanged(); }
 	/// Implementing classes should call this when their x- y- data changes in extent
 	void emitBoundsChanged() { signalSource_->emitBoundsChanged(); }
 
+	/// Used to cache the minimum and maximum Z-values
+	mutable MPlotInterval minMaxCache_;
+	/// Used to cache the minimum and maximum Z-values
+	mutable bool minMaxCacheUpdateRequired_;
+	/// Searches for minimum z value
+	double minZ() const;
+	/// Searches for maximum z value
+	double maxZ() const;
 
 
 	// todo: to support multi-threading, consider a
@@ -113,12 +116,12 @@ public:
 
 
 	/// Return the x (data value) corresponding an (x,y) \c index:
-	virtual double x(unsigned indexX) const;
+	virtual double x(int indexX) const;
 	/// Return the y (data value) corresponding an (x,y) \c index:
-	virtual double y(unsigned indexY) const;
+	virtual double y(int indexY) const;
 
 	/// Return the z = f(x,y) value corresponding an (x,y) \c index:
-	virtual double z(unsigned indexX, unsigned indexY) const;
+	virtual double z(int indexX, int indexY) const;
 
 	/// Return the number of elements in x and y
 	virtual QPoint count() const;
@@ -131,8 +134,17 @@ public:
 	virtual MPlotInterval range() const;
 
 
-	/// set the z value at \c index:
-	virtual void setZ(double value, unsigned indexX, unsigned indexY);
+
+	/// Read/Write interface. Can also set the z value at \c index.
+	virtual void setZ(double value, int indexX, int indexY);
+	/// Convenience function overload.
+	void setZ(double value, const QPoint& index) {
+		setZ(value, index.x(), index.y() );
+	}
+	/// Convenience function overload.
+	void setValue(double value, const QPoint& index) {
+		setZ(value, index.x(), index.y());
+	}
 
 protected:
 	/// resolution: number of values in x and y
