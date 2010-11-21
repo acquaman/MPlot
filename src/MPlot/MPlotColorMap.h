@@ -50,7 +50,9 @@ class MPlotColorMap {
 public:
 
 	/// Describes the interpolation mode used to interpolate between color stops.  RGB is fastest, while HSV preserves human-perception-based color relationships.
-	enum BlendMode { RGB, HSB };
+	enum BlendMode { RGB, HSV };
+	/// Predefined (standard) color maps. These colormaps are pre-computed in memory, and can be copied very quickly.
+	enum StandardColorMap { Autumn, Bone, ColorCube, Cool, Copper, Flag, Gray, Hot, Hsv, Jet, Pink, Prism, Spring, Summer, White, Winter };
 
 	/// Constructs a default color map (Corresponding to MPlotColorMap::Jet)
 	MPlotColorMap(int resolution = 256);
@@ -58,11 +60,13 @@ public:
 	MPlotColorMap(const QColor& color1, const QColor& color2, int resolution = 256);
 	/// Constructs a color map based on a set of initial \c colorStops
 	MPlotColorMap(const QGradientStops& colorStops, int resolution = 256);
+	/// Convenience constructor based on the pre-built color maps that are used in other applications.
+	MPlotColorMap(StandardColorMap colorMap, int resolution = 256);
 
 
-	QColor colorAt(double value) const { return QColor(rgbAt(value)); }
-	QColor colorAt(double value, MPlotInterval range) const { return QColor(rgbAt(value, range)); }
-	QColor colorAtIndex(int index) const { return QColor(rgbAtIndex(index)); }
+	QColor colorAt(double value) const { return QColor::fromRgba(rgbAt(value)); }
+	QColor colorAt(double value, MPlotInterval range) const { return QColor::fromRgba(rgbAt(value, range)); }
+	QColor colorAtIndex(int index) const { return QColor::fromRgba(rgbAtIndex(index)); }
 
 	QRgb rgbAt(double value) const;
 	QRgb rgbAt(double value, MPlotInterval range) const;
@@ -73,6 +77,8 @@ public:
 	QGradientStops stops() const;
 	/// Replaces the current set of stop points with the given \c stopPoints. The positions of the points must be in the range 0 to 1, and must be sorted with the lowest point first.
 	void setStops(const QGradientStops& stopPoints);
+	/// Adds a stop the given \c position with the color \c color.
+	void addStopAt(double position, const QColor& color);
 
 	/// Returns the resolution (number of color steps) in the pre-computed color map.
 	int resolution() const;
@@ -85,26 +91,6 @@ public:
 	/// Set the interpolation mode used to interpolate between color stops.
 	void setBlendMode(BlendMode newBlendMode);
 
-
-
-	/// Predefined (standard) color maps. These colormaps are pre-computed in memory, and can be copied very quickly.
-	static MPlotColorMap& Autumn;
-	static MPlotColorMap& Bone;
-	static MPlotColorMap& ColorCube;
-	static MPlotColorMap& Cool;
-	static MPlotColorMap& Copper;
-	static MPlotColorMap& Flag;
-	static MPlotColorMap& Gray;
-	static MPlotColorMap& Hot;
-	static MPlotColorMap& Hsv;
-	static MPlotColorMap& Jet;
-	static MPlotColorMap& Pink;
-	static MPlotColorMap& Prism;
-	static MPlotColorMap& Spring;
-	static MPlotColorMap& Summer;
-	static MPlotColorMap& White;
-	static MPlotColorMap& Winter;
-
 protected:
 	/// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.
 	void recomputeCachedColors();
@@ -113,6 +99,12 @@ protected:
 	QVector<QRgb> colorArray_;
 	/// Stores the current color stops which define the map.
 	QGradientStops colorStops_;
+
+private:
+	/// Returns the index for the color array if given a value within a range between 0 and 1.
+	int colorIndex(QGradientStop stop);
+
+	BlendMode blendMode_;
 
 };
 

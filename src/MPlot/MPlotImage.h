@@ -40,10 +40,10 @@ public:
 
 	// Properties:
 	/// Set the color map, used to convert numeric values into pixel colors. \c map must be a reference to a color map that exists elsewhere, and must exist as long as it is set. (We don't make a copy of the map).
-	virtual void setColorMap(MPlotAbstractColorMap* map);
+	virtual void setColorMap(const MPlotColorMap& map);
 
 	/// Returns a reference to the active color map.
-	virtual MPlotAbstractColorMap* colorMap();
+	virtual MPlotColorMap colorMap() const;
 
 	// Sets this series to view the model in 'data';
 	virtual void setModel(const MPlotAbstractImageData* data);
@@ -66,8 +66,7 @@ protected:
 
 	const MPlotAbstractImageData* data_;
 
-	MPlotLinearColorMap defaultColorMap_;
-	MPlotAbstractColorMap* map_;
+	MPlotColorMap map_;
 
 	virtual void setDefaults();
 
