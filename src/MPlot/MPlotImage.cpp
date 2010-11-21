@@ -179,6 +179,8 @@ QRectF MPlotImageBasic::boundingRect() const {
 
 
 /// Called when the z-data changes, so that the plot needs to be updated. This fills the pixmap buffer
+/// \todo CRITICAL TODO: only schedule this, and perform it the next time it needs to be drawn... Don't re-compute the image every time.
+zzzzzzz
 void MPlotImageBasic::onDataChanged() {
 
 	if(data_) {
