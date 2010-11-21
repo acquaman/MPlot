@@ -17,13 +17,11 @@ void MPlotImageSignalHandler::onDataChanged() {
 }
 
 MPlotAbstractImage::MPlotAbstractImage()
-	: MPlotItem(),
-	defaultColorMap_()
+	: MPlotItem()
 {
 
 	signalHandler_ = new MPlotImageSignalHandler(this);
 
-	map_ = &defaultColorMap_;
 	data_ = 0;
 
 	// Set style defaults:
@@ -43,15 +41,14 @@ MPlotAbstractImage::~MPlotAbstractImage() {
 
 // Properties:
 /// Set the color map, used to convert numeric values into pixel colors. \c map must be a reference to a color map that exists elsewhere, and must exist as long as it is set. (We don't make a copy of the map).
-void MPlotAbstractImage::setColorMap(MPlotAbstractColorMap* map) {
-	if(map) {
-		map_ = map;
-		onDataChanged();
-	}
+void MPlotAbstractImage::setColorMap(const MPlotColorMap map) {
+
+	map_ = map;
+	onDataChanged();
 }
 
 /// Returns a reference to the active color map.
-MPlotAbstractColorMap* MPlotAbstractImage::colorMap() {
+MPlotColorMap MPlotAbstractImage::colorMap() const {
 	return map_;
 }
 
@@ -192,7 +189,7 @@ void MPlotImageBasic::onDataChanged() {
 
 		for(int yy=0; yy<dataSize.height(); yy++)
 			for(int xx=0; xx<dataSize.width(); xx++)
-				image_.setPixel(xx, yy, map_->rgb(data_->z(QPoint(xx,yy)), data_->range()));
+				image_.setPixel(xx, yy, map_.rgbAt(data_->z(QPoint(xx,yy)), data_->range()));
 
 	}
 
