@@ -43,6 +43,8 @@
 	 // 2. Configuring Axis settings (Look and style; placement and number of tick marks)
 	 //////////////////////////////////
 
+	 MPlot plot;
+
 	 //plot.axisTop()->setTickPen(QPen(QBrush(QColor(Qt::yellow)), 0));
 	 //plot.axisBottom()->setTickPen(QPen(QBrush(QColor(Qt::red)), 0));
 	 //plot.axisLeft()->setTickPen(QPen(QBrush(QColor(Qt::green)), 0));
@@ -128,8 +130,8 @@
 	 ////////////////////////////////////////////////////
 	 MPlotSeriesBasic series1;
 	 MPlotSeriesBasic series2;
-	 series1.setName("series1");
-	 series2.setName("series2");
+	 //series1.setName("series1");
+	 //series2.setName("series2");
 
 	 // Set to plot on the right axis instead of the left axis
 	 // series1.setYAxisTarget(MPlotAxis::Right);

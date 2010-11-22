@@ -6,7 +6,7 @@
 
 
 /// Constructs a default color map (Corresponding to MPlotColorMap::Jet)
-MPlotColorMap::MPlotColorMap(int resolution = 256)
+MPlotColorMap::MPlotColorMap(int resolution)
 {
 	// Jet colorStops_.
 	colorArray_.resize(resolution);
@@ -14,7 +14,7 @@ MPlotColorMap::MPlotColorMap(int resolution = 256)
 }
 
 /// Constructs a linear color map between \c color1 and \c color2.
-MPlotColorMap::MPlotColorMap(const QColor& color1, const QColor& color2, int resolution = 256)
+MPlotColorMap::MPlotColorMap(const QColor& color1, const QColor& color2, int resolution )
 {
 	colorStops_ << QGradientStop(0, color1) << QGradientStop(1, color2);
 	colorArray_.resize(resolution);
@@ -22,7 +22,7 @@ MPlotColorMap::MPlotColorMap(const QColor& color1, const QColor& color2, int res
 }
 
 /// Constructs a color map based on a set of initial \c colorStops
-MPlotColorMap::MPlotColorMap(const QGradientStops& colorStops, int resolution = 256)
+MPlotColorMap::MPlotColorMap(const QGradientStops& colorStops, int resolution)
 {
 	colorStops_ << colorStops;
 	colorArray_.resize(resolution);
@@ -30,10 +30,36 @@ MPlotColorMap::MPlotColorMap(const QGradientStops& colorStops, int resolution = 
 }
 
 /// Convenience constructor based on the pre-built color maps that are used in other applications.
-MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution = 256)
+MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
 {
 	switch(colorMap){
-		// stuff.
+
+	case Autumn:
+		break;
+	case Bone:
+		break;
+	case Cool:
+		break;
+	case Copper:
+		break;
+	case Flag:
+		break;
+	case Gray:
+		break;
+	case Hot:
+		break;
+	case Jet:
+		break;
+	case Pink:
+		break;
+	case Spring:
+		break;
+	case Summer:
+		break;
+	case White:
+		break;
+	case Winter:
+		break;
 	}
 
 	colorArray_.resize(resolution);
@@ -43,7 +69,7 @@ MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution = 256)
 /// Assumes range is 0 to 1.
 QRgb MPlotColorMap::rgbAt(double value) const
 {
-	rgbAt(value, MPlotInterval(0.0, 1.0));
+	return rgbAt(value, MPlotInterval(0.0, 1.0));
 }
 
 /// Assumes a MPlotInterval of (smallest, largest).
@@ -81,7 +107,7 @@ void MPlotColorMap::setStops(const QGradientStops& stopPoints)
 /// Adds a stop the given \c position with the color \c color.
 void MPlotColorMap::addStopAt(double position, const QColor& color)
 {
-	colorStops_.insert(floor(position*resolution()), color);
+	colorStops_.insert(position*resolution(), QGradientStop(floor(position*resolution()), color));
 	recomputeCachedColors();
 }
 
@@ -114,15 +140,17 @@ void MPlotColorMap::setBlendMode(BlendMode newBlendMode)
 /// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.
 void MPlotColorMap::recomputeCachedColors()
 {
+	// Get rid of any old data and resize the QVector.
 	colorArray_.clear();
 	colorArray_.resize(resolution());
 
+	// If no stops were given, produce a generic grayscale colour map.
 	if (colorStops_.isEmpty()){
 
 		QColor color;
 		for (int i = 0; i < resolution(); i++){
 
-			if (blendMode() == RGB)
+			if (blendMode() == HSV)
 				color = QColor::fromHsv(0, 0, i/resolution());
 			else
 				color = QColor::fromRgb(i/resolution(), i/resolution(), i/resolution());
@@ -130,9 +158,11 @@ void MPlotColorMap::recomputeCachedColors()
 		}
 	}
 
+	// If a single stop is given, the color map is a single colour.
 	else if (colorStops_.size() == 1)
 		colorArray_.fill(colorStops_.first().second.rgb());
 
+	// Otherwise, interpolate a colour map based on the number of stops given.
 	else {
 
 		QGradientStop start;
@@ -140,9 +170,11 @@ void MPlotColorMap::recomputeCachedColors()
 		int startIndex;
 		int endIndex;
 
+		// If the first stop isn't at 0 then fill with the first colour up to the index of the first stop.
 		if (colorStops_.first().first != 0.0)
 			colorArray_.insert(0, colorIndex(colorStops_.first()), colorStops_.first().second.rgb());
-// Need to check that my interpolation works correctly.  Pretty sure it's incorrect at the moment.
+
+		// General fill algorithm based on two stops.
 		for (int i = 0; i < colorStops_.size()-1; i++){
 
 			start = colorStops_.at(i);
@@ -152,15 +184,23 @@ void MPlotColorMap::recomputeCachedColors()
 
 			for (int i = startIndex; i < endIndex; i++){
 
-				colorArray_.insert(i, QColor::fromRgb((i-start.second.red())/(end.second.red()-start.second.red()),
-													  (i-start.second.blue())/(end.second.blue()-start.second.blue()),
-													  (i-start.second.green())/(end.second.green()-start.second.green()),
-													  (i-start.second.alpha())/(end.second.alpha()-start.second.alpha())));
+				if (blendMode() == HSV)
+
+					colorArray_.insert(i, QColor::fromHsv(start.second.hue()+(end.second.hue()-start.second.hue())*i/(endIndex-startIndex),
+													  start.second.saturation()+(end.second.saturation()-start.second.saturation())*i/(endIndex-startIndex),
+													  start.second.value()+(end.second.value()-start.second.value())*i/(endIndex-startIndex),
+													  start.second.alpha()+(end.second.alpha()-start.second.alpha())*i/(endIndex-startIndex)).rgb());
+				else
+					colorArray_.insert(i, QColor::fromRgb(start.second.red()+(end.second.red()-start.second.red())*i/(endIndex-startIndex),
+													  start.second.green()+(end.second.green()-start.second.green())*i/(endIndex-startIndex),
+													  start.second.blue()+(end.second.blue()-start.second.blue())*i/(endIndex-startIndex),
+													  start.second.alpha()+(end.second.alpha()-start.second.alpha())*i/(endIndex-startIndex)).rgb());
 			}
 		}
 
+		// If the last stop isn't at 1 then fill the rest of the colour map with the last stop's colour.
 		if (colorStops_.last().first != 1.0)
-			colorArray_.insert(colorIndex(colorStops_.last()), resolution()-1, colorStops_.last().second);
+			colorArray_.insert(colorIndex(colorStops_.last()), resolution()-1, colorStops_.last().second.rgb());
 	}
 }
 
