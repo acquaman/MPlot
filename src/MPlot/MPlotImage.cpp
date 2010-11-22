@@ -45,14 +45,14 @@ MPlotAbstractImage::~MPlotAbstractImage() {
 
 
 // Properties:
-/// Set the color map, used to convert numeric values into pixel colors. \c map must be a reference to a color map that exists elsewhere, and must exist as long as it is set. (We don't make a copy of the map).
+// Set the color map, used to convert numeric values into pixel colors. \c map must be a reference to a color map that exists elsewhere, and must exist as long as it is set. (We don't make a copy of the map).
 void MPlotAbstractImage::setColorMap(const MPlotColorMap map) {
 
 	map_ = map;
 	onDataChanged();
 }
 
-/// Returns a reference to the active color map.
+// Returns the active color map.
 MPlotColorMap MPlotAbstractImage::colorMap() const {
 	return map_;
 }
@@ -62,14 +62,24 @@ MPlotColorMap MPlotAbstractImage::colorMap() const {
 // Sets this series to view the model in 'data';
 void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data, bool ownsModel) {
 
-	ownsModel_ = ownsModel;
+	// efficiency check: if new model is the same one as old model, don't change anything.
+	if(data == data_) {
+		ownsModel_ = ownsModel;
+		return;
+	}
 
-	// If there was an old model, disconnect old signals:
-	if(data_)
+	// Changing models.
+
+	// If there was an old model, disconnect old signals, and delete if required
+	if(data_) {
 		QObject::disconnect(data_->signalSource(), 0, signalHandler_, 0);
+		if(ownsModel_)
+			delete data_;
+	}
 
 	// new data from here:
 	data_ = data;
+	ownsModel_ = ownsModel;
 
 	// If there's a new valid model:
 	if(data_) {

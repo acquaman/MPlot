@@ -64,7 +64,7 @@ public:
 	virtual void setMarker(MPlotMarkerShape::Shape shape, double size = 6, const QPen& pen = QPen(QColor(Qt::red)), const QBrush& brush = QBrush());
 
 
-	/// Sets this series to view the model in 'data'.  If the series should delete the model when it gets deleted, set \c ownsModel to true.
+	/// Sets this series to view the model in 'data'.  If the series should take ownership of the model (ie: delete the model when it gets deleted), set \c ownsModel to true. (If a model was previously set with \c ownsModel = true, then this function will delete the old model.)
 	virtual void setModel(const MPlotAbstractSeriesData* data, bool ownsModel = false);
 
 

@@ -43,10 +43,10 @@ public:
 	/// Set the color map, used to convert numeric values into pixel colors. \c map must be a reference to a color map that exists elsewhere, and must exist as long as it is set. (We don't make a copy of the map).
 	virtual void setColorMap(const MPlotColorMap& map);
 
-	/// Returns a reference to the active color map.
+	/// Returns the active color map.
 	virtual MPlotColorMap colorMap() const;
 
-	/// Sets this series to view the model in 'data'.  If the image should delete the model when it gets deleted, set \c ownsModel to true.
+	/// Sets this series to view the model in 'data'.  If the image should delete the model when it gets deleted, set \c ownsModel to true.  (If there was a previous model, and \c ownsModel was set for it, this function will delete the old model.)
 	virtual void setModel(const MPlotAbstractImageData* data, bool ownsModel = false);
 
 	virtual const MPlotAbstractImageData* model() const;
