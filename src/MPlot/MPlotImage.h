@@ -45,7 +45,7 @@ public:
 	/// Returns a reference to the active color map.
 	virtual MPlotColorMap colorMap() const;
 
-	// Sets this series to view the model in 'data';
+	/// Sets this series to view the model in 'data';
 	virtual void setModel(const MPlotAbstractImageData* data);
 
 	virtual const MPlotAbstractImageData* model() const;
@@ -103,7 +103,7 @@ public:
 	virtual QRectF boundingRect() const;
 
 
-protected:
+protected:	// "slots"
 	/// Called when the z-data changes, so that the plot needs to be updated. This fills the pixmap buffer
 	virtual void onDataChanged();
 
@@ -113,6 +113,13 @@ protected:
 protected:
 
 	QImage image_;
+
+	/// indicates that the data has changed, and that the image_ cache is out of date. re-filling the image_ from the data is necessary before redrawing
+	bool imageRefillRequired_;
+
+	/// helper function to fill image_ based on the data
+	void fillImageFromData();
+
 
 };
 

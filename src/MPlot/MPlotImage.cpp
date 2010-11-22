@@ -128,6 +128,7 @@ MPlotImageBasic::MPlotImageBasic(const MPlotAbstractImageData* data)
 	: MPlotAbstractImage(),
 	image_(1,1, QImage::Format_ARGB32)
 {
+	imageRefillRequired_ = true;
 	setModel(data);
 }
 
@@ -141,6 +142,10 @@ void MPlotImageBasic::paint(QPainter* painter,
 	Q_UNUSED(widget)
 
 	if(data_) {
+
+		if(imageRefillRequired_)
+			fillImageFromData();
+
 		painter->drawImage(data_->boundingRect(), image_, QRectF(QPointF(0,0), QSizeF(data_->size())));
 
 		if(selected()) {
@@ -177,10 +182,21 @@ QRectF MPlotImageBasic::boundingRect() const {
 
 /// Called when the z-data changes, so that the plot needs to be updated. This fills the pixmap buffer
 /// \todo CRITICAL TODO: only schedule this, and perform it the next time it needs to be drawn... Don't re-compute the image every time.
-zzzzzzz
 void MPlotImageBasic::onDataChanged() {
 
+	// flag the image as dirty; this avoids the expensive act of re-filling the image every time the data changes, if we're not re-drawing as fast as the data is changing.
+	imageRefillRequired_ = true;
+
+	// schedule a draw update
+	update();
+
+}
+
+void MPlotImageBasic::fillImageFromData() {
+
 	if(data_) {
+		imageRefillRequired_ = false;
+
 		// resize if req'd:
 		QSize dataSize = data_->size();
 
@@ -192,10 +208,6 @@ void MPlotImageBasic::onDataChanged() {
 				image_.setPixel(xx, yy, map_.rgbAt(data_->z(QPoint(xx,yy)), data_->range()));
 
 	}
-
-	// schedule a draw update
-	update();
-
 }
 
 /// If the bounds of the data change (in x- and y-) this might require re-auto-scaling of a plot.
