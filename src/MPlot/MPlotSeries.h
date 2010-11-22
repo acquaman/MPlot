@@ -64,8 +64,8 @@ public:
 	virtual void setMarker(MPlotMarkerShape::Shape shape, double size = 6, const QPen& pen = QPen(QColor(Qt::red)), const QBrush& brush = QBrush());
 
 
-	/// Sets this series to view the model in 'data';
-	virtual void setModel(const MPlotAbstractSeriesData* data);
+	/// Sets this series to view the model in 'data'.  If the series should delete the model when it gets deleted, set \c ownsModel to true.
+	virtual void setModel(const MPlotAbstractSeriesData* data, bool ownsModel = false);
 
 
 	virtual const MPlotAbstractSeriesData* model() const;
@@ -137,6 +137,7 @@ protected:
 	QString name_;
 
 	const MPlotAbstractSeriesData* data_;
+	bool ownsModel_;
 
 	/// Implements caching of the bounding rectangle
 	mutable QRectF cachedDataRect_;

@@ -30,8 +30,13 @@ MPlotAbstractImage::MPlotAbstractImage()
 }
 
 MPlotAbstractImage::~MPlotAbstractImage() {
-	if(data_)
+	if(data_) {
 		QObject::disconnect(data_->signalSource(), 0, signalHandler_, 0);
+		if(ownsModel_) {
+			delete data_;
+			data_ = 0;
+		}
+	}
 
 	delete signalHandler_;
 	signalHandler_ = 0;
@@ -55,7 +60,9 @@ MPlotColorMap MPlotAbstractImage::colorMap() const {
 
 
 // Sets this series to view the model in 'data';
-void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data) {
+void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data, bool ownsModel) {
+
+	ownsModel_ = ownsModel;
 
 	// If there was an old model, disconnect old signals:
 	if(data_)

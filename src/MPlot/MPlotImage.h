@@ -34,6 +34,7 @@ public:
 
 	MPlotAbstractImage();
 
+	/// The destructor deletes the model if its been set with \c ownsModel = true in setModel().
 	virtual ~MPlotAbstractImage();
 
 
@@ -45,8 +46,8 @@ public:
 	/// Returns a reference to the active color map.
 	virtual MPlotColorMap colorMap() const;
 
-	/// Sets this series to view the model in 'data';
-	virtual void setModel(const MPlotAbstractImageData* data);
+	/// Sets this series to view the model in 'data'.  If the image should delete the model when it gets deleted, set \c ownsModel to true.
+	virtual void setModel(const MPlotAbstractImageData* data, bool ownsModel = false);
 
 	virtual const MPlotAbstractImageData* model() const;
 
@@ -65,6 +66,7 @@ public:
 protected:
 
 	const MPlotAbstractImageData* data_;
+	bool ownsModel_;
 
 	MPlotColorMap map_;
 
