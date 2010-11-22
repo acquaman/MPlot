@@ -87,7 +87,7 @@ public:
 
 
 	/// Returns the interpolation mode used to interpolate between color stops.  RGB is fastest, while HSV preserves human-perception-based color relationships.
-	BlendMode blendMode() const;
+	int blendMode() const;
 	/// Set the interpolation mode used to interpolate between color stops.
 	void setBlendMode(BlendMode newBlendMode);
 

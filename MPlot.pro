@@ -3,43 +3,43 @@
 # #####################################################################
 # QT += opengl
 TEMPLATE = app
-TARGET = 
+TARGET =
 DEPENDPATH += . \
-    src \
-    src/MPlot
+	src \
+	src/MPlot
 INCLUDEPATH += . \
-    src/MPlot
+	src/MPlot
 
 # Input
 HEADERS += src/MPlot/MPlotWidget.h \
-    src/MPlot/MPlotAxis.h \
-    src/MPlot/MPlot.h \
-    src/MPlot/MPlotLegend.h \
-    src/MPlot/MPlotMarker.h \
-    src/MPlot/MPlotSeriesData.h \
-    src/MPlot/MPlotTools.h \
-    src/MPlot/MPlotAbstractTool.h \
-    src/MPlot/MPlotItem.h \
-    src/MPlot/MPlotSeries.h \
-    src/MPlot/MPlotColorMap.h \
-    src/MPlot/MPlotImage.h \
-    src/MPlot/MPlotImageData.h \
-    src/MPlot/MPlotPoint.h \
-    src/MPlot/MPlotObserver.h \
-    src/MPlot/MPlotObservable.h
+	src/MPlot/MPlotAxis.h \
+	src/MPlot/MPlot.h \
+	src/MPlot/MPlotLegend.h \
+	src/MPlot/MPlotMarker.h \
+	src/MPlot/MPlotSeriesData.h \
+	src/MPlot/MPlotTools.h \
+	src/MPlot/MPlotAbstractTool.h \
+	src/MPlot/MPlotItem.h \
+	src/MPlot/MPlotSeries.h \
+	src/MPlot/MPlotColorMap.h \
+	src/MPlot/MPlotImage.h \
+	src/MPlot/MPlotImageData.h \
+	src/MPlot/MPlotPoint.h \
+	src/MPlot/MPlotObserver.h \
+	src/MPlot/MPlotObservable.h
 SOURCES += src/main.cpp \
-    src/MPlot/MPlot.cpp \
-    src/MPlot/MPlotAbstractTool.cpp \
-    src/MPlot/MPlotAxis.cpp \
-    src/MPlot/MPlotColorMap.cpp \
-    src/MPlot/MPlotImage.cpp \
-    src/MPlot/MPlotImageData.cpp \
-    src/MPlot/MPlotItem.cpp \
-    src/MPlot/MPlotLegend.cpp \
-    src/MPlot/MPlotMarker.cpp \
-    src/MPlot/MPlotObservable.cpp \
-    src/MPlot/MPlotPoint.cpp \
-    src/MPlot/MPlotSeries.cpp \
-    src/MPlot/MPlotSeriesData.cpp \
-    src/MPlot/MPlotTools.cpp \
-    src/MPlot/MPlotWidget.cpp
+	src/MPlot/MPlot.cpp \
+	src/MPlot/MPlotAbstractTool.cpp \
+	src/MPlot/MPlotAxis.cpp \
+	src/MPlot/MPlotColorMap.cpp \
+	src/MPlot/MPlotImage.cpp \
+	src/MPlot/MPlotImageData.cpp \
+	src/MPlot/MPlotItem.cpp \
+	src/MPlot/MPlotLegend.cpp \
+	src/MPlot/MPlotMarker.cpp \
+ #   src/MPlot/MPlotObservable.cpp \
+	src/MPlot/MPlotPoint.cpp \
+	src/MPlot/MPlotSeries.cpp \
+	src/MPlot/MPlotSeriesData.cpp \
+	src/MPlot/MPlotTools.cpp \
+	src/MPlot/MPlotWidget.cpp

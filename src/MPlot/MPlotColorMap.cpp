@@ -126,7 +126,7 @@ void MPlotColorMap::setResolution(int newResolution)
 
 
 /// Returns the interpolation mode used to interpolate between color stops.  RGB is fastest, while HSV preserves human-perception-based color relationships.
-BlendMode MPlotColorMap::blendMode() const
+int MPlotColorMap::blendMode() const
 {
 	return blendMode_;
 }
@@ -135,6 +135,7 @@ BlendMode MPlotColorMap::blendMode() const
 void MPlotColorMap::setBlendMode(BlendMode newBlendMode)
 {
 	blendMode_ = newBlendMode;
+	recomputeCachedColors();
 }
 
 /// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.
