@@ -52,7 +52,7 @@ public:
 	/// Describes the interpolation mode used to interpolate between color stops.  RGB is fastest, while HSV preserves human-perception-based color relationships.
 	enum BlendMode { RGB, HSV };
 	/// Predefined (standard) color maps. These colormaps are pre-computed in memory, and can be copied very quickly.
-	enum StandardColorMap { Autumn, Bone, ColorCube, Cool, Copper, Flag, Gray, Hot, Hsv, Jet, Pink, Prism, Spring, Summer, White, Winter };
+	enum StandardColorMap { Autumn, Bone, Cool, Copper, Flag, Gray, Hot, Jet, Pink, Spring, Summer, White, Winter };
 
 	/// Constructs a default color map (Corresponding to MPlotColorMap::Jet)
 	MPlotColorMap(int resolution = 256);
@@ -68,28 +68,37 @@ public:
 	QColor colorAt(double value, MPlotInterval range) const { return QColor::fromRgba(rgbAt(value, range)); }
 	QColor colorAtIndex(int index) const { return QColor::fromRgba(rgbAtIndex(index)); }
 
-	QRgb rgbAt(double value) const;
-	QRgb rgbAt(double value, MPlotInterval range) const;
-	QRgb rgbAtIndex(int index) const;
+	QRgb rgbAt(double value) const { return rgbAt(value, MPlotInterval(0.0, 1.0)); }
+	QRgb rgbAt(double value, MPlotInterval range) const
+	{
+		if (value < range.first)
+			return colorArray_.first();
+
+		if (value > range.second)
+			return colorArray_.last();
+
+		return colorArray_.at((int)round((value/range.second)*resolution()));
+	}
+	QRgb rgbAtIndex(int index) const { return colorArray_.at(index); }
 
 	/// Returns the stop points for this gradient.
 	/*! If no stop points have been specified, a gradient of black at 0 to white at 1 is used.*/
-	QGradientStops stops() const;
+	QGradientStops stops() const { return colorStops_; }
 	/// Replaces the current set of stop points with the given \c stopPoints. The positions of the points must be in the range 0 to 1, and must be sorted with the lowest point first.
 	void setStops(const QGradientStops& stopPoints);
 	/// Adds a stop the given \c position with the color \c color.
 	void addStopAt(double position, const QColor& color);
 
 	/// Returns the resolution (number of color steps) in the pre-computed color map.
-	int resolution() const;
+	int resolution() const { return colorArray_.size(); }
 	/// Set the resolution (number of color steps) in the pre-computed color map.  The default is 256.  Higher resolution could produce a smoother image, but will require more memory.  (For comparison, Matlab's default resolution is 64.)
-	void setResolution(int newResolution);
+	void setResolution(int newResolution) { colorArray_.resize(newResolution); recomputeCachedColors(); }
 
 
 	/// Returns the interpolation mode used to interpolate between color stops.  RGB is fastest, while HSV preserves human-perception-based color relationships.
-	BlendMode blendMode() const;
+	BlendMode blendMode() const { return blendMode_; }
 	/// Set the interpolation mode used to interpolate between color stops.
-	void setBlendMode(BlendMode newBlendMode);
+	void setBlendMode(BlendMode newBlendMode) { blendMode_ = newBlendMode; recomputeCachedColors(); }
 
 protected:
 	/// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.
@@ -102,7 +111,7 @@ protected:
 
 private:
 	/// Returns the index for the color array if given a value within a range between 0 and 1.
-	int colorIndex(QGradientStop stop);
+	int colorIndex(QGradientStop stop) { return (int)floor(stop.first*resolution()); }
 
 	BlendMode blendMode_;
 

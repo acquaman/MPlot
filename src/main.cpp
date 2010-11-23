@@ -43,6 +43,8 @@
 	 // 2. Configuring Axis settings (Look and style; placement and number of tick marks)
 	 //////////////////////////////////
 
+	 MPlot plot;
+
 	 //plot.axisTop()->setTickPen(QPen(QBrush(QColor(Qt::yellow)), 0));
 	 //plot.axisBottom()->setTickPen(QPen(QBrush(QColor(Qt::red)), 0));
 	 //plot.axisLeft()->setTickPen(QPen(QBrush(QColor(Qt::green)), 0));
@@ -90,6 +92,7 @@
 	 }
 
 	 MPlotImageBasic plot2d(&data2d);
+	 plot2d.setColorMap(MPlotColorMap::Jet);
 	 plot.addItem(&plot2d);
 
 
@@ -128,8 +131,8 @@
 	 ////////////////////////////////////////////////////
 	 MPlotSeriesBasic series1;
 	 MPlotSeriesBasic series2;
-	 series1.setName("series1");
-	 series2.setName("series2");
+	 //series1.setName("series1");
+	 //series2.setName("series2");
 
 	 // Set to plot on the right axis instead of the left axis
 	 // series1.setYAxisTarget(MPlotAxis::Right);
@@ -164,18 +167,18 @@
 
 	 // 6. Adding a series to a plot:
 	 ///////////////////////////////
-	 plot.addItem(&series1);
-	 plot.addItem(&series2);
+	 //plot.addItem(&series1);
+	 //plot.addItem(&series2);
 
 	 // 2. (continued) Axis / Axis Scale Settings
 	 ///////////////////////
 
 	 // How much scale padding to add around data (in percent)
-	 plot.setScalePadding(5);	// set axis scale padding in percent
+	 //plot.setScalePadding(5);	// set axis scale padding in percent
 
 	 // Manual axis range:
-	 plot.setXDataRange(-1.5, 1.5);		// Manually set the axis range
-	 plot.setYDataRangeLeft(-0.5, 0.5);
+	 //plot.setXDataRange(-1.5, 1.5);		// Manually set the axis range
+	 //plot.setYDataRangeLeft(-0.5, 0.5);
 
 	 // To auto-scale once only (using the current data):
 	 // plot.setXDataRange(0, 0, true);
@@ -186,9 +189,9 @@
 
 	 // 7. Testing adding points to the series after the series is created.
 	 //////////////////////////////////////
-	 data2.insertPointBack(0, 0);
-	 data2.insertPointBack(0.2, 0);
-	 data2.insertPointFront(0, 0.2);
+	 //data2.insertPointBack(0, 0);
+	 //data2.insertPointBack(0.2, 0);
+	 //data2.insertPointFront(0, 0.2);
 	 //data2.removePointBack();
 	// data2.removePointFront();
 
@@ -220,7 +223,7 @@
 	p1.setValue(QPointF(0.5,0.5));
 	p1.setMarker(MPlotMarkerShape::CrossCircle, 24, QPen(QColor(Qt::red)));
 
-	plot.addItem(&p1);
+	//plot.addItem(&p1);
 
 
 	 // 11. Enable, disable, and selection?
