@@ -43,8 +43,13 @@ MPlotAbstractSeries::MPlotAbstractSeries() :
 
 MPlotAbstractSeries::~MPlotAbstractSeries() {
 	// If we have a model, need to disconnect from its updates before we get deleted.
-	if(data_)
+	if(data_) {
 		QObject::disconnect(data_->signalSource(), 0, signalHandler_, 0);
+		if(ownsModel_) {
+			delete data_;
+			data_ = 0;
+		}
+	}
 	delete signalHandler_;
 	signalHandler_ = 0;
 }
@@ -77,14 +82,26 @@ void MPlotAbstractSeries::setMarker(MPlotMarkerShape::Shape shape, double size, 
 
 
 // Sets this series to view the model in 'data';
-void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data) {
+void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data, bool ownsModel) {
 
-	// If there was an old model, disconnect old signals:
-	if(data_)
+	// efficiency check: if new model is the same one as old model, don't change anything.
+	if(data == data_) {
+		ownsModel_ = ownsModel;
+		return;
+	}
+
+	// Changing models.
+
+	// If there was an old model, disconnect old signals.  Delete the old model if ownsModel_ was set.
+	if(data_) {
 		QObject::disconnect(data_->signalSource(), 0, signalHandler_, 0);
+		if(ownsModel_)
+			delete data_;
+	}
 
 	// new data from here:
 	data_ = data;
+	ownsModel_ = ownsModel;
 
 	dataChangedUpdateNeeded_ = true;
 	prepareGeometryChange();

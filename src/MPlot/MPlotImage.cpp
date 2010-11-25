@@ -30,8 +30,13 @@ MPlotAbstractImage::MPlotAbstractImage()
 }
 
 MPlotAbstractImage::~MPlotAbstractImage() {
-	if(data_)
+	if(data_) {
 		QObject::disconnect(data_->signalSource(), 0, signalHandler_, 0);
+		if(ownsModel_) {
+			delete data_;
+			data_ = 0;
+		}
+	}
 
 	delete signalHandler_;
 	signalHandler_ = 0;
@@ -40,14 +45,15 @@ MPlotAbstractImage::~MPlotAbstractImage() {
 
 
 // Properties:
-/// Set the color map, used to convert numeric values into pixel colors. \c map must be a reference to a color map that exists elsewhere, and must exist as long as it is set. (We don't make a copy of the map).
+
+// Set the color map, used to convert numeric values into pixel colors. \c map must be a reference to a color map that exists elsewhere, and must exist as long as it is set. (We don't make a copy of the map).
 void MPlotAbstractImage::setColorMap(const MPlotColorMap &map) {
 
 	map_ = map;
 	onDataChanged();
 }
 
-/// Returns a reference to the active color map.
+// Returns the active color map.
 MPlotColorMap MPlotAbstractImage::colorMap() const {
 	return map_;
 }
@@ -55,14 +61,26 @@ MPlotColorMap MPlotAbstractImage::colorMap() const {
 
 
 // Sets this series to view the model in 'data';
-void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data) {
+void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data, bool ownsModel) {
 
-	// If there was an old model, disconnect old signals:
-	if(data_)
+	// efficiency check: if new model is the same one as old model, don't change anything.
+	if(data == data_) {
+		ownsModel_ = ownsModel;
+		return;
+	}
+
+	// Changing models.
+
+	// If there was an old model, disconnect old signals, and delete if required
+	if(data_) {
 		QObject::disconnect(data_->signalSource(), 0, signalHandler_, 0);
+		if(ownsModel_)
+			delete data_;
+	}
 
 	// new data from here:
 	data_ = data;
+	ownsModel_ = ownsModel;
 
 	// If there's a new valid model:
 	if(data_) {
@@ -127,6 +145,7 @@ MPlotImageBasic::MPlotImageBasic(const MPlotAbstractImageData* data)
 	: MPlotAbstractImage(),
 	image_(1,1, QImage::Format_ARGB32)
 {
+	imageRefillRequired_ = true;
 	setModel(data);
 }
 
@@ -140,6 +159,10 @@ void MPlotImageBasic::paint(QPainter* painter,
 	Q_UNUSED(widget)
 
 	if(data_) {
+
+		if(imageRefillRequired_)
+			fillImageFromData();
+
 		painter->drawImage(data_->boundingRect(), image_, QRectF(QPointF(0,0), QSizeF(data_->size())));
 
 		if(selected()) {
@@ -175,9 +198,22 @@ QRectF MPlotImageBasic::boundingRect() const {
 
 
 /// Called when the z-data changes, so that the plot needs to be updated. This fills the pixmap buffer
+/// \todo CRITICAL TODO: only schedule this, and perform it the next time it needs to be drawn... Don't re-compute the image every time.
 void MPlotImageBasic::onDataChanged() {
 
+	// flag the image as dirty; this avoids the expensive act of re-filling the image every time the data changes, if we're not re-drawing as fast as the data is changing.
+	imageRefillRequired_ = true;
+
+	// schedule a draw update
+	update();
+
+}
+
+void MPlotImageBasic::fillImageFromData() {
+
 	if(data_) {
+		imageRefillRequired_ = false;
+
 		// resize if req'd:
 		QSize dataSize = data_->size();
 
@@ -189,10 +225,6 @@ void MPlotImageBasic::onDataChanged() {
 				image_.setPixel(xx, yy, map_.rgbAt(data_->z(QPoint(xx,yy)), data_->range()));
 
 	}
-
-	// schedule a draw update
-	update();
-
 }
 
 /// If the bounds of the data change (in x- and y-) this might require re-auto-scaling of a plot.
