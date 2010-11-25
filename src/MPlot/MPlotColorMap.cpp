@@ -8,7 +8,12 @@
 /// Constructs a default color map (Corresponding to MPlotColorMap::Jet)
 MPlotColorMap::MPlotColorMap(int resolution)
 {
-	// Jet colorStops_.
+	colorStops_ << QGradientStop(0.0, QColor(0, 0, 131))
+			<< QGradientStop(0.121569, QColor(0, 0, 255))
+			<< QGradientStop(0.372549, QColor(0, 255, 255))
+			<< QGradientStop(0.623529, QColor(255, 255, 0))
+			<< QGradientStop(0.874510, QColor(255, 0, 0))
+			<< QGradientStop(1.0, QColor(128, 0, 0));
 	colorArray_.resize(resolution);
 	recomputeCachedColors();
 }
@@ -16,7 +21,7 @@ MPlotColorMap::MPlotColorMap(int resolution)
 /// Constructs a linear color map between \c color1 and \c color2.
 MPlotColorMap::MPlotColorMap(const QColor& color1, const QColor& color2, int resolution )
 {
-	colorStops_ << QGradientStop(0, color1) << QGradientStop(1, color2);
+	colorStops_ << QGradientStop(0.0, color1) << QGradientStop(1.0, color2);
 	colorArray_.resize(resolution);
 	recomputeCachedColors();
 }
@@ -29,36 +34,74 @@ MPlotColorMap::MPlotColorMap(const QGradientStops& colorStops, int resolution)
 	recomputeCachedColors();
 }
 
-/// Convenience constructor based on the pre-built color maps that are used in other applications.
+/// Convenience constructor based on the pre-built color maps that are used in other applications.  Since the positions come from indices on a 256 resolution scale, to compute the position I've used (x-1)/(resolution-1).  This gives a range between 0 and 1.
 MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
 {
 	switch(colorMap){
 
 	case Autumn:
+		colorStops_ << QGradientStop(0, QColor(255, 0, 0))
+				<< QGradientStop(1, QColor(255, 255, 0));
 		break;
 	case Bone:
+		colorStops_ << QGradientStop(0, QColor(0, 0, 0))
+				<< QGradientStop(0.372549, QColor(83, 83, 115))
+				<< QGradientStop(0.749020, QColor(167, 199, 199))
+				<< QGradientStop(1, QColor(255, 255, 255));
 		break;
 	case Cool:
+		colorStops_ << QGradientStop(0, QColor(0, 255, 255))
+				<< QGradientStop(1, QColor(255, 0, 255));
 		break;
 	case Copper:
-		break;
-	case Flag:
+		colorStops_ << QGradientStop(0, QColor(0, 0, 0))
+				<< QGradientStop(1, QColor(255, 199, 127));
 		break;
 	case Gray:
+		colorStops_ << QGradientStop(0, QColor(0, 0, 0))
+				<< QGradientStop(1, QColor(255, 255, 255));
 		break;
 	case Hot:
+		colorStops_ << QGradientStop(0, QColor(3, 0, 0))
+				<< QGradientStop(0.372549, QColor(255, 0, 0))
+				<< QGradientStop(0.749020, QColor(255, 255, 0))
+				<< QGradientStop(1, QColor(255, 255, 255));
+		break;
+	case Hsv:
+		colorStops_ << QGradientStop(0, QColor(0, 0, 0))
+				<< QGradientStop(0.4, QColor(0, 255, 99))
+				<< QGradientStop(0.8, QColor(199, 0, 255))
+				<< QGradientStop(1, QColor(255, 0, 6));
 		break;
 	case Jet:
+		colorStops_ << QGradientStop(0.0, QColor(0, 0, 131))
+				<< QGradientStop(0.121569, QColor(0, 0, 255))
+				<< QGradientStop(0.372549, QColor(0, 255, 255))
+				<< QGradientStop(0.623529, QColor(255, 255, 0))
+				<< QGradientStop(0.874510, QColor(255, 0, 0))
+				<< QGradientStop(1.0, QColor(128, 0, 0));
 		break;
-	case Pink:
+	case Pink:// This is a linear interpolation of a non-linear calculation.
+		colorStops_ << QGradientStop(0, QColor(15, 0, 0))
+				<< QGradientStop(0.372549, QColor(195, 128, 128))
+				<< QGradientStop(0.749020, QColor(234, 234, 181))
+				<< QGradientStop(1, QColor(255, 255, 255));
 		break;
 	case Spring:
+		colorStops_ << QGradientStop(0, QColor(255, 0, 255))
+				<< QGradientStop(1, QColor(255, 255, 0));
 		break;
 	case Summer:
+		colorStops_ << QGradientStop(0, QColor(0, 128, 102))
+				<< QGradientStop(1, QColor(255, 255, 102));
 		break;
 	case White:
+		colorStops_ << QGradientStop(0, QColor(255, 255, 255))
+				<< QGradientStop(1, QColor(255, 255, 255));
 		break;
 	case Winter:
+		colorStops_ << QGradientStop(0, QColor(0, 0, 255))
+				<< QGradientStop(1, QColor(0, 255, 128));
 		break;
 	}
 
@@ -74,7 +117,7 @@ void MPlotColorMap::setStops(const QGradientStops& stopPoints)
 	recomputeCachedColors();
 }
 
-/// Adds a stop the given \c position with the color \c color.
+/// Adds a stop the given \c position with the color \c color.  Note that position must be between 0 and 1.
 void MPlotColorMap::addStopAt(double position, const QColor& color)
 {
 	for (int i = 0; i < colorStops_.size(); i++){
@@ -82,7 +125,7 @@ void MPlotColorMap::addStopAt(double position, const QColor& color)
 		// The first time position is smaller than the current position, put it in that place.  Exit loop.
 		if (position < colorStops_.at(i).first){
 
-			colorStops_.insert(i, QGradientStop(floor(position*resolution()), color));
+			colorStops_.insert(i, QGradientStop(position, color));
 			break;
 		}
 	}

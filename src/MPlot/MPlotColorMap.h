@@ -52,7 +52,7 @@ public:
 	/// Describes the interpolation mode used to interpolate between color stops.  RGB is fastest, while HSV preserves human-perception-based color relationships.
 	enum BlendMode { RGB, HSV };
 	/// Predefined (standard) color maps. These colormaps are pre-computed in memory, and can be copied very quickly.
-	enum StandardColorMap { Autumn, Bone, Cool, Copper, Flag, Gray, Hot, Jet, Pink, Spring, Summer, White, Winter };
+	enum StandardColorMap { Autumn, Bone, Cool, Copper, Gray, Hot, Hsv, Jet, Pink, Spring, Summer, White, Winter };
 
 	/// Constructs a default color map (Corresponding to MPlotColorMap::Jet)
 	MPlotColorMap(int resolution = 256);
