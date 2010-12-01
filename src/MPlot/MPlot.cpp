@@ -3,6 +3,7 @@
 #define __MPlot_CPP__
 
 #include "MPlot.h"
+#include "MPlotSeries.h"
 
 /// Defines the minimum distance between min- and max- values for the range of an axis. Without this check, calling setXDataRange(3, 3) or set___DataRange(f, g=f) will cause a segfault within Qt's drawing functions... it can't handle a clipPath with a width of 0.
 #define MPLOT_MIN_AXIS_RANGE 1e-60

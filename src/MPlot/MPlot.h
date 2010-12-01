@@ -4,7 +4,6 @@
 #include "MPlotAxis.h"
 #include "MPlotLegend.h"
 #include "MPlotItem.h"
-#include "MPlotSeries.h"
 #include "MPlotAbstractTool.h"
 
 
