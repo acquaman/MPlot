@@ -103,20 +103,23 @@ public:
 	/// Set the interpolation mode used to interpolate between color stops.
 	void setBlendMode(BlendMode newBlendMode) { blendMode_ = newBlendMode; recomputeCachedColorsRequired_ = true; }
 
+
+	/// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.  It will be called automatically as required, but you can also call it prior to calling colorAt() or rgbAt() if you want to optimize the timing of when the cached color map is calculated.
+	void recomputeCachedColors() const;
+
 protected:
-	/// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.
-	void recomputeCachedColors();
+
 
 	/// Stores the pre-computed colors in the map.
-	QVector<QRgb> colorArray_;
+	mutable QVector<QRgb> colorArray_;
 	/// Stores the current color stops which define the map.
 	QGradientStops colorStops_;
 	/// Optimization: stores whether the colorArray_ has been already filled, or if recomputing the colors is required before asking for any rgbAt() or colorAt() values.
-	bool recomputeCachedColorsRequired_;
+	mutable bool recomputeCachedColorsRequired_;
 
 private:
 	/// Returns the index for the color array if given a value within a range between 0 and 1.
-	int colorIndex(QGradientStop stop) { return (int)floor(stop.first*resolution()); }
+	int colorIndex(QGradientStop stop) const { return (int)floor(stop.first*resolution()); }
 
 	BlendMode blendMode_;
 

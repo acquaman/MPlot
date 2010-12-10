@@ -28,7 +28,7 @@ MPlotColorMap::MPlotColorMap(const QColor& color1, const QColor& color2, int res
 
 /// Constructs a color map based on a set of initial \c colorStops
 MPlotColorMap::MPlotColorMap(const QGradientStops& colorStops, int resolution)
-	: colorStops_(colorStops), colorArray_(resolution)
+	: colorArray_(resolution), colorStops_(colorStops)
 {
 	recomputeCachedColorsRequired_ = true;
 }
@@ -132,7 +132,7 @@ void MPlotColorMap::addStopAt(double position, const QColor& color)
 }
 
 /// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.
-void MPlotColorMap::recomputeCachedColors()
+void MPlotColorMap::recomputeCachedColors() const
 {
 
 	// If no stops were given, produce a generic grayscale colour map.
