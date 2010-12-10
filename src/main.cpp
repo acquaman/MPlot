@@ -38,12 +38,13 @@
 	 plotWindow.enableAntiAliasing(true);
 
 	 // An MPlot is the QGraphicsItem representing a 2D Plot:
-
+	MPlot plot;
+	plotWindow.setPlot(&plot);
 
 	 // 2. Configuring Axis settings (Look and style; placement and number of tick marks)
 	 //////////////////////////////////
 
-	 MPlot plot;
+
 
 	 //plot.axisTop()->setTickPen(QPen(QBrush(QColor(Qt::yellow)), 0));
 	 //plot.axisBottom()->setTickPen(QPen(QBrush(QColor(Qt::red)), 0));
@@ -91,9 +92,9 @@
 		 }
 	 }
 
-	 MPlotImageBasic plot2d(&data2d);
-	 plot2d.setColorMap(MPlotColorMap::Jet);
-	 plot.addItem(&plot2d);
+	 MPlotImageBasic* plot2d = new MPlotImageBasic(&data2d);
+	 //	plot2d.setColorMap(MPlotColorMap::Jet);	This should be the default color map.
+	 plot.addItem(plot2d);
 
 
 	 // 3. Add data. Data is contained in the first two columns of an MPlotSeriesData:
@@ -129,17 +130,17 @@
 
 	 // 4.  View the data.  A basic scatter/line plot is an MPlotSeries:
 	 ////////////////////////////////////////////////////
-	 MPlotSeriesBasic series1;
-	 MPlotSeriesBasic series2;
-	 //series1.setName("series1");
-	 //series2.setName("series2");
+	 MPlotSeriesBasic* series1 = new MPlotSeriesBasic();
+	 MPlotSeriesBasic* series2 = new MPlotSeriesBasic();
+	 //series1->setName("series1");
+	 //series2->setName("series2");
 
 	 // Set to plot on the right axis instead of the left axis
-	 // series1.setYAxisTarget(MPlotAxis::Right);
+	 // series1->setYAxisTarget(MPlotAxis::Right);
 
 	 // connect this plot series as a view on its model (data1, data2)
-	 series1.setModel(&data1);
-	 series2.setModel(&data2);
+	 series1->setModel(&data1);
+	 series2->setModel(&data2);
 
 
 	 // 5. Configure look of the plots:
@@ -149,16 +150,16 @@
 	 QPen pinkSkinny(QBrush(QColor(Qt::magenta)), 0);
 
 	 // Line style: set using pens.  (Can create dashed pen for dashed/dotted lines)
-	 series1.setLinePen( redSkinny);	// set the pen for drawing the series
-	 series2.setLinePen( greenFat );
+	 series1->setLinePen( redSkinny);	// set the pen for drawing the series
+	 series2->setLinePen( greenFat );
 
 	 // Marker size and shape
-	  // series2.setMarker(MPlotMarkerShape::StarCircle, 6);
-	 series2.setMarker(MPlotMarkerShape::None);
+	  // series2->setMarker(MPlotMarkerShape::StarCircle, 6);
+	 series2->setMarker(MPlotMarkerShape::None);
 
 	 // Can also configure the marker pen and brush: (only can do this when MPlotMarkerShape != None)
-	 //series2.marker()->setPen(pinkSkinny);
-	 // series2.marker()->setBrush(QBrush(QColor(Qt::black)));
+	 //series2->marker()->setPen(pinkSkinny);
+	 // series2->marker()->setBrush(QBrush(QColor(Qt::black)));
 
 	 // Gridlines:
 	 //plot.axisRight()->showGrid(true);
@@ -215,7 +216,7 @@
 
 	// 5. (continued) More fun with marker shapes... Testing changes after a plot is created:
 	//////////////////
-	series1.setMarker(MPlotMarkerShape::Cross, 12, QPen(QColor(Qt::yellow), 0));
+	series1->setMarker(MPlotMarkerShape::Cross, 12, QPen(QColor(Qt::yellow), 0));
 
 
 	// 10: single markers:
@@ -228,8 +229,8 @@
 
 	 // 11. Enable, disable, and selection?
 	 /////////////////////////////
-	// series2.setEnabled(true);
-	// series2.setSelected(true);
+	// series2->setEnabled(true);
+	// series2->setSelected(true);
 
 	 // 10. Printing:
 	 ////////////////////
