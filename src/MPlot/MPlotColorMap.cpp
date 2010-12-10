@@ -7,6 +7,7 @@
 
 /// Constructs a default color map (Corresponding to MPlotColorMap::Jet)
 MPlotColorMap::MPlotColorMap(int resolution)
+	: colorArray_(resolution)
 {
 	colorStops_ << QGradientStop(0.0, QColor(0, 0, 131))
 			<< QGradientStop(0.121569, QColor(0, 0, 255))
@@ -14,28 +15,27 @@ MPlotColorMap::MPlotColorMap(int resolution)
 			<< QGradientStop(0.623529, QColor(255, 255, 0))
 			<< QGradientStop(0.874510, QColor(255, 0, 0))
 			<< QGradientStop(1.0, QColor(128, 0, 0));
-	colorArray_.resize(resolution);
-	recomputeCachedColors();
+	recomputeCachedColorsRequired_ = true;
 }
 
 /// Constructs a linear color map between \c color1 and \c color2.
 MPlotColorMap::MPlotColorMap(const QColor& color1, const QColor& color2, int resolution )
+	: colorArray_(resolution)
 {
 	colorStops_ << QGradientStop(0.0, color1) << QGradientStop(1.0, color2);
-	colorArray_.resize(resolution);
-	recomputeCachedColors();
+	recomputeCachedColorsRequired_ = true;
 }
 
 /// Constructs a color map based on a set of initial \c colorStops
 MPlotColorMap::MPlotColorMap(const QGradientStops& colorStops, int resolution)
+	: colorStops_(colorStops), colorArray_(resolution)
 {
-	colorStops_ << colorStops;
-	colorArray_.resize(resolution);
-	recomputeCachedColors();
+	recomputeCachedColorsRequired_ = true;
 }
 
 /// Convenience constructor based on the pre-built color maps that are used in other applications.  Since the positions come from indices on a 256 resolution scale, to compute the position I've used (x-1)/(resolution-1).  This gives a range between 0 and 1.
 MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
+	: colorArray_(resolution)
 {
 	switch(colorMap){
 
@@ -105,16 +105,14 @@ MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
 		break;
 	}
 
-	colorArray_.resize(resolution);
-	recomputeCachedColors();
+	recomputeCachedColorsRequired_ = true;
 }
 
 /// Replaces the current set of stop points with the given \c stopPoints. The positions of the points must be in the range 0 to 1, and must be sorted with the lowest point first.
 void MPlotColorMap::setStops(const QGradientStops& stopPoints)
 {
-	colorStops_.clear();
-	colorStops_ << stopPoints;
-	recomputeCachedColors();
+	colorStops_ = stopPoints;
+	recomputeCachedColorsRequired_ = true;
 }
 
 /// Adds a stop the given \c position with the color \c color.  Note that position must be between 0 and 1.
@@ -130,14 +128,12 @@ void MPlotColorMap::addStopAt(double position, const QColor& color)
 		}
 	}
 
-	recomputeCachedColors();
+	recomputeCachedColorsRequired_ = true;
 }
 
 /// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.
 void MPlotColorMap::recomputeCachedColors()
 {
-	// Resize the QVector if required.
-	colorArray_.resize(resolution());
 
 	// If no stops were given, produce a generic grayscale colour map.
 	if (colorStops_.isEmpty()){
@@ -197,6 +193,9 @@ void MPlotColorMap::recomputeCachedColors()
 		if (colorStops_.last().first != 1.0)
 			colorArray_.insert(colorIndex(colorStops_.last()), resolution()-1, colorStops_.last().second.rgb());
 	}
+
+	// we're done recomputing the colorArray_, so reset this flag.
+	recomputeCachedColorsRequired_ = false;
 }
 
 /*

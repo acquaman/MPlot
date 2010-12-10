@@ -71,6 +71,9 @@ public:
 	QRgb rgbAt(double value) const { return rgbAt(value, MPlotInterval(0.0, 1.0)); }
 	QRgb rgbAt(double value, MPlotInterval range) const
 	{
+		if(recomputeCachedColorsRequired_)
+			recomputeCachedColors();
+
 		if (value < range.first)
 			return colorArray_.first();
 
@@ -92,13 +95,13 @@ public:
 	/// Returns the resolution (number of color steps) in the pre-computed color map.
 	int resolution() const { return colorArray_.size(); }
 	/// Set the resolution (number of color steps) in the pre-computed color map.  The default is 256.  Higher resolution could produce a smoother image, but will require more memory.  (For comparison, Matlab's default resolution is 64.)
-	void setResolution(int newResolution) { colorArray_.resize(newResolution); recomputeCachedColors(); }
+	void setResolution(int newResolution) { colorArray_.resize(newResolution); recomputeCachedColorsRequired_ = true; }
 
 
 	/// Returns the interpolation mode used to interpolate between color stops.  RGB is fastest, while HSV preserves human-perception-based color relationships.
 	BlendMode blendMode() const { return blendMode_; }
 	/// Set the interpolation mode used to interpolate between color stops.
-	void setBlendMode(BlendMode newBlendMode) { blendMode_ = newBlendMode; recomputeCachedColors(); }
+	void setBlendMode(BlendMode newBlendMode) { blendMode_ = newBlendMode; recomputeCachedColorsRequired_ = true; }
 
 protected:
 	/// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.
@@ -108,6 +111,8 @@ protected:
 	QVector<QRgb> colorArray_;
 	/// Stores the current color stops which define the map.
 	QGradientStops colorStops_;
+	/// Optimization: stores whether the colorArray_ has been already filled, or if recomputing the colors is required before asking for any rgbAt() or colorAt() values.
+	bool recomputeCachedColorsRequired_;
 
 private:
 	/// Returns the index for the color array if given a value within a range between 0 and 1.
