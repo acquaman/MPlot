@@ -141,9 +141,9 @@ void MPlotColorMap::recomputeCachedColors() const
 		for (int i = 0; i < resolution(); i++){
 
 			if (blendMode() == HSV)
-				colorArray_.insert(i, QColor::fromHsv(0, 0, i/resolution()).rgb());
+				colorArray_.insert(i, QColor::fromHsvF(0, 0, i/resolution()).rgb());
 			else
-				colorArray_.insert(i, QColor::fromRgb(i/resolution(), i/resolution(), i/resolution()).rgb());
+				colorArray_.insert(i, QColor::fromRgbF(i/resolution(), i/resolution(), i/resolution()).rgb());
 		}
 	}
 
