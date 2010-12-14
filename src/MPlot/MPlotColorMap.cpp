@@ -9,6 +9,7 @@
 MPlotColorMap::MPlotColorMap(int resolution)
 	: colorArray_(resolution)
 {
+	blendMode_ = RGB;
 	colorStops_ << QGradientStop(0.0, QColor(0, 0, 131))
 			<< QGradientStop(0.121569, QColor(0, 0, 255))
 			<< QGradientStop(0.372549, QColor(0, 255, 255))
@@ -22,6 +23,7 @@ MPlotColorMap::MPlotColorMap(int resolution)
 MPlotColorMap::MPlotColorMap(const QColor& color1, const QColor& color2, int resolution )
 	: colorArray_(resolution)
 {
+	blendMode_ = RGB;
 	colorStops_ << QGradientStop(0.0, color1) << QGradientStop(1.0, color2);
 	recomputeCachedColorsRequired_ = true;
 }
@@ -30,6 +32,7 @@ MPlotColorMap::MPlotColorMap(const QColor& color1, const QColor& color2, int res
 MPlotColorMap::MPlotColorMap(const QGradientStops& colorStops, int resolution)
 	: colorArray_(resolution), colorStops_(colorStops)
 {
+	blendMode_ = RGB;
 	recomputeCachedColorsRequired_ = true;
 }
 
@@ -37,6 +40,8 @@ MPlotColorMap::MPlotColorMap(const QGradientStops& colorStops, int resolution)
 MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
 	: colorArray_(resolution)
 {
+	blendMode_ = RGB;
+
 	switch(colorMap){
 
 	case Autumn:
@@ -68,10 +73,11 @@ MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
 				<< QGradientStop(1, QColor(255, 255, 255));
 		break;
 	case Hsv:
-		colorStops_ << QGradientStop(0, QColor(0, 0, 0))
+		colorStops_ << QGradientStop(0, QColor(255, 0, 0))
 				<< QGradientStop(0.4, QColor(0, 255, 99))
 				<< QGradientStop(0.8, QColor(199, 0, 255))
 				<< QGradientStop(1, QColor(255, 0, 6));
+		setBlendMode(HSV);
 		break;
 	case Jet:
 		colorStops_ << QGradientStop(0.0, QColor(0, 0, 131))
@@ -138,13 +144,14 @@ void MPlotColorMap::recomputeCachedColors() const
 	// If no stops were given, produce a generic grayscale colour map.
 	if (colorStops_.isEmpty()){
 
-		for (int i = 0; i < resolution(); i++){
+		double maxSize = (double)resolution();
 
-			if (blendMode() == HSV)
-				colorArray_.insert(i, QColor::fromHsvF(0, 0, i/resolution()).rgb());
-			else
-				colorArray_.insert(i, QColor::fromRgbF(i/resolution(), i/resolution(), i/resolution()).rgb());
-		}
+		if (blendMode() == HSV)
+			for (int i = 0; i < maxSize; i++)
+				colorArray_[i] = QColor::fromHsvF(0, 0, i/resolution()).rgb();
+		else if (blendMode() == RGB)
+			for (int i = 0; i < maxSize; i++)
+				colorArray_[i] = QColor::fromRgbF(i/maxSize, i/maxSize, i/maxSize).rgb();
 	}
 
 	// If a single stop is given, the color map is a single colour.
@@ -158,44 +165,46 @@ void MPlotColorMap::recomputeCachedColors() const
 		QGradientStop end;
 		int startIndex;
 		int endIndex;
+		double endMinusStart;
 
 		// If the first stop isn't at 0 then fill with the first colour up to the index of the first stop.
-		if (colorStops_.first().first != 0.0)
-			colorArray_.insert(0, colorIndex(colorStops_.first()), colorStops_.first().second.rgb());
+		if (colorStops_.first().first > 0.0)
+			for (int i = 0; i < colorIndex(colorStops_.first()); i++)
+				colorArray_[i] = colorStops_.first().second.rgb();
 
 		// General fill algorithm based on two stops.
-		for (int i = 0; i < colorStops_.size()-1; i++){
+		for (int j = 0; j < colorStops_.size()-1; j++){
 
-			start = colorStops_.at(i);
-			end = colorStops_.at(i+1);
+			start = colorStops_.at(j);
+			end = colorStops_.at(j+1);
 			startIndex = colorIndex(start);
 			endIndex = colorIndex(end);
+			endMinusStart = endIndex-startIndex;
 
-			for (int i = startIndex; i < endIndex; i++){
-
-				if (blendMode() == HSV)
-
-					colorArray_.insert(i, QColor::fromHsv(start.second.hue()+(end.second.hue()-start.second.hue())*i/(endIndex-startIndex),
-													  start.second.saturation()+(end.second.saturation()-start.second.saturation())*i/(endIndex-startIndex),
-													  start.second.value()+(end.second.value()-start.second.value())*i/(endIndex-startIndex),
-													  start.second.alpha()+(end.second.alpha()-start.second.alpha())*i/(endIndex-startIndex))
-													  .rgb());
-				else
-					colorArray_.insert(i, QColor::fromRgb(start.second.red()+(end.second.red()-start.second.red())*i/(endIndex-startIndex),
-													  start.second.green()+(end.second.green()-start.second.green())*i/(endIndex-startIndex),
-													  start.second.blue()+(end.second.blue()-start.second.blue())*i/(endIndex-startIndex),
-													  start.second.alpha()+(end.second.alpha()-start.second.alpha())*i/(endIndex-startIndex))
-													  .rgb());
-			}
+			if (blendMode() == HSV)
+				for (int i = 0; i <= endMinusStart; i++)
+					colorArray_[startIndex+i] = QColor::fromHsv(start.second.hue()+(end.second.hue()-start.second.hue())*i/endMinusStart,
+													  start.second.saturation()+(end.second.saturation()-start.second.saturation())*i/endMinusStart,
+													  start.second.value()+(end.second.value()-start.second.value())*i/endMinusStart,
+													  start.second.alpha()+(end.second.alpha()-start.second.alpha())*i/endMinusStart)
+													  .rgb();
+			else if (blendMode() == RGB)
+				for (int i = 0; i <= endMinusStart; i++)
+					colorArray_[startIndex+i] = QColor::fromRgb(start.second.red()+(end.second.red()-start.second.red())*i/endMinusStart,
+													  start.second.green()+(end.second.green()-start.second.green())*i/endMinusStart,
+													  start.second.blue()+(end.second.blue()-start.second.blue())*i/endMinusStart,
+													  start.second.alpha()+(end.second.alpha()-start.second.alpha())*i/endMinusStart)
+													  .rgb();
 		}
 
 		// If the last stop isn't at 1 then fill the rest of the colour map with the last stop's colour.
-		if (colorStops_.last().first != 1.0)
-			colorArray_.insert(colorIndex(colorStops_.last()), resolution()-1, colorStops_.last().second.rgb());
+		if (colorStops_.last().first < 1.0)
+			for (int i = colorIndex(colorStops_.last()); i < resolution(); i++)
+				colorArray_[i] = colorStops_.last().second.rgb();
 	}
 
 	// we're done recomputing the colorArray_, so reset this flag.
-	recomputeCachedColorsRequired_ = false;
+	recomputeCachedColorsRequired_ = false;for (int i = 0; i < colorArray_.size(); i++) qDebug() << QColor::fromRgb(colorArray_.at(i));
 }
 
 /*

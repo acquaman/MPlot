@@ -63,7 +63,7 @@ public:
 	/// Convenience constructor based on the pre-built color maps that are used in other applications.
 	MPlotColorMap(StandardColorMap colorMap, int resolution = 256);
 
-
+	/// This function assumes that value is between 0-1.
 	QColor colorAt(double value) const { return QColor::fromRgba(rgbAt(value)); }
 	QColor colorAt(double value, MPlotInterval range) const { return QColor::fromRgba(rgbAt(value, range)); }
 	QColor colorAtIndex(int index) const { return QColor::fromRgba(rgbAtIndex(index)); }
@@ -74,15 +74,9 @@ public:
 		if(recomputeCachedColorsRequired_)
 			recomputeCachedColors();
 
-		if (value < range.first)
-			return colorArray_.first();
-
-		if (value > range.second)
-			return colorArray_.last();
-
-		return colorArray_.at((int)round((value/range.second)*resolution()));
+		return rgbAtIndex((int)round(((value-range.first)/(range.second-range.first))*(resolution()-1)));
 	}
-	QRgb rgbAtIndex(int index) const { return colorArray_.at(index); }
+	QRgb rgbAtIndex(int index) const { if (index < 0 || index >= resolution()) return QRgb(); return colorArray_.at(index); }
 
 	/// Returns the stop points for this gradient.
 	/*! If no stop points have been specified, a gradient of black at 0 to white at 1 is used.*/
@@ -119,7 +113,7 @@ protected:
 
 private:
 	/// Returns the index for the color array if given a value within a range between 0 and 1.
-	int colorIndex(QGradientStop stop) const { return (int)floor(stop.first*resolution()); }
+	int colorIndex(QGradientStop stop) const { if (stop.first < 0) return 0; if (stop.first >= 1) return resolution()-1; return (int)(stop.first*(resolution()-1)); }
 
 	BlendMode blendMode_;
 

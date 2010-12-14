@@ -13,6 +13,9 @@
 #include <QPen>
 #include <QBrush>
 
+#include <QGradientStops>
+#include <QGradientStop>
+
 #include <QPrinter>
 #include <QPrintDialog>
 
@@ -93,7 +96,7 @@
 	 }
 
 	 MPlotImageBasic* plot2d = new MPlotImageBasic(&data2d);
-	 //	plot2d.setColorMap(MPlotColorMap::Jet);	This should be the default color map.
+	 plot2d->setColorMap(MPlotColorMap::Jet);	//This should be the default color map.
 	 plot.addItem(plot2d);
 
 
