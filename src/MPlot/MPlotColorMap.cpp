@@ -204,7 +204,7 @@ void MPlotColorMap::recomputeCachedColors() const
 	}
 
 	// we're done recomputing the colorArray_, so reset this flag.
-	recomputeCachedColorsRequired_ = false;for (int i = 0; i < colorArray_.size(); i++) qDebug() << QColor::fromRgb(colorArray_.at(i));
+	recomputeCachedColorsRequired_ = false;
 }
 
 /*
