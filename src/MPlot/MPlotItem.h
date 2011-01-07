@@ -62,9 +62,14 @@ public:
 
 	enum { Type = PlotItem };
 
-	/// Returns the type of this item, to enable qgraphicsitem_cast() for casting to different MPlotItem subclasses.
-	int type() const {
+	/// Returns the type of this item, to enable qgraphicsitem_cast() for casting to different MPlotItem subclasses.  See qgraphicsitem_cast() for more information.
+	virtual int type() const {
 		return Type;
+	}
+
+	/// Returns the dimensionality of data this plot item is capable of representing.  This number should be equal to the number of <i>independent axis</i> that can be supported. (For ex: an X-Y series can represent one independent axis; an image colorplot could represent 2 independent axes). This function should be re-implemented by actual MPlotItems.
+	virtual int rank() const {
+		return 0;
 	}
 
 	/// Constructor calls base class (QGraphicsObject)

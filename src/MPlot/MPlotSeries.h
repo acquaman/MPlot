@@ -48,7 +48,8 @@ class MPlotAbstractSeries : public MPlotItem {
 public:
 
 	enum { Type = MPlotItem::Series };
-	int type() const { return Type; }
+	virtual int type() const { return Type; }
+	virtual int rank() const { return 1; }
 
 	MPlotAbstractSeries();
 

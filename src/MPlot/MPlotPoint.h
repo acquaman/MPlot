@@ -13,6 +13,10 @@ public:
 	/// Default constructor. Override setDefaults() for a custom look off the bat.
 	MPlotPoint(const QPointF& value = QPointF(0,0));
 
+	virtual int rank() const {
+		 return 0;
+	}
+
 	// Returns the current marker, which can be used to access it's pen, brush, and size.
 		// If the plot has no marker (or MPlotMarkerShape::None), then this will be a null pointer. Must check before setting.
 	virtual MPlotAbstractMarker* marker() const;

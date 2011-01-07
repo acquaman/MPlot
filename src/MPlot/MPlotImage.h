@@ -30,7 +30,8 @@ class MPlotAbstractImage : public MPlotItem {
 public:
 
 	enum { Type = MPlotItem::Image };
-	int type() const { return Type; }
+	virtual int type() const { return Type; }
+	virtual int rank() const { return 2; }
 
 	MPlotAbstractImage();
 
