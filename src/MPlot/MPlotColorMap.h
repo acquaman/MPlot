@@ -74,6 +74,9 @@ public:
 		if(recomputeCachedColorsRequired_)
 			recomputeCachedColors();
 
+		if(range.first == range.second)	// don't blow up to infinite when the range is nothing.
+			return rgbAtIndex(0);
+
 		return rgbAtIndex((int)round(((value-range.first)/(range.second-range.first))*(resolution()-1)));
 	}
 	QRgb rgbAtIndex(int index) const { if (index < 0 || index >= resolution()) return QRgb(); return colorArray_.at(index); }
