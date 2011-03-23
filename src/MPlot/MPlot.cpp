@@ -192,6 +192,11 @@ void MPlot::addTool(MPlotAbstractTool* newTool) {
 
 /// Remove a tool from a plot. (Note: Does not delete the tool...)
 bool MPlot::removeTool(MPlotAbstractTool* removeMe) {
+
+	// optimization: speeds up the ~MPlot() destructor, which will eventually call delete on all child plot items, which will call removeItem() on their plot (ie: us!) Don't bother with this whole process.
+	if(gettingDeleted_)
+		return true;
+
 	if(tools_.contains(removeMe)) {
 		removeMe->setPlot(0);
 		removeMe->setParentItem(0);
