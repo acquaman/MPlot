@@ -2,6 +2,8 @@
 #define __MPlotSeries_CPP__
 
 #include "MPlotSeries.h"
+#include <QPainter>
+#include <QDebug>
 
 MPlotSeriesSignalHandler::MPlotSeriesSignalHandler(MPlotAbstractSeries *parent)
 	: QObject(0) {
@@ -33,12 +35,6 @@ MPlotAbstractSeries::MPlotAbstractSeries() :
 
 	signalHandler_ = new MPlotSeriesSignalHandler(this);
 
-	// Set style defaults:
-	setDefaults();	// override in subclasses
-
-	// Set model (will check that data != 0)
-	// No! We need a fully instantiated subclass first. [setModel(data);]
-
 }
 
 MPlotAbstractSeries::~MPlotAbstractSeries() {
@@ -59,7 +55,6 @@ MPlotAbstractSeries::~MPlotAbstractSeries() {
 // Properties:
 void MPlotAbstractSeries::setLinePen(const QPen& pen) {
 	linePen_ = pen;
-	linePen_.setCosmetic(true);
 	emitLegendContentChanged(); // this changes the legendColor();
 }
 
@@ -69,14 +64,11 @@ MPlotAbstractMarker* MPlotAbstractSeries::marker() const {
 	return marker_;
 }
 
-void MPlotAbstractSeries::setMarker(MPlotMarkerShape::Shape shape, double size, const QPen& pen, const QBrush& brush) {
+void MPlotAbstractSeries::setMarker(MPlotMarkerShape::Shape shape, qreal size, const QPen& pen, const QBrush& brush) {
 	if(marker_)
 		delete marker_;
 
-	QPen realPen = pen;
-	realPen.setCosmetic(true);
-
-	marker_ = MPlotMarker::create(shape, size, realPen, brush);
+	marker_ = MPlotMarker::create(shape, size, pen, brush);
 	update();
 }
 
@@ -123,12 +115,7 @@ const MPlotAbstractSeriesData* MPlotAbstractSeries::model() const { return data_
 
 // Required functions:
 //////////////////////////
-// Bounding rect: reported in our PlotSeries coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.
-QRectF MPlotAbstractSeries::boundingRect() const {
 
-	return dataRect();
-
-}
 
 // Data rect: also reported in our PlotSeries coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
 QRectF MPlotAbstractSeries::dataRect() const {
@@ -159,14 +146,6 @@ QRectF MPlotAbstractSeries::dataRect() const {
 	return cachedDataRect_;
 }
 
-/*
-double MPlotAbstractSeries::yy(unsigned i) const {
-	double rv = data_->y(i)*sy_+dy_+offset_.y();
-	if(rv < dataRect().top() || rv > dataRect().bottom()) {
-		qDebug() << description() << "y val:" << rv << "is outside y data range: bottom:" << dataRect().bottom() << "top:" << dataRect().top();
-	}
-	return rv;
-}*/
 
 QPainterPath MPlotAbstractSeries::shape() const {
 
@@ -179,13 +158,13 @@ QPainterPath MPlotAbstractSeries::shape() const {
 
 
 	else if(data_ && data_->count() > 0) {
-		shape.moveTo(xx(0), yy(0));
+		shape.moveTo(mapX(xx(0)), mapY(yy(0)));
 		for(int i=0; i<data_->count(); i++)
-			shape.lineTo(xx(i), yy(i));
+			shape.lineTo(mapX(xx(i)), mapY(yy(i)));
 
 		for(int i=data_->count()-2; i>=0; i--)
-			shape.lineTo(xx(i), yy(i));
-		shape.lineTo(xx(0), yy(0));
+			shape.lineTo(mapX(xx(i)), mapY(yy(i)));
+		shape.lineTo(mapX(xx(0)), mapY(yy(0)));
 	}
 
 	return shape;
@@ -209,8 +188,6 @@ void	MPlotAbstractSeries::onDataChangedPrivate() {
 
 void MPlotAbstractSeries::setDefaults() {
 
-	setYAxisTarget(MPlotAxis::Left);
-
 	setLinePen(QPen(QColor(Qt::red)));	// Red solid lines on plot
 
 	setMarker(MPlotMarkerShape::Square, 6, QPen(QColor(Qt::blue), 0), QBrush()); // Blue outlines on markers, No Brush
@@ -219,13 +196,12 @@ void MPlotAbstractSeries::setDefaults() {
 	QColor selectionColor = MPLOT_SELECTION_COLOR;
 	selectionColor.setAlphaF(MPLOT_SELECTION_OPACITY);
 	selectedPen_ = QPen(QBrush(selectionColor), MPLOT_SELECTION_LINEWIDTH);
-	selectedPen_.setCosmetic(true);
 }
 
 
 /// Use this function to apply a constant transformation to the series, on top of the underlying data. All data points are first scaled by (\c sx, \c sy) and then shifted by (\c dx, \c dy).
 /*! Calling this function will only have an effect on axes which do not have normalization enabled (using enableYAxisNormalization() or enableXAxisNormalization()). If you want your changes to stick, be sure to disable normalization first.*/
-void MPlotAbstractSeries::applyTransform(double sx, double sy, double dx, double dy) {
+void MPlotAbstractSeries::applyTransform(qreal sx, qreal sy, qreal dx, qreal dy) {
 	sx_ = sx;
 	sy_ = sy;
 	dx_ = dx;
@@ -235,7 +211,7 @@ void MPlotAbstractSeries::applyTransform(double sx, double sy, double dx, double
 }
 
 /// Call this function to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform() in the y-axis.
-void MPlotAbstractSeries::enableYAxisNormalization(bool on, double min, double max) {
+void MPlotAbstractSeries::enableYAxisNormalization(bool on, qreal min, qreal max) {
 	yAxisNormalizationOn_ = on;
 	if(on) {
 		normYMin_ = min;
@@ -250,7 +226,7 @@ void MPlotAbstractSeries::enableYAxisNormalization(bool on, double min, double m
 }
 
 /// Call this function to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform() in the x-axis.
-void MPlotAbstractSeries::enableXAxisNormalization(bool on, double min, double max) {
+void MPlotAbstractSeries::enableXAxisNormalization(bool on, qreal min, qreal max) {
 	xAxisNormalizationOn_ = on;
 	if(on) {
 		normXMin_ = min;
@@ -265,7 +241,7 @@ void MPlotAbstractSeries::enableXAxisNormalization(bool on, double min, double m
 }
 
 
-void MPlotAbstractSeries::setOffset(double dx, double dy) {
+void MPlotAbstractSeries::setOffset(qreal dx, qreal dy) {
 	offset_ = QPointF(dx, dy);
 
 	onDataChangedPrivate();
@@ -284,6 +260,9 @@ void MPlotAbstractSeries::setOffset(double dx, double dy) {
 MPlotSeriesBasic::MPlotSeriesBasic(const MPlotAbstractSeriesData* data)
 	: MPlotAbstractSeries() {
 
+	// Set style defaults:
+	setDefaults();
+
 	setModel(data);
 }
 
@@ -300,20 +279,26 @@ MPlotSeriesBasic::~MPlotSeriesBasic() {
 // using parent implementation, but adding extra room on edges for our selection highlight and markers.
 QRectF MPlotSeriesBasic::boundingRect() const {
 	QRectF br = MPlotAbstractSeries::boundingRect();
+
+	qDebug() << "Initial bounding rect:" << br;
+
 	if(br.isValid()) {
 		// create rectangle at least as big as our selection highlight, and if we have a marker, the marker size.
 		QRectF hs = QRectF(0, 0, MPLOT_SELECTION_LINEWIDTH, MPLOT_SELECTION_LINEWIDTH);
-		// expand by marker size (if expressed in pixels)
+		// expand by marker size (expressed in pixels)
 		if(marker())
 			hs |= QRectF(0,0, marker()->size(), marker()->size());
 
 
 		// these sizes so far are in pixels (hopefully scene coordinates... trusting on an untransformed view.) Converting to local (data) coordinates.
-		hs = mapRectFromScene(hs);
+		// no longer necessary in new drawing coordinate system: hs = mapRectFromScene(hs);
 
 		// really we just need 1/2 the marker size and 1/2 the selection highlight width. But extra doesn't hurt.
 		br.adjust(-hs.width(),-hs.height(),hs.width(), hs.height());
 	}
+
+	qDebug() << "adjusted bounding rect:" << br;
+
 	return br;
 }
 
@@ -325,6 +310,10 @@ void MPlotSeriesBasic::paint(QPainter* painter,
 	Q_UNUSED(option);
 	Q_UNUSED(widget);
 
+	if(!yAxisTarget() || !xAxisTarget()) {
+		qWarning() << "MPlotSeriesBasic: No axis scale set. Abandoning painting because we don't know what scale to use.";
+		return;
+	}
 	// Plot the markers. Here what makes sense is one marker per data point.  This will be slow for large datasets.
 	// use plot->setMarkerShape(MPlotMarkerShape::None) for large sets.
 	/////////////////////////////////////////
@@ -349,7 +338,8 @@ void MPlotSeriesBasic::paint(QPainter* painter,
 void MPlotSeriesBasic::paintLines(QPainter* painter) {
 	// todo: if it's a small dataset (< 500 lines), just draw it asap
 
-	// xinc is the delta-x that corresponds to 1 pixel-width on the screen.  It makes no sense to plot many points inside one delta-x.
+	// xinc is the delta-x that corresponds to 1 pixel-width on the device(screen).  It makes no sense to plot many points inside one delta-x. If the x-resolution of the data is so fine as to give us many points within on pixel-width, we optimize to draw no more than two carefully-placed lines within this vertical space... One covering the entire vertical extent of the data at this x-pixel, and one connecting the previous x-pixel to the next with the appropriate slope.
+
 	QTransform wt = painter->deviceTransform();	// equivalent to worldTransform and combinedTransform
 
 	/*
@@ -358,24 +348,26 @@ void MPlotSeriesBasic::paintLines(QPainter* painter) {
 		qDebug() << "combinedT m11" << painter->combinedTransform().m11();
 		 */
 
-	double xinc = 1.0 / wt.m11() / MPLOT_MAX_LINES_PER_PIXEL;
+	qreal xinc = 1.0 / wt.m11() / MPLOT_MAX_LINES_PER_PIXEL;
 
-	// Instead, we'll just plot the max and min value within every xinc range.  This ensures that if there is noise/jumps within a subsample (xinc) range, we'll still see it on the plot.
+	// Instead of drawing lines between all these data points, we'll just plot the max and min value within every xinc range.  This ensures that if there is noise/jumps within a subsample (xinc) range, we'll still see it on the plot.
 	if(data_ && data_->count() > 0) {
-		double xstart;
-		double ystart, ymin, ymax;
+		qreal xstart;
+		qreal ystart, ymin, ymax;
 
-		xstart = xx(0);
-		ymin = ymax = ystart = yy(0);
+		xstart = mapX(xx(0));
+		ymin = ymax = ystart = mapY(yy(0));
 
 		// move through the datapoints along x. (Note that x could be jumping forward or backward here... it's not necessarily sorted)
 		for(int i=1; i<data_->count(); i++) {
 			// if within the range around xstart: update max/min to be representative of this range
-			if(fabs(xx(i) - xstart) < xinc) {
-				if(yy(i) > ymax)
-					ymax = yy(i);
-				if(yy(i) < ymin)
-					ymin = yy(i);
+			if(fabs(mapX(xx(i)) - xstart) < xinc) {
+				qreal mappedYYI = mapY(yy(i));
+
+				if(mappedYYI > ymax)
+					ymax = mappedYYI;
+				if(mappedYYI < ymin)
+					ymin = mappedYYI;
 			}
 			// otherwise draw the lines and move on to next range...
 			// The first line represents everything within the range [xstart, xstart+xinc).  Note that these will all be plotted at same x-pixel.
@@ -386,11 +378,11 @@ void MPlotSeriesBasic::paintLines(QPainter* painter) {
 				if(ymin != ymax)
 					painter->drawLine(QPointF(xstart, ymin), QPointF(xstart, ymax));
 
-				painter->drawLine(QPointF(xx(i-1), yy(i-1)), QPointF(xx(i), yy(i)));
-				//painter->drawLine(QPointF(xstart, ystart), QPointF(xx(i), yy(i)));
+				painter->drawLine(QPointF(mapX(xx(i-1)), mapY(yy(i-1))), QPointF(mapX(xx(i)), mapY(yy(i))));
+				//NOT: painter->drawLine(QPointF(xstart, ystart), QPointF(mapX(xx(i)), mapY(yy(i))));
 
-				xstart = xx(i);
-				ymin = ymax = ystart = yy(i);
+				xstart = mapX(xx(i));
+				ymin = ymax = ystart = mapY(yy(i));
 			}
 		}
 	}
@@ -398,19 +390,15 @@ void MPlotSeriesBasic::paintLines(QPainter* painter) {
 
 void MPlotSeriesBasic::paintMarkers(QPainter* painter) {
 
-	QTransform wt = painter->deviceTransform();	// equivalent to worldTransform and combinedTransform
-	QTransform wtInverse;
-	wtInverse.scale(1/wt.m11(), 1/wt.m22());
-
 	if(data_ && marker_) {
 
-		for(int i=0; i<data_->count(); i++) {
+		for(int i=data_->count()-1; i>=0; i--) {
 			// Paint marker:
-			painter->save();
-			painter->translate(xx(i), yy(i));
-			painter->setTransform(wtInverse, true);
+			qreal x = mapX(xx(i)), y = mapY(yy(i));
+
+			painter->translate(x, y);
 			marker_->paint(painter);
-			painter->restore();
+			painter->translate(-x, -y);
 		}
 	}
 }

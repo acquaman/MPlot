@@ -2,7 +2,8 @@
 #define MPLOTITEM_H
 
 #include <QGraphicsItem>
-#include "MPlotAxis.h"
+#include <QObject>
+#include <QBrush>
 
 
 /// This is the color of the selection highlight
@@ -13,6 +14,7 @@
 #define MPLOT_SELECTION_LINEWIDTH 10
 
 class MPlot;
+#include "MPlotAxisScale.h"
 
 /// This class is a proxy that emits signals for an MPlotItem.
 /*! To avoid multipler-inheritance restrictions, MPlotItems do not inherit QObject.  However, they need some way to emit signals to notify plots of relevant events.  Therefore, they each contain an MPlotItemSignalSource, which emits signals on their behalf.  You can access it with MPlotItem::signalSource().
@@ -20,6 +22,9 @@ class MPlot;
   There are two relevant signals:
   - boundsChanged() is emitted when the extent of this item's x- or y-data might have changed such that a re-autoscale is necessary.
   - selectedChanged(bool isSelected) is emitted whenever the selection state of this item changes.
+
+  And one important slot:
+  - onAxisScaleAboutToChange() calls the plot item's onAxisScaleAboutToChange() to have the item re-paint itself on the new scale.
   */
 
 class MPlotItem;
@@ -28,6 +33,10 @@ class MPlotItemSignalSource : public QObject {
 	Q_OBJECT
 public:
 	MPlotItem* plotItem() const { return plotItem_; }
+
+public slots:
+	void onAxisScaleAboutToChange() const;
+	void onAxisScaleChanged() const;
 
 protected:
 	MPlotItemSignalSource(MPlotItem* parent);
@@ -85,11 +94,20 @@ public:
 	/// Connect to this proxy object to receive MPlotItem signals:
 	MPlotItemSignalSource* signalSource() const { return signalSource_; }
 
-	/// returns which y-axis this data should be plotted against
-	MPlotAxis::AxisID yAxisTarget();
+	/// returns which y-axis scale this data should use / be plotted against
+	const MPlotAxisScale* yAxisTarget() const { return yAxisTarget_; }
+	MPlotAxisScale* yAxisTarget() { return yAxisTarget_; }
+	/// set the y-axis scale this data should be plotted against
+	void setYAxisTarget(MPlotAxisScale* yAxisTarget);
 
-	/// set the y-axis this data should be plotted against
-	void setYAxisTarget(MPlotAxis::AxisID axis);
+	/// Returns the x-axis scale this data should use / be plotted against
+	const MPlotAxisScale* xAxisTarget() const { return xAxisTarget_; }
+	MPlotAxisScale* xAxisTarget() { return xAxisTarget_; }
+	/// set the x-axis scale this data shoud use / be plotted against
+	void setXAxisTarget(MPlotAxisScale* xAxisTarget);
+
+
+
 
 	/// tell this item that it is 'selected' within the plot
 	virtual void setSelected(bool selected = true);
@@ -116,10 +134,11 @@ public:
 	MPlot* plot() const;
 
 
-	// Bounding rect: reported in our PlotItem coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.
+	/// Bounding rect: This is the rectangle enclosing the plot item, in drawing coordinates.  It is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.
 	virtual QRectF boundingRect() const;
 
-	// Data rect: also reported in our PlotItem coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
+	/// Data rect: This is the rectangle enclosing the data points, in raw data coordinates.  It is used by the auto-scaling system to figure out the range of our data on an axis.
+	/*! \note The default implementation of boundingRect() calls dataRect() to find out the extent of the item in data coordinates.  If you re-implement dataRect() so that this isn't true (for ex: you return a null QRectF() so that the item isn't included in auto-scaling), you must also re-implement boundingRect() to return the actual drawing-coordinate extent of the item. */
 	virtual QRectF dataRect() const = 0;
 
 	/// Paint: must be implemented in subclass.
@@ -136,7 +155,7 @@ public:
 
 private:
 	bool isSelected_, isSelectable_;
-	MPlotAxis::AxisID yAxisTarget_;
+	MPlotAxisScale* yAxisTarget_, *xAxisTarget_;
 
 	MPlot* plot_;
 
@@ -152,6 +171,20 @@ protected:
 	void emitSelectedChanged(bool isSelected) { signalSource_->emitSelectedChanged(isSelected); }
 	/// called within MPlotItem to forward this signal
 	void emitLegendContentChanged() { signalSource_->emitLegendContentChanged(); }
+
+	/// Triggered when the axis scale it uses will be changed, affecting its geometry.  You can re-implement this if you need to handle anything in custom subclasses, but call the base class implementation first.  The base class implementation notifies the scene that the geometry of this object (boundingBox) will be changing, and schedules a paint update().
+	virtual void onAxisScaleAboutToChange() {
+		prepareGeometryChange();
+		update();
+	}
+	/// Triggered when the axis scale has changed, affecting this item's geometry.  This signal is received after the change is completed.  You can re-implement this if you need to handle anything in custom subclasses.  The base class implementation does nothing.
+	virtual void onAxisScaleChanged() {}
+
+
+	/// Shorthand to map a data coordinate to drawing coordinate.  Only call when xAxisTarget_ is valid.
+	qreal mapX(qreal dataCoordinate) const { return xAxisTarget_->mapDataToDrawing(dataCoordinate); }
+	/// Shorthand to map a data coordinate to drawing coordinate.  Only call when yAxisTarget_ is valid.
+	qreal mapY(qreal dataCoordinate) const { return yAxisTarget_->mapDataToDrawing(dataCoordinate); }
 };
 
 #endif // MPLOTITEM_H

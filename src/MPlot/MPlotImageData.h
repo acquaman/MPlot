@@ -8,8 +8,8 @@
 #include <QVector>
 
 
-/// An MPlotInterval is just a typedef for a pair of doubles
-typedef QPair<double,double> MPlotInterval;
+/// An MPlotInterval is just a typedef for a pair of qreals
+typedef QPair<qreal,qreal> MPlotInterval;
 
 class MPlotAbstractImageData;
 
@@ -49,18 +49,18 @@ public:
 	MPlotImageDataSignalSource* signalSource() const { return signalSource_; }
 
 	/// Return the x (data value) corresponding an (x,y) \c index:
-	virtual double x(int indexX) const = 0;
+	virtual qreal x(int indexX) const = 0;
 	/// Return the y (data value) corresponding an (x,y) \c index:
-	virtual double y(int indexY) const = 0;
+	virtual qreal y(int indexY) const = 0;
 	/// Return the z = f(x,y) value corresponding an (x,y) \c index:
-	virtual double z(int xIndex, int yIndex) const = 0;
+	virtual qreal z(int xIndex, int yIndex) const = 0;
 
 	/// Convenience function overloads:
-	double x(const QPoint& index) const { return x(index.x()); }
-	double y(const QPoint& index) const { return y(index.y()); }
-	double z(const QPoint& index) const { return z(index.x(), index.y()); }
-	double value(const QPoint& index) const { return z(index.x(), index.y()); }
-	double value(int xIndex, int yIndex) const { return z(xIndex, yIndex); }
+	qreal x(const QPoint& index) const { return x(index.x()); }
+	qreal y(const QPoint& index) const { return y(index.y()); }
+	qreal z(const QPoint& index) const { return z(index.x(), index.y()); }
+	qreal value(const QPoint& index) const { return z(index.x(), index.y()); }
+	qreal value(int xIndex, int yIndex) const { return z(xIndex, yIndex); }
 
 
 
@@ -92,9 +92,9 @@ protected:
 	/// Used to cache the minimum and maximum Z-values
 	mutable bool minMaxCacheUpdateRequired_;
 	/// Searches for minimum z value
-	double minZ() const;
+	qreal minZ() const;
 	/// Searches for maximum z value
-	double maxZ() const;
+	qreal maxZ() const;
 
 
 	// todo: to support multi-threading, consider a
@@ -116,12 +116,12 @@ public:
 
 
 	/// Return the x (data value) corresponding an (x,y) \c index:
-	virtual double x(int indexX) const;
+	virtual qreal x(int indexX) const;
 	/// Return the y (data value) corresponding an (x,y) \c index:
-	virtual double y(int indexY) const;
+	virtual qreal y(int indexY) const;
 
 	/// Return the z = f(x,y) value corresponding an (x,y) \c index:
-	virtual double z(int indexX, int indexY) const;
+	virtual qreal z(int indexX, int indexY) const;
 
 	/// Return the number of elements in x and y
 	virtual QPoint count() const;
@@ -136,13 +136,13 @@ public:
 
 
 	/// Read/Write interface. Can also set the z value at \c index.
-	virtual void setZ(double value, int indexX, int indexY);
+	virtual void setZ(qreal value, int indexX, int indexY);
 	/// Convenience function overload.
-	void setZ(double value, const QPoint& index) {
+	void setZ(qreal value, const QPoint& index) {
 		setZ(value, index.x(), index.y() );
 	}
 	/// Convenience function overload.
-	void setValue(double value, const QPoint& index) {
+	void setValue(qreal value, const QPoint& index) {
 		setZ(value, index.x(), index.y());
 	}
 
@@ -150,7 +150,7 @@ protected:
 	/// resolution: number of values in x and y
 	QPoint num_;
 	/// Stores raw data. (row-major: d_.count() == numRows)
-	QVector<QVector< double > > d_;
+	QVector<QVector< qreal > > d_;
 	/// the (min/max) (x/y) values, in physical(data) coordinates. bounds_.upperLeft is == (minX, minY)
 	QRectF bounds_;
 

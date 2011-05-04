@@ -12,9 +12,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
 
-#include <float.h>
 
-#include <QDebug>
 
 /// Defines the minimum distance between min- and max- values for the range of an axis. Without this check, calling setXDataRange(3, 3) or set___DataRange(f, g=f) will cause a segfault within Qt's drawing functions... it can't handle a clipPath with a width of 0.
 #define MPLOT_MIN_AXIS_RANGE 1e-60
@@ -34,10 +32,10 @@ protected:
 protected slots:
 	void onBoundsChanged();
 	void onSelectedChanged(bool);
+	void onPlotItemLegendContentChanged();
 
 	void doDelayedAutoscale();
-
-	void onPlotItemLegendContentChanged();
+	void onAxisScaleAutoScaleEnabledChanged(bool enabled);
 
 protected:
 	MPlot* plot_;
@@ -52,6 +50,8 @@ protected:
 MPlot supports two independent (left and right) y-axes.  Whether an item is plotted on the right or on the left y-axis depends on its MPlotItem::yAxisTarget().
 
 \todo (When changing the axis target on a plot item, this should probably trigger a re-autoscale and a re-application of the waterfall offsets. It currently doesn't, because the change isn't signalled to MPlot.)
+
+THIS DOCUMENTATION IS OLD. UPDATE NEEDED FOR AXIS SCALING:
 
 The axis ranges for all three axes can be set manually using setXDataRange(), setYDataRangeLeft(), and setYDataRangeRight().  You can also specify an 'autoscale' flag for these functions, which will conduct a one-time fit of the axis range to match the extent of all the items currently plotted on that axis.  If you want the axes to continue auto-scaling in realtime as the data within them changes, use enableAutoScaleBottom(), enableAutoScaleLeft(), and enableAutoScaleRight().
 
@@ -86,6 +86,9 @@ The axis ranges for all three axes can be set manually using setXDataRange(), se
 class MPlot : public QGraphicsItem {
 
 public:
+
+	enum StandardAxis { Left = 0, Bottom, Right, Top };
+
 	MPlot(QRectF rect = QRectF(0,0,100,100), QGraphicsItem* parent = 0);
 	virtual ~MPlot();
 	/// Required paint function. (All painting is done by children)
@@ -93,9 +96,10 @@ public:
 	virtual QRectF boundingRect() const;
 
 	/// Use this to append a new data-item to a plot:
-	void addItem(MPlotItem* newItem) { insertItem(newItem, -1); }
+	void addItem(MPlotItem* newItem, int yAxisTargetIndex = MPlot::Left, int xAxisTargetIndex = MPlot::Bottom) { insertItem(newItem, -1, yAxisTargetIndex, xAxisTargetIndex); }
 	/// Use this to insert a new data-item into the plot, at a given index. \c index must be between 0 and numItems(), or -1 to append.
-	void insertItem(MPlotItem* newItem, int index = -1);
+	/*! If no yAxisTarget, xAxisTarget is specified, it will be targetted to the default (left, bottom) axes of this plot. You can call setYAxisTarget() and setXAxisTarget() on the item after adding it to change those afterwards, using axisScale() to get a pointer to the desired axis scale. */
+	void insertItem(MPlotItem* newItem, int index = -1, int yAxisTargetIndex = MPlot::Left, int xAxisTargetIndex = MPlot::Bottom);
 	/// Remove a data-item from a plot. (Note: Does not delete the item...)
 	bool removeItem(MPlotItem* removeMe);
 
@@ -117,123 +121,54 @@ public:
 	QGraphicsRectItem* plotArea() const { return plotArea_; }
 	// access elements of the canvas:
 
-	MPlotAxis* axisBottom() { return axes_[MPlotAxis::Bottom]; }
 
-	MPlotAxis* axisTop() { return axes_[MPlotAxis::Top]; }
+	MPlotAxis* axis(int axisIndex) { if((unsigned)axisIndex >= (unsigned)axes_.count()) return 0;  return axes_.at(axisIndex); }
+	MPlotAxis* axisLeft() { return axes_.at(MPlot::Left); }
+	MPlotAxis* axisBottom() { return axes_.at(MPlot::Bottom); }
+	MPlotAxis* axisRight() { return axes_.at(MPlot::Right); }
+	MPlotAxis* axisTop() { return axes_.at(MPlot::Top); }
+	int indexOfAxis(MPlotAxis* axis) const { return axes_.indexOf(axis); }
 
-	MPlotAxis* axisLeft() { return axes_[MPlotAxis::Left]; }
+	MPlotAxisScale* axisScale(int axisScaleIndex) { if((unsigned)axisScaleIndex >= (unsigned)axisScales_.count()) return 0;  return axisScales_.at(axisScaleIndex); }
+	const MPlotAxisScale* axisScale(int axisScaleIndex) const { if((unsigned)axisScaleIndex >= (unsigned)axisScales_.count()) return 0;  return axisScales_.at(axisScaleIndex); }
+	MPlotAxisScale* axisScaleLeft() { return axisScales_.at(MPlot::Left); }
+	MPlotAxisScale* axisScaleBottom() { return axisScales_.at(MPlot::Bottom); }
+	MPlotAxisScale* axisScaleRight() { return axisScales_.at(MPlot::Right); }
+	MPlotAxisScale* axisScaleTop() { return axisScales_.at(MPlot::Top); }
+	int indexOfAxisScale(const MPlotAxisScale* axisScale) const {
+		return axisScales_.indexOf(const_cast<MPlotAxisScale*>(axisScale));
+	}
+	void addAxisScale(MPlotAxisScale* newScale);
 
-	MPlotAxis* axisRight() { return axes_[MPlotAxis::Right]; }
 
 	MPlotLegend* legend() { return legend_; }
-
 	QGraphicsRectItem* background() { return background_; }
 
 	/// returns the rectangle filled by this plot (in scene or parent QGraphicsItem coordinates)
 	QRectF rect() const { return rect_; }
 
 	/// Sets the rectangle to be filled by this plot (in scene or parent QGraphicsItem coordinates).
-	/*! Also rescales and re-applies the margins and transform for the plotArea). Can call with setRect(rect()) to re-compute margins.)*/
+	/*! Also rescales and re-applies the margins and places the plotArea). Can call with setRect(rect()) to re-compute margins.)*/
 	void setRect(const QRectF& rect);
 
 	// Margins: are set in logical coordinates (ie: as a percentage of the chart width or chart height);
-	double margin(MPlotAxis::AxisID margin) const {
-		return margins_[margin];
-	}
+	qreal margin(MPlot::StandardAxis which) const { return margins_[(int)which]; }
+	qreal marginLeft() const { return margins_[MPlot::Left]; }
+	qreal marginRight() const { return margins_[MPlot::Right]; }
+	qreal marginTop() const { return margins_[MPlot::Top]; }
+	qreal marginBottom() const { return margins_[MPlot::Bottom]; }
 
-	double marginLeft() const {
-		return margins_[MPlotAxis::Left];
-	}
-
-	double marginRight() const {
-		return margins_[MPlotAxis::Right];
-	}
-
-	double marginTop() const {
-		return margins_[MPlotAxis::Top];
-	}
-
-	double marginBottom() const {
-		return margins_[MPlotAxis::Bottom];
-	}
-
-	void setMargin(MPlotAxis::AxisID margin, double value) {
-		margins_[margin] = value; setRect(rect_);
-	}
-
-	void setMarginLeft(double value) {
-		setMargin(MPlotAxis::Left, value);
-	}
-
-	void setMarginRight(double value) {
-		setMargin(MPlotAxis::Right, value);
-	}
-
-	void setMarginTop(double value) {
-		setMargin(MPlotAxis::Top, value);
-	}
-
-	void setMarginBottom(double value) {
-		setMargin(MPlotAxis::Bottom, value);
-	}
+	void setMargin(MPlot::StandardAxis which, qreal value) { margins_[(int)which] = value; setRect(rect_); }
+	void setMarginLeft(qreal value) { setMargin(MPlot::Left, value); }
+	void setMarginRight(qreal value) { setMargin(MPlot::Right, value); }
+	void setMarginTop(qreal value) { setMargin(MPlot::Top, value); }
+	void setMarginBottom(qreal value) { setMargin(MPlot::Bottom, value); }
 
 
-	double xMin() {
-		return xmin_;
-	}
-
-	double xMax() {
-		return xmax_;
-	}
-
-	double yLeftMin() {
-		return yleftmin_;
-	}
-
-	double yRightMin() {
-		return yrightmin_;
-	}
-
-	double yLeftMax() {
-		return yleftmax_;
-	}
-
-	double yRightMax() {
-		return yrightmax_;
-	}
-
-	QTransform leftAxisTransform() {
-		return leftAxisTransform_;
-	}
-
-	QTransform rightAxisTransform() {
-		return rightAxisTransform_;
-	}
+//	void enableAxisNormalization(int axisScaleIndex, bool normalizationOn, qreal min = 0, qreal max = 1);
+//	void setAxisScaleWaterfall(qreal amount = 0.2);
 
 
-	void enableAutoScaleBottom(bool autoScaleOn);
-	void enableAutoScaleLeft(bool autoScaleOn);
-	void enableAutoScaleRight(bool autoScaleOn);
-	void enableAutoScale(int axisFlags);
-
-
-	void enableAxisNormalizationBottom(bool normalizationOn, double min = 0, double max = 1);
-	void enableAxisNormalizationLeft(bool normalizationOn, double min = 0, double max = 1);
-	void enableAxisNormalizationRight(bool normalizationOn, double min = 0, double max = 1);
-	void enableAxisNormalization(int axisFlags);
-
-	void setWaterfallLeft(double amount = 0.2);
-	void setWaterfallRight(double amount = 0.2);
-
-	void setScalePadding(double percent);
-
-	double scalePadding();
-
-	void setXDataRange(double min, double max, bool autoscale = false, bool applyPadding = true);
-
-	void setYDataRangeLeft(double min, double max, bool autoscale = false, bool applyPadding = true);
-
-	void setYDataRangeRight(double min, double max, bool autoscale = false, bool applyPadding = true);
 
 	/// called automatically when control returns to the event loop, this completes a delayed autoscale. (Recomputing the scale limits is optimized to be only done when necessary, rather than whenever the data values change.)  If you need the scene to be updated NOW! (for example, you're working outside of an event loop, or rendering before returning to the event loop), you can call this manually.
 	void doDelayedAutoScale();
@@ -246,71 +181,56 @@ protected: // "slots" (proxied through MPlotSignalHandler)
 	void onSelectedChanged(MPlotItem* source, bool isSelected);
 	/// called when the legend content (color, description, etc.) of a plot item changes
 	void onPlotItemLegendContentChanged(MPlotItem* changedItem);
-
+	/// called when the autoscaling of an axis scale changes
+	void onAxisScaleAutoScaleEnabledChanged(bool autoScaleEnabled);
 
 
 
 protected:
+
+	/// Request a deferred auto-scale:
+	void scheduleDelayedAutoScale();
+	/// Sets the defaults for the drawing options: margins, scale padding, background colors, initial data range.
+	void setDefaults();
+
 	// Members:
 	QRectF rect_;
 
 	MPlotLegend* legend_;
-	MPlotAxis* axes_[9];		// We only use [1], [2], [4], and [8]...
+
+	QList<MPlotAxis*> axes_;		// 0, 1, 2, and 3 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top).
+	QList<MPlotAxisScale*> axisScales_;  // 0, 1, 2, and 3 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top).
+
 	QList<MPlotItem*> items_;	// list of current data items displayed on plot
 	QList<MPlotAbstractTool*> tools_;	// list of tools that have been installed on the plot
 
-	double margins_[9];			// We only use [1], [2], [4], and [8]...
+	qreal margins_[4];			// left, bottom, right, top.
 
 	QGraphicsRectItem* background_;
 	QGraphicsRectItem* plotArea_, *dataArea_;
-	/// The rectangle containing the plotting area, in scene coordinates. (plotArea_ and dataArea_ are scaled so that their local coordinates are from (0,0) to (1,1) instead.)
+	/// The rectangle containing the plotting area, in scene coordinates.
 	QRectF plotAreaRect_;
 
-	bool autoScaleBottomEnabled_, autoScaleLeftEnabled_, autoScaleRightEnabled_;
-
-	bool normBottomEnabled_, normLeftEnabled_, normRightEnabled_;
-	QPair<double, double> normBottomRange_, normLeftRange_, normRightRange_;
-
-	double waterfallLeftAmount_, waterfallRightAmount_;
+//	bool autoScaleBottomEnabled_, autoScaleLeftEnabled_, autoScaleRightEnabled_;
+//	bool normBottomEnabled_, normLeftEnabled_, normRightEnabled_;
+//	QPair<qreal, qreal> normBottomRange_, normLeftRange_, normRightRange_;
+//	qreal waterfallLeftAmount_, waterfallRightAmount_;
 
 	/// Caching/optimization: counts the number of MPlotAbstractSeries plotted on the left and right axes
 	mutable int seriesCounterLeft_, seriesCounterRight_;
 
+
 	/// Indicates that a re-autoscale has been scheduled (Actually doing it is deferred until returning back to the event loop)
 	bool autoScaleScheduled_;
-	/// Or-combination of MPlotAxis::AxisId flags, indicating which axes need to be auto-scaled.
-	int axesNeedingAutoScale_;
-	/// Request a deferred auto-scale:
-	void scheduleDelayedAutoScale();
 
 	/// Normally, when plot items are removed, they can trigger a re-autoscale. This is expensive if the MPlot is just about to be deleted anyway, and we have a lot of plots. This optimization omits this useless process and speeds up the destructor.
 	bool gettingDeleted_;
 
-
-
-	// Data ranges: (specify axis range __prior to padding__)
-	double xmin_, xmax_, yleftmin_, yleftmax_, yrightmin_, yrightmax_;
-	QTransform leftAxisTransform_, rightAxisTransform_;
-
-	double scalePadding_;
-
+	/// This proxy object handles signals and slots for MPlot (so that MPlot does not need to be a QObject)
 	MPlotSignalHandler* signalHandler_;
 	friend class MPlotSignalHandler;
 
-	/// Applies the leftAxis or rightAxis transformation matrix (depending on the yAxis target)
-	void placeItem(MPlotItem* theItem);
 
-	/// Sets the defaults for the drawing options: margins, scale padding, background colors, initial data range.
-	void setDefaults();
-
-	// These implementations leave out the loop that applies the new transforms to all the items.
-	// If this happens to be expensive, then internally we can just do that loop once after a combination of x- and y-scaling
-	// (Cuts down on dual x- y- autoscale time)
-	void setXDataRangeImp(double min, double max, bool autoscale = false, bool applyPadding = true);
-
-	void setYDataRangeLeftImp(double min, double max, bool autoscale = false, bool applyPadding = true);
-
-	void setYDataRangeRightImp(double min, double max, bool autoscale = false, bool applyPadding = true);
 };
 
 #include <QGraphicsWidget>

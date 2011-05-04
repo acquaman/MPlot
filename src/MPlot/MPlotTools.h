@@ -1,10 +1,10 @@
 #ifndef MPLOTTOOLS_H
 #define MPLOTTOOLS_H
 
-#include "MPlot.h"
+#include "MPlotAbstractTool.h"
 #include <QGraphicsSceneMouseEvent>
 
-#include <QDebug>
+class MPlotItem;
 
 /// When selecting lines on plots with the mouse, this is how wide the selection ballpark is, in pixels. (Actually, in sceneCoordinates, but we prefer that you don't transform the view, so viewCoordinates = sceneCoordinates)
 #define MPLOT_SELECTION_BALLPARK 10
@@ -52,14 +52,14 @@ protected:
 class MPlotWheelZoomerTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:
-	/// Constructor. By default, this tool operates on all axes (Left, Right, and Bottom), and adds/subtracts 25% to the axis range on each mousewheel click.  Use setZoomIncrement() and setYAxisTargets() to change these later.
-	MPlotWheelZoomerTool(double zoomIncrement = 0.25, int axisTargets = (MPlotAxis::Left | MPlotAxis::Right | MPlotAxis::Bottom));
+	/// Constructor. By default, this tool operates on all axes (Left, Right, and Bottom), and adds/subtracts 25% to the axis range on each mousewheel click.  Use setZoomIncrement() and setAxisTargets() to change these later.
+	MPlotWheelZoomerTool(qreal zoomIncrement = 0.25);
 
 	/// returns the fraction of the axis scale that will be added/subtracted on each mouse wheel click. (0.25 = 25% by default)
-	double zoomIncrement() const;
+	qreal zoomIncrement() const;
 
 	/// set the zoom increment. On every mousewheel click, the range of the axis will be increased or decreased by this fraction.
-	void setZoomIncrement(double zi);
+	void setZoomIncrement(qreal zi);
 
 signals:
 
@@ -113,7 +113,7 @@ protected:
 
 
 	/// scale factor, corrected for (1 click == 120)
-	double zf_;
+	qreal zf_;
 
 };
 
@@ -130,8 +130,8 @@ protected:
 class MPlotDragZoomerTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:
-	/// Constructor.  \c axisTargets specifies an OR combination of MPlotAxis::AxisID flags that set which axes this tool has zoom control over.
-	MPlotDragZoomerTool(int axisTargets = (MPlotAxis::Left | MPlotAxis::Right | MPlotAxis::Bottom));
+	/// Constructor. By default, after adding to a plot, this tool will be active on all axes.  If you want to restrict which axes it zooms, call setAxisTargets() after it is added to the plot.
+	MPlotDragZoomerTool();
 
 
 signals:
@@ -151,7 +151,8 @@ protected:
 	virtual void	mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event );
 
 	QGraphicsRectItem* selectionRect_;
-	QStack<QRectF> leftZoomStack_, rightZoomStack_, bottomZoomStack_;
+	/// for each new level of zoom, we push an item onto this stack. These items allow returning to previous zoom levels by right-clicking.  Each item is a list of the MPlotAxisScale's and their corresponding MPlotAxisRanges, which were active for this tool at the time the zoom happened (ie: included in targetAxes()).
+	QStack<QList<QPair<MPlotAxisScale*, MPlotAxisRange> > > oldZooms_;
 
 	/// Means that a click has happened, but we might not yet have exceeded the drag deadzone to count as a zoom drag event.
 	bool dragStarted_;
@@ -169,9 +170,9 @@ protected:
 #define MPLOT_CURSOR_BIG_HACK 1.0e9
 
 /// This class provides a plot tool that can be used to place one or more cursors on a plot and read the data value there.
-/*! The visibility and scale is controlled by axisTargets().  If axisTargets() includes MPlotAxis::Bottom, a vertical bar cursor is displayed.  If axisTargets() includes MPlotAxis::Left or MPlotAxis::Right, the horizontal line cursor is displayed.  The y-value read from position() will correspond to the right-axis value only if axisTargets() includes MPlotAxis::Right.
+/*! The tool supports multiple cursors.  Cursors can be added with addCursor(), or removed with removeCursor().  Each cursor can be targetted to a different set of axis scales on the plot.  For now, we alternate between cursors with every click.
 
- The tool supports multiple cursors.  One cursor is created by default and added to the plot.  More can be added with addCursor(), or removed with removeCursor().  For now, we alternate between cursors with every click.
+  \note It is not supported to move this tool from one plot to another.  (The cursors within the tool become and remain targetted to specific axes of the plot.)
 
  \todo set active cursor (how? by selection? click and drag? programmatically?)
 
@@ -180,7 +181,7 @@ protected:
 class MPlotCursorTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:
-	MPlotCursorTool(int axisTargets = (MPlotAxis::Left | MPlotAxis::Right | MPlotAxis::Bottom));
+	MPlotCursorTool();
 
 	virtual ~MPlotCursorTool();
 
@@ -192,14 +193,14 @@ public:
 	/// Returns the MPlotPoint used to represent a specific cursor, so you can adjust it's color, marker, etc, or place it manually using MPlotPoint::setValue().
 	MPlotPoint* cursor(unsigned cursorIndex = 0) const;
 
-	/// remove a cursor. Note: you cannot remove the final cursor... there must always be 1.
+	/// remove the last cursor
 	void removeCursor();
 
-	/// add a cursor.  Cursors are added to the center of the existing plot.
-	void addCursor(const QPointF& initialPos = QPointF(0,0));
+	/// add a cursor.  By default, cursors are added to the center of the existing plot.  You must specify the axis scales to attach this cursor to (and the axis scales must be valid for the current plot.)   (Use 0 for the y-axis scale if you want a vertical bar cursor, or 0 for the x-axis scale if you want a horizontal bar cursor.  If you don't provide any axis scales, the cursor won't be visible.)
+	void addCursor(MPlotAxisScale* xAxisScale, MPlotAxisScale* yAxisScale, const QPointF& initialPos = QPointF(0,0));
 
 signals:
-	// emitted when a new point is selected
+	/// emitted when a new point is selected.  \c position is in coordinates based on the xAxisScale and yAxisScale set for that cursor
 	void valueChanged(unsigned cursorIndex, const QPointF& position);
 
 protected:
@@ -207,14 +208,6 @@ protected:
 	/// list of plot point markers used as cursors
 	QList<MPlotPoint*> cursors_;
 
-	/// a helper function to return the y-Axis that we belong to, based on axisTargets().
-	/*! Since axisTargets() could contain both MPlotAxis::Left and MPlotAxis::Right, we resolve ambiguity like this:
-	- If axisTargets() includes the left axis (and anything else), we belong to the left axis.
-	- If axisTargets() doesn't include the left axis, but includes the right axis, we belong to the right axis.
-	- If axisTargets() doesn't include any y-axis, we belong to the left axis.
-	*/
-
-	MPlotAxis::AxisID yAxis() const;
 
 	virtual void	mousePressEvent ( QGraphicsSceneMouseEvent * event );
 

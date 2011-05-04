@@ -2,7 +2,10 @@
 #define MPLOTITEM_CPP
 
 #include "MPlotItem.h"
+#include "MPlotAxisScale.h"
 #include "MPlot.h"
+
+#include <QDebug>
 
 MPlotItemSignalSource::MPlotItemSignalSource(MPlotItem* parent )
 	: QObject(0) {
@@ -15,6 +18,8 @@ MPlotItem::MPlotItem() : QGraphicsItem() {
 	isSelected_ = false;
 	isSelectable_ = true;
 	plot_ = 0;
+	yAxisTarget_ = 0;
+	xAxisTarget_ = 0;
 	signalSource_ = new MPlotItemSignalSource(this);
 }
 
@@ -26,15 +31,6 @@ MPlotItem::~MPlotItem() {
 }
 
 
-/// returns which y-axis this data should be plotted against
-MPlotAxis::AxisID MPlotItem::yAxisTarget() {
-	return yAxisTarget_;
-}
-
-/// set the y-axis this data should be plotted against
-void MPlotItem::setYAxisTarget(MPlotAxis::AxisID axis) {
-	yAxisTarget_ = axis;
-}
 
 /// tell this item that it is 'selected' within the plot
 void MPlotItem::setSelected(bool selected) {
@@ -72,7 +68,23 @@ MPlot* MPlotItem::plot() const {
 
 // Bounding rect: reported in our PlotItem coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.
 QRectF MPlotItem::boundingRect() const {
-	return dataRect();
+
+	QRectF dataRectangle = dataRect();
+
+	if(!xAxisTarget_ || !yAxisTarget_) {
+		qWarning() << "MPlotItem: Warning: No axis scale set.  Returning the unscaled data rectangle as the bounding rectangle";
+		return dataRectangle;
+	}
+
+	MPlotAxisRange xRange = xAxisTarget_->mapDataToDrawing(MPlotAxisRange(dataRectangle.left(), dataRectangle.right()));
+	MPlotAxisRange yRange = yAxisTarget_->mapDataToDrawing(MPlotAxisRange(dataRectangle.top(), dataRectangle.bottom()));
+	QRectF rv = QRectF(xRange.min(), yRange.min(), xRange.max()-xRange.min(), yRange.max()-yRange.min());
+
+	// debug only...
+	if(rv != rv.normalized())
+		qWarning() << "MPlotItem: bounding rect not normalized...";
+
+	return rv;
 }
 
 /// return the active shape where clicking will select this object in the plot. Subclasses can re-implement for more accuracy.
@@ -80,6 +92,58 @@ QPainterPath MPlotItem::shape() const {
 	QPainterPath shape;
 	shape.addRect(boundingRect());
 	return shape;
+}
+
+void MPlotItem::setYAxisTarget(MPlotAxisScale *yAxisTarget)
+{
+	   if(yAxisTarget_ == yAxisTarget)
+		   return;
+
+	   if(yAxisTarget_)
+		   QObject::disconnect(yAxisTarget_, 0, signalSource_, 0);
+
+	   onAxisScaleAboutToChange();
+	   yAxisTarget_ = yAxisTarget;
+
+	   if(yAxisTarget_) {
+		   QObject::connect(yAxisTarget_, SIGNAL(drawingSizeAboutToChange()), signalSource_, SLOT(onAxisScaleAboutToChange()));
+		   QObject::connect(yAxisTarget_, SIGNAL(dataRangeAboutToChange()), signalSource_, SLOT(onAxisScaleAboutToChange()));
+		   QObject::connect(yAxisTarget_, SIGNAL(drawingSizeChanged()), signalSource_, SLOT(onAxisScaleChanged()));
+		   QObject::connect(yAxisTarget_, SIGNAL(dataRangeChanged()), signalSource_, SLOT(onAxisScaleChanged()));
+	   }
+
+	   onAxisScaleChanged();
+}
+
+void MPlotItem::setXAxisTarget(MPlotAxisScale *xAxisTarget)
+{
+	   if(xAxisTarget_ == xAxisTarget)
+		   return;
+
+	   if(xAxisTarget_)
+		   QObject::disconnect(xAxisTarget_, 0, signalSource_, 0);
+
+	   onAxisScaleAboutToChange();
+	   xAxisTarget_ = xAxisTarget;
+
+	   if(xAxisTarget_) {
+		   QObject::connect(xAxisTarget_, SIGNAL(drawingSizeAboutToChange()), signalSource_, SLOT(onAxisScaleAboutToChange()));
+		   QObject::connect(xAxisTarget_, SIGNAL(dataRangeAboutToChange()), signalSource_, SLOT(onAxisScaleAboutToChange()));
+		   QObject::connect(xAxisTarget_, SIGNAL(drawingSizeChanged()), signalSource_, SLOT(onAxisScaleChanged()));
+		   QObject::connect(xAxisTarget_, SIGNAL(dataRangeChanged()), signalSource_, SLOT(onAxisScaleChanged()));
+	   }
+
+	   onAxisScaleChanged();
+}
+
+void MPlotItemSignalSource::onAxisScaleAboutToChange() const
+{
+	plotItem_->onAxisScaleAboutToChange();
+}
+
+void MPlotItemSignalSource::onAxisScaleChanged() const
+{
+	plotItem_->onAxisScaleChanged();
 }
 
 

@@ -2,119 +2,134 @@
 #define __MPlotAxis_CPP__
 
 #include "MPlotAxis.h"
+#include "MPlotAxisScale.h"
+
+#include <QPainter>
+#include <math.h>
+#include <float.h>
+
+#include <QDebug>
 
 
-// Axis ID:
-MPlotAxis::MPlotAxis(AxisID type, QString name, QGraphicsItem* parent) :
-		QGraphicsItem(parent)
+MPlotAxis::MPlotAxis(MPlotAxisScale* scale, Placement placement, const QString& name, QGraphicsItem* parent) :
+	QGraphicsObject(parent)
 {
-	type_ = type;
+	axisScale_ = scale;
+	connect(axisScale_, SIGNAL(drawingSizeAboutToChange()), this, SLOT(onAxisDrawingSizeAboutToChange()));
+	connect(axisScale_, SIGNAL(drawingSizeChanged()), this, SLOT(onAxisDrawingSizeChanged()));
+	connect(axisScale_, SIGNAL(dataRangeAboutToChange()), this, SLOT(onAxisDataRangeAboutToChange()));
+	connect(axisScale_, SIGNAL(dataRangeChanged()), this, SLOT(onAxisDataRangeChanged()));
 	name_ = name;
+
+	placement_ = placement;
+	if(axisScale_->orientation() == Qt::Vertical && (placement_ == OnBottom || placement_ == OnTop)) {
+		qWarning() << "MPlotAxis: It's impossible to place a vertical axis at the bottom or top of a plot. Moving to the left side.";
+		placement_ = OnLeft;
+	}
+	if(axisScale_->orientation() == Qt::Horizontal && (placement_ == OnLeft || placement_ == OnRight)) {
+		qWarning() << "MPlotAxis: It's impossible to place a horizontal axis at the left or right of a plot. Moving to the bottom.";
+		placement_ = OnBottom;
+	}
 
 	numTicks_ = 5;
 	setDefaults();
 
 	// Put everything in the right spot:
-	placeAxis();
+	axisPlacementRequired_ = true;
 }
 
 MPlotAxis::~MPlotAxis() {
 }
 
-// Set the range (in data-value coordinates)
-void MPlotAxis::setRange(double min, double max) {
-
-	min_ = min; max_ = max;
-
-	placeAxis();
-
-}
 
 // Set the number and style of ticks:
 /*! \c tStyle can be Inside, Outside, or Middle.  \c tickLength is in logical coordinates ("percent of plot") coordinates.
-	\c num is really just suggestion... there might be one less or up to three(?) more, depending on what we think would make nice label values.*/
-void MPlotAxis::setTicks(int num, TickStyle tstyle, double tickLength) {
+ \c num is really just suggestion... there might be one less or up to three(?) more, depending on what we think would make nice label values.*/
+void MPlotAxis::setTicks(int num, TickStyle tstyle, qreal tickLength) {
+
+	prepareGeometryChange();
 
 	numTicks_ = num;
 	tickStyle_ = tstyle;
 	tickLength_ = tickLength/100;
-	placeAxis();
+
+	axisPlacementRequired_ = true;
+	update();
 }
 
 
-// Access properties:
-double MPlotAxis::min() const {
-	return min_;
-}
 
-double MPlotAxis::max() const {
-	return max_;
-}
-
-int MPlotAxis::numTicks() const {
-	return numTicks_;
-}
-
-const QString& MPlotAxis::name() const {
-	return name_;
-}
-// TODO: access font, labelOffset, etc.
 
 /// show or hide the value labels along the axis
 void MPlotAxis::showTickLabels(bool tickLabelsOn) {
+	prepareGeometryChange();
+
 	tickLabelsVisible_ = tickLabelsOn;
-	placeAxis();
+	axisPlacementRequired_ = true;
+	update();
 }
 
 /// show or hide the grid lines
 void MPlotAxis::showGrid(bool gridOn) {
+
+	prepareGeometryChange();
+
 	gridVisible_ = gridOn;
 	update();
 }
 
 /// show or hide the axis name
 void MPlotAxis::showAxisName(bool axisNameOn) {
+	prepareGeometryChange();
+
 	axisNameVisible_ = axisNameOn;
-	placeAxis();
+	axisPlacementRequired_ = true;
+	update();
 }
 
 /// Set the pen for the axis line and axis name text:
 void MPlotAxis::setAxisPen(const QPen& pen) {
 	axisPen_ = pen;
-	axisPen_.setCosmetic(true);
 	update();
 }
 
 /// set the pen for the ticks along the axis:
 void MPlotAxis::setTickPen(const QPen& pen) {
 	tickPen_ = pen;
-	tickPen_.setCosmetic(true);
 	update();
 }
 
 /// set the pen for the grid lines
 void MPlotAxis::setGridPen(const QPen& pen) {
 	gridPen_ = pen;
-	gridPen_.setCosmetic(true);
 	update();
 }
 
 /// set the font used for the values along the axis
 void MPlotAxis::setTickLabelFont(const QFont& font) {
+	prepareGeometryChange();
+
 	tickLabelFont_ = font;
-	placeAxis();
+	axisPlacementRequired_ = true;
+	update();
 }
 
 /// set the font used for the axis name
 void MPlotAxis::setAxisNameFont(const QFont& font) {
+	prepareGeometryChange();
+
 	axisNameFont_ = font;
-	placeAxis();
+	axisPlacementRequired_ = true;
+	update();
 }
 
 /// Set the axis name:
 void MPlotAxis::setAxisName(const QString& name) {
+	prepareGeometryChange();
+
 	name_ = name;
-	placeAxis();
+	axisPlacementRequired_ = true;
+	update();
 }
 // TODO: minor ticks
 
@@ -129,9 +144,9 @@ QRectF MPlotAxis::boundingRect() const {
 	QPointF topRight(mainLine_.x2()+tickLine_.x2(), mainLine_.y2()+tickLine_.y2());
 	QRectF br(bottomLeft, topRight);
 
-	// If the grids are on, they take up the whole (0,0) to (1,1) rectangle:
+	// If the grids are on, they take up the whole rectangle
 	if(gridVisible_)
-		br |= QRectF(0,0,1,1);
+		br |= QRectF(QPointF(0,0), axisScale_->drawingSize());
 
 	return (br | tickLabelBr_ | nameBr_);
 }
@@ -141,6 +156,8 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 	Q_UNUSED(widget)
 	Q_UNUSED(option)
 
+	if(axisPlacementRequired_)
+		placeAxis();
 
 	// Disable anti-aliasing, because these horizontal and vertical lines look best non-AA'd.
 	/// \todo: check for rotation, and leave AA on if rotated.
@@ -157,21 +174,22 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 		painter->drawLine(tickLine_.translated(scStartP_ + i*scIncP_));
 	}
 
+	QSizeF drawingSize = axisScale_->drawingSize();
 
 	// clear/initialize the bounding box containing the tick labels. (It determines where to place the axis name. Needed if we're not drawing the axis names).
 	tickLabelBr_ = QRectF();
-	switch(type_) {
-	case Bottom:
-		tickLabelBr_ = QRectF(0,0,1,0);
+	switch(placement_) {
+	case OnBottom:
+		tickLabelBr_ = QRectF(0,drawingSize.height(),drawingSize.width(),0);
 		break;
-	case Top:
-		tickLabelBr_ = QRectF(0,1,1,0);
+	case OnTop:
+		tickLabelBr_ = QRectF(0,0,drawingSize.width(),0);
 		break;
-	case Left:
-		tickLabelBr_ = QRectF(0,0,0,1);
+	case OnLeft:
+		tickLabelBr_ = QRectF(0,0,0,drawingSize.height());
 		break;
-	case Right:
-		tickLabelBr_ = QRectF(1,0,0,1);
+	case OnRight:
+		tickLabelBr_ = QRectF(drawingSize.width(),0,0,drawingSize.height());
 		break;
 	}
 
@@ -182,15 +200,25 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 	if(tickLabelsVisible_) {
 		painter->setPen(axisPen_);
 		painter->setFont(tickLabelFont_);
-		for(unsigned i=0; numTicks_ > 0 && scStart_ + i*scIncrement_ < 1; i++)
-			drawLabel(painter, QString("%1").arg(minTickVal_+i*tickIncVal_), scStartP_ + i*scIncP_);
+		if(placement_ == OnBottom || placement_ == OnTop)
+			for(unsigned i=0; numTicks_ > 0 && scStart_ + i*scIncrement_ < drawingSize.width(); i++)
+				drawLabel(painter, QString::number(minTickVal_+i*tickIncVal_), scStartP_ + i*scIncP_);
+		else
+			for(unsigned i=0; numTicks_ > 0 && scStart_ + i*scIncrement_ > 0; i++)
+				drawLabel(painter, QString::number(minTickVal_+i*tickIncVal_), scStartP_ + i*scIncP_);
+
+
 	}
 
 	// Draw grids:
 	if(gridVisible_) {
 		painter->setPen(gridPen_);
-		for(unsigned i=0; numTicks_ > 0 && scStart_ + i*scIncrement_ < 1; i++)
-			painter->drawLine(gridLine_.translated(scStartP_ + i*scIncP_));
+		if(placement_ == OnBottom || placement_ == OnTop)
+			for(unsigned i=0; numTicks_ > 0 && scStart_ + i*scIncrement_ < drawingSize.width(); i++)
+				painter->drawLine(gridLine_.translated(scStartP_ + i*scIncP_));
+		else
+			for(unsigned i=0; numTicks_ > 0 && scStart_ + i*scIncrement_ > 0; i++)
+				painter->drawLine(gridLine_.translated(scStartP_ + i*scIncP_));
 	}
 
 
@@ -206,9 +234,9 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 
 // TODO: finer shape?
 /*
-	QPainterPath shape() {
-		return
-	}*/
+ QPainterPath shape() {
+  return
+ }*/
 
 
 
@@ -219,77 +247,100 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 // Adjust the length of the main line, and determine the locations for the ticks.
 void MPlotAxis::placeAxis() {
 
+	QSizeF drawingSize = axisScale_->drawingSize();
+
+	qreal min = axisScale_->min();
+	qreal max = axisScale_->max();
+
 	// Determine "nice" values for the axis labels. (Sets minTickVal_ and tickIncVal_)
 	intelliScale();
 
-	// Tick increment and initial value, in our painting coordinates which go from 0 to 1
-	scIncrement_ = tickIncVal_ / (max_ - min_);
-	scStart_ = (minTickVal_ - min_) / (max_ - min_);
+	// Tick increment and initial value, in relative coordinates for now (0,1)
+	scIncrement_ = tickIncVal_ / (max - min);
+	scStart_ = (minTickVal_ - min) / (max - min);
 
 	// Handle differences between vertical and horizontal axes.
 	// Set QLineFs mainLine_, gridLine_, and tickLine_
 	// and QPointFs scIncP_, scStartP_ for use by the paint() function
-	if(type_ == Left || type_ == Right) {
+	if(placement_ == OnLeft || placement_ == OnRight) {
+
+		scStart_ = drawingSize.height()*(1 - scStart_);	// flip and scale
+		scIncrement_ = -drawingSize.height()*scIncrement_;	// flip and scale. Now scStart_ and scIncrement_ are in screen coordinates. scIncrement is negative because increasing ticks along the axis will have decreasing y values.  (Silly graphics coordinate system...)
+
 		scIncP_ = QPointF(0, scIncrement_);
+		qreal tickLength = tickLength_*drawingSize.width();
+
 		// Left axis:
-		if(type_ == Left) {
-			mainLine_.setLine(0, 0, 0, 1);
+		if(placement_ == OnLeft) {
+			mainLine_.setLine(0, 0, 0, drawingSize.height());
 			scStartP_ = QPointF(0, scStart_);
-			gridLine_.setLine(0, 0, 1, 0);
+			gridLine_.setLine(0, 0, drawingSize.width(), 0);
+
 			switch(tickStyle_) {
-			case Outside: tickLine_.setLine(-tickLength_, 0, 0, 0); break;
-			case Inside: tickLine_.setLine(0, 0, tickLength_, 0); break;
-			case Middle: tickLine_.setLine(-tickLength_/2, 0, tickLength_/2, 0); break;
+			case Outside: tickLine_.setLine(-tickLength, 0, 0, 0); break;
+			case Inside: tickLine_.setLine(0, 0, tickLength, 0); break;
+			case Middle: tickLine_.setLine(-tickLength/2, 0, tickLength/2, 0); break;
 			}
 		}
 		// Right axis:
 		else {
-			mainLine_.setLine(1, 0, 1, 1);
-			scStartP_ = QPointF(1, scStart_);
-			gridLine_.setLine(0, 0, -1, 0);
+			mainLine_.setLine(drawingSize.width(), 0, drawingSize.width(), drawingSize.height());
+			scStartP_ = QPointF(drawingSize.width(), scStart_);
+			gridLine_.setLine(0, 0, -drawingSize.width(), 0);
 			switch(tickStyle_) {
-			case Outside: tickLine_.setLine(0, 0, tickLength_, 0); break;
-			case Inside: tickLine_.setLine(-tickLength_, 0, 0, 0); break;
-			case Middle: tickLine_.setLine(-tickLength_/2, 0, tickLength_/2, 0); break;
+			case Outside: tickLine_.setLine(0, 0, tickLength, 0); break;
+			case Inside: tickLine_.setLine(-tickLength, 0, 0, 0); break;
+			case Middle: tickLine_.setLine(-tickLength/2, 0, tickLength/2, 0); break;
 			}
 		}
 	}
 
 	// Same for horizontal axes (increment is horizontal, tickLine_ is vertical)
 	else{
+
+		scStart_ *= drawingSize.width();
+		scIncrement_ *= drawingSize.width();
+
 		scIncP_ = QPointF(scIncrement_, 0);
-		if(type_ == Bottom) {
-			mainLine_.setLine(0, 0, 1, 0);
-			scStartP_ = QPointF(scStart_, 0);
-			gridLine_.setLine(0, 0, 0, 1);
+		qreal tickLength = tickLength_*drawingSize.height();
+
+		if(placement_ == OnBottom) {
+			mainLine_.setLine(0, drawingSize.height(), drawingSize.width(), drawingSize.height());
+			scStartP_ = QPointF(scStart_, drawingSize.height());
+			gridLine_.setLine(0, 0, 0, -drawingSize.height());
 			switch(tickStyle_) {
-			case Inside: default: tickLine_.setLine(0, 0, 0, tickLength_); break;
-			case Outside: tickLine_.setLine(0, -tickLength_, 0, 0); break;
-			case Middle: tickLine_.setLine(0, -tickLength_/2, 0, tickLength_/2); break;
+			case Inside: default: tickLine_.setLine(0, 0, 0, -tickLength); break;
+			case Outside: tickLine_.setLine(0, tickLength, 0, 0); break;
+			case Middle: tickLine_.setLine(0, tickLength/2, 0, -tickLength/2); break;
 			}
 		}
 		else {
-			mainLine_.setLine(0, 1, 1, 1);
-			scStartP_ = QPointF(scStart_, 1);
-			gridLine_.setLine(0, 0, 0, -1);
+			mainLine_.setLine(0, 0, drawingSize.width(), 0);
+			scStartP_ = QPointF(scStart_, 0);
+			gridLine_.setLine(0, 0, 0, drawingSize.height());
 			switch(tickStyle_) {
-			case Inside: default: tickLine_.setLine(0, -tickLength_, 0, 0); break;
-			case Outside: tickLine_.setLine(0, 0, 0, tickLength_); break;
-			case Middle: tickLine_.setLine(0, -tickLength_/2, 0, +tickLength_/2); break;
+			case Inside: default: tickLine_.setLine(0, tickLength, 0, 0); break;
+			case Outside: tickLine_.setLine(0, 0, 0, -tickLength); break;
+			case Middle: tickLine_.setLine(0, tickLength/2, 0, -tickLength/2); break;
 			}
 		}
 	}
 
-	// test: is this the right place for it?
-	prepareGeometryChange();
-	// repaint:
-	update();
+	axisPlacementRequired_ = false;
 }
 
 /// Calculates a transform suitable for applying to the painter to draw undistorted text.
 /*! The text will shrink and grow with the size of the plot, but only within a reasonable range. (ie: infinitely small text isn't helpful, and super-humongous text isn't helpful).
-		Result is saved in tt_ */
+  Result is saved in tt_ */
 void MPlotAxis::calcTextTransform(QPainter* painter) {
+
+	// debugging only... no transform
+	tt_ = QTransform();
+	return;
+
+
+	// old:
+
 	// World transform: tells how we would get back into actual pixel coordinates
 	QTransform wt = painter->deviceTransform();	// equivalent to worldTransform and combinedTransform
 
@@ -298,7 +349,7 @@ void MPlotAxis::calcTextTransform(QPainter* painter) {
 
 	// reintroduce a bit of dependence on the plot size, but constrain with a min/max range.
 	// use the smaller dimension as the relevant one to base this on.
-	double scaleFactor;
+	qreal scaleFactor;
 	if(fabs(wt.m11()) > fabs(wt.m22()))
 		scaleFactor = qBound((qreal)0.8, fabs(wt.m22()/250), (qreal)1.2);
 	else
@@ -319,20 +370,20 @@ void MPlotAxis::drawLabel(QPainter* painter, const QString& text, const QPointF&
 	QRectF container(0,0,0,0);
 
 	// set alignment and offset based on axis orientation:
-	switch(type_) {
-	case Bottom:
+	switch(placement_) {
+	case OnBottom:
 		flags |= (Qt::AlignHCenter | Qt::AlignTop);
-		tt.translate(0, tickLine_.y1()-tickLabelOffset_);
+		tt.translate(0, tickLine_.y1()+tickLabelOffset_);
 		break;
-	case Top:
+	case OnTop:
 		flags |= (Qt::AlignHCenter | Qt::AlignBottom);
-		tt.translate(0, tickLine_.y2()+tickLabelOffset_);
+		tt.translate(0, tickLine_.y2()-tickLabelOffset_);
 		break;
-	case Left:
+	case OnLeft:
 		flags |= (Qt::AlignRight | Qt::AlignVCenter);
 		tt.translate(tickLine_.x1()-tickLabelOffset_, 0);
 		break;
-	case Right:
+	case OnRight:
 		flags |= (Qt::AlignLeft | Qt::AlignVCenter);
 		tt.translate(tickLine_.x2()+tickLabelOffset_, 0);
 		break;
@@ -367,26 +418,28 @@ void MPlotAxis::drawAxisName(QPainter* painter) {
 	// Create a container rectangle centered on the tick position:
 	QRectF container(0,0,0,0);
 
-	switch(type_) {
-	case Bottom:
+	QSizeF drawingSize = axisScale_->drawingSize();
+
+	switch(placement_) {
+	case OnBottom:
 		flags |= (Qt::AlignHCenter | Qt::AlignTop);
-		tt.translate(0.5, tickLabelBr_.top() );
+		tt.translate(0.5*drawingSize.width(), tickLabelBr_.top() );
 		tt.scale(tt_.m11(), tt_.m22());
 		break;
-	case Top:
+	case OnTop:
 		flags |= (Qt::AlignHCenter | Qt::AlignBottom);
-		tt.translate(0.5, tickLabelBr_.bottom() );
+		tt.translate(0.5*drawingSize.width(), tickLabelBr_.bottom() );
 		tt.scale(tt_.m11(), tt_.m22());
 		break;
-	case Left:
+	case OnLeft:
 		flags |= (Qt::AlignHCenter | Qt::AlignBottom);
-		tt.translate(tickLabelBr_.left(), 0.5);
+		tt.translate(tickLabelBr_.left(), 0.5*drawingSize.height());
 		tt.scale(tt_.m11(), tt_.m22());;
 		tt.rotate(-90);
 		break;
-	case Right:
+	case OnRight:
 		flags |= (Qt::AlignHCenter | Qt::AlignTop);
-		tt.translate(tickLabelBr_.right(), 0.5);
+		tt.translate(tickLabelBr_.right(), 0.5*drawingSize.height());
 		tt.scale(tt_.m11(), tt_.m22());
 		tt.rotate(-90);
 		break;
@@ -409,7 +462,7 @@ void MPlotAxis::drawAxisName(QPainter* painter) {
 
 /// IntelliScale: Calculate "nice" values for starting tick and tick increment.
 /*! Sets minTickVal_ and tickIncVal_ for nice values of axis ticks.
-- Prior to calling, numTicks() and max_ and min_ must be correct.
+- Prior to calling, numTicks() must be set and axisScale() must be ready and correct.
 - Desired outcome: labels are nice values like "0.2 0.4 0.6..." or "0.024 0.026 0.028" instead of irrational numbers.
 - Additionally, if the axis range passes through 0, it would be nice to have a tick at 0.
 
@@ -423,91 +476,88 @@ We start by computing the “gross step”, a kind of maximum for the step value
 Once we have the first candidate step value, we can use it to calculate the other two candidates: 2·10n and 5·10n. For the example above, the two other candidates are 200 and 500. The 500 candidate is larger than the gross step, so we can’t use it. But 200 is smaller than 236, so we use 200 for the step size in this example.
 </i>
 \code
-void PlotSettings::adjustAxis(double &min, double &max,
+void PlotSettings::adjustAxis(qreal &min, qreal &max,
 int &numTicks)
 {
-	const int MinTicks = 4;
-	double grossStep = (max - min) / MinTicks;
-	double step = pow(10.0, floor(log10(grossStep)));
-	if (5 * step < grossStep) {
-		step *= 5;
-	} else if (2 * step < grossStep) {
-		step *= 2;
-	}
-	numTicks = int(ceil(max / step) - floor(min / step));
-	if (numTicks < MinTicks)
-		numTicks = MinTicks;
-	min = floor(min / step) * step;
-	max = ceil(max / step) * step;
+ const int MinTicks = 4;
+ qreal grossStep = (max - min) / MinTicks;
+ qreal step = pow(10.0, floor(log10(grossStep)));
+ if (5 * step < grossStep) {
+  step *= 5;
+ } else if (2 * step < grossStep) {
+  step *= 2;
+ }
+ numTicks = int(ceil(max / step) - floor(min / step));
+ if (numTicks < MinTicks)
+  numTicks = MinTicks;
+ min = floor(min / step) * step;
+ max = ceil(max / step) * step;
 }
 \endcode
 
 We used to do it this way:
 \code
 // normalize range so difference between max and min goes to 10(max):
-double norm = pow(10, trunc(log10(max_ - min_)) - 1);
+qreal norm = pow(10, trunc(log10(max_ - min_)) - 1);
 // Round off to get nice numbers. Note that minTickVal_ must be > min_, otherwise it falls off the bottom of the plot.
 minTickVal_ = ceil(min_/norm);
 tickIncVal_  = trunc( (max_/norm-minTickVal_)/(numTicks()-1) );
 
 // if the tickIncVal is 0, that'll be trouble. Normalize smaller to avoid this.
 while((int)tickIncVal_ == 0) {
-	norm /= 2;
-	minTickVal_ = ceil(min_/norm);
-	tickIncVal_  = trunc( (max_/norm-minTickVal_)/(numTicks()-1) );
+ norm /= 2;
+ minTickVal_ = ceil(min_/norm);
+ tickIncVal_  = trunc( (max_/norm-minTickVal_)/(numTicks()-1) );
 }
 
 
 // Hit Zero if possible: (while passing through origin)
 if(min_ < 0 && max_ > 0) {
-	double potentialminTickVal = minTickVal_ + ( (int)(-minTickVal_) % (int)tickIncVal_ );
-	// Disabled: not necessary now that we draw an arbitrary number of ticks:
-		// previously: // Just making sure we don't go past the end of the axis with this tweak
-		// if( (potentialminTickVal + tickIncVal_*(numTicks()-1))*norm < max_)
-		minTickVal_ = potentialminTickVal;
+ qreal potentialminTickVal = minTickVal_ + ( (int)(-minTickVal_) % (int)tickIncVal_ );
+ // Disabled: not necessary now that we draw an arbitrary number of ticks:
+  // previously: // Just making sure we don't go past the end of the axis with this tweak
+  // if( (potentialminTickVal + tickIncVal_*(numTicks()-1))*norm < max_)
+  minTickVal_ = potentialminTickVal;
 }
 
 //Rescale:
 minTickVal_ *= norm;
 tickIncVal_ *= norm;
-		}
+  }
 \endcode
 */
 void MPlotAxis::intelliScale() {
 	if(numTicks() > 1) {
 
 		// numTicks() is a suggestion for the minimum number of ticks.
-		double crudeStep = (max_ - min_) / numTicks();
+		qreal crudeStep = (axisScale_->max() - axisScale_->min()) / numTicks();
 
-		double step = pow(10, floor(log10(crudeStep)));
+		qreal step = pow(10, floor(log10(crudeStep)));
 		if(5*step < crudeStep)
 			step *= 5;
 		else if(2*step < crudeStep)
 			step *= 2;
 
 		tickIncVal_ = step;
-		minTickVal_ = ceil(min_/step) * step;
+		minTickVal_ = ceil(axisScale_->min()/step) * step;
 
 		// Hit Zero if possible: (while passing through origin)
 
-		if(min_ < 0 && max_ > 0) {
+		if(axisScale_->min() < 0 && axisScale_->max() > 0) {
 			// the distance between 0 and the nearest tick is... the remainder in division of (0-minTickVal)/tickIncVal_.
-			double offset = remainder(-minTickVal_, tickIncVal_);
+			qreal offset = remainder(-minTickVal_, tickIncVal_);
 			minTickVal_ += offset;
 		}
 	}
 
 	else {	// 1 or zero ticks: 1 tick should go at the average/middle of the axis
-		minTickVal_ = (min_ + max_) / 2;
+		minTickVal_ = (axisScale_->min() + axisScale_->max()) / 2;
 		// make sure the next tick is _well_ past the end of the axis, so that it doesn't get drawn.
 		tickIncVal_ = DBL_MAX / 1e10; // Setting this to DLB_MAX causes an overflow that breaks minTickVal_.
 	}
 }
 
 void MPlotAxis::setDefaults() {
-
-	min_ = 0;
-	max_ = 10;
 
 	tickStyle_ = Outside;
 	tickLength_ = .02;
@@ -517,7 +567,7 @@ void MPlotAxis::setDefaults() {
 	tickLabelFont_.setPointSize(12);
 	axisNameFont_.setPointSize(12);
 
-	if(type_ == Top || type_ == Right) {
+	if(placement_ == OnTop || placement_ == OnRight) {
 		tickLabelsVisible_ = false;
 		axisNameVisible_ = false;
 	}
@@ -527,15 +577,33 @@ void MPlotAxis::setDefaults() {
 	}
 
 	gridPen_ = QPen(QBrush(QColor(Qt::blue)), 1, Qt::DotLine);
-	gridPen_.setCosmetic(true);
 	QVector<qreal> dashes;
 	dashes << 4 << 4;
 	gridPen_.setDashPattern(dashes);
 
-	if(type_ == Left)
+	if(placement_ == OnLeft)
 		gridVisible_ = true;
 	else
 		gridVisible_ = false;
+}
+
+void MPlotAxis::setAxisScale(MPlotAxisScale *newScale)
+{
+	if(axisScale_ == newScale)
+		return;
+
+
+	disconnect(axisScale_, 0, this, 0);
+
+	onAxisDrawingSizeAboutToChange();
+
+	axisScale_ = newScale;
+	connect(axisScale_, SIGNAL(drawingSizeAboutToChange()), this, SLOT(onAxisDrawingSizeAboutToChange()));
+	connect(axisScale_, SIGNAL(drawingSizeChanged()), this, SLOT(onAxisDrawingSizeChanged()));
+	connect(axisScale_, SIGNAL(dataRangeAboutToChange()), this, SLOT(onAxisDataRangeAboutToChange()));
+	connect(axisScale_, SIGNAL(dataRangeChanged()), this, SLOT(onAxisDataRangeChanged()));
+
+	onAxisDrawingSizeChanged();
 }
 
 

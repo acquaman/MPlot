@@ -12,7 +12,7 @@ public:
 	MPlotLegend(MPlot* plot, QGraphicsItem* parent = 0);
 
 	/// Set the maximum width the legend should take up. (The height is out of your control; text will wrap to determine height)
-	void setWidth(double width) {
+	void setWidth(qreal width) {
 		setTextWidth(width);
 	}
 

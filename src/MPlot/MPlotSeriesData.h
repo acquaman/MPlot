@@ -40,9 +40,9 @@ public:
 	MPlotSeriesDataSignalSource* signalSource() const { return signalSource_; }
 
 	/// Return the x-value at index:
-	virtual double x(unsigned index) const = 0;
+	virtual qreal x(unsigned index) const = 0;
 	/// Return the y-value at index:
-	virtual double y(unsigned index) const = 0;
+	virtual qreal y(unsigned index) const = 0;
 
 	/// Return the number of elements
 	virtual int count() const = 0;
@@ -68,13 +68,13 @@ protected:
 	/// Implements caching for the search-based version of boundingRect().
 	mutable bool cachedDataRectUpdateRequired_;
 	/// Search for minimum Y value. Call only when count() > 0.
-	double searchMinY() const;
+	qreal searchMinY() const;
 	/// Search for extreme value. Call only when count() > 0.
-	double searchMaxY() const;
+	qreal searchMaxY() const;
 	/// Search for extreme value. Call only when count() > 0.
-	double searchMinX() const;
+	qreal searchMinX() const;
 	/// Search for extreme value. Call only when count() > 0.
-	double searchMaxX() const;
+	qreal searchMaxX() const;
 
 
 
@@ -104,8 +104,8 @@ public:
 	virtual int count() const;
 	int columnCount(const QModelIndex & /*parent*/) const;
 
-	virtual double x(unsigned index) const;
-	virtual double y(unsigned index) const;
+	virtual qreal x(unsigned index) const;
+	virtual qreal y(unsigned index) const;
 
 
 	QVariant data(const QModelIndex &index, int role) const;
@@ -118,10 +118,10 @@ public:
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 
 	// This allows you to add data points at the beginning:
-	void insertPointFront(double x, double y);
+	void insertPointFront(qreal x, qreal y);
 
 	// This allows you to add data points at the end:
-	void insertPointBack(double x, double y);
+	void insertPointBack(qreal x, qreal y);
 
 	// Remove a point at the front (Returns true if successful).
 	bool removePointFront();
@@ -136,8 +136,8 @@ public:
 protected:
 
 	// Members: Data arrays:
-	QQueue<double> xval_;
-	QQueue<double> yval_;
+	QQueue<qreal> xval_;
+	QQueue<qreal> yval_;
 
 	// Max/min index tracking:
 	int minYIndex_, maxYIndex_, minXIndex_, maxXIndex_;
@@ -149,22 +149,22 @@ protected:
 	// Helper functions:
 	// Check if an added point @ index is the new min. or max record holder:
 	// Must call this AFTER adding both x and y to the xval_ and y_val lists.
-	void minMaxAddCheck(double x, double y, int index);
+	void minMaxAddCheck(qreal x, qreal y, int index);
 
 	// Check if a point modified at index causes us to lose our record holders, or is a new record holder.
 	// Inserts the point (modifies the data array).
-	void minMaxChangeCheckX(double newVal, int index);
-	void minMaxChangeCheckY(double newVal, int index);
+	void minMaxChangeCheckX(qreal newVal, int index);
+	void minMaxChangeCheckY(qreal newVal, int index);
 
-	int searchMaxIndex(const QList<double>& list);
+	int searchMaxIndex(const QList<qreal>& list);
 
-	int searchMinIndex(const QList<double>& list);
+	int searchMinIndex(const QList<qreal>& list);
 
 	// Warning: only call these if the list is not empty:
-	double minY() const;
-	double maxY() const;
-	double minX() const;
-	double maxX() const;
+	qreal minY() const;
+	qreal maxY() const;
+	qreal minX() const;
+	qreal maxX() const;
 
 };
 

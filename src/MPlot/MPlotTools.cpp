@@ -2,10 +2,14 @@
 #define MPLOTTOOLS_CPP
 
 #include "MPlotTools.h"
+#include "MPlotItem.h"
+#include "MPlot.h"
+
+#include <QDebug>
 
 
 MPlotPlotSelectorTool::MPlotPlotSelectorTool() :
-		MPlotAbstractTool()
+	MPlotAbstractTool()
 {
 	selectedItem_ = 0;
 }
@@ -88,22 +92,19 @@ void MPlotPlotSelectorTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * e
 
 
 /// Constructor. By default, this tool operates on all axes (Left, Right, and Bottom), and adds/subtracts 25% to the axis range on each mousewheel click.  Use setZoomIncrement() and setYAxisTargets() to change these later.
-MPlotWheelZoomerTool::MPlotWheelZoomerTool(double zoomIncrement, int axisTargets) :
-		MPlotAbstractTool()
+MPlotWheelZoomerTool::MPlotWheelZoomerTool(qreal zoomIncrement)
+	: MPlotAbstractTool()
 {
-
 	setZoomIncrement(zoomIncrement);
-
-	setAxisTargets(axisTargets);
 }
 
 /// returns the fraction of the axis scale that will be added/subtracted on each mouse wheel click. (0.25 = 25% by default)
-double MPlotWheelZoomerTool::zoomIncrement() const {
+qreal MPlotWheelZoomerTool::zoomIncrement() const {
 	return zf_;
 }
 
 /// set the zoom increment. On every mousewheel click, the range of the axis will be increased or decreased by this fraction.
-void MPlotWheelZoomerTool::setZoomIncrement(double zi) {
+void MPlotWheelZoomerTool::setZoomIncrement(qreal zi) {
 	zf_ = fabs(zi);
 }
 
@@ -124,83 +125,65 @@ void MPlotWheelZoomerTool::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event 
 
 /// The wheel zoomer implements scroll-in scroll-out zooming under the mouse cursor.
 /*!
-		<b>Basic equations: zooming in while maintaining a datapoint under the mouse cursor </b>
+  <b>Basic equations: zooming in while maintaining a datapoint under the mouse cursor </b>
 
-		-\c x: x datapoint value
-		-\c min: previous axis minimum
-		-\c max: previous axis maximum
-		-\c min': new axis minimum
-		-\c max': new axis maximum
-		-\c F: zoom scale factor (ex: 0.6)
+  -\c x: x datapoint value
+  -\c min: previous axis minimum
+  -\c max: previous axis maximum
+  -\c min': new axis minimum
+  -\c max': new axis maximum
+  -\c F: zoom scale factor (ex: 0.6)
 
-		1) The new scale is smaller than previous one; ie: multiplied by factor F
+  1) The new scale is smaller than previous one; ie: multiplied by factor F
 
-		\f[
-				(max' - min') = F (max - min)
-		\f]
+  \f[
+	(max' - min') = F (max - min)
+  \f]
 
-		2) Also distance from \c x to \c min, as fraction of total axis range, stays constant
+  2) Also distance from \c x to \c min, as fraction of total axis range, stays constant
 
-		\f[
-				(x-min)/(max-min) = (x-min')/(max'-min')
-		\f]
+  \f[
+	(x-min)/(max-min) = (x-min')/(max'-min')
+  \f]
 
-		Combining [1] and [2], and algebra:
+  Combining [1] and [2], and algebra:
 
-		\f[
-				min' = x + F(min - x)
-		\f]
-		\f[
-				max' = x + F(max - x)
-		\f]
+  \f[
+	min' = x + F(min - x)
+  \f]
+  \f[
+	max' = x + F(max - x)
+  \f]
 
 
-	  */
+   */
 void MPlotWheelZoomerTool::wheelEvent ( QGraphicsSceneWheelEvent * event ) {
 
 
 	// delta: mouse wheel rotation amount. 120 corresponds to 1 "click", or 15 degrees rotation on most mice.  Units are 1/8th of a degree.
 
-	double F = (1 - qMin(zf_ * fabs(event->delta()) / 120, 0.9));
+	qreal F = (1 - qMin(zf_ * fabs(event->delta()) / 120, 0.9));
 
 	// negative scrolling: we don't want a negative, we want the reciprocal: (zoom out, instead of in)
 	if(event->delta() < 0)
 		F = 1/F;
 
-	if(axisTargets() & MPlotAxis::Left) {
+	foreach(MPlotAxisScale* axis, targetAxes_) {
+		qreal drawingPos;
+		if(axis->orientation() == Qt::Vertical) {
+			drawingPos = event->pos().y();
+		}
+		else
+			drawingPos = event->pos().x();
 
-		double y = plot()->leftAxisTransform().inverted().map(event->pos()).y();
-		double newMin, newMax;
-		newMin = y + F*(plot()->axisLeft()->min() - y);
-		newMax = y + F*(plot()->axisLeft()->max() - y);
+		qreal dataPos = axis->mapDrawingToData(drawingPos);
 
-		plot()->setYDataRangeLeft(newMin, newMax, false, false);
-		plot()->enableAutoScaleLeft(false);
+		qreal newMin, newMax;
+		newMin = dataPos + F*(axis->min() - dataPos);
+		newMax = dataPos + F*(axis->max() - dataPos);
 
+		axis->setDataRange(MPlotAxisRange(newMin, newMax), false);
 	}
-
-	if(axisTargets() & MPlotAxis::Right) {
-		double y = plot()->rightAxisTransform().inverted().map(event->pos()).y();
-		double newMin, newMax;
-		newMin = y + F*(plot()->axisRight()->min() - y);
-		newMax = y + F*(plot()->axisRight()->max() - y);
-
-		plot()->setYDataRangeRight(newMin, newMax, false, false);
-		plot()->enableAutoScaleRight(false);
-
-	}
-
-	if(axisTargets() & MPlotAxis::Bottom) {
-		double x = plot()->leftAxisTransform().inverted().map(event->pos()).x();
-		double newMin, newMax;
-		newMin = x + F*(plot()->axisBottom()->min() - x);
-		newMax = x + F*(plot()->axisBottom()->max() - x);
-
-		plot()->setXDataRange(newMin, newMax, false, false);
-		plot()->enableAutoScaleBottom(false);
-	}
-
-
 }
 
 void MPlotWheelZoomerTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event ) {
@@ -210,8 +193,8 @@ void MPlotWheelZoomerTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * ev
 
 
 /// Constructor.  \c axisTargets specifies an OR combination of MPlotAxis::AxisID flags that set which axes this tool has zoom control over.
-MPlotDragZoomerTool::MPlotDragZoomerTool(int axisTargets) :
-		MPlotAbstractTool()
+MPlotDragZoomerTool::MPlotDragZoomerTool() :
+	MPlotAbstractTool()
 {
 
 	selectionRect_ = new QGraphicsRectItem(QRectF(), this);
@@ -227,8 +210,6 @@ MPlotDragZoomerTool::MPlotDragZoomerTool(int axisTargets) :
 
 	dragInProgress_ = false;
 	dragStarted_ = false;
-
-	setAxisTargets(axisTargets);
 }
 
 
@@ -255,14 +236,11 @@ void MPlotDragZoomerTool::mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) {
 			dragInProgress_ = true;
 			dragStarted_ = false;
 
-			// Disable auto-scaling on the plot... the user probably wants to take over manual control...
+			// Disable auto-scaling on the plot... the user probably wants to take over manual control... (We don't want the plot jumping while they're auto-scaling it.)
 
-			if(axisTargets() & MPlotAxis::Right)
-				plot()->enableAutoScaleRight(false);
-			if(axisTargets() & MPlotAxis::Left)
-				plot()->enableAutoScaleLeft(false);
-			if(axisTargets() & MPlotAxis::Bottom)
-				plot()->enableAutoScaleBottom(false);
+			foreach(MPlotAxisScale* axis, targetAxes_) {
+				axis->setAutoScaleEnabled(false);
+			}
 		}
 	}
 
@@ -274,7 +252,7 @@ void MPlotDragZoomerTool::mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) {
 	}
 }
 
-/// Handles release events. If a drag was in progress and the user lets go of the left button, zoom to the new rectangle and save the old one on the recall stack.  If the user lets go of the right button, this is a restore to a zoom position on the stack.
+// Handles release events. If a drag was in progress and the user lets go of the left button, zoom to the new rectangle and save the old one on the recall stack.  If the user lets go of the right button, this is a restore to a zoom position on the stack.
 void MPlotDragZoomerTool::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) {
 
 	// left mouse button release: drag event is done.
@@ -288,88 +266,53 @@ void MPlotDragZoomerTool::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
 			// This is a zoom change!
 			dragInProgress_ = false;
 
-			QRectF oldZoomLeft, oldZoomRight, newZoomLeft, newZoomRight;
 
-			// Get old axis coordinates and compute new zoom for right axis. Don't apply yet -- need to maintain old scale in x until we process MPlotAxis::Left
-			if(axisTargets() & MPlotAxis::Right) {
+			QList<QPair<MPlotAxisScale*, MPlotAxisRange> > oldZoomList;
 
-				oldZoomRight = QRectF(QPointF(plot()->xMin(), plot()->yRightMin()), QPointF(plot()->xMax(), plot()->yRightMax()));
-				rightZoomStack_.push(oldZoomRight);
+			foreach(MPlotAxisScale* axis, targetAxes_) {
+				oldZoomList << QPair<MPlotAxisScale*, MPlotAxisRange>(axis, axis->dataRange());
 
-				QPointF new1(event->buttonDownPos(Qt::LeftButton).x(), event->buttonDownPos(Qt::LeftButton).y());
-				QPointF new2(event->pos().x(), event->pos().y());
-				newZoomRight = QRectF(new1, new2);
-				newZoomRight = plot()->rightAxisTransform().inverted().mapRect(newZoomRight);
+				double newRangeMin, newRangeMax;	// in drawing coordinates
+				if(axis->orientation() == Qt::Vertical) {
+					newRangeMin = event->buttonDownPos(Qt::LeftButton).y();
+					newRangeMax = event->pos().y();
+				}
+				else {
+					newRangeMin = event->buttonDownPos(Qt::LeftButton).x();
+					newRangeMax = event->pos().x();
+				}
+
+				if(newRangeMin > newRangeMax)
+					qSwap(newRangeMin, newRangeMax);
+
+				axis->setDataRange(axis->mapDrawingToData(MPlotAxisRange(newRangeMin, newRangeMax)), false);
 			}
 
-
-			// Get the axis coordinates and compute new zoom. This one used for left axis and/or bottom axis (same calculation; both use newZoomLeft)
-			if(axisTargets() & MPlotAxis::Left || axisTargets() & MPlotAxis::Bottom) {
-
-				oldZoomLeft = QRectF(QPointF(plot()->xMin(), plot()->yLeftMin()), QPointF(plot()->xMax(), plot()->yLeftMax()));
-				if(axisTargets() & MPlotAxis::Left)
-					leftZoomStack_.push(oldZoomLeft);
-				if(axisTargets() & MPlotAxis::Bottom)
-					bottomZoomStack_.push(oldZoomLeft);
-
-				QPointF new1(qMin(event->buttonDownPos(Qt::LeftButton).x(), event->pos().x()), qMin(event->buttonDownPos(Qt::LeftButton).y(), event->pos().y()));
-				QPointF new2(qMax(event->buttonDownPos(Qt::LeftButton).x(), event->pos().x()), qMax(event->buttonDownPos(Qt::LeftButton).y(), event->pos().y()));
-				newZoomLeft = QRectF(new1, new2);
-				newZoomLeft = plot()->leftAxisTransform().inverted().mapRect(newZoomLeft);
-
-			}
-
-
-			// can now apply new zooms:
-			if(axisTargets() & MPlotAxis::Left)
-				plot()->setYDataRangeLeft(newZoomLeft.bottom(), newZoomLeft.top(), false, false);
-
-			if(axisTargets() & MPlotAxis::Bottom)
-				plot()->setXDataRange(newZoomLeft.left(), newZoomLeft.right(), false, false);
-
-			if(axisTargets() & MPlotAxis::Right)
-				plot()->setYDataRangeRight(newZoomRight.bottom(), newZoomRight.top(), false, false);
-
+			oldZooms_.push(oldZoomList);
 		}
 	}
+
+
 
 	// Right mouse button: let's you go back to an old zoom setting
 	if(!dragInProgress_ && event->button() == Qt::RightButton) {
 
-		// right axis enabled?
-		if(axisTargets() & MPlotAxis::Right) {
-			// If we have old zoom settings to go back to:
-			if(rightZoomStack_.count() > 0) {
-				QRectF newZoom = rightZoomStack_.pop();
-				plot()->setYDataRangeRight(newZoom.bottom(), newZoom.top(), false, false);
-			}
-			// otherwise go back to auto-scale:
-			else {
-				plot()->enableAutoScaleRight(true);
+		// do we have old zoom settings to jump back to?
+		if(oldZooms_.count() > 0) {
+			QList<QPair<MPlotAxisScale*, MPlotAxisRange> > oldZoomList = oldZooms_.pop();
+
+			QPair<MPlotAxisScale*, MPlotAxisRange> oldZoomSetting;
+			foreach(oldZoomSetting, oldZoomList) {
+				MPlotAxisScale* axis = oldZoomSetting.first;
+				if(targetAxes_.contains(axis))	// might have removed this axis scale as a target axis (active on this tool) since then. As a rule, we should only modify our target axes.
+					axis->setDataRange(oldZoomSetting.second, false);
 			}
 		}
 
-		// left axis enabled:
-		if(axisTargets() & MPlotAxis::Left) {
-			// If we have old zoom settings to go back to:
-			if(leftZoomStack_.count() > 0) {
-				QRectF newZoom = leftZoomStack_.pop();
-				plot()->setYDataRangeLeft(newZoom.bottom(), newZoom.top(), false, false);
-			}
-			else {
-				plot()->enableAutoScaleLeft(true);
-			}
-		}
-
-		// bottom axis enabled:
-		if(axisTargets() & MPlotAxis::Bottom) {
-			// If we have old zoom settings to go back to:
-			if(bottomZoomStack_.count() > 0) {
-				QRectF newZoom = bottomZoomStack_.pop();
-				plot()->setXDataRange(newZoom.left(), newZoom.right(), false, false);
-			}
-			else {
-				plot()->enableAutoScaleBottom(true);
+		// no old zoom settings. Go back to auto-scaling.
+		else {
+			foreach(MPlotAxisScale* axis, targetAxes_) {
+				axis->setAutoScaleEnabled(true);
 			}
 		}
 	}
@@ -385,11 +328,9 @@ void MPlotDragZoomerTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * eve
 }
 
 
-MPlotCursorTool::MPlotCursorTool(int axisTargets)
+MPlotCursorTool::MPlotCursorTool()
 	: MPlotAbstractTool() {
 
-	setAxisTargets(axisTargets);
-	addCursor();
 }
 
 MPlotCursorTool::~MPlotCursorTool() {
@@ -405,7 +346,6 @@ unsigned MPlotCursorTool::numCursors() const {
 	return cursors_.count();
 }
 
-/// Returns the currently-selected item in the plot (0 if none).
 QPointF MPlotCursorTool::value(unsigned cursorIndex) const {
 	if(cursorIndex < numCursors())
 		return cursors_.at(cursorIndex)->value();
@@ -413,7 +353,7 @@ QPointF MPlotCursorTool::value(unsigned cursorIndex) const {
 		return QPointF(0,0);
 }
 
-/// Returns the MPlotPoint used to represent a specific cursor, so you can adjust it's color, marker, etc, or place it manually using MPlotPoint::setValue().
+// Returns the MPlotPoint used to represent a specific cursor, so you can adjust it's color, marker, etc, or place it manually using MPlotPoint::setValue().
 MPlotPoint* MPlotCursorTool::cursor(unsigned cursorIndex) const {
 	if(cursorIndex < numCursors())
 		return cursors_.at(cursorIndex);
@@ -421,9 +361,9 @@ MPlotPoint* MPlotCursorTool::cursor(unsigned cursorIndex) const {
 		return 0;
 }
 
-/// remove a cursor. Note: you cannot remove the final cursor... there must always be 1.
+// remove a cursor.
 void MPlotCursorTool::removeCursor() {
-	if(numCursors() > 1) {
+	if(numCursors() > 0) {
 		MPlotPoint* removeMe = cursors_.takeLast();
 		if(plot())
 			plot()->removeItem(removeMe);
@@ -431,27 +371,37 @@ void MPlotCursorTool::removeCursor() {
 	}
 }
 
-/// add a cursor.  Cursors are added to the center of the existing plot.
-void MPlotCursorTool::addCursor(const QPointF& initialPos) {
+void MPlotCursorTool::addCursor(MPlotAxisScale* xAxisScale, MPlotAxisScale* yAxisScale, const QPointF& initialPos) {
+
+	if(!plot()) {
+		qWarning() << "MPlotCursorTool: You cannot add cursors to this tool until adding this tool to a plot.";
+		return;
+	}
+
 	MPlotPoint* newCursor = new MPlotPoint();
 	newCursor->setSelectable(false);
-	newCursor->setMarker(MPlotMarkerShape::Cross, MPLOT_CURSOR_BIG_HACK);
+
+	if(!xAxisScale && yAxisScale)
+		newCursor->setMarker(MPlotMarkerShape::HorizontalBeam, MPLOT_CURSOR_BIG_HACK);
+	else if(xAxisScale && !yAxisScale)
+		newCursor->setMarker(MPlotMarkerShape::VerticalBeam, MPLOT_CURSOR_BIG_HACK);
+	else
+		newCursor->setMarker(MPlotMarkerShape::Cross, MPLOT_CURSOR_BIG_HACK);
+
+
+	plot()->addItem(newCursor);
+
+	if(yAxisScale)
+		newCursor->setYAxisTarget(yAxisScale);
+	if(xAxisScale)
+		newCursor->setXAxisTarget(xAxisScale);
+
 	newCursor->setValue(initialPos);
 
-	if(plot()) {
-		plot()->addItem(newCursor);
-	}
 	cursors_ << newCursor;
 }
 
 
-MPlotAxis::AxisID MPlotCursorTool::yAxis() const {
-	if(axisTargets() & MPlotAxis::Left)
-		return MPlotAxis::Left;
-	if(axisTargets() & MPlotAxis::Right)
-		return MPlotAxis::Right;
-	return MPlotAxis::Left;
-}
 
 void MPlotCursorTool::mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
 
@@ -460,17 +410,23 @@ void MPlotCursorTool::mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
 
 		unsigned c = activeCursor % numCursors();
 
-		QPointF newPos;
-		if(yAxis() == MPlotAxis::Right)
-			newPos = plot()->rightAxisTransform().inverted().map(event->pos());
-		else
-			newPos = plot()->leftAxisTransform().inverted().map(event->pos());
+		MPlotPoint* cursor = cursors_.at(c);
 
 		/// \todo clean this up... If a cursor was added prior to this tool being assigned to a plot, it won't be on the plot.  Add it here:
-		if(cursors_.at(c)->plot() != plot())
-			plot()->addItem(cursors_.at(c));
+		if(cursor->plot() != plot())
+			plot()->addItem(cursor);
 
-		cursors_.at(c)->setValue(newPos);
+		qreal y = event->pos().y();
+		qreal x = event->pos().x();
+
+		if(cursor->yAxisTarget())
+			y = cursor->yAxisTarget()->mapDrawingToData(y);
+		if(cursor->xAxisTarget())
+			x = cursor->xAxisTarget()->mapDrawingToData(x);
+
+		QPointF newPos(x, y);
+
+		cursor->setValue(newPos);
 		emit valueChanged(c, newPos);
 
 		activeCursor++;
@@ -496,6 +452,8 @@ void MPlotCursorTool::wheelEvent ( QGraphicsSceneWheelEvent * event ) {
 void MPlotCursorTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event ) {
 	QGraphicsObject::mouseDoubleClickEvent(event);
 }
+
+
 
 
 #endif // MPLOTTOOLS_H

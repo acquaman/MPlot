@@ -14,11 +14,12 @@ MPlotPoint::MPlotPoint(const QPointF& value)
 	setDefaults();
 }
 
-// Returns the current marker, which can be used to access it's pen, brush, and size.
-// If the plot has no marker (or MPlotMarkerShape::None), then this will be a null pointer. Must check before setting.
-MPlotAbstractMarker* MPlotPoint::marker() const { return marker_; }
+MPlotPoint::~MPlotPoint() {
+	delete marker_;
+}
 
-void MPlotPoint::setMarker(MPlotMarkerShape::Shape shape, double size, const QPen& pen, const QBrush& brush) {
+
+void MPlotPoint::setMarker(MPlotMarkerShape::Shape shape, qreal size, const QPen& pen, const QBrush& brush) {
 	if(marker_)
 		delete marker_;
 
@@ -28,10 +29,6 @@ void MPlotPoint::setMarker(MPlotMarkerShape::Shape shape, double size, const QPe
 	update();
 }
 
-/// returns the point location of this marker:
-QPointF MPlotPoint::value() const {
-	return point_;
-}
 
 
 /// set the point location of this marker:
@@ -53,7 +50,7 @@ void MPlotPoint::setValue(const QPointF& point) {
 // Bounding rect: reported in our PlotSeries coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.
 QRectF MPlotPoint::boundingRect() const {
 
-	QRectF br = dataRect();
+	QRectF br = MPlotItem::boundingRect();
 
 	// expand by the selection line width (in pixels...)
 	QRectF hs = QRectF(0, 0, MPLOT_SELECTION_LINEWIDTH, MPLOT_SELECTION_LINEWIDTH);
@@ -64,9 +61,7 @@ QRectF MPlotPoint::boundingRect() const {
 
 
 	// these sizes so far are in pixels (hopefully scene coordinates... trusting on an untransformed view.) Converting to local (data) coordinates.
-	hs = mapRectFromScene(hs);
-
-
+	// UNNECESSARY: hs = mapRectFromScene(hs);
 
 	// really we just need 1/2 the marker size and 1/2 the selection highlight width. But extra doesn't hurt.
 	br.adjust(-hs.width(),-hs.height(),hs.width(), hs.height());
@@ -74,12 +69,10 @@ QRectF MPlotPoint::boundingRect() const {
 	return br;
 }
 
-// Data rect: also reported in our PlotSeries coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
 QRectF MPlotPoint::dataRect() const {
 	return QRectF(point_, QSizeF(0,0));
 }
 
-// Paint: must be implemented in subclass.
 void MPlotPoint::paint(QPainter* painter,
 				   const QStyleOptionGraphicsItem* option,
 				   QWidget* widget)
@@ -88,11 +81,6 @@ void MPlotPoint::paint(QPainter* painter,
 	Q_UNUSED(widget)
 
 	if(marker_) {
-		QTransform wt = painter->deviceTransform();	// equivalent to worldTransform() and combinedTransform()
-
-
-		QTransform wtInverse(QTransform::fromScale(1/wt.m11(), 1/wt.m22()));
-		//wtInverse.scale(1/wt.m11(), 1/wt.m22());
 
 		// Paint marker:
 		painter->save();
@@ -100,7 +88,6 @@ void MPlotPoint::paint(QPainter* painter,
 		painter->setBrush(marker_->brush());
 
 		painter->translate(point_.x(), point_.y());
-		painter->setTransform(wtInverse, true);
 		marker_->paint(painter);
 
 		// repaint with selected pen, if selected...
@@ -116,8 +103,6 @@ void MPlotPoint::paint(QPainter* painter,
 
 
 void MPlotPoint::setDefaults() {
-
-	setYAxisTarget(MPlotAxis::Left);
 
 	setMarker(MPlotMarkerShape::CrossCircle, 24, QPen(QColor(Qt::red), 0), QBrush());
 
