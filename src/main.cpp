@@ -51,20 +51,21 @@
 
 	 //plot.axisTop()->setTickPen(QPen(QBrush(QColor(Qt::yellow)), 0));
 	 //plot.axisBottom()->setTickPen(QPen(QBrush(QColor(Qt::red)), 0));
-	 //plot.axisLeft()->setTickPen(QPen(QBrush(QColor(Qt::green)), 0));
+	 // plot.axisLeft()->setTickPen(QPen(QBrush(QColor(Qt::green)), 0));
 	 //plot.axisRight()->setTickPen(QPen(QBrush(QColor(Qt::blue)), 0));
-	 plot.axisRight()->setTicks(3, MPlotAxis::Inside, 2);	// Set the approximate number and style of axis tick marks:
-	 // plot.axisRight()->showTickLabels(false);
-	 // plot.axisRight()->setAxisName("y_right");
-	 // plot.axisRight()->showAxisName(true);
+	 plot.axisRight()->setTicks(3, MPlotAxis::Middle, 5);	// Set the approximate number and style of axis tick marks:
+	 plot.axisRight()->showTickLabels(true);
+	 plot.axisRight()->setAxisName("y right");
+	 plot.axisRight()->showAxisName(true);
 
 	 plot.axisBottom()->setAxisName("eV");
 	 plot.axisLeft()->setAxisName("Intensity (arb. units)");
 
 
+
 	 // Change the margins: (in % of the plot width/height)
 	 plot.setMarginTop(5);
-	 plot.setMarginRight(5);
+	 plot.setMarginRight(10);
 	 plot.setMarginLeft(15);
 	 plot.setMarginBottom(15);
 
@@ -171,8 +172,9 @@
 
 	 // 6. Adding a series to a plot:
 	 ///////////////////////////////
+	 series1->setDescription("series 1");
 	 plot.addItem(series1);
-	 plot.addItem(series2);
+	 //plot.addItem(series2);
 
 	 // 2. (continued) Axis / Axis Scale Settings
 	 ///////////////////////
@@ -228,7 +230,7 @@
 	p1.setValue(QPointF(0.5,0.5));
 	p1.setMarker(MPlotMarkerShape::CrossCircle, 24, QPen(QColor(Qt::red)));
 
-	plot.addItem(&p1);
+	// plot.addItem(&p1);
 
 
 	 // 11. Enable, disable, and selection?
@@ -283,11 +285,10 @@
 	plot.addTool(&wzTool);
 
 	// this tool adds a cursor (or more) to a plot
-	MPlotCursorTool crsrTool;
-	plot.addTool(&crsrTool);
-	// add an extra cursor
-	crsrTool.addCursor(plot.axisScaleLeft(), plot.axisScaleBottom());
-	crsrTool.cursor(0)->marker()->setPen(QPen(QColor(Qt::blue)));
+//	MPlotCursorTool crsrTool;
+//	plot.addTool(&crsrTool);
+//	crsrTool.addCursor(plot.axisScaleLeft(), plot.axisScaleBottom());
+//	crsrTool.cursor(0)->marker()->setPen(QPen(QColor(Qt::blue)));
 
 
 	return app.exec();

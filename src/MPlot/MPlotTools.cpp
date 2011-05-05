@@ -245,10 +245,8 @@ void MPlotDragZoomerTool::mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) {
 	}
 
 	// If we're dragging, draw/update the selection rectangle.
-	// Figure out why this gets slow for high zoom settings.
-	// attempted: Only do this if we've moved a true pixel, otherwise this gets really slow for high zoom settings.
-	if(dragInProgress_ /*&& (event->buttonDownScenePos(Qt::LeftButton) - event->scenePos()).manhattanLength() > 1*/ ) {
-		selectionRect_->setRect(QRectF(event->buttonDownPos(Qt::LeftButton), event->pos()));
+	if(dragInProgress_ ) {
+		selectionRect_->setRect(QRectF(event->buttonDownPos(Qt::LeftButton), event->pos()).normalized());
 	}
 }
 
@@ -282,10 +280,7 @@ void MPlotDragZoomerTool::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
 					newRangeMax = event->pos().x();
 				}
 
-				if(newRangeMin > newRangeMax)
-					qSwap(newRangeMin, newRangeMax);
-
-				axis->setDataRange(axis->mapDrawingToData(MPlotAxisRange(newRangeMin, newRangeMax)), false);
+				axis->setDataRange(axis->mapDrawingToData(MPlotAxisRange(newRangeMin, newRangeMax)).normalized(), false);
 			}
 
 			oldZooms_.push(oldZoomList);

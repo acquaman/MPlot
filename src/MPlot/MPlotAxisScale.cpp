@@ -54,6 +54,54 @@ void MPlotAxisScale::setDataRange(const MPlotAxisRange &newDataRange, bool apply
 
 	autoScaleEnabled_ = false;	// axis range was manually set by user; this disables auto-scaling
 
-	qDebug() << "MPlotAxisScale:" << orientation_ << "Data range changed:" << dataRange_.min() << dataRange_.max();
+	qDebug() << "MPlotAxisScale" << orientation_ << ": setDataRange" << dataRange_.min() << dataRange_.max();
 	emit dataRangeChanged();
+}
+
+#include <cmath>
+
+QList<qreal> MPlotAxisScale::calculateTickValues(int minimumNumberOfTicks) const
+{
+	QList<qreal> rv;
+
+	if(minimumNumberOfTicks == 0)
+		return rv;
+
+	if(minimumNumberOfTicks == 1) {
+		rv << (dataRange_.min() + dataRange_.max())/2.0;
+		return rv;
+	}
+
+	qreal min = dataRange_.min();
+	qreal max = dataRange_.max();
+
+	// is the data range backward? That's allowed, but we need to deal with it explictly here.
+	if(max<min)
+		qSwap(min,max);
+
+	// numTicks() is a suggestion for the minimum number of ticks.
+	qreal crudeStep = (max - min) / minimumNumberOfTicks;
+
+	qreal step = pow(10, floor(log10(crudeStep)));
+	if(5*step < crudeStep)
+		step *= 5;
+	else if(2*step < crudeStep)
+		step *= 2;
+
+	qreal tickIncVal = step;
+	qreal minTickVal = ceil(min/step) * step;
+
+	// Hit Zero if possible: (while passing through origin)
+	if(min < 0 && max > 0) {
+		// the distance between 0 and the nearest tick is... the remainder in division of (0-minTickVal)/tickIncVal.
+		qreal offset = remainder(-minTickVal, tickIncVal);
+		minTickVal += offset;
+	}
+
+	while(minTickVal <= max) {
+		rv << minTickVal;
+		minTickVal += tickIncVal;
+	}
+
+	return rv;
 }

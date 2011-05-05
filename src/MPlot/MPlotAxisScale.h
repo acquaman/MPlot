@@ -142,6 +142,44 @@ public:
 	qreal padding() const { return axisPadding_*100.0; }
 
 
+	/// Returns a list of recommended tick values (in data coordinates) for this axis scale, based on a recommended \c minimumNumberOfTicks.  The tick values will be chosen to be within the data range, and will be "nice numbers".  They will be spaced according to what makes sense for the axis scale (ex: regularly for a linear axis, in powers of 10 for a logarithmic axis, etc.)
+/*! IntelliScale: Calculate "nice" values for starting tick and tick increment.
+
+- Uses the current values of the dataRange_ min() and max().
+- Desired outcome: labels are nice values like "0.2 0.4 0.6..." or "0.024 0.026 0.028" instead of irrational numbers.
+- Additionally, if the axis range passes through 0, it would be nice to have a tick at 0.
+
+Implementation: This algorithm is based on one from "C++ Gui Programming with Qt" (below), but we move the starting tick position instead of the max and min values.
+
+<i>
+To obtain nice numbers along the axis, we must select the step with care. For example, a step value of 3.8 would lead to an axis with multiples of 3.8, which is difficult for people to relate to. For axes labeled in decimal notation, “nice” step values are numbers of the form 10n, 2·10n, or 5·10n.
+
+We start by computing the “gross step”, a kind of maximum for the step value. Then we find the corresponding number of the form 10n that is smaller than or equal to the gross step. We do this by taking the decimal logarithm of the gross step, rounding that value down to a whole number, then raising 10 to the power of this rounded number. For example, if the gross step is 236, we compute log 236 = 2.37291...; then we round it down to 2 and obtain 102 = 100 as the candidate step value of the form 10n.
+
+Once we have the first candidate step value, we can use it to calculate the other two candidates: 2·10n and 5·10n. For the example above, the two other candidates are 200 and 500. The 500 candidate is larger than the gross step, so we can’t use it. But 200 is smaller than 236, so we use 200 for the step size in this example.
+</i>
+\code
+void PlotSettings::adjustAxis(qreal &min, qreal &max,
+int &numTicks)
+{
+ const int MinTicks = 4;
+ qreal grossStep = (max - min) / MinTicks;
+ qreal step = pow(10.0, floor(log10(grossStep)));
+ if (5 * step < grossStep) {
+  step *= 5;
+ } else if (2 * step < grossStep) {
+  step *= 2;
+ }
+ numTicks = int(ceil(max / step) - floor(min / step));
+ if (numTicks < MinTicks)
+  numTicks = MinTicks;
+ min = floor(min / step) * step;
+ max = ceil(max / step) * step;
+}
+\endcode
+*/
+	QList<qreal> calculateTickValues(int minimumNumberOfTicks) const;
+
 
 public slots:
 	void setOrientation(Qt::Orientation orientation);

@@ -71,18 +71,18 @@ QRectF MPlotItem::boundingRect() const {
 
 	QRectF dataRectangle = dataRect();
 
+	// debug only...
+	if(dataRectangle != dataRectangle.normalized())
+		qWarning() << "MPlotItem: data rect not normalized...";
+
 	if(!xAxisTarget_ || !yAxisTarget_) {
 		qWarning() << "MPlotItem: Warning: No axis scale set.  Returning the unscaled data rectangle as the bounding rectangle";
 		return dataRectangle;
 	}
 
-	MPlotAxisRange xRange = xAxisTarget_->mapDataToDrawing(MPlotAxisRange(dataRectangle.left(), dataRectangle.right()));
-	MPlotAxisRange yRange = yAxisTarget_->mapDataToDrawing(MPlotAxisRange(dataRectangle.top(), dataRectangle.bottom()));
+	MPlotAxisRange xRange = xAxisTarget_->mapDataToDrawing(MPlotAxisRange(dataRectangle.left(), dataRectangle.right())).normalized();
+	MPlotAxisRange yRange = yAxisTarget_->mapDataToDrawing(MPlotAxisRange(dataRectangle.top(), dataRectangle.bottom())).normalized();
 	QRectF rv = QRectF(xRange.min(), yRange.min(), xRange.max()-xRange.min(), yRange.max()-yRange.min());
-
-	// debug only...
-	if(rv != rv.normalized())
-		qWarning() << "MPlotItem: bounding rect not normalized...";
 
 	return rv;
 }

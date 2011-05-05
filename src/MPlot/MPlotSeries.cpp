@@ -23,7 +23,7 @@ MPlotAbstractSeries::MPlotAbstractSeries() :
 
 	/// Scale and shift factors
 	sx_ = sy_ = 1.0;
-	dx_ = dy_ = 1.0;
+	dx_ = dy_ = 0.0;
 	offset_ = QPointF(0.0,0.0);
 
 	/// Indicates whether normalization is on:
@@ -280,8 +280,6 @@ MPlotSeriesBasic::~MPlotSeriesBasic() {
 QRectF MPlotSeriesBasic::boundingRect() const {
 	QRectF br = MPlotAbstractSeries::boundingRect();
 
-	qDebug() << "Initial bounding rect:" << br;
-
 	if(br.isValid()) {
 		// create rectangle at least as big as our selection highlight, and if we have a marker, the marker size.
 		QRectF hs = QRectF(0, 0, MPLOT_SELECTION_LINEWIDTH, MPLOT_SELECTION_LINEWIDTH);
@@ -296,8 +294,6 @@ QRectF MPlotSeriesBasic::boundingRect() const {
 		// really we just need 1/2 the marker size and 1/2 the selection highlight width. But extra doesn't hurt.
 		br.adjust(-hs.width(),-hs.height(),hs.width(), hs.height());
 	}
-
-	qDebug() << "adjusted bounding rect:" << br;
 
 	return br;
 }

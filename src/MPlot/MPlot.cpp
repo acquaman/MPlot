@@ -285,8 +285,9 @@ void MPlot::onAxisScaleAutoScaleEnabledChanged(bool autoScaleEnabled) {
 #include <QTimer>
 void MPlot::onBoundsChanged(MPlotItem *source) {
 
+	qDebug() << "Bounds changed:" << source->description();
+
 	MPlotAxisScale* xAxis = source->xAxisTarget();
-	qDebug() << "xAxis scale:" << xAxis;
 
 	if(xAxis->autoScaleEnabled()) {
 		xAxis->setAutoScaleScheduled();
@@ -294,7 +295,6 @@ void MPlot::onBoundsChanged(MPlotItem *source) {
 	}
 
 	MPlotAxisScale* yAxis = source->yAxisTarget();
-	qDebug() << "yAxis scale:" << yAxis;
 
 	if(yAxis->autoScaleEnabled()) {
 		yAxis->setAutoScaleScheduled();
