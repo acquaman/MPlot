@@ -87,7 +87,8 @@ class MPlot : public QGraphicsItem {
 
 public:
 
-	enum StandardAxis { Left = 0, Bottom, Right, Top };
+	/// These enum values can be used as axis scale indexes in axisScale() to retrieve one of the standard axis scales that all plots start with by default.
+	enum StandardAxis { Left = 0, Bottom, Right, Top, VerticalRelative, HorizontalRelative };
 
 	MPlot(QRectF rect = QRectF(0,0,100,100), QGraphicsItem* parent = 0);
 	virtual ~MPlot();

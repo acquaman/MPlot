@@ -296,8 +296,10 @@
 	QColor rColor = Qt::blue;
 	QPen rPen = QPen(rColor, 5, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
 	rColor.setAlphaF(0.5);
-	MPlotRectangle* r = new MPlotRectangle(QRectF(-0.25, -0.25, 0.5, 0.5), rPen, QBrush(rColor));
+	MPlotRectangle* r = new MPlotRectangle(QRectF(0.25, 0.25, 0.5, 0.5), rPen, QBrush(rColor));
 	plot.addItem(r);
+	r->setXAxisTarget(plot.axisScale(MPlot::HorizontalRelative));
+	r->setYAxisTarget(plot.axisScale(MPlot::VerticalRelative));
 
 
 	return app.exec();

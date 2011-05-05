@@ -57,7 +57,9 @@ MPlot::MPlot(QRectF rect, QGraphicsItem* parent) :
 	axisScales_ << new MPlotAxisScale(Qt::Vertical);	// left
 	axisScales_ << new MPlotAxisScale(Qt::Horizontal);	// bottom
 	axisScales_ << new MPlotAxisScale(Qt::Vertical);	// right
-	axisScales_ << new MPlotAxisScale(Qt::Horizontal);	// top?
+	axisScales_ << new MPlotAxisScale(Qt::Horizontal);	// top
+	axisScales_ << new MPlotAxisScale(Qt::Vertical, QSizeF(100,100), MPlotAxisRange(0,1));	// verticalRelative (fixed between 0 and 1)
+	axisScales_ << new MPlotAxisScale(Qt::Horizontal, QSizeF(100,100), MPlotAxisRange(0,1));// horizontalRelative (fixed between 0 and 1)
 
 	foreach(MPlotAxisScale* axisScale, axisScales_) {
 		QObject::connect(axisScale, SIGNAL(autoScaleEnabledChanged(bool)), signalHandler_, SLOT(onAxisScaleAutoScaleEnabledChanged(bool)));
@@ -200,7 +202,13 @@ void MPlot::addTool(MPlotAbstractTool* newTool) {
 	tools_ << newTool;
 
 	newTool->setPlot(this);
-	newTool->setTargetAxes(axisScales_);	// by default, plot tools get attached to all the existing axis scales.  Users must call setTargetAxes() with their own subset if that's what they want.
+
+	QList<MPlotAxisScale*> axisScales;
+	for(int i=0; i<axisScales_.count(); i++) {
+		if(i!=MPlot::HorizontalRelative && i!=MPlot::VerticalRelative)
+			axisScales << axisScales_.at(i);
+	}
+	newTool->setTargetAxes(axisScales);	// by default, plot tools get attached to all the existing axis scales... EXCEPT FOR THE PLOT-RELATIVE axes... because we don't want these modified.  If they want to choose a different set, users must call setTargetAxes() after adding the tool to the plot.
 }
 
 /// Remove a tool from a plot. (Note: Does not delete the tool...)
