@@ -17,6 +17,7 @@ MPlotItem::MPlotItem() : QGraphicsItem() {
 	setFlag(QGraphicsItem::ItemIsSelectable, false);	// We're implementing our own selection mechanism... ignoring QGraphicsView's selection system.
 	isSelected_ = false;
 	isSelectable_ = true;
+	ignoreWhenAutoScaling_ = false;
 	plot_ = 0;
 	yAxisTarget_ = 0;
 	xAxisTarget_ = 0;
@@ -144,6 +145,17 @@ void MPlotItemSignalSource::onAxisScaleAboutToChange() const
 void MPlotItemSignalSource::onAxisScaleChanged() const
 {
 	plotItem_->onAxisScaleChanged();
+}
+
+// This is tricky and clever. We want to emit boundsChanged at the time when ignoreWhenAutoScaling() is false... so that a re-autoscale will be triggered if necessary -- to re-scale the plot to just the items that should be considered. (MPlot::onBoundsChanged() won't listen to the boundsChanged() signal if ignoreWhenAutoScaling() is true when it gets the message.) However, we can still set the ignore state correctly before the delayed autoScale actually runs, since the autoscaling process is delayed until after the next event loop.
+void MPlotItem::setIgnoreWhenAutoScaling(bool ignore)
+{
+	if(ignore == ignoreWhenAutoScaling_)
+		return;	// no change.
+
+	ignoreWhenAutoScaling_ = false;
+	emitBoundsChanged();
+	ignoreWhenAutoScaling_ = ignore;
 }
 
 

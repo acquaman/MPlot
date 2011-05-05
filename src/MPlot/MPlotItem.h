@@ -106,6 +106,10 @@ public:
 	/// set the x-axis scale this data shoud use / be plotted against
 	void setXAxisTarget(MPlotAxisScale* xAxisTarget);
 
+	/// Indicates that this item should be ignored when auto-scaling (ie: it should not be considered to affect the range of its xAxisTarget() and yAxisTarget() when these target axis scales have autoScaling enabled.)
+	bool ignoreWhenAutoScaling() const { return ignoreWhenAutoScaling_; }
+	/// Set that this item should be ignored when auto-scaling (ie: it should not be considered to affect the range of its xAxisTarget() and yAxisTarget() when these target axis scales have autoScaling enabled.)
+	void setIgnoreWhenAutoScaling(bool ignore);
 
 
 
@@ -160,6 +164,8 @@ private:
 	MPlot* plot_;
 
 	QString description_;
+
+	bool ignoreWhenAutoScaling_;
 
 protected:
 	MPlotItemSignalSource* signalSource_;

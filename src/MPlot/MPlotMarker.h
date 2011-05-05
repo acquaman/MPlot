@@ -27,21 +27,21 @@ public:
 	MPlotAbstractMarker(qreal size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
 	virtual ~MPlotAbstractMarker();
 
-	virtual void setSize(qreal size);
-	virtual qreal size();
+	virtual void setSize(qreal size) { size_ = size; }
+	virtual qreal size() const { return size_; }
 
-	virtual QPen pen() const;
-	virtual void setPen(const QPen &pen1);
+	virtual QPen pen() const { return pen_; }
+	virtual void setPen(const QPen &pen1) { pen_ = pen1; }
 
-	virtual QBrush brush() const;
-	virtual void setBrush(const QBrush &brush);
+	virtual QBrush brush() const { return brush_; }
+	virtual void setBrush(const QBrush &brush) { brush_ = brush; }
 
 
 	virtual void paint(QPainter* painter) = 0;
 	////////////////////
 
 protected:
-	qreal size_;	// size, in real pixels
+	qreal size_;	///< size, in drawing coordinates (usually, real pixels, unless you have a transformed painter)
 	QPen pen_;
 	QBrush brush_;
 };

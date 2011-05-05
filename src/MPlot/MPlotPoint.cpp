@@ -24,7 +24,6 @@ void MPlotPoint::setMarker(MPlotMarkerShape::Shape shape, qreal size, const QPen
 		delete marker_;
 
 	QPen realPen(pen);
-	realPen.setCosmetic(true);
 	marker_ = MPlotMarker::create(shape, size, realPen, brush);
 	update();
 }
@@ -43,11 +42,9 @@ void MPlotPoint::setValue(const QPointF& point) {
 }
 
 
-
-
 // Required functions:
 //////////////////////////
-// Bounding rect: reported in our PlotSeries coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.
+// Bounding rect: reported in drawing coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers (like us) need to add their size on top of the base class.
 QRectF MPlotPoint::boundingRect() const {
 
 	QRectF br = MPlotItem::boundingRect();
@@ -87,7 +84,7 @@ void MPlotPoint::paint(QPainter* painter,
 		painter->setPen(marker_->pen());
 		painter->setBrush(marker_->brush());
 
-		painter->translate(point_.x(), point_.y());
+		painter->translate(mapX(point_.x()), mapY(point_.y()));
 		marker_->paint(painter);
 
 		// repaint with selected pen, if selected...

@@ -366,15 +366,23 @@ void MPlotCursorTool::removeCursor() {
 	}
 }
 
-void MPlotCursorTool::addCursor(MPlotAxisScale* xAxisScale, MPlotAxisScale* yAxisScale, const QPointF& initialPos) {
+void MPlotCursorTool::addCursor(MPlotAxisScale* yAxisScale, MPlotAxisScale* xAxisScale, const QPointF& initialPos) {
 
 	if(!plot()) {
 		qWarning() << "MPlotCursorTool: You cannot add cursors to this tool until adding this tool to a plot.";
 		return;
 	}
 
+	if(xAxisScale && xAxisScale->orientation() != Qt::Horizontal) {
+		qWarning() << "MPlotCursorTool: specifying a vertical axis scale for the x-axis scale is probably not what you wanted to do. Coordinates returned from this cursor will not make sense.";
+	}
+	if(yAxisScale && yAxisScale->orientation() != Qt::Vertical) {
+		qWarning() << "MPlotCursorTool: specifying a horizontal axis scale for the y-axis scale is probably not what you wanted to do. Coordinates returned from this cursor will not make sense.";
+	}
+
 	MPlotPoint* newCursor = new MPlotPoint();
 	newCursor->setSelectable(false);
+	newCursor->setIgnoreWhenAutoScaling(true);
 
 	if(!xAxisScale && yAxisScale)
 		newCursor->setMarker(MPlotMarkerShape::HorizontalBeam, MPLOT_CURSOR_BIG_HACK);
@@ -422,6 +430,7 @@ void MPlotCursorTool::mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
 		QPointF newPos(x, y);
 
 		cursor->setValue(newPos);
+		cursor->setDescription(QString("Cursor %1 (%2, %3)").arg(c).arg(x).arg(y));
 		emit valueChanged(c, newPos);
 
 		activeCursor++;

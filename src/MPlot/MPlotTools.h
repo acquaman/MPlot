@@ -167,7 +167,7 @@ protected:
 #include "MPlotPoint.h"
 
 /// this is a hack: plot markers for the cursor tool are created with this size (in pixels).  Make it as big as you expect screen resolution to be.  (NO! It's worse... because cursor may not be centered at center of data coordinates.  Needs to be REALLY BIG...) \todo solve this intelligently.
-#define MPLOT_CURSOR_BIG_HACK 1.0e9
+#define MPLOT_CURSOR_BIG_HACK 4000
 
 /// This class provides a plot tool that can be used to place one or more cursors on a plot and read the data value there.
 /*! The tool supports multiple cursors.  Cursors can be added with addCursor(), or removed with removeCursor().  Each cursor can be targetted to a different set of axis scales on the plot.  For now, we alternate between cursors with every click.
@@ -197,7 +197,7 @@ public:
 	void removeCursor();
 
 	/// add a cursor.  By default, cursors are added to the center of the existing plot.  You must specify the axis scales to attach this cursor to (and the axis scales must be valid for the current plot.)   (Use 0 for the y-axis scale if you want a vertical bar cursor, or 0 for the x-axis scale if you want a horizontal bar cursor.  If you don't provide any axis scales, the cursor won't be visible.)
-	void addCursor(MPlotAxisScale* xAxisScale, MPlotAxisScale* yAxisScale, const QPointF& initialPos = QPointF(0,0));
+	void addCursor(MPlotAxisScale* yAxisScale, MPlotAxisScale* xAxisScale, const QPointF& initialPos = QPointF(0,0));
 
 signals:
 	/// emitted when a new point is selected.  \c position is in coordinates based on the xAxisScale and yAxisScale set for that cursor

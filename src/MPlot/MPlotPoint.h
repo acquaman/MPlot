@@ -21,9 +21,10 @@ public:
 
 	// Returns the current marker, which can be used to access it's pen, brush, and size.
 		// If the plot has no marker (or MPlotMarkerShape::None), then this will be a null pointer. Must check before setting.
-	virtual MPlotAbstractMarker* marker() const { return marker_; }
+	const MPlotAbstractMarker* marker() const { return marker_; }
+	MPlotAbstractMarker* marker() { return marker_; }
 
-	virtual void setMarker(MPlotMarkerShape::Shape shape, qreal size = 6, const QPen& pen = QPen(QColor(Qt::red)), const QBrush& brush = QBrush());
+	void setMarker(MPlotMarkerShape::Shape shape, qreal size = 6, const QPen& pen = QPen(QColor(Qt::red)), const QBrush& brush = QBrush());
 
 	/// returns the point location of this marker:
 	QPointF value() const { return point_; }

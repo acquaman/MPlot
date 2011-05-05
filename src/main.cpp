@@ -285,10 +285,10 @@
 	plot.addTool(&wzTool);
 
 	// this tool adds a cursor (or more) to a plot
-//	MPlotCursorTool crsrTool;
-//	plot.addTool(&crsrTool);
-//	crsrTool.addCursor(plot.axisScaleLeft(), plot.axisScaleBottom());
-//	crsrTool.cursor(0)->marker()->setPen(QPen(QColor(Qt::blue)));
+	MPlotCursorTool crsrTool;
+	plot.addTool(&crsrTool);
+	crsrTool.addCursor(plot.axisScaleLeft(), plot.axisScaleBottom());
+	crsrTool.cursor(0)->marker()->setPen(QPen(QColor(Qt::blue)));
 
 
 	return app.exec();

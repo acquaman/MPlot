@@ -1,5 +1,6 @@
 #include "MPlotAxisScale.h"
 #include <QDebug>
+#include <cmath>
 
 MPlotAxisScale::MPlotAxisScale(Qt::Orientation orientation,
 							   const QSizeF& drawingSize,
@@ -54,11 +55,10 @@ void MPlotAxisScale::setDataRange(const MPlotAxisRange &newDataRange, bool apply
 
 	autoScaleEnabled_ = false;	// axis range was manually set by user; this disables auto-scaling
 
-	qDebug() << "MPlotAxisScale" << orientation_ << ": setDataRange" << dataRange_.min() << dataRange_.max();
 	emit dataRangeChanged();
 }
 
-#include <cmath>
+
 
 QList<qreal> MPlotAxisScale::calculateTickValues(int minimumNumberOfTicks) const
 {

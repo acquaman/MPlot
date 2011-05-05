@@ -76,8 +76,8 @@ MPlot::MPlot(QRectF rect, QGraphicsItem* parent) :
 
 
 	/// \todo Fix normalization and waterfall.
-//	normBottomEnabled_ = normLeftEnabled_ = normRightEnabled_ = false;
-//	waterfallLeftAmount_ = waterfallRightAmount_ = 0;
+	//	normBottomEnabled_ = normLeftEnabled_ = normRightEnabled_ = false;
+	//	waterfallLeftAmount_ = waterfallRightAmount_ = 0;
 
 	// Set apperance defaults (override for custom plots)
 	setDefaults();
@@ -128,19 +128,19 @@ void MPlot::insertItem(MPlotItem* newItem, int index, int yAxisTargetIndex, int 
 	QObject::connect(newItem->signalSource(), SIGNAL(legendContentChanged()), signalHandler_, SLOT(onPlotItemLegendContentChanged()));
 
 	/// \todo Fix axis normalization and waterfall.  (if axis normalization is on already, apply to this series too... (Obviously, only if this item is a series))
-//	MPlotAbstractSeries* s = qgraphicsitem_cast<MPlotAbstractSeries*>(newItem);
-//	if(s) {
-//		s->enableXAxisNormalization(normBottomEnabled_, normBottomRange_.first, normBottomRange_.second);
-//		if(s->yAxisTarget() == MPlotAxis::Left)
-//			s->enableYAxisNormalization(normLeftEnabled_, normLeftRange_.first, normLeftRange_.second);
-//		if(s->yAxisTarget() == MPlotAxis::Right)
-//			s->enableYAxisNormalization(normRightEnabled_, normRightRange_.first, normRightRange_.second);
+	//	MPlotAbstractSeries* s = qgraphicsitem_cast<MPlotAbstractSeries*>(newItem);
+	//	if(s) {
+	//		s->enableXAxisNormalization(normBottomEnabled_, normBottomRange_.first, normBottomRange_.second);
+	//		if(s->yAxisTarget() == MPlotAxis::Left)
+	//			s->enableYAxisNormalization(normLeftEnabled_, normLeftRange_.first, normLeftRange_.second);
+	//		if(s->yAxisTarget() == MPlotAxis::Right)
+	//			s->enableYAxisNormalization(normRightEnabled_, normRightRange_.first, normRightRange_.second);
 
-//		if(s->yAxisTarget() == MPlotAxis::Left)
-//			s->setOffset(0, waterfallLeftAmount_*seriesCounterLeft_++);
-//		if(s->yAxisTarget() == MPlotAxis::Right)
-//			s->setOffset(0, waterfallRightAmount_*seriesCounterRight_++);
-//	}
+	//		if(s->yAxisTarget() == MPlotAxis::Left)
+	//			s->setOffset(0, waterfallLeftAmount_*seriesCounterLeft_++);
+	//		if(s->yAxisTarget() == MPlotAxis::Right)
+	//			s->setOffset(0, waterfallRightAmount_*seriesCounterRight_++);
+	//	}
 
 	// if autoscaling is active already, could need to rescale already
 	onBoundsChanged(newItem);
@@ -176,11 +176,11 @@ bool MPlot::removeItem(MPlotItem* removeMe) {
 		QObject::disconnect(removeMe->signalSource(), 0, signalHandler_, 0);
 
 		/// \todo Fix waterfall. (this might need to re-apply the waterfall...)
-//		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(removeMe);
-//		if(series && series->yAxisTarget() == MPlotAxis::Left && waterfallLeftAmount_ != 0.0)
-//			setWaterfallLeft(waterfallLeftAmount_);
-//		if(series && series->yAxisTarget() == MPlotAxis::Right && waterfallRightAmount_ != 0.0)
-//			setWaterfallRight(waterfallRightAmount_);
+		//		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(removeMe);
+		//		if(series && series->yAxisTarget() == MPlotAxis::Left && waterfallLeftAmount_ != 0.0)
+		//			setWaterfallLeft(waterfallLeftAmount_);
+		//		if(series && series->yAxisTarget() == MPlotAxis::Right && waterfallRightAmount_ != 0.0)
+		//			setWaterfallRight(waterfallRightAmount_);
 
 
 		legend()->onLegendContentChanged();
@@ -285,7 +285,8 @@ void MPlot::onAxisScaleAutoScaleEnabledChanged(bool autoScaleEnabled) {
 #include <QTimer>
 void MPlot::onBoundsChanged(MPlotItem *source) {
 
-	qDebug() << "Bounds changed:" << source->description();
+	if(source->ignoreWhenAutoScaling())
+		return;
 
 	MPlotAxisScale* xAxis = source->xAxisTarget();
 
@@ -327,11 +328,14 @@ void MPlot::doDelayedAutoScale() {
 
 		MPlotAxisRange range;
 		foreach(MPlotItem* item, items_) {
-			if(axis->orientation() == Qt::Vertical && item->yAxisTarget() == axis)
-				range |= MPlotAxisRange(item->dataRect(), Qt::Vertical);
+			if(!item->ignoreWhenAutoScaling()) {
 
-			else if(axis->orientation() == Qt::Horizontal && item->xAxisTarget() == axis)
-				range |= MPlotAxisRange(item->dataRect(), Qt::Horizontal);
+				if(axis->orientation() == Qt::Vertical && item->yAxisTarget() == axis)
+					range |= MPlotAxisRange(item->dataRect(), Qt::Vertical);
+
+				else if(axis->orientation() == Qt::Horizontal && item->xAxisTarget() == axis)
+					range |= MPlotAxisRange(item->dataRect(), Qt::Horizontal);
+			}
 		}
 
 		if(!range.isValid())

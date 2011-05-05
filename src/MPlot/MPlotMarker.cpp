@@ -16,30 +16,7 @@ MPlotAbstractMarker::~MPlotAbstractMarker()
 {
 }
 
-void MPlotAbstractMarker::setSize(qreal size) {
-	size_ = size;
-}
 
-qreal MPlotAbstractMarker::size() {
-	return size_;
-}
-
-QPen MPlotAbstractMarker::pen() const {
-	return pen_;
-}
-
-void MPlotAbstractMarker::setPen(const QPen &pen1) {
-	pen_ = pen1;
-	pen_.setCosmetic(true);
-}
-
-QBrush MPlotAbstractMarker::brush() const {
-	return brush_;
-}
-
-void MPlotAbstractMarker::setBrush(const QBrush &brush) {
-	brush_ = brush;
-}
 
 
 

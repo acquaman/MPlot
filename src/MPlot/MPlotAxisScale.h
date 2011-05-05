@@ -131,7 +131,7 @@ public:
 		if(autoScaleEnabled)
 			autoScaleScheduled_ = true;
 
-		emit(autoScaleEnabled_ = autoScaleEnabled);
+		emit autoScaleEnabledChanged(autoScaleEnabled_ = autoScaleEnabled);
 	}
 
 	/// Used by MPlot to flag that a re-autoScale is pending for this axis scale
