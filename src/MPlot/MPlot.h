@@ -136,6 +136,8 @@ public:
 	MPlotAxisScale* axisScaleBottom() { return axisScales_.at(MPlot::Bottom); }
 	MPlotAxisScale* axisScaleRight() { return axisScales_.at(MPlot::Right); }
 	MPlotAxisScale* axisScaleTop() { return axisScales_.at(MPlot::Top); }
+	MPlotAxisScale* axisScaleHorizontalRelative() { return axisScales_.at(MPlot::HorizontalRelative); }
+	MPlotAxisScale* axisScaleVerticalRelative() { return axisScales_.at(MPlot::VerticalRelative); }
 	int indexOfAxisScale(const MPlotAxisScale* axisScale) const {
 		return axisScales_.indexOf(const_cast<MPlotAxisScale*>(axisScale));
 	}
