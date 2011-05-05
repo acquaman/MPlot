@@ -23,6 +23,7 @@
 #include <cmath>
 
 #include "MPlotTools.h"
+#include "MPlotRectangle.h"
 
 
  int main(int argc, char *argv[])
@@ -289,6 +290,14 @@
 	plot.addTool(&crsrTool);
 	crsrTool.addCursor(plot.axisScaleLeft(), plot.axisScaleBottom());
 	crsrTool.cursor(0)->marker()->setPen(QPen(QColor(Qt::blue)));
+
+
+	// 17: MPlotRectangle
+	QColor rColor = Qt::blue;
+	QPen rPen = QPen(rColor, 5, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+	rColor.setAlphaF(0.5);
+	MPlotRectangle* r = new MPlotRectangle(QRectF(-0.25, -0.25, 0.5, 0.5), rPen, QBrush(rColor));
+	plot.addItem(r);
 
 
 	return app.exec();

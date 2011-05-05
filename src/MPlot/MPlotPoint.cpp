@@ -23,8 +23,7 @@ void MPlotPoint::setMarker(MPlotMarkerShape::Shape shape, qreal size, const QPen
 	if(marker_)
 		delete marker_;
 
-	QPen realPen(pen);
-	marker_ = MPlotMarker::create(shape, size, realPen, brush);
+	marker_ = MPlotMarker::create(shape, size, pen, brush);
 	update();
 }
 
@@ -55,10 +54,6 @@ QRectF MPlotPoint::boundingRect() const {
 	// expand by marker size (if expressed in pixels)
 	if(marker())
 		hs |= QRectF(0,0, marker()->size(), marker()->size());
-
-
-	// these sizes so far are in pixels (hopefully scene coordinates... trusting on an untransformed view.) Converting to local (data) coordinates.
-	// UNNECESSARY: hs = mapRectFromScene(hs);
 
 	// really we just need 1/2 the marker size and 1/2 the selection highlight width. But extra doesn't hurt.
 	br.adjust(-hs.width(),-hs.height(),hs.width(), hs.height());
@@ -106,8 +101,6 @@ void MPlotPoint::setDefaults() {
 	QColor selectionColor = MPLOT_SELECTION_COLOR;
 	selectionColor.setAlphaF(MPLOT_SELECTION_OPACITY);
 	selectedPen_ = QPen(QBrush(selectionColor), MPLOT_SELECTION_LINEWIDTH);
-	selectedPen_.setCosmetic(true);
-
 }
 
 

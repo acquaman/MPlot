@@ -200,7 +200,6 @@ MPlotDragZoomerTool::MPlotDragZoomerTool() :
 	selectionRect_ = new QGraphicsRectItem(QRectF(), this);
 
 	QPen selectionPen = QPen(QBrush(MPLOT_SELECTION_COLOR), MPLOT_RUBBERBAND_WIDTH);
-	selectionPen.setCosmetic(true);
 
 	selectionRect_->setPen(selectionPen);
 
@@ -400,7 +399,7 @@ void MPlotCursorTool::addCursor(MPlotAxisScale* yAxisScale, MPlotAxisScale* xAxi
 		newCursor->setXAxisTarget(xAxisScale);
 
 	newCursor->setValue(initialPos);
-
+	newCursor->setDescription(QString("Cursor %1 (%2, %3)").arg(cursors_.size()).arg(initialPos.x()).arg(initialPos.y()));
 	cursors_ << newCursor;
 }
 
