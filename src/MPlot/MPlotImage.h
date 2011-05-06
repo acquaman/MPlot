@@ -55,10 +55,8 @@ public:
 
 	// Required functions:
 	//////////////////////////
-	/// Bounding rect: reported in PlotItem coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.
-	virtual QRectF boundingRect() const;
 
-	/// Data rect: also reported in PlotItem coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
+	/// Data rect: reported in actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
 	virtual QRectF dataRect() const;
 
 
@@ -98,11 +96,9 @@ public:
 	MPlotImageBasic(const MPlotAbstractImageData* data = 0);
 
 
-	/// Paint: must be implemented in subclass.
 	virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget);
 
-	// boundingRect: reported in PlotItem coordinates, which are just the actual data coordinates.
-	// using parent implementation, but adding extra room on edges for our selection highlight.
+	/// boundingRect: using parent implementation, but adding extra room on edges for our selection highlight.
 	virtual QRectF boundingRect() const;
 
 

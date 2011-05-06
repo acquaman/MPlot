@@ -32,8 +32,8 @@ For performance, colors are pre-computed and cached at a specific resolution(). 
 
 You can retrieve the color corresponding to a given value in three ways:
 
-- colorAt(double value) returns the color for a \c value in the range from 0.0 to 1.0.
-- colorAt(double value, MPlotInterval range) returns the color for a \c value within a specified range, from \c range.first to range.second
+- colorAt(qreal value) returns the color for a \c value in the range from 0.0 to 1.0.
+- colorAt(qreal value, MPlotInterval range) returns the color for a \c value within a specified range, from \c range.first to range.second
 
 (For both of these functions, if the value is outside of the range, colorAt() returns the minimum or maximum color.)
 
@@ -64,12 +64,12 @@ public:
 	MPlotColorMap(StandardColorMap colorMap, int resolution = 256);
 
 	/// This function assumes that value is between 0-1.
-	QColor colorAt(double value) const { return QColor::fromRgba(rgbAt(value)); }
-	QColor colorAt(double value, MPlotInterval range) const { return QColor::fromRgba(rgbAt(value, range)); }
+	QColor colorAt(qreal value) const { return QColor::fromRgba(rgbAt(value)); }
+	QColor colorAt(qreal value, MPlotInterval range) const { return QColor::fromRgba(rgbAt(value, range)); }
 	QColor colorAtIndex(int index) const { return QColor::fromRgba(rgbAtIndex(index)); }
 
-	QRgb rgbAt(double value) const { return rgbAt(value, MPlotInterval(0.0, 1.0)); }
-	QRgb rgbAt(double value, MPlotInterval range) const
+	QRgb rgbAt(qreal value) const { return rgbAt(value, MPlotInterval(0.0, 1.0)); }
+	QRgb rgbAt(qreal value, MPlotInterval range) const
 	{
 		if(recomputeCachedColorsRequired_)
 			recomputeCachedColors();
@@ -87,7 +87,7 @@ public:
 	/// Replaces the current set of stop points with the given \c stopPoints. The positions of the points must be in the range 0 to 1, and must be sorted with the lowest point first.
 	void setStops(const QGradientStops& stopPoints);
 	/// Adds a stop the given \c position with the color \c color.
-	void addStopAt(double position, const QColor& color);
+	void addStopAt(qreal position, const QColor& color);
 
 	/// Returns the resolution (number of color steps) in the pre-computed color map.
 	int resolution() const { return colorArray_.size(); }
@@ -127,9 +127,9 @@ private:
 class MPlotAbstractColorMap {
 public:
 	///  return a QRgb (unsigned int) representing the color for a given \c value within a \c range. (Faster than returning a full QColor)
-	virtual QRgb rgb(double value, MPlotInterval range = MPlotInterval(0.0, 1.0) ) const = 0;
+	virtual QRgb rgb(qreal value, MPlotInterval range = MPlotInterval(0.0, 1.0) ) const = 0;
 	/// return the color representing a given \c value within a \c range.
-	virtual QColor color(double value, MPlotInterval range = MPlotInterval(0, 1) ) const = 0;
+	virtual QColor color(qreal value, MPlotInterval range = MPlotInterval(0, 1) ) const = 0;
 
 };
 
@@ -142,10 +142,10 @@ public:
 	MPlotLinearColorMap(const QColor& start = QColor("black"), const QColor& finish = QColor("black"));
 
 	///  return a QRgb (unsigned int) representing the color for a given \c value within a \c range. (Faster than returning a full QColor)
-	virtual QRgb rgb(double value, MPlotInterval range = MPlotInterval(0.0, 1.0) ) const;
+	virtual QRgb rgb(qreal value, MPlotInterval range = MPlotInterval(0.0, 1.0) ) const;
 
 	/// return the color representing a given \c value within a \c range.
-	virtual QColor color(double value, MPlotInterval range = MPlotInterval(0, 1) ) const;
+	virtual QColor color(qreal value, MPlotInterval range = MPlotInterval(0, 1) ) const;
 
 
 protected:

@@ -2,6 +2,7 @@
 #define MPLOTIMAGE_CPP
 
 #include "MPlotImage.h"
+#include <QPainter>
 
 MPlotImageSignalHandler::MPlotImageSignalHandler(MPlotAbstractImage *parent)
 	: QObject(0) {
@@ -102,13 +103,6 @@ const MPlotAbstractImageData* MPlotAbstractImage::model() const {
 
 // Required functions:
 //////////////////////////
-/// Bounding rect: reported in PlotItem coordinates, which are just the actual data coordinates. This is used by the graphics view system to figure out how much we cover/need to redraw.  Subclasses that draw selection borders or markers need to add their size on top of this.
-QRectF MPlotAbstractImage::boundingRect() const {
-	if(data_)
-		return data_->boundingRect();
-	else
-		return QRectF();
-}
 
 /// Data rect: also reported in PlotItem coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
 QRectF MPlotAbstractImage::dataRect() const {
@@ -158,21 +152,28 @@ void MPlotImageBasic::paint(QPainter* painter,
 	Q_UNUSED(option)
 	Q_UNUSED(widget)
 
+	if(!yAxisTarget() || !xAxisTarget()) {
+		qWarning() << "MPlotImageBasic: No axis scale set. Abandoning painting because we don't know what scale to use.";
+		return;
+	}
+
+
 	if(data_) {
 
 		if(imageRefillRequired_)
 			fillImageFromData();
 
-		painter->drawImage(data_->boundingRect(), image_, QRectF(QPointF(0,0), QSizeF(data_->size())));
+		// the MPlotItem implementation of boundingRect() takes our dataRect() and maps it to drawing coordinates... This is where we need to draw into.
+		QRectF destinationRect = MPlotItem::boundingRect();
+		painter->drawImage(destinationRect, image_, QRectF(QPointF(0,0), QSizeF(data_->size())));
 
 		if(selected()) {
 			QColor selectionColor(MPLOT_SELECTION_COLOR);
 			QPen selectionPen(selectionColor, MPLOT_SELECTION_LINEWIDTH);
-			selectionPen.setCosmetic(true);
 			painter->setPen(selectionPen);
 			selectionColor.setAlphaF(MPLOT_SELECTION_OPACITY);
 			painter->setBrush(selectionColor);
-			painter->drawRect(data_->boundingRect());
+			painter->drawRect(destinationRect);
 		}
 	}
 
@@ -188,7 +189,8 @@ QRectF MPlotImageBasic::boundingRect() const {
 		QRectF hs = QRectF(0, 0, MPLOT_SELECTION_LINEWIDTH, MPLOT_SELECTION_LINEWIDTH);
 
 		// these sizes so far are in pixels (hopefully scene coordinates... trusting on an untransformed view.) Converting to local coordinates.
-		hs = mapRectFromScene(hs);
+		// UNECESSARY in the new coordinate system: hs = mapRectFromScene(hs);
+
 		// really we just need 1/2 the marker size and 1/2 the selection highlight width. But extra doesn't hurt.
 		br.adjust(-hs.width(),-hs.height(),hs.width(), hs.height());
 	}

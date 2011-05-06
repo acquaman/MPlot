@@ -7,7 +7,7 @@
 
 using namespace MPlotMarkerShape;
 
-MPlotAbstractMarker::MPlotAbstractMarker(double size, const QPen& pen, const QBrush& brush) :
+MPlotAbstractMarker::MPlotAbstractMarker(qreal size, const QPen& pen, const QBrush& brush) :
 		size_(size), pen_(pen), brush_(brush)
 {
 }
@@ -16,34 +16,11 @@ MPlotAbstractMarker::~MPlotAbstractMarker()
 {
 }
 
-void MPlotAbstractMarker::setSize(double size) {
-	size_ = size;
-}
-
-double MPlotAbstractMarker::size() {
-	return size_;
-}
-
-QPen MPlotAbstractMarker::pen() const {
-	return pen_;
-}
-
-void MPlotAbstractMarker::setPen(const QPen &pen1) {
-	pen_ = pen1;
-	pen_.setCosmetic(true);
-}
-
-QBrush MPlotAbstractMarker::brush() const {
-	return brush_;
-}
-
-void MPlotAbstractMarker::setBrush(const QBrush &brush) {
-	brush_ = brush;
-}
 
 
 
-MPlotMarkerSquare::MPlotMarkerSquare(double size, const QPen& pen, const QBrush& brush) :
+
+MPlotMarkerSquare::MPlotMarkerSquare(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
 }
@@ -55,7 +32,7 @@ void MPlotMarkerSquare::paint(QPainter* painter) {
 
 
 
-MPlotMarkerCircle::MPlotMarkerCircle(double size, const QPen& pen, const QBrush& brush) :
+MPlotMarkerCircle::MPlotMarkerCircle(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
 }
@@ -66,12 +43,12 @@ void MPlotMarkerCircle::paint(QPainter* painter) {
 
 
 
-MPlotMarkerTriangle::MPlotMarkerTriangle(double size, const QPen& pen, const QBrush& brush) :
+MPlotMarkerTriangle::MPlotMarkerTriangle(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush) {
 	setSize(size);
 }
 
-void MPlotMarkerTriangle::setSize(double width) {
+void MPlotMarkerTriangle::setSize(qreal width) {
 	size_ = width;
 	triangle_ << QPointF(-width/2, width/2/sqrt(3));
 	triangle_ << QPointF(width/2, width/2/sqrt(3));
@@ -85,12 +62,12 @@ void MPlotMarkerTriangle::paint(QPainter* painter) {
 
 
 
-MPlotMarkerVerticalBeam::MPlotMarkerVerticalBeam(double size, const QPen& pen, const QBrush& brush) :
+MPlotMarkerVerticalBeam::MPlotMarkerVerticalBeam(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush) {
 	setSize(size);
 }
 
-void MPlotMarkerVerticalBeam::setSize(double width) {
+void MPlotMarkerVerticalBeam::setSize(qreal width) {
 	size_ = width;
 	line_.setLine(0, size_/2, 0, -size_/2);
 }
@@ -102,13 +79,13 @@ void MPlotMarkerVerticalBeam::paint(QPainter* painter) {
 
 
 
-MPlotMarkerHorizontalBeam::MPlotMarkerHorizontalBeam(double size, const QPen& pen, const QBrush& brush) :
+MPlotMarkerHorizontalBeam::MPlotMarkerHorizontalBeam(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
 	setSize(size);
 }
 
-void MPlotMarkerHorizontalBeam::setSize(double width) {
+void MPlotMarkerHorizontalBeam::setSize(qreal width) {
 	size_ = width;
 	line_.setLine(size_/2, 0, -size_/2, 0);
 }
@@ -120,13 +97,13 @@ void MPlotMarkerHorizontalBeam::paint(QPainter* painter) {
 
 
 
-MPlotMarkerPoint::MPlotMarkerPoint(double size, const QPen& pen, const QBrush& brush) :
+MPlotMarkerPoint::MPlotMarkerPoint(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
 	setSize(size);
 }
 
-void MPlotMarkerPoint::setSize(double) {
+void MPlotMarkerPoint::setSize(qreal) {
 	size_ = 0.1;
 	line_.setLine(size_/2, 0, -size_/2, 0);
 }
@@ -139,13 +116,13 @@ void MPlotMarkerPoint::paint(QPainter* painter) {
 
 
 
-MPlotMarkerDiagDownLeft::MPlotMarkerDiagDownLeft(double size, const QPen& pen, const QBrush& brush) :
+MPlotMarkerDiagDownLeft::MPlotMarkerDiagDownLeft(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
 	setSize(size);
 }
 
-void MPlotMarkerDiagDownLeft::setSize(double size) {
+void MPlotMarkerDiagDownLeft::setSize(qreal size) {
 	size_ = size;
 	line_.setLine(-size/2, size/2, size/2, -size/2);
 }
@@ -158,15 +135,15 @@ void MPlotMarkerDiagDownLeft::paint(QPainter* painter) {
 
 
 
-MPlotMarkerDiagDownLeftR::MPlotMarkerDiagDownLeftR(double size, const QPen& pen, const QBrush& brush) :
+MPlotMarkerDiagDownLeftR::MPlotMarkerDiagDownLeftR(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
 	setSize(size);
 }
 
-void MPlotMarkerDiagDownLeftR::setSize(double size) {
+void MPlotMarkerDiagDownLeftR::setSize(qreal size) {
 	size_ = size;
-	double lo2 = size_/2/sqrt(2);
+	qreal lo2 = size_/2/sqrt(2);
 	line_.setLine(-lo2, lo2, lo2, -lo2);
 }
 
@@ -177,13 +154,13 @@ void MPlotMarkerDiagDownLeftR::paint(QPainter* painter) {
 
 
 
-MPlotMarkerDiagDownRight::MPlotMarkerDiagDownRight(double size, const QPen& pen, const QBrush& brush) :
+MPlotMarkerDiagDownRight::MPlotMarkerDiagDownRight(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
 	setSize(size);
 }
 
-void MPlotMarkerDiagDownRight::setSize(double size) {
+void MPlotMarkerDiagDownRight::setSize(qreal size) {
 	size_ = size;
 	line_.setLine(-size/2, -size/2, size/2, size/2);
 }
@@ -195,15 +172,15 @@ void MPlotMarkerDiagDownRight::paint(QPainter* painter) {
 
 
 
-MPlotMarkerDiagDownRightR::MPlotMarkerDiagDownRightR(double size, const QPen& pen, const QBrush& brush) :
+MPlotMarkerDiagDownRightR::MPlotMarkerDiagDownRightR(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
 	setSize(size);
 }
 
-void MPlotMarkerDiagDownRightR::setSize(double size) {
+void MPlotMarkerDiagDownRightR::setSize(qreal size) {
 	size_ = size;
-	double lo2 = size_/2/sqrt(2);
+	qreal lo2 = size_/2/sqrt(2);
 	line_.setLine(-lo2, -lo2, lo2, lo2);
 }
 
@@ -213,7 +190,7 @@ void MPlotMarkerDiagDownRightR::paint(QPainter* painter) {
 
 
 
-MPlotMarkerCombined::MPlotMarkerCombined(int shapeCode, double size, const QPen& pen, const QBrush& brush) :
+MPlotMarkerCombined::MPlotMarkerCombined(int shapeCode, qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
 
@@ -255,7 +232,7 @@ MPlotMarkerCombined::~MPlotMarkerCombined() {
 		delete elements_.takeFirst();
 }
 
-void MPlotMarkerCombined::setSize(double size) {
+void MPlotMarkerCombined::setSize(qreal size) {
 	foreach(MPlotAbstractMarker* element, elements_) {
 		element->setSize(size);
 	}
@@ -288,7 +265,7 @@ void MPlotMarkerCombined::paint(QPainter* painter) {
 
 
 // Static creator function:
-MPlotAbstractMarker* MPlotMarker::create(MPlotMarkerShape::Shape type, double size, const QPen& pen, const QBrush& brush)
+MPlotAbstractMarker* MPlotMarker::create(MPlotMarkerShape::Shape type, qreal size, const QPen& pen, const QBrush& brush)
 {
 	switch(type) {
 	case MPlotMarkerShape::None: return 0;

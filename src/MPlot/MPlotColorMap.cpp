@@ -122,7 +122,7 @@ void MPlotColorMap::setStops(const QGradientStops& stopPoints)
 }
 
 /// Adds a stop the given \c position with the color \c color.  Note that position must be between 0 and 1.
-void MPlotColorMap::addStopAt(double position, const QColor& color)
+void MPlotColorMap::addStopAt(qreal position, const QColor& color)
 {
 	for (int i = 0; i < colorStops_.size(); i++){
 
@@ -144,7 +144,7 @@ void MPlotColorMap::recomputeCachedColors() const
 	// If no stops were given, produce a generic grayscale colour map.
 	if (colorStops_.isEmpty()){
 
-		double maxSize = (double)resolution();
+		qreal maxSize = (qreal)resolution();
 
 		if (blendMode() == HSV)
 			for (int i = 0; i < maxSize; i++)
@@ -165,7 +165,7 @@ void MPlotColorMap::recomputeCachedColors() const
 		QGradientStop end;
 		int startIndex;
 		int endIndex;
-		double endMinusStart;
+		qreal endMinusStart;
 
 		// If the first stop isn't at 0 then fill with the first colour up to the index of the first stop.
 		if (colorStops_.first().first > 0.0)
@@ -215,9 +215,9 @@ MPlotLinearColorMap::MPlotLinearColorMap(const QColor& start, const QColor& fini
 }
 
 ///  return a QRgb (unsigned int) representing the color for a given \c value within a \c range. (Faster than returning a full QColor)
-QRgb MPlotLinearColorMap::rgb(double value, MPlotInterval range) const {
+QRgb MPlotLinearColorMap::rgb(qreal value, MPlotInterval range) const {
 
-	double Ratio = (value - range.first)/(range.second - range.first);
+	qreal Ratio = (value - range.first)/(range.second - range.first);
 	QRgb Col1 = start_.rgba();
 	QRgb Col2 = finish_.rgba();
 
@@ -235,7 +235,7 @@ QRgb MPlotLinearColorMap::rgb(double value, MPlotInterval range) const {
 
 }
 /// return the color representing a given \c value within a \c range.
-QColor MPlotLinearColorMap::color(double value, MPlotInterval range) const {
+QColor MPlotLinearColorMap::color(qreal value, MPlotInterval range) const {
 	return QColor::fromRgba(rgb(value, range));
 }
 */

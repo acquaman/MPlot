@@ -27,10 +27,10 @@ QRectF MPlotAbstractSeriesData::boundingRect() const {
 		return QRectF();
 
 	if(cachedDataRectUpdateRequired_) {
-		double minY = searchMinY();
-		double maxY = searchMaxY();
-		double minX = searchMinX();
-		double maxX = searchMaxX();
+		qreal minY = searchMinY();
+		qreal maxY = searchMaxY();
+		qreal minX = searchMinX();
+		qreal maxX = searchMaxX();
 
 		cachedDataRect_ = QRectF(minX, minY, maxX-minX, maxY-minY);
 		cachedDataRectUpdateRequired_ = false;
@@ -39,30 +39,30 @@ QRectF MPlotAbstractSeriesData::boundingRect() const {
 	return cachedDataRect_;
 }
 
-double MPlotAbstractSeriesData::searchMinY() const {
-	double extreme = y(0);
+qreal MPlotAbstractSeriesData::searchMinY() const {
+	qreal extreme = y(0);
 	for(int i=1; i<count(); i++)
 		if(y(i) < extreme)
 			extreme = y(i);
 	return extreme;
 }
-double MPlotAbstractSeriesData::searchMaxY() const {
-	double extreme = y(0);
+qreal MPlotAbstractSeriesData::searchMaxY() const {
+	qreal extreme = y(0);
 	for(int i=1; i<count(); i++)
 		if(y(i) > extreme)
 			extreme = y(i);
 	return extreme;
 }
-double MPlotAbstractSeriesData::searchMinX() const {
-	double extreme = x(0);
+qreal MPlotAbstractSeriesData::searchMinX() const {
+	qreal extreme = x(0);
 	for(int i=1; i<count(); i++)
 		if(x(i) < extreme)
 			extreme = x(i);
 	return extreme;
 
 }
-double MPlotAbstractSeriesData::searchMaxX() const {
-	double extreme = x(0);
+qreal MPlotAbstractSeriesData::searchMaxX() const {
+	qreal extreme = x(0);
 	for(int i=1; i<count(); i++)
 		if(x(i) > extreme)
 			extreme = x(i);
@@ -96,14 +96,14 @@ int MPlotRealtimeModel::columnCount(const QModelIndex & /*parent*/) const {
 	return 2;
 }
 
-double MPlotRealtimeModel::x(unsigned index) const {
+qreal MPlotRealtimeModel::x(unsigned index) const {
 	if(index<(unsigned)xval_.count())
 		return xval_.at(index);
 	else
 		return 0.0;
 }
 
-double MPlotRealtimeModel::y(unsigned index) const {
+qreal MPlotRealtimeModel::y(unsigned index) const {
 	if(index<(unsigned)yval_.count())
 		return yval_.at(index);
 	else
@@ -160,7 +160,7 @@ bool MPlotRealtimeModel::setData(const QModelIndex &index, const QVariant &value
 	if (index.isValid()  && index.row() < xval_.count() && role == Qt::EditRole) {
 
 		bool conversionOK;
-		double dval = value.toDouble(&conversionOK);
+		qreal dval = value.toDouble(&conversionOK);
 		if(!conversionOK)
 			return false;
 
@@ -192,7 +192,7 @@ Qt::ItemFlags MPlotRealtimeModel::flags(const QModelIndex &index) const {
 }
 
 // This allows you to add data points at the beginning:
-void MPlotRealtimeModel::insertPointFront(double x, double y) {
+void MPlotRealtimeModel::insertPointFront(qreal x, qreal y) {
 	beginInsertRows(QModelIndex(), 0, 0);
 
 	xval_.prepend(x);
@@ -214,7 +214,7 @@ void MPlotRealtimeModel::insertPointFront(double x, double y) {
 }
 
 // This allows you to add data points at the end:
-void MPlotRealtimeModel::insertPointBack(double x, double y) {
+void MPlotRealtimeModel::insertPointBack(qreal x, qreal y) {
 	beginInsertRows(QModelIndex(), xval_.count(), xval_.count());
 
 	xval_.append(x);
@@ -302,7 +302,7 @@ QRectF MPlotRealtimeModel::boundingRect() const {
 // Helper functions:
 // Check if an added point @ index is the new min. or max record holder:
 // Must call this AFTER adding both x and y to the xval_ and y_val lists.
-void MPlotRealtimeModel::minMaxAddCheck(double x, double y, int index) {
+void MPlotRealtimeModel::minMaxAddCheck(qreal x, qreal y, int index) {
 
 	// in case of previously-empty list (min_Index_ initialized to -1)
 	if(xval_.count() == 1) {
@@ -329,9 +329,9 @@ void MPlotRealtimeModel::minMaxAddCheck(double x, double y, int index) {
 
 // Check if a point modified at index causes us to lose our record holders, or is a new record holder.
 // Inserts the point (modifies the data array).
-void MPlotRealtimeModel::minMaxChangeCheckX(double newVal, int index) {
+void MPlotRealtimeModel::minMaxChangeCheckX(qreal newVal, int index) {
 
-	double oldVal = xval_.at(index);
+	qreal oldVal = xval_.at(index);
 	xval_[index] = newVal;
 
 	// Maybe not the max anymore... Need to find the new one:
@@ -350,9 +350,9 @@ void MPlotRealtimeModel::minMaxChangeCheckX(double newVal, int index) {
 
 
 }
-void MPlotRealtimeModel::minMaxChangeCheckY(double newVal, int index) {
+void MPlotRealtimeModel::minMaxChangeCheckY(qreal newVal, int index) {
 
-	double oldVal = yval_.at(index);
+	qreal oldVal = yval_.at(index);
 	yval_[index] = newVal;
 
 	// Maybe not the max anymore... Need to find the new one:
@@ -372,7 +372,7 @@ void MPlotRealtimeModel::minMaxChangeCheckY(double newVal, int index) {
 
 }
 
-int MPlotRealtimeModel::searchMaxIndex(const QList<double>& list) {
+int MPlotRealtimeModel::searchMaxIndex(const QList<qreal>& list) {
 	if(list.isEmpty())
 		return -1;
 
@@ -384,7 +384,7 @@ int MPlotRealtimeModel::searchMaxIndex(const QList<double>& list) {
 	return mi;
 }
 
-int MPlotRealtimeModel::searchMinIndex(const QList<double>& list) {
+int MPlotRealtimeModel::searchMinIndex(const QList<qreal>& list) {
 	if(list.isEmpty())
 		return -1;
 
@@ -397,19 +397,19 @@ int MPlotRealtimeModel::searchMinIndex(const QList<double>& list) {
 }
 
 // Warning: only call these if the list is not empty:
-double MPlotRealtimeModel::minY() const {
+qreal MPlotRealtimeModel::minY() const {
 	return yval_.at(minYIndex_);
 }
 
-double MPlotRealtimeModel::maxY() const {
+qreal MPlotRealtimeModel::maxY() const {
 	return yval_.at(maxYIndex_);
 }
 
-double MPlotRealtimeModel::minX() const {
+qreal MPlotRealtimeModel::minX() const {
 	return xval_.at(minXIndex_);
 }
 
-double MPlotRealtimeModel::maxX() const {
+qreal MPlotRealtimeModel::maxX() const {
 	return xval_.at(maxXIndex_);
 }
 

@@ -23,9 +23,9 @@ MPlotAbstractImageData::~MPlotAbstractImageData()
 }
 
 /// Searches for minimum z value
-double MPlotAbstractImageData::minZ() const {
+qreal MPlotAbstractImageData::minZ() const {
 	QPoint c = count();
-	double extreme = value(0,0);
+	qreal extreme = value(0,0);
 	for(int xx=0; xx<c.x(); xx++)
 		for(int yy=0; yy<c.y(); yy++)
 			if(value(xx, yy) < extreme)
@@ -33,9 +33,9 @@ double MPlotAbstractImageData::minZ() const {
 	return extreme;
 }
 /// Searches for maximum z value
-double MPlotAbstractImageData::maxZ() const {
+qreal MPlotAbstractImageData::maxZ() const {
 	QPoint c = count();
-	double extreme = value(0,0);
+	qreal extreme = value(0,0);
 	for(int xx=0; xx<c.x(); xx++)
 		for(int yy=0; yy<c.y(); yy++)
 			if(value(xx, yy) > extreme)
@@ -75,7 +75,7 @@ MPlotInterval MPlotAbstractImageData::range() const {
 MPlotSimpleImageData::MPlotSimpleImageData(const QRectF& dataBounds, const QSize& resolution)
 	: MPlotAbstractImageData(),
 	num_(resolution.expandedTo(QSize(1,1)).width(), resolution.expandedTo(QSize(1,1)).height()),
-	d_(num_.y(), QVector<double>(num_.x(), 0)),
+	d_(num_.y(), QVector<qreal>(num_.x(), 0)),
 	bounds_(dataBounds)
 {
 	// max and min trackers are valid from the beginning; every data value is 0, so we might as well use z(0,0) = max = min.
@@ -86,19 +86,19 @@ MPlotSimpleImageData::MPlotSimpleImageData(const QRectF& dataBounds, const QSize
 
 
 /// Return the x (data value) corresponding an (x,y) \c index:
-double MPlotSimpleImageData::x(int indexX) const  {
+qreal MPlotSimpleImageData::x(int indexX) const  {
 
 	return bounds_.left() + bounds_.width()*indexX/num_.x();
 
 }
 /// Return the y (data value) corresponding an (x,y) \c index:
-double MPlotSimpleImageData::y(int indexY) const {
+qreal MPlotSimpleImageData::y(int indexY) const {
 
 	return bounds_.top() + bounds_.height()*indexY/num_.y();
 }
 
 /// Return the z = f(x,y) value corresponding an (x,y) \c index:
-double MPlotSimpleImageData::z(int indexX, int indexY) const {
+qreal MPlotSimpleImageData::z(int indexX, int indexY) const {
 
 	if((int)indexX>=num_.x() || (int)indexY>=num_.y())
 		return -1.;
@@ -131,7 +131,7 @@ MPlotInterval MPlotSimpleImageData::range() const {
 
 
 /// set the z value at \c index:
-void MPlotSimpleImageData::setZ(double value, int indexX, int indexY) {
+void MPlotSimpleImageData::setZ(qreal value, int indexX, int indexY) {
 
 	// if we're modifying what used to be the maximum value, and this new one is smaller, we've lost our max tracking. Don't know anymore.
 	if((int)indexX == maxIndex_.x() && (int)indexY == maxIndex_.y() && value < d_[maxIndex_.y()][maxIndex_.x()])

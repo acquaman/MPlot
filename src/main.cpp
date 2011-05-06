@@ -23,6 +23,7 @@
 #include <cmath>
 
 #include "MPlotTools.h"
+#include "MPlotRectangle.h"
 
 
  int main(int argc, char *argv[])
@@ -51,20 +52,21 @@
 
 	 //plot.axisTop()->setTickPen(QPen(QBrush(QColor(Qt::yellow)), 0));
 	 //plot.axisBottom()->setTickPen(QPen(QBrush(QColor(Qt::red)), 0));
-	 //plot.axisLeft()->setTickPen(QPen(QBrush(QColor(Qt::green)), 0));
+	 // plot.axisLeft()->setTickPen(QPen(QBrush(QColor(Qt::green)), 0));
 	 //plot.axisRight()->setTickPen(QPen(QBrush(QColor(Qt::blue)), 0));
-	 plot.axisRight()->setTicks(3, MPlotAxis::Inside, 2);	// Set the approximate number and style of axis tick marks:
-	 // plot.axisRight()->showTickLabels(false);
-	 // plot.axisRight()->setAxisName("y_right");
-	 // plot.axisRight()->showAxisName(true);
+	 plot.axisRight()->setTicks(3, MPlotAxis::Middle, 5);	// Set the approximate number and style of axis tick marks:
+	 plot.axisRight()->showTickLabels(true);
+	 plot.axisRight()->setAxisName("y right");
+	 plot.axisRight()->showAxisName(true);
 
 	 plot.axisBottom()->setAxisName("eV");
 	 plot.axisLeft()->setAxisName("Intensity (arb. units)");
 
 
+
 	 // Change the margins: (in % of the plot width/height)
 	 plot.setMarginTop(5);
-	 plot.setMarginRight(5);
+	 plot.setMarginRight(10);
 	 plot.setMarginLeft(15);
 	 plot.setMarginBottom(15);
 
@@ -84,20 +86,20 @@
 
 
 	 // 13: Adding 2d data and Image plots:
-	 MPlotSimpleImageData data2d(QRectF(-0.5,-0.5,1,1), QSize(1024,1024));
-	 for(int yy=0; yy<1024; yy++) {
-		 for(int xx=0; xx<1024; xx++) {
-			 double x = data2d.x(xx);
-			 double y = data2d.y(yy);
-			 //double r2 = x*x + y*y;
-			 //data2d.setZ(exp(-r2/0.1), xx, yy);
-			 data2d.setZ(sin(x*4*M_PI)*sin(y*2*M_PI), xx, yy);
-		 }
-	 }
+//	 MPlotSimpleImageData data2d(QRectF(-0.5,-0.5,1,1), QSize(1024,1024));
+//	 for(int yy=0; yy<1024; yy++) {
+//		 for(int xx=0; xx<1024; xx++) {
+//			 qreal x = data2d.x(xx);
+//			 qreal y = data2d.y(yy);
+//			 //qreal r2 = x*x + y*y;
+//			 //data2d.setZ(exp(-r2/0.1), xx, yy);
+//			 data2d.setZ(sin(x*4*M_PI)*sin(y*2*M_PI), xx, yy);
+//		 }
+//	 }
 
-	 MPlotImageBasic* plot2d = new MPlotImageBasic(&data2d);
-	 plot2d->setColorMap(MPlotColorMap::Jet);	//This should be the default color map.
-	 plot.addItem(plot2d);
+//	 MPlotImageBasic* plot2d = new MPlotImageBasic(&data2d);
+//	 plot2d->setColorMap(MPlotColorMap::Jet);	//This should be the default color map.
+//	 plot.addItem(plot2d);
 
 
 	 // 3. Add data. Data is contained in the first two columns of an MPlotSeriesData:
@@ -119,12 +121,12 @@
 
 
 	 // Fill with parabola:
-	 for(double i=-.9; i<.99; i+=0.01)
+	 for(qreal i=-.9; i<.99; i+=0.01)
 		 data1.insertPointBack(i, -i*i+0.5);
 
 	 // Fill with many random data points:
 	  //for(int i=0; i<5000; i++)
-		// data2.insertPointBack(double(rand())/RAND_MAX/2, double(rand())/RAND_MAX/2);
+		// data2.insertPointBack(qreal(rand())/RAND_MAX/2, qreal(rand())/RAND_MAX/2);
 
 	 // many-point sine wave:
 	 for(int i=0; i<9990; i++)
@@ -157,12 +159,12 @@
 	 series2->setLinePen( greenFat );
 
 	 // Marker size and shape
-	  // series2->setMarker(MPlotMarkerShape::StarCircle, 6);
+	 // series2->setMarker(MPlotMarkerShape::StarCircle, 6);
 	 series2->setMarker(MPlotMarkerShape::None);
 
 	 // Can also configure the marker pen and brush: (only can do this when MPlotMarkerShape != None)
-	 //series2->marker()->setPen(pinkSkinny);
-	 // series2->marker()->setBrush(QBrush(QColor(Qt::black)));
+//	 series2->marker()->setPen(pinkSkinny);
+//	 series2->marker()->setBrush(QBrush(QColor(Qt::black)));
 
 	 // Gridlines:
 	 //plot.axisRight()->showGrid(true);
@@ -171,8 +173,9 @@
 
 	 // 6. Adding a series to a plot:
 	 ///////////////////////////////
-	 //plot.addItem(&series1);
-	 //plot.addItem(&series2);
+	 series1->setDescription("series 1");
+	 plot.addItem(series1);
+	 //plot.addItem(series2);
 
 	 // 2. (continued) Axis / Axis Scale Settings
 	 ///////////////////////
@@ -189,7 +192,8 @@
 	 // plot.setYDataRangeLeft(0, 0, true);
 
 	 // Auto-scale always (ie: rescale as new data arrives)
-	 plot.enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+	 plot.axisScaleLeft()->setAutoScaleEnabled();
+	 plot.axisScaleBottom()->setAutoScaleEnabled();
 
 	 // 7. Testing adding points to the series after the series is created.
 	 //////////////////////////////////////
@@ -227,7 +231,7 @@
 	p1.setValue(QPointF(0.5,0.5));
 	p1.setMarker(MPlotMarkerShape::CrossCircle, 24, QPen(QColor(Qt::red)));
 
-	//plot.addItem(&p1);
+	// plot.addItem(&p1);
 
 
 	 // 11. Enable, disable, and selection?
@@ -284,9 +288,18 @@
 	// this tool adds a cursor (or more) to a plot
 	MPlotCursorTool crsrTool;
 	plot.addTool(&crsrTool);
-	// add an extra cursor
-	crsrTool.addCursor();
-	crsrTool.cursor(1)->marker()->setPen(QPen(QColor(Qt::blue)));
+	crsrTool.addCursor(plot.axisScaleLeft(), plot.axisScaleBottom());
+	crsrTool.cursor(0)->marker()->setPen(QPen(QColor(Qt::blue)));
+
+
+	// 17: MPlotRectangle
+	QColor rColor = Qt::blue;
+	QPen rPen = QPen(rColor, 5, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+	rColor.setAlphaF(0.5);
+	MPlotRectangle* r = new MPlotRectangle(QRectF(0.25, 0.25, 0.5, 0.5), rPen, QBrush(rColor));
+	plot.addItem(r);
+	r->setXAxisTarget(plot.axisScale(MPlot::HorizontalRelative));
+	r->setYAxisTarget(plot.axisScale(MPlot::VerticalRelative));
 
 
 	return app.exec();
