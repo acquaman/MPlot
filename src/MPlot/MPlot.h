@@ -169,6 +169,10 @@ public:
 
 
 	void enableAxisNormalization(int axisScaleIndex, bool normalizationOn, const MPlotAxisRange& normalizationRange = MPlotAxisRange(0,1));
+	void enableAxisNormalization(int axisScaleIndex, bool normalizationOn, qreal min, qreal max) {
+		enableAxisNormalization(axisScaleIndex, normalizationOn, MPlotAxisRange(min, max));
+	}
+
 	void setAxisScaleWaterfall(int axisScaleIndex, qreal amount = 0.2);
 
 
