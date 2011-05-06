@@ -53,8 +53,6 @@ void MPlotAxisScale::setDataRange(const MPlotAxisRange &newDataRange, bool apply
 	else
 		dataRange_ = unpaddedDataRange_;
 
-	qDebug() << "axis scale: setting data range. Disabling auto-scaling";
-
 	autoScaleEnabled_ = false;	// axis range was manually set by user; this disables auto-scaling
 
 	emit dataRangeChanged();
@@ -116,7 +114,6 @@ QList<qreal> MPlotAxisScale::calculateTickValues(int minimumNumberOfTicks) const
 }
 
 void MPlotAxisScale::setAutoScaleEnabled(bool autoScaleEnabled) {
-	qDebug() << "Setting auto scale enabled:" << autoScaleEnabled << "on axisScale" << this;
 	if(autoScaleEnabled_ == autoScaleEnabled) return;
 
 	if(autoScaleEnabled)
