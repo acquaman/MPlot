@@ -125,14 +125,7 @@ public:
 	/// Indicates that this axis scale should be autoscaled.
 	bool autoScaleEnabled() const { return autoScaleEnabled_; }
 	/// Enable or disable autoscaling on this axis.  When autoscaling is enabled, plots will adjust the range of this axis to match the maximum range of all of the items which use it as their axis scale.
-	void setAutoScaleEnabled(bool autoScaleEnabled = true) {
-		if(autoScaleEnabled_ == autoScaleEnabled) return;
-
-		if(autoScaleEnabled)
-			autoScaleScheduled_ = true;
-
-		emit autoScaleEnabledChanged(autoScaleEnabled_ = autoScaleEnabled);
-	}
+	void setAutoScaleEnabled(bool autoScaleEnabled = true);
 
 	/// Used by MPlot to flag that a re-autoScale is pending for this axis scale
 	bool autoScaleScheduled() const { return autoScaleScheduled_; }
@@ -185,10 +178,7 @@ public slots:
 	void setOrientation(Qt::Orientation orientation);
 	void setDrawingSize(const QSizeF& newSize);
 	void setDataRange(const MPlotAxisRange& newDataRange, bool applyPadding = true);
-	void setPadding(qreal percent) {
-		axisPadding_ = percent/100.0;
-		setDataRange(unpaddedDataRange_, true);
-	}
+	void setPadding(qreal percent);
 
 signals:
 	/// Emitted before the drawing size (extent of the axis in screen/drawing coordinates) changes.  A drawing size change could imply a change in the data range as well, but because this event is more general, we don't emit both signals... Just this one.

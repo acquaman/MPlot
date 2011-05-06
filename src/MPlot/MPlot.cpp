@@ -302,21 +302,33 @@ void MPlot::onAxisScaleAutoScaleEnabledChanged(bool autoScaleEnabled) {
 
 
 #include <QTimer>
+#include <QDebug>
+
 void MPlot::onBoundsChanged(MPlotItem *source) {
+
+	qDebug() << "Mplot bounds changed";
 
 	if(source->ignoreWhenAutoScaling())
 		return;
 
+	qDebug() << "not ignored.";
+
 	MPlotAxisScale* xAxis = source->xAxisTarget();
 
+	qDebug() << "x axis target: " << xAxis;
+
 	if(xAxis->autoScaleEnabled()) {
+		qDebug() << "scheduling xAxis auto scale";
 		xAxis->setAutoScaleScheduled();
 		scheduleDelayedAutoScale();
 	}
 
 	MPlotAxisScale* yAxis = source->yAxisTarget();
 
+	qDebug() << "y axis target: " << yAxis;
+
 	if(yAxis->autoScaleEnabled()) {
+		qDebug() << "scheduling xAxis auto scale";
 		yAxis->setAutoScaleScheduled();
 		scheduleDelayedAutoScale();
 	}
