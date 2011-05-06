@@ -258,7 +258,7 @@ void MPlotAbstractSeries::enableXAxisNormalization(bool on, double min, double m
 	}
 	else {
 		sx_ = 1.0;
-		sy_ = 0.0;
+		dx_ = 0.0;
 	}
 
 	onDataChangedPrivate();
