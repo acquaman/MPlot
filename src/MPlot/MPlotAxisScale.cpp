@@ -58,6 +58,13 @@ void MPlotAxisScale::setDataRange(const MPlotAxisRange &newDataRange, bool apply
 	emit dataRangeChanged();
 }
 
+void MPlotAxisScale::setPadding(qreal percent) {
+	bool autoScaleWasEnabled = autoScaleEnabled_;
+	axisPadding_ = percent/100.0;
+	setDataRange(unpaddedDataRange_, true);	// this will disable auto scaling... so make sure we turn it back on if it should have been on.
+	autoScaleEnabled_ = autoScaleWasEnabled;
+}
+
 
 
 QList<qreal> MPlotAxisScale::calculateTickValues(int minimumNumberOfTicks) const
@@ -104,4 +111,13 @@ QList<qreal> MPlotAxisScale::calculateTickValues(int minimumNumberOfTicks) const
 	}
 
 	return rv;
+}
+
+void MPlotAxisScale::setAutoScaleEnabled(bool autoScaleEnabled) {
+	if(autoScaleEnabled_ == autoScaleEnabled) return;
+
+	if(autoScaleEnabled)
+		autoScaleScheduled_ = true;
+
+	emit autoScaleEnabledChanged(autoScaleEnabled_ = autoScaleEnabled);
 }

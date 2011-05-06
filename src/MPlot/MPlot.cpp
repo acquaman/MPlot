@@ -5,7 +5,7 @@
 #include "MPlot.h"
 #include "MPlotAxisScale.h"
 #include "MPlotSeries.h"
-
+#include "MPlotAbstractTool.h"
 
 #include <QDebug>
 
@@ -40,7 +40,7 @@ void MPlotSignalHandler::onPlotItemLegendContentChanged() {
 
 
 /// This class provides plotting capabilities within a QGraphicsItem that can be added to any QGraphicsScene,
-MPlot::MPlot(QRectF rect, QGraphicsItem* parent) :
+MPlot::MPlot(const QRectF& rect, QGraphicsItem* parent) :
 	QGraphicsItem(parent), rect_(rect)
 {
 	signalHandler_ = new MPlotSignalHandler(this);
@@ -302,6 +302,7 @@ void MPlot::onAxisScaleAutoScaleEnabledChanged(bool autoScaleEnabled) {
 
 
 #include <QTimer>
+
 void MPlot::onBoundsChanged(MPlotItem *source) {
 
 	if(source->ignoreWhenAutoScaling())

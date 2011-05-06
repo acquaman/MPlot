@@ -222,9 +222,11 @@ void MPlotImageBasic::fillImageFromData() {
 		if(image_.size() != dataSize)
 			image_ = QImage(dataSize, QImage::Format_ARGB32);
 
-		for(int yy=0; yy<dataSize.height(); yy++)
-			for(int xx=0; xx<dataSize.width(); xx++)
-				image_.setPixel(xx, yy, map_.rgbAt(data_->z(QPoint(xx,yy)), data_->range()));
+		int yHeight = dataSize.height();
+		int xWidth = dataSize.width();
+		for(int yy=0; yy<yHeight; yy++)
+			for(int xx=0; xx<xWidth; xx++)
+				image_.setPixel(xx, yHeight-1-yy, map_.rgbAt(data_->z(QPoint(xx,yy)), data_->range()));	// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
 
 	}
 }
