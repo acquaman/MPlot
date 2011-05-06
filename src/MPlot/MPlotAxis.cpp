@@ -21,6 +21,8 @@ MPlotAxis::MPlotAxis(MPlotAxisScale* scale, Placement placement, const QString& 
 	connect(axisScale_, SIGNAL(dataRangeChanged()), this, SLOT(onAxisDataRangeChanged()));
 	name_ = name;
 
+	scaleFontsRequired_ = true;
+
 	placement_ = placement;
 	if(axisScale_->orientation() == Qt::Vertical && (placement_ == OnBottom || placement_ == OnTop)) {
 		qWarning() << "MPlotAxis: It's impossible to place a vertical axis at the bottom or top of a plot. Moving to the left side.";
@@ -103,11 +105,8 @@ void MPlotAxis::setGridPen(const QPen& pen) {
 void MPlotAxis::setTickLabelFont(const QFont& font) {
 	prepareGeometryChange();
 
-	tickLabelFont_ = font;
-
-	QFontMetrics fm(tickLabelFont_);
-	tickLabelCharWidth_ = fm.maxWidth();
-	tickLabelHeight_ = fm.height();
+	tickLabelFontU_ = font;
+	scaleFontsRequired_ = true;
 
 	update();
 }
@@ -116,8 +115,9 @@ void MPlotAxis::setTickLabelFont(const QFont& font) {
 void MPlotAxis::setAxisNameFont(const QFont& font) {
 	prepareGeometryChange();
 
-	axisNameFont_ = font;
-	axisNameHeight_ = QFontMetrics(axisNameFont_).height();
+	axisNameFontU_ = font;
+	scaleFontsRequired_ = true;
+
 	update();
 }
 
@@ -132,6 +132,9 @@ void MPlotAxis::setAxisName(const QString& name) {
 //////////////////////////
 // Bounding rect:
 QRectF MPlotAxis::boundingRect() const {
+
+	if(scaleFontsRequired_)
+		scaleFonts();
 
 	QSizeF drawingSize = axisScale_->drawingSize();
 
@@ -181,6 +184,9 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 
 	Q_UNUSED(widget)
 	Q_UNUSED(option)
+
+	if(scaleFontsRequired_)
+		scaleFonts();
 
 	QSizeF drawingSize = axisScale_->drawingSize();
 
@@ -547,16 +553,12 @@ void MPlotAxis::setDefaults() {
 	tickLength_ = .02;
 	numTicks_ = 4;
 
+	fontsShouldScale_ = true;
+
 	if(placement_ == OnTop || placement_ == OnBottom)
 		tickLabelOffset_ = 2;
 	else
 		tickLabelOffset_ = 6; // in pixels.  A constant; doesn't grow with the plot size like the tickLength_, which is expressed in percent of plot width/height.
-
-	QFontMetrics fm(tickLabelFont_);
-	tickLabelCharWidth_ = fm.width(QChar('8'));
-	tickLabelHeight_ = fm.height();
-
-	axisNameHeight_ = QFontMetrics(axisNameFont_).height();
 
 	if(placement_ == OnTop || placement_ == OnRight) {
 		tickLabelsVisible_ = false;
@@ -595,6 +597,41 @@ void MPlotAxis::setAxisScale(MPlotAxisScale *newScale)
 	connect(axisScale_, SIGNAL(dataRangeChanged()), this, SLOT(onAxisDataRangeChanged()));
 
 	onAxisDrawingSizeChanged();
+}
+
+QFont MPlotAxis::scaleFontToDrawingSize(const QFont &sourceFont) const
+{
+	QFont rv = sourceFont;
+
+	qreal diagonal = sqrt(pow(axisScale_->drawingSize().width(),2) + pow(axisScale_->drawingSize().height(), 2));
+
+	rv.setPointSizeF(qBound(8.5, 12.0*diagonal/600,18.0));
+
+	return rv;
+}
+
+void MPlotAxis::scaleFonts() const
+{
+	axisNameFont_ = fontsShouldScale_ ? scaleFontToDrawingSize(axisNameFontU_) : axisNameFontU_;
+	tickLabelFont_ = fontsShouldScale_ ? scaleFontToDrawingSize(tickLabelFontU_) : tickLabelFontU_;
+
+	axisNameHeight_ = QFontMetrics(axisNameFont_).height();
+
+	QFontMetrics fm(tickLabelFont_);
+	tickLabelCharWidth_ = fm.width(QChar('8'));
+	tickLabelHeight_ = fm.height();
+
+	scaleFontsRequired_ = false;
+}
+
+void MPlotAxis::setFontsScaleWithDrawingSize(bool fontsShouldScale) {
+	if(fontsShouldScale_ == fontsShouldScale)
+		return;
+
+	prepareGeometryChange();
+	fontsShouldScale_ = fontsShouldScale;
+	scaleFontsRequired_ = true;
+	update();
 }
 
 

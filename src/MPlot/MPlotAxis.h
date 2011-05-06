@@ -69,6 +69,11 @@ public:
 	void setAxisName(const QString& name);
 	// TODO: minor ticks
 
+	/// Indicates whether the text size is scaled with the size of the plot.
+	bool fontsScaleWithDrawingSize() const { return fontsShouldScale_; }
+	/// Set whether the text size is scaled with the size of the plot.  If \c fontsShouldScale is true, the font point size used for the axisNameFont() and tickLabelFont() will be scaled with the drawing size, within a reasonable range.
+	void setFontsScaleWithDrawingSize(bool fontsShouldScale);
+
 	// Required functions:
 	//////////////////////////
 
@@ -88,10 +93,10 @@ public:
 public slots:
 	/// Call to update the axis when the drawing size changes.
 	void onAxisDrawingSizeAboutToChange() { prepareGeometryChange(); }
-	void onAxisDrawingSizeChanged() { update(); }
+	void onAxisDrawingSizeChanged() { scaleFontsRequired_ = true; update(); }
 	/// Calll to update the axis when the data range changes.
 	void onAxisDataRangeAboutToChange() { prepareGeometryChange(); }
-	void onAxisDataRangeChanged() { update(); }
+	void onAxisDataRangeChanged() { scaleFontsRequired_ = true; update(); }
 
 protected:
 
@@ -118,16 +123,25 @@ protected:
 
 	/// Controls appearance of axis elements
 	QPen axisPen_, tickPen_, gridPen_;
-	QFont tickLabelFont_, axisNameFont_;
+	QFont tickLabelFontU_, axisNameFontU_;
+	mutable QFont tickLabelFont_, axisNameFont_;
 
 	/// Cache the font size information for the axisNameFont_ and tickLabelFont_
-	qreal tickLabelCharWidth_, tickLabelHeight_, axisNameHeight_;
+	mutable qreal tickLabelCharWidth_, tickLabelHeight_, axisNameHeight_;
 
 
 	/// Where to draw this axis: OnLeft, OnBottom, OnRight, OnTop. This must be compatible with the orientation() of the MPlotAxisScale it is representing. (ex: vertical axis scales can be shown on the right or on the left, but not on the bottom or top.)
 	Placement placement_;
 
+	/// Controls whether the text size scales with the size of hte plot (within a reasonable range)
+	bool fontsShouldScale_;
 
+	/// Flags that a re-computation of the font sizes needs to happen (due to changing a font, or changing the drawing size)
+	mutable bool scaleFontsRequired_;
+
+
+	QFont scaleFontToDrawingSize(const QFont& sourceFont) const;
+	void scaleFonts() const;
 
 };
 
