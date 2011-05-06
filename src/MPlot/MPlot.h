@@ -168,8 +168,8 @@ public:
 	void setMarginBottom(qreal value) { setMargin(MPlot::Bottom, value); }
 
 
-//	void enableAxisNormalization(int axisScaleIndex, bool normalizationOn, qreal min = 0, qreal max = 1);
-//	void setAxisScaleWaterfall(qreal amount = 0.2);
+	void enableAxisNormalization(int axisScaleIndex, bool normalizationOn, const MPlotAxisRange& normalizationRange = MPlotAxisRange(0,1));
+	void setAxisScaleWaterfall(int axisScaleIndex, qreal amount = 0.2);
 
 
 
@@ -201,8 +201,11 @@ protected:
 
 	MPlotLegend* legend_;
 
-	QList<MPlotAxis*> axes_;		// 0, 1, 2, and 3 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top).
+	QList<MPlotAxis*> axes_;		// 0, 1, 2, 3, 4, 5 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top, ).
 	QList<MPlotAxisScale*> axisScales_;  // 0, 1, 2, and 3 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top).
+	QList<qreal> axisScaleWaterfallAmount_;
+	QList<bool> axisScaleNormalizationOn_;
+	QList<MPlotAxisRange> axisScaleNormalizationRange_;
 
 	QList<MPlotItem*> items_;	// list of current data items displayed on plot
 	QList<MPlotAbstractTool*> tools_;	// list of tools that have been installed on the plot

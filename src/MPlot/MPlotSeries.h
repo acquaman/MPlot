@@ -83,9 +83,10 @@ public:
 	void applyTransform(qreal sx = 1, qreal sy = 1, qreal dx = 0, qreal dy = 0);
 	/// Call this function to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform() in the y-axis.
 	void enableYAxisNormalization(bool on = true, qreal min = 0, qreal max = 1);
+	void enableYAxisNormalization(bool on, const MPlotAxisRange& normalizationRange) { enableYAxisNormalization(on, normalizationRange.min(), normalizationRange.max()); }
 	/// Call this function to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform() in the x-axis.
 	void enableXAxisNormalization(bool on = true, qreal min = 0, qreal max = 1);
-
+	void enableXAxisNormalization(bool on, const MPlotAxisRange& normalizationRange) { enableXAxisNormalization(on, normalizationRange.min(), normalizationRange.max()); }
 	/// You can apply an offset (commonly used for "waterfall" plots) using setOffset(qreal dx, qreal dy). This offset is always applied last, after applyTransform() or normalization is applied.
 	void setOffset(qreal dx = 0, qreal dy = 0);
 

@@ -4,6 +4,8 @@
 
 #include "MPlot.h"
 #include "MPlotAxisScale.h"
+#include "MPlotSeries.h"
+
 
 #include <QDebug>
 
@@ -60,6 +62,10 @@ MPlot::MPlot(QRectF rect, QGraphicsItem* parent) :
 	axisScales_ << new MPlotAxisScale(Qt::Horizontal);	// top
 	axisScales_ << new MPlotAxisScale(Qt::Vertical, QSizeF(100,100), MPlotAxisRange(0,1));	// verticalRelative (fixed between 0 and 1)
 	axisScales_ << new MPlotAxisScale(Qt::Horizontal, QSizeF(100,100), MPlotAxisRange(0,1));// horizontalRelative (fixed between 0 and 1)
+
+	axisScaleNormalizationOn_ << false << false << false << false << false << false;
+	axisScaleWaterfallAmount_ << 0 << 0 << 0 << 0 << 0 << 0;
+	axisScaleNormalizationRange_ << MPlotAxisRange(0,1) << MPlotAxisRange(0,1) << MPlotAxisRange(0,1) << MPlotAxisRange(0,1) << MPlotAxisRange(0,1) << MPlotAxisRange(0,1);
 
 	foreach(MPlotAxisScale* axisScale, axisScales_) {
 		QObject::connect(axisScale, SIGNAL(autoScaleEnabledChanged(bool)), signalHandler_, SLOT(onAxisScaleAutoScaleEnabledChanged(bool)));
@@ -129,24 +135,22 @@ void MPlot::insertItem(MPlotItem* newItem, int index, int yAxisTargetIndex, int 
 	QObject::connect(newItem->signalSource(), SIGNAL(selectedChanged(bool)), signalHandler_, SLOT(onSelectedChanged(bool)));
 	QObject::connect(newItem->signalSource(), SIGNAL(legendContentChanged()), signalHandler_, SLOT(onPlotItemLegendContentChanged()));
 
-	/// \todo Fix axis normalization and waterfall.  (if axis normalization is on already, apply to this series too... (Obviously, only if this item is a series))
-	//	MPlotAbstractSeries* s = qgraphicsitem_cast<MPlotAbstractSeries*>(newItem);
-	//	if(s) {
-	//		s->enableXAxisNormalization(normBottomEnabled_, normBottomRange_.first, normBottomRange_.second);
-	//		if(s->yAxisTarget() == MPlotAxis::Left)
-	//			s->enableYAxisNormalization(normLeftEnabled_, normLeftRange_.first, normLeftRange_.second);
-	//		if(s->yAxisTarget() == MPlotAxis::Right)
-	//			s->enableYAxisNormalization(normRightEnabled_, normRightRange_.first, normRightRange_.second);
+	// If axis normalization is on already, apply to this series too... (Obviously, only if this item is a series))
+	MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(newItem);
+	if(series) {
+		series->enableYAxisNormalization(axisScaleNormalizationOn_.at(yAxisTargetIndex), axisScaleNormalizationRange_.at(yAxisTargetIndex));
+		series->enableXAxisNormalization(axisScaleNormalizationOn_.at(xAxisTargetIndex), axisScaleNormalizationRange_.at(xAxisTargetIndex));
 
-	//		if(s->yAxisTarget() == MPlotAxis::Left)
-	//			s->setOffset(0, waterfallLeftAmount_*seriesCounterLeft_++);
-	//		if(s->yAxisTarget() == MPlotAxis::Right)
-	//			s->setOffset(0, waterfallRightAmount_*seriesCounterRight_++);
-	//	}
+		if(axisScaleWaterfallAmount_.at(yAxisTargetIndex) != 0)
+			setAxisScaleWaterfall(yAxisTargetIndex, axisScaleWaterfallAmount_.at(yAxisTargetIndex));	// apply to whole plot, in case we are inserting not at the end, and other items have to higher in offset to make room for this one.
+		if(axisScaleWaterfallAmount_.at(xAxisTargetIndex) != 0)
+			setAxisScaleWaterfall(xAxisTargetIndex, axisScaleWaterfallAmount_.at(xAxisTargetIndex));
+	}
 
 	// if autoscaling is active already, could need to rescale already
 	onBoundsChanged(newItem);
 
+	// make sure the new item has an entry added to the legend
 	legend()->onLegendContentChanged(newItem);
 }
 
@@ -157,6 +161,9 @@ bool MPlot::removeItem(MPlotItem* removeMe) {
 		return true;
 
 	if(items_.contains(removeMe)) {
+
+		MPlotAxisScale* oldYAxisTarget = removeMe->yAxisTarget();
+		MPlotAxisScale* oldXAxisTarget = removeMe->xAxisTarget();
 
 		// this also might need to trigger a re-scale... for ex: if removeMe had the largest/smallest bounds of all plots associated with an auto-scaling axis.
 		onBoundsChanged(removeMe);
@@ -177,12 +184,16 @@ bool MPlot::removeItem(MPlotItem* removeMe) {
 		// remove signals
 		QObject::disconnect(removeMe->signalSource(), 0, signalHandler_, 0);
 
-		/// \todo Fix waterfall. (this might need to re-apply the waterfall...)
-		//		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(removeMe);
-		//		if(series && series->yAxisTarget() == MPlotAxis::Left && waterfallLeftAmount_ != 0.0)
-		//			setWaterfallLeft(waterfallLeftAmount_);
-		//		if(series && series->yAxisTarget() == MPlotAxis::Right && waterfallRightAmount_ != 0.0)
-		//			setWaterfallRight(waterfallRightAmount_);
+		// Might need to re-apply the waterfall... If the waterfall on this item's axes was not 0, we might need to move other items' waterfall position down.
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(removeMe);
+		if(series) {
+			int yAxisTargetIndex = indexOfAxisScale(oldYAxisTarget);
+			if(axisScaleWaterfallAmount_.at(yAxisTargetIndex) != 0)
+				setAxisScaleWaterfall(yAxisTargetIndex, axisScaleWaterfallAmount_.at(yAxisTargetIndex));
+			int xAxisTargetIndex = indexOfAxisScale(oldXAxisTarget);
+			if(axisScaleWaterfallAmount_.at(xAxisTargetIndex) != 0)
+				setAxisScaleWaterfall(xAxisTargetIndex, axisScaleWaterfallAmount_.at(xAxisTargetIndex));
+		}
 
 
 		legend()->onLegendContentChanged();
@@ -399,217 +410,63 @@ void MPlot::onPlotItemLegendContentChanged(MPlotItem* changedItem) {
 
 
 
-//// These implementations leave out the loop that applies the new transforms to all the items.
-//// If this happens to be expensive, then internally we can just do that loop once after a combination of x- and y-scaling
-//// (Cuts down on dual x- y- autoscale time)
-//void MPlot::setXDataRangeImp(qreal min, qreal max, bool autoscale, bool applyPadding) {
+void MPlot::addAxisScale(MPlotAxisScale *newScale)
+{
+	axisScales_ << newScale;
+	axisScaleNormalizationOn_ << false;
+	axisScaleNormalizationRange_ << MPlotAxisRange(0,1);
+	axisScaleWaterfallAmount_ << 0;
+	QObject::connect(newScale, SIGNAL(autoScaleEnabledChanged(bool)), signalHandler_, SLOT(onAxisScaleAutoScaleEnabledChanged(bool)));
+}
 
-//	// Autoscale?
-//	if(autoscale) {
+void MPlotSignalHandler::doDelayedAutoscale()
+{
+	plot_->doDelayedAutoScale();
+}
 
-
-//		QRectF bounds;
-//		foreach(MPlotItem* itm, items_)
-//			bounds |= itm->dataRect();
-
-//		if(bounds.isValid()) {
-//			min = bounds.left();
-//			max = bounds.right();
-//		}
-//		else
-//			return;	// no item found... Autoscale does nothing.
-
-//	}
-
-//	// ensure minimum range not violated:
-//	if(max - min < MPLOT_MIN_AXIS_RANGE)
-//		max = min + MPLOT_MIN_AXIS_RANGE;
-
-//	// Before padding, remember these as our actual axis limits:
-//	xmin_ = min;
-//	xmax_ = max;
-
-
-//	if(applyPadding) {
-//		qreal padding = (max-min)*scalePadding_;
-//		min -= padding; max += padding;
-//	}
-
-//	// Transforms: m31 is x-translate. m32 is y-translate. m11 is x-scale; m22 is y-scale. m21=m12=0 (no shear) m33 = 1 (no affine scaling)
-//	qreal yscale, ytranslate, xscale, xtranslate;
-//	yscale = leftAxisTransform_.m22();
-//	ytranslate = leftAxisTransform_.m32();
-//	xscale = 1.0/(max-min);
-//	xtranslate = -min*xscale;
-
-//	leftAxisTransform_.setMatrix(xscale, 0, 0, 0, yscale, 0, xtranslate, ytranslate, 1);
-
-//	yscale = rightAxisTransform_.m22();
-//	ytranslate = rightAxisTransform_.m32();
-
-//	rightAxisTransform_.setMatrix(xscale, 0, 0, 0, yscale, 0, xtranslate, ytranslate, 1);
-
-//	axes_[MPlotAxis::Bottom]->setRange(min, max);
-//	axes_[MPlotAxis::Top]->setRange(min, max);
-//}
-
-//void MPlot::setYDataRangeLeftImp(qreal min, qreal max, bool autoscale, bool applyPadding) {
-//	// Autoscale?
-//	if(autoscale) {
-
-//		QRectF bounds;
-//		foreach(MPlotItem* itm, items_) {
-//			if(itm->yAxisTarget() == MPlotAxis::Left)
-//				bounds |= itm->dataRect();
-//		}
-//		if(bounds.isValid()) {
-//			min = bounds.top();
-//			max = bounds.bottom();
-//		}
-//		else
-//			return;	// no items found... Autoscale does nothing.
-//	}
-
-//	// ensure minimum range not violated:
-//	if(max - min < MPLOT_MIN_AXIS_RANGE)
-//		max = min + MPLOT_MIN_AXIS_RANGE;
-
-//	// Before padding, remember these as our actual axis limits:
-//	yleftmin_ = min;
-//	yleftmax_ = max;
-
-//	if(applyPadding) {
-//		qreal padding = (max-min)*scalePadding_;
-//		min -= padding; max += padding;
-//	}
-//	qreal xscale, xtranslate, yscale, ytranslate;
-//	xscale = leftAxisTransform_.m11();
-//	xtranslate = leftAxisTransform_.m31();
-//	yscale = 1.0/(max-min);
-//	ytranslate = -min*yscale;
-
-//	leftAxisTransform_.setMatrix(xscale, 0, 0, 0, yscale, 0, xtranslate, ytranslate, 1);
-
-//	axes_[MPlotAxis::Left]->setRange(min, max);
-//}
-
-//void MPlot::setYDataRangeRightImp(qreal min, qreal max, bool autoscale, bool applyPadding) {
-
-//	// Autoscale?
-//	if(autoscale) {
-
-//		QRectF bounds;
-//		foreach(MPlotItem* itm, items_) {
-//			if(itm->yAxisTarget() == MPlotAxis::Right)
-//				bounds |= itm->dataRect();
-//		}
-//		if(bounds.isValid()) {
-//			min = bounds.top();
-//			max = bounds.bottom();
-//		}
-//		else
-//			return;	// no items found... Autoscale does nothing.
-//	}
-
-//	// ensure minimum range not violated:
-//	if(max - min < MPLOT_MIN_AXIS_RANGE)
-//		max = min + MPLOT_MIN_AXIS_RANGE;
-
-//	// Before padding, remember these as our actual axis limits:
-//	yrightmin_ = min;
-//	yrightmax_ = max;
-
-//	if(applyPadding) {
-//		qreal padding = (max-min)*scalePadding_;
-//		min -= padding; max += padding;
-//	}
-
-//	qreal xscale, xtranslate, yscale, ytranslate;
-//	xscale = rightAxisTransform_.m11();
-//	xtranslate = rightAxisTransform_.m31();
-//	yscale = 1.0/(max-min);
-//	ytranslate = -min*yscale;
-
-//	rightAxisTransform_.setMatrix(xscale, 0, 0, 0, yscale, 0, xtranslate, ytranslate, 1);
-
-//	axes_[MPlotAxis::Right]->setRange(min, max);
-//}
+void MPlotSignalHandler::onAxisScaleAutoScaleEnabledChanged(bool enabled)
+{
+	plot_->onAxisScaleAutoScaleEnabledChanged(enabled);
+}
 
 
 
+void MPlot::enableAxisNormalization(int axisScaleIndex, bool normalizationOn, const MPlotAxisRange &normalizationRange)
+{
+	MPlotAxisScale* axis = axisScale(axisScaleIndex);
 
+	if( (axisScaleNormalizationOn_[axisScaleIndex] = normalizationOn) ) {
+		axisScaleNormalizationRange_[axisScaleIndex] = normalizationRange;
+	}
 
+	foreach(MPlotItem* item, items_) {
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(item);
+		if(axis->orientation() == Qt::Vertical && series && series->yAxisTarget() == axis)
+			series->enableYAxisNormalization(normalizationOn, normalizationRange.min(), normalizationRange.max());
+		else if(axis->orientation() == Qt::Horizontal && series && series->xAxisTarget() == axis)
+			series->enableXAxisNormalization(normalizationOn, normalizationRange.min(), normalizationRange.max());
+	}
+}
 
-//void MPlot::enableAxisNormalizationBottom(bool normalizationOn, qreal min, qreal max) {
-//	if( (normBottomEnabled_ = normalizationOn) ) {
-//		normBottomRange_.first = min;
-//		normBottomRange_.second = max;
-//	}
+void MPlot::setAxisScaleWaterfall(int axisScaleIndex, qreal amount)
+{
+	MPlotAxisScale* axis = axisScale(axisScaleIndex);
 
-//	for(int i=0; i<items_.count(); i++) {
-//		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(items_.at(i));
-//		if(series) {
-//			series->enableXAxisNormalization(normalizationOn, min, max);
-//		}
-//	}
+	axisScaleWaterfallAmount_[axisScaleIndex] = amount;
 
-//}
+	int seriesCounter = 0;
+	foreach(MPlotItem* item, items_) {
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(item);
+		if(axis->orientation() == Qt::Vertical && series && series->yAxisTarget() == axis)
+			series->setOffset(0, amount*seriesCounter++);
+		else if(axis->orientation() == Qt::Horizontal && series && series->xAxisTarget() == axis)
+			series->setOffset(amount*seriesCounter++, 0);
+	}
+}
 
-//void MPlot::enableAxisNormalizationLeft(bool normalizationOn, qreal min, qreal max) {
-//	if( (normLeftEnabled_ = normalizationOn) ) {
-//		normLeftRange_.first = min;
-//		normLeftRange_.second = max;
-//	}
-
-//	for(int i=0; i<items_.count(); i++) {
-//		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(items_.at(i));
-//		if(series && series->yAxisTarget() == MPlotAxis::Left) {
-//			series->enableYAxisNormalization(normalizationOn, min, max);
-//		}
-//	}
-//}
-
-
-//void MPlot::enableAxisNormalizationRight(bool normalizationOn, qreal min, qreal max) {
-//	if( (normRightEnabled_ = normalizationOn) ) {
-//		normRightRange_.first = min;
-//		normRightRange_.second = max;
-//	}
-
-//	for(int i=0; i<items_.count(); i++) {
-//		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(items_.at(i));
-//		if(series && series->yAxisTarget() == MPlotAxis::Right) {
-//			series->enableYAxisNormalization(normalizationOn, min, max);
-//		}
-//	}
-//}
-
-//void MPlot::enableAxisNormalization(int axisFlags) {
-//	enableAxisNormalizationBottom(axisFlags & MPlotAxis::Bottom);
-//	enableAxisNormalizationLeft(axisFlags & MPlotAxis::Left);
-//	enableAxisNormalizationRight(axisFlags & MPlotAxis::Right);
-//}
-
-//void MPlot::setWaterfallLeft(qreal amount) {
-//	waterfallLeftAmount_ = amount;
-//	seriesCounterLeft_ = 0;
-//	for(int i=0; i<items_.count(); i++) {
-//		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(items_.at(i));
-//		if(series && series->yAxisTarget() == MPlotAxis::Left)
-//			series->setOffset(0, amount*seriesCounterLeft_++);
-//	}
-//}
-
-//void MPlot::setWaterfallRight(qreal amount) {
-//	waterfallRightAmount_ = amount;
-//	seriesCounterRight_ = 0;
-//	for(int i=0; i<items_.count(); i++) {
-//		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(items_.at(i));
-//		if(series && series->yAxisTarget() == MPlotAxis::Right)
-//			series->setOffset(0, amount*seriesCounterRight_++);
-//	}
-//}
-
+//////////////////////
+// MPlotGW
+////////////////////////////
 
 MPlotGW::MPlotGW(QGraphicsItem* parent, Qt::WindowFlags flags) :
 	QGraphicsWidget(parent, flags)
@@ -631,24 +488,5 @@ void MPlotGW::resizeEvent ( QGraphicsSceneResizeEvent * event ) {
 
 	plot_->setRect(QRectF(QPointF(0,0), event->newSize() ));
 }
-
-void MPlot::addAxisScale(MPlotAxisScale *newScale)
-{
-	axisScales_ << newScale;
-	QObject::connect(newScale, SIGNAL(autoScaleEnabledChanged(bool)), signalHandler_, SLOT(onAxisScaleAutoScaleEnabledChanged(bool)));
-}
-
-void MPlotSignalHandler::doDelayedAutoscale()
-{
-	plot_->doDelayedAutoScale();
-}
-
-void MPlotSignalHandler::onAxisScaleAutoScaleEnabledChanged(bool enabled)
-{
-	plot_->onAxisScaleAutoScaleEnabledChanged(enabled);
-}
-
-
-
 
 #endif
