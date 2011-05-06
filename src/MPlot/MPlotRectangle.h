@@ -36,7 +36,7 @@ public:
 	}
 
 	/// Set the coordinates of the rectangle that this item draws, in data coordinates.  The \c rectangle's QRectF::left() and QRectF::top() should be the minimum x and minimum y values, respectively.
-	void setRect(const QRect& rectangle) {
+	void setRect(const QRectF& rectangle) {
 		prepareGeometryChange();
 		rect_ = rectangle;
 		emitBoundsChanged();
