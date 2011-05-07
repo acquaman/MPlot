@@ -6,6 +6,10 @@
 #include <QRectF>
 #include <QObject>
 
+#include <cmath>
+#include <cfloat>
+
+
 class MPlotAxisRange {
 public:
 	/// Constructs a null axis range
@@ -89,21 +93,46 @@ public:
 				   QObject* parent = 0);
 
 	qreal mapDataToDrawing(qreal dataValue) const {
+		qreal min = dataRange_.min();
+		qreal max = dataRange_.max();
+
+		if(logScaleEnabled_ && min>0.0 && max>0.0) {
+			// When log scaling is active, ensure we bound datavalue within (min,max), since it can't be 0 or negative.  Note that min,max might not be in the order you think they are...: min might be > max.
+			dataValue = log10(qBound(qMin(min,max), dataValue, qMax(min,max)));
+			min = log10(min);
+			max = log10(max);
+		}
+
 		if(orientation_ == Qt::Vertical)
-			return drawingSize_.height() * (1 - (dataValue-dataRange_.min())/(dataRange_.max()-dataRange_.min()));
+			return drawingSize_.height() * (1 - (dataValue-min)/(max-min));
 		else
-			return drawingSize_.width() * (dataValue-dataRange_.min())/(dataRange_.max()-dataRange_.min());
+			return drawingSize_.width() * (dataValue-min)/(max-min);
 	}
+
 	MPlotAxisRange mapDataToDrawing(const MPlotAxisRange& dataRange) const {
 		return MPlotAxisRange(
 					mapDataToDrawing(dataRange.min()),
 					mapDataToDrawing(dataRange.max()));
 	}
+
 	qreal mapDrawingToData(qreal drawingValue) const {
+		qreal min = dataRange_.min();
+		qreal max = dataRange_.max();
+
+		bool logScaleOn = (logScaleEnabled_ && min>0.0 && max>0.0);
+		if(logScaleOn) {
+			min = log10(min);
+			max = log10(max);
+		}
+
+		qreal rv;
+
 		if(orientation_ == Qt::Vertical)
-			return dataRange_.min() + (1 - drawingValue/drawingSize_.height())*(dataRange_.max() - dataRange_.min());
+			rv = min + (1 - drawingValue/drawingSize_.height())*(max - min);
 		else
-			return dataRange_.min() + drawingValue/drawingSize_.width()*(dataRange_.max()-dataRange_.min());
+			rv = min + drawingValue/drawingSize_.width()*(max-min);
+
+		return logScaleOn ? pow(rv, 10) : rv;
 	}
 	MPlotAxisRange mapDrawingToData(const MPlotAxisRange& drawingRange) const {
 		return MPlotAxisRange(
@@ -120,6 +149,12 @@ public:
 	qreal max() const { return dataRange_.max(); }
 
 	Qt::Orientation orientation() const { return orientation_; }
+
+	/// Enable or disable logarithmic scaling on this axis.  Note that log scaling is only applied when the data range's min() and max() are both > 0.
+	void setLogScaleEnabled(bool logScaleEnabled = true);
+	/// Indicates that logarithmic scaling should be applied on this axis.  Note that log scaling is only applied when the data range's min() and max() are both > 0, regardless of the value this returns.
+	bool logScaleEnabled() const { return logScaleEnabled_; }
+
 
 
 	/// Indicates that this axis scale should be autoscaled.
@@ -203,6 +238,9 @@ protected:
 	bool autoScaleEnabled_;
 	/// Used by MPlot to flag that a re-autoScale is pending for this axis scale
 	bool autoScaleScheduled_;
+
+	/// True if logarithmic scaling should be applied on this axis.
+	bool logScaleEnabled_;
 
 };
 

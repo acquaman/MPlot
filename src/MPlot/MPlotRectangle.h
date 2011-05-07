@@ -3,6 +3,7 @@
 
 #include "MPlotItem.h"
 #include <QPen>
+#include <QRectF>
 #include <QBrush>
 class QPainter;
 

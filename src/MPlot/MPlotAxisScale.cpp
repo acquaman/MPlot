@@ -10,6 +10,7 @@ MPlotAxisScale::MPlotAxisScale(Qt::Orientation orientation,
 {
 	orientation_ = orientation;
 	drawingSize_ = drawingSize;
+	logScaleEnabled_ = false;
 
 	axisPadding_ = 0.05;
 
@@ -120,4 +121,14 @@ void MPlotAxisScale::setAutoScaleEnabled(bool autoScaleEnabled) {
 		autoScaleScheduled_ = true;
 
 	emit autoScaleEnabledChanged(autoScaleEnabled_ = autoScaleEnabled);
+}
+
+void MPlotAxisScale::setLogScaleEnabled(bool logScaleEnabled)
+{
+	if(logScaleEnabled_ == logScaleEnabled)
+		return;
+
+	emit dataRangeAboutToChange();
+	logScaleEnabled_ = logScaleEnabled;
+	emit dataRangeChanged();
 }
