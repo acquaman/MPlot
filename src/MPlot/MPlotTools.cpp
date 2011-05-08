@@ -294,9 +294,6 @@ void MPlotDragZoomerTool::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
 		}
 	}
 
-
-	qDebug() << "Click release event:" << event->button() << dragInProgress_;
-
 	// Right mouse button: let's you go back to an old zoom setting
 	if(!dragInProgress_ && event->button() == Qt::RightButton) {
 
@@ -315,7 +312,6 @@ void MPlotDragZoomerTool::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
 		// no old zoom settings. Go back to auto-scaling.
 		else {
 			foreach(MPlotAxisScale* axis, targetAxes_) {
-				qDebug() << "Calling setAutoScaleEnabled";
 				axis->setAutoScaleEnabled(true);
 			}
 		}
