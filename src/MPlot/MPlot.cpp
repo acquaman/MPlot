@@ -365,8 +365,6 @@ void MPlot::doDelayedAutoScale() {
 			range.setMax(range.min() + MPLOT_MIN_AXIS_RANGE);	// ensure that the axis has at least a non-zero length.  (Otherwise we have division by zero and Qt drawing bug problems.)
 
 		axis->setDataRange(range);
-		axis->setAutoScaleEnabled();	// setDataRange() will have turned off MPlotAxisScale::autoScaleEnabled()... We need to leave it on for next time.
-
 		axis->setAutoScaleScheduled(false);	// we just completed that.
 	}
 

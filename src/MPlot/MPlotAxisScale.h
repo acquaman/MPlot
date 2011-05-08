@@ -213,6 +213,11 @@ public slots:
 	void setOrientation(Qt::Orientation orientation);
 	void setDrawingSize(const QSizeF& newSize);
 	void setDataRange(const MPlotAxisRange& newDataRange, bool applyPadding = true);
+	void setDataRangeAndDisableAutoScaling(const MPlotAxisRange& newDataRange, bool applyPadding = true) {
+		setDataRange(newDataRange,applyPadding);
+		emit autoScaleEnabledChanged((autoScaleEnabled_ = false));
+	}
+
 	void setPadding(qreal percent);
 
 signals:

@@ -46,24 +46,41 @@ void MPlotAxisScale::setDataRange(const MPlotAxisRange &newDataRange, bool apply
 
 	emit dataRangeAboutToChange();
 
-	unpaddedDataRange_ = newDataRange;
-	if(applyPadding) {
-		qreal padding = unpaddedDataRange_.length()*axisPadding_;
-		dataRange_ = MPlotAxisRange(unpaddedDataRange_.min()-padding, unpaddedDataRange_.max()+padding);
-	}
-	else
-		dataRange_ = unpaddedDataRange_;
+	bool dataRangeIsInverted = (newDataRange.min() > newDataRange.max());
+	unpaddedDataRange_ = newDataRange.normalized();	// make sure min<=max. We'll do the calculations on a normal ordered scale, and then invert back.
 
-	autoScaleEnabled_ = false;	// axis range was manually set by user; this disables auto-scaling
+	if(applyPadding) {
+		// if log scale in effect:
+		if(logScaleEnabled_ && unpaddedDataRange_.min() > 0 && unpaddedDataRange_.max() > 0) {
+			qreal logMin = log10(unpaddedDataRange_.min());
+			qreal logMax = log10(unpaddedDataRange_.max());
+			qreal logPadding = (logMax-logMin)*axisPadding_;
+
+			dataRange_ = MPlotAxisRange( pow(10, logMin-logPadding),
+										 pow(10, logMax+logPadding) );
+		}
+		else {
+			qreal padding = unpaddedDataRange_.length()*axisPadding_;
+			dataRange_ = MPlotAxisRange(unpaddedDataRange_.min()-padding,
+										unpaddedDataRange_.max()+padding);
+		}
+	}
+	else {
+		dataRange_ = unpaddedDataRange_;
+	}
+
+	// if axis scale should be inverted: invert back.
+	if(dataRangeIsInverted) {
+		unpaddedDataRange_ = MPlotAxisRange(unpaddedDataRange_.max(), unpaddedDataRange_.min());
+		dataRange_ = MPlotAxisRange(dataRange_.max(), dataRange_.min());
+	}
 
 	emit dataRangeChanged();
 }
 
 void MPlotAxisScale::setPadding(qreal percent) {
-	bool autoScaleWasEnabled = autoScaleEnabled_;
 	axisPadding_ = percent/100.0;
-	setDataRange(unpaddedDataRange_, true);	// this will disable auto scaling... so make sure we turn it back on if it should have been on.
-	autoScaleEnabled_ = autoScaleWasEnabled;
+	setDataRange(unpaddedDataRange_, true);
 }
 
 
@@ -128,7 +145,8 @@ void MPlotAxisScale::setLogScaleEnabled(bool logScaleEnabled)
 	if(logScaleEnabled_ == logScaleEnabled)
 		return;
 
-	emit dataRangeAboutToChange();
 	logScaleEnabled_ = logScaleEnabled;
-	emit dataRangeChanged();
+	setDataRange(unpaddedDataRange_, true);	// need to re-apply padding in log-scale mode... Otherwise the linear padding on an otherwise log-valid axis range will force it into the negatives. (ex: a range from (1,100000) will be padded with, say, 5% of 100000 on the bottom and top, resulting in a negative value on the bottom, which would disable log scaling.
+
+	// setDataRange will also emit dataRangeAboutToChange() and dataRangeChanged(), which we would need to do anyways.
 }
