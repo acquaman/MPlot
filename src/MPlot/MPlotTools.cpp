@@ -137,22 +137,22 @@ void MPlotWheelZoomerTool::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event 
   1) The new scale is smaller than previous one; ie: multiplied by factor F
 
   \f[
-	(max' - min') = F (max - min)
+ (max' - min') = F (max - min)
   \f]
 
   2) Also distance from \c x to \c min, as fraction of total axis range, stays constant
 
   \f[
-	(x-min)/(max-min) = (x-min')/(max'-min')
+ (x-min)/(max-min) = (x-min')/(max'-min')
   \f]
 
   Combining [1] and [2], and algebra:
 
   \f[
-	min' = x + F(min - x)
+ min' = x + F(min - x)
   \f]
   \f[
-	max' = x + F(max - x)
+ max' = x + F(max - x)
   \f]
 
 
@@ -179,10 +179,18 @@ void MPlotWheelZoomerTool::wheelEvent ( QGraphicsSceneWheelEvent * event ) {
 		qreal dataPos = axis->mapDrawingToData(drawingPos);
 
 		qreal newMin, newMax;
-		newMin = dataPos + F*(axis->min() - dataPos);
-		newMax = dataPos + F*(axis->max() - dataPos);
 
-		axis->setDataRange(MPlotAxisRange(newMin, newMax), false);
+		if(axis->logScaleInEffect()) {
+			dataPos = log10(dataPos);
+			newMin = pow(10, dataPos + F*(log10(axis->min()) - dataPos));
+			newMax = pow(10, dataPos + F*(log10(axis->max()) - dataPos));
+		}
+		else {
+			newMin = dataPos + F*(axis->min() - dataPos);
+			newMax = dataPos + F*(axis->max() - dataPos);
+		}
+
+		axis->setDataRangeAndDisableAutoScaling(MPlotAxisRange(newMin, newMax), false);
 	}
 }
 
@@ -287,6 +295,7 @@ void MPlotDragZoomerTool::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
 	}
 
 
+	qDebug() << "Click release event:" << event->button() << dragInProgress_;
 
 	// Right mouse button: let's you go back to an old zoom setting
 	if(!dragInProgress_ && event->button() == Qt::RightButton) {
@@ -306,6 +315,7 @@ void MPlotDragZoomerTool::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
 		// no old zoom settings. Go back to auto-scaling.
 		else {
 			foreach(MPlotAxisScale* axis, targetAxes_) {
+				qDebug() << "Calling setAutoScaleEnabled";
 				axis->setAutoScaleEnabled(true);
 			}
 		}
