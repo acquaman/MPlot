@@ -62,6 +62,8 @@
 	 plot.axisBottom()->setAxisName("eV");
 	 plot.axisLeft()->setAxisName("Intensity (arb. units)");
 
+	 plot.axisLeft()->setTicks(4);
+
 
 
 	 // Change the margins: (in % of the plot width/height)
@@ -121,8 +123,11 @@
 
 
 	 // Fill with parabola:
-	 for(qreal i=-.9; i<.99; i+=0.01)
-		 data1.insertPointBack(i, -i*i+0.5);
+	 //for(qreal i=-.9; i<.99; i+=0.01)
+		// data1.insertPointBack(i, pow(10,-i*i+0.5));
+
+	 for(qreal i=1; i<=10; i+=1)
+		 data1.insertPointBack(i, pow(10,i));
 
 	 // Fill with many random data points:
 	  //for(int i=0; i<5000; i++)
@@ -130,7 +135,7 @@
 
 	 // many-point sine wave:
 	 for(int i=0; i<9990; i++)
-		 data2.insertPointBack(-0.5+i/9990.0, sin((-0.5+i/9990.0)*4*3.1415));
+		 data2.insertPointBack(-0.5+i/9990.0, pow(10,sin((-0.5+i/9990.0)*4*3.1415)));
 
 
 	 // 4.  View the data.  A basic scatter/line plot is an MPlotSeries:
@@ -300,6 +305,10 @@
 	plot.addItem(r);
 	r->setXAxisTarget(plot.axisScale(MPlot::HorizontalRelative));
 	r->setYAxisTarget(plot.axisScale(MPlot::VerticalRelative));
+
+
+	// 18: Log scaling. Make sure to have only positive data points when you do this (on all items that target the left axis scale)
+	plot.axisScaleLeft()->setLogScaleEnabled();
 
 
 	return app.exec();

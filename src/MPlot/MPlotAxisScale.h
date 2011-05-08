@@ -97,8 +97,10 @@ public:
 		qreal max = dataRange_.max();
 
 		if(logScaleEnabled_ && min>0.0 && max>0.0) {
-			// When log scaling is active, ensure we bound datavalue within (min,max), since it can't be 0 or negative.  Note that min,max might not be in the order you think they are...: min might be > max.
-			dataValue = log10(qBound(qMin(min,max), dataValue, qMax(min,max)));
+			if(dataValue <= 0.0)// When log scaling is active, ensure we bound datavalue within (min,max), since it can't be 0 or negative.  Note that min,max might not be in the order you think they are...: min might be > max.
+				dataValue = log10(qBound(qMin(min,max), dataValue, qMax(min,max)));
+			else
+				dataValue = log10(dataValue);
 			min = log10(min);
 			max = log10(max);
 		}
@@ -132,7 +134,7 @@ public:
 		else
 			rv = min + drawingValue/drawingSize_.width()*(max-min);
 
-		return logScaleOn ? pow(rv, 10) : rv;
+		return logScaleOn ? pow(10, rv) : rv;
 	}
 	MPlotAxisRange mapDrawingToData(const MPlotAxisRange& drawingRange) const {
 		return MPlotAxisRange(
@@ -154,6 +156,9 @@ public:
 	void setLogScaleEnabled(bool logScaleEnabled = true);
 	/// Indicates that logarithmic scaling should be applied on this axis.  Note that log scaling is only applied when the data range's min() and max() are both > 0, regardless of the value this returns.
 	bool logScaleEnabled() const { return logScaleEnabled_; }
+
+	/// Indicates that logarithmic scaling is enabled AND currently active. This means that logScaleEnabled() is true, and both min() and max() are > 0.
+	bool logScaleInEffect() const { return logScaleEnabled_ && dataRange_.min() > 0 && dataRange_.max() > 0; }
 
 
 
@@ -213,6 +218,11 @@ public slots:
 	void setOrientation(Qt::Orientation orientation);
 	void setDrawingSize(const QSizeF& newSize);
 	void setDataRange(const MPlotAxisRange& newDataRange, bool applyPadding = true);
+	void setDataRangeAndDisableAutoScaling(const MPlotAxisRange& newDataRange, bool applyPadding = true) {
+		setDataRange(newDataRange,applyPadding);
+		emit autoScaleEnabledChanged((autoScaleEnabled_ = false));
+	}
+
 	void setPadding(qreal percent);
 
 signals:
