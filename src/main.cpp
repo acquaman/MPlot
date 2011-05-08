@@ -62,6 +62,8 @@
 	 plot.axisBottom()->setAxisName("eV");
 	 plot.axisLeft()->setAxisName("Intensity (arb. units)");
 
+	 plot.axisLeft()->setTicks(4);
+
 
 
 	 // Change the margins: (in % of the plot width/height)
