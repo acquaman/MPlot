@@ -1,6 +1,6 @@
 #include "MPlotAxisScale.h"
 #include <QDebug>
-#include <cmath>
+#include <limits>
 
 MPlotAxisScale::MPlotAxisScale(Qt::Orientation orientation,
 							   const QSizeF& drawingSize,
@@ -13,6 +13,8 @@ MPlotAxisScale::MPlotAxisScale(Qt::Orientation orientation,
 	logScaleEnabled_ = false;
 
 	axisPadding_ = 0.05;
+
+	dataRangeConstraint_ = MPlotAxisRange(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity());
 
 	setDataRange(dataRange, true);
 
@@ -74,6 +76,11 @@ void MPlotAxisScale::setDataRange(const MPlotAxisRange &newDataRange, bool apply
 		unpaddedDataRange_ = MPlotAxisRange(unpaddedDataRange_.max(), unpaddedDataRange_.min());
 		dataRange_ = MPlotAxisRange(dataRange_.max(), dataRange_.min());
 	}
+
+	dataRange_ = dataRange_.constrainedTo(dataRangeConstraint_);
+	unpaddedDataRange_ = unpaddedDataRange_.constrainedTo(dataRangeConstraint_);
+
+	qDebug() << "data range constrained to" << dataRange_.min() << dataRange_.max();
 
 	emit dataRangeChanged();
 }
@@ -228,4 +235,14 @@ void MPlotAxisScale::setLogScaleEnabled(bool logScaleEnabled)
 	setDataRange(unpaddedDataRange_, true);	// need to re-apply padding in log-scale mode... Otherwise the linear padding on an otherwise log-valid axis range will force it into the negatives. (ex: a range from (1,100000) will be padded with, say, 5% of 100000 on the bottom and top, resulting in a negative value on the bottom, which would disable log scaling.
 
 	// setDataRange will also emit dataRangeAboutToChange() and dataRangeChanged(), which we would need to do anyways.
+}
+
+void MPlotAxisScale::setDataRangeConstraint(const MPlotAxisRange &constraintsOnDataRange)
+{
+	if(constraintsOnDataRange.isValid())
+		dataRangeConstraint_ = constraintsOnDataRange;
+	else
+		dataRangeConstraint_ = MPlotAxisRange(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity());
+
+	setDataRange(unpaddedDataRange_, false);
 }
