@@ -361,9 +361,6 @@ void MPlot::doDelayedAutoScale() {
 		if(!range.isValid())
 			continue;	// there are no items to autoscale on this axis... Don't do anything for it.
 
-		if(range.length() < MPLOT_MIN_AXIS_RANGE)
-			range.setMax(range.min() + MPLOT_MIN_AXIS_RANGE);	// ensure that the axis has at least a non-zero length.  (Otherwise we have division by zero and Qt drawing bug problems.)
-
 		axis->setDataRange(range);
 		axis->setAutoScaleScheduled(false);	// we just completed that.
 	}

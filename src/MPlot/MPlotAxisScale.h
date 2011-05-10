@@ -8,7 +8,11 @@
 
 #include <cmath>
 #include <cfloat>
-#include <QDebug>
+
+#include <limits>
+
+#define MPLOT_POS_INFINITY std::numeric_limits<qreal>::infinity()
+#define MPLOT_NEG_INFINITY -std::numeric_limits<qreal>::infinity()
 
 class MPlotAxisRange {
 public:
@@ -55,9 +59,6 @@ public:
 	MPlotAxisRange constrainedTo(const MPlotAxisRange& constraint) {
 		qreal effectiveMin = qMin(constraint.min(), constraint.max());
 		qreal effectiveMax = qMax(constraint.min(), constraint.max());
-
-		qDebug() << "eff min:" << effectiveMin;
-		qDebug() << "eff max:" << effectiveMax;
 
 		return MPlotAxisRange(
 					qBound(effectiveMin, min_, effectiveMax),

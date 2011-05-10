@@ -223,9 +223,14 @@ MPlotDragZoomerTool::MPlotDragZoomerTool() :
 void MPlotDragZoomerTool::mousePressEvent ( QGraphicsSceneMouseEvent * event ) {
 
 	if(event->button() == Qt::LeftButton) {
+
+		// cancel any old drag state, in case we started a drag but didn't finish it
+		dragInProgress_ = false;
+		// disable the selection rectangle:
+		selectionRect_->setRect(QRectF());
+
 		dragStarted_ = true;
 		// don't display the rubberband rectangle until dragInProgress_
-		// selectionRect_->setRect(QRectF(event->buttonDownPos(Qt::LeftButton), event->buttonDownPos(Qt::LeftButton)));
 	}
 
 }
