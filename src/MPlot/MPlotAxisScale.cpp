@@ -1,6 +1,6 @@
 #include "MPlotAxisScale.h"
 #include <QDebug>
-#include <cmath>
+
 
 MPlotAxisScale::MPlotAxisScale(Qt::Orientation orientation,
 							   const QSizeF& drawingSize,
@@ -13,6 +13,8 @@ MPlotAxisScale::MPlotAxisScale(Qt::Orientation orientation,
 	logScaleEnabled_ = false;
 
 	axisPadding_ = 0.05;
+
+	dataRangeConstraint_ = MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY);
 
 	setDataRange(dataRange, true);
 
@@ -69,6 +71,26 @@ void MPlotAxisScale::setDataRange(const MPlotAxisRange &newDataRange, bool apply
 		dataRange_ = unpaddedDataRange_;
 	}
 
+	// constraints
+	//////////////////////
+	dataRange_ = dataRange_.constrainedTo(dataRangeConstraint_);
+	unpaddedDataRange_ = unpaddedDataRange_.constrainedTo(dataRangeConstraint_);
+
+	// safety protection limits...
+	/////////////////////////////////
+
+	qreal minRange = std::numeric_limits<qreal>::epsilon()*fabs(dataRange_.min())*8.0;	// epsilon is smallest representable difference between 1 and th next number. It will be smaller for numbers with small exponents
+	if(dataRange_.length() < minRange) {
+		qWarning() << "MPlotAxisScale: Set the data range too small. Min:" << dataRange_.min() << ". Automatically expanding by epsilon:" << minRange;
+		dataRange_.setMax(dataRange_.min() + minRange);	/// \todo Figure out what this needs to be to prevent crashing at high zoom scales.
+	}
+	qreal maxRange = std::numeric_limits<qreal>::max()/1e10;
+	if(dataRange_.length() > maxRange) {
+		qWarning() << "MPlotAxisScale: Set the data range too large. Min:" << dataRange_.min() << ". Max: " << dataRange_.max() << ".  Automatically capping to" << dataRange_.min() + maxRange;
+		dataRange_.setMax(dataRange_.min() + maxRange);
+	}
+	////////////////////////
+
 	// if axis scale should be inverted: invert back.
 	if(dataRangeIsInverted) {
 		unpaddedDataRange_ = MPlotAxisRange(unpaddedDataRange_.max(), unpaddedDataRange_.min());
@@ -123,7 +145,7 @@ QList<qreal> MPlotAxisScale::calculateTickValues(int minimumNumberOfTicks) const
 		qreal minPowerOfTen = ceil(logMin);	// might be out of range if the range is less than 2.
 		qreal outerMinPowerOfTen = floor(logMin);
 
-		int step = 1;
+		qreal step = 1;
 		bool include5s = false;
 		bool include2s = false;
 
@@ -158,12 +180,12 @@ QList<qreal> MPlotAxisScale::calculateTickValues(int minimumNumberOfTicks) const
 		}
 
 		else if(logRange > minimumNumberOfTicks) {
-			step = logRange / minimumNumberOfTicks;
+			step = floor(logRange / minimumNumberOfTicks);
 		}
 
 
 		// finally, insert all the ticks
-		for(int d=outerMinPowerOfTen; d<outerMaxPowerOfTen; d+=step) {
+		for(qreal d=outerMinPowerOfTen; d<outerMaxPowerOfTen; d+=step) {
 			if(d<=logMax && d>=logMin)
 				rv << pow(10,d);
 			if(include2s) {
@@ -200,7 +222,7 @@ QList<qreal> MPlotAxisScale::calculateTickValues(int minimumNumberOfTicks) const
 			minTickVal += offset;
 		}
 
-		while(minTickVal <= max) {
+		while(minTickVal <= max) {	/// \todo For short axis scale ranges... make sure that tickIncVal is > than 0... Otherwise this loop takes forever.
 			rv << minTickVal;
 			minTickVal += tickIncVal;
 		}
@@ -228,4 +250,14 @@ void MPlotAxisScale::setLogScaleEnabled(bool logScaleEnabled)
 	setDataRange(unpaddedDataRange_, true);	// need to re-apply padding in log-scale mode... Otherwise the linear padding on an otherwise log-valid axis range will force it into the negatives. (ex: a range from (1,100000) will be padded with, say, 5% of 100000 on the bottom and top, resulting in a negative value on the bottom, which would disable log scaling.
 
 	// setDataRange will also emit dataRangeAboutToChange() and dataRangeChanged(), which we would need to do anyways.
+}
+
+void MPlotAxisScale::setDataRangeConstraint(const MPlotAxisRange &constraintsOnDataRange)
+{
+	if(constraintsOnDataRange.isValid())
+		dataRangeConstraint_ = constraintsOnDataRange;
+	else
+		dataRangeConstraint_ = MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY);
+
+	setDataRange(unpaddedDataRange_, false);
 }

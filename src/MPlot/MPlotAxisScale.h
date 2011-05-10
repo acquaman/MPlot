@@ -9,6 +9,10 @@
 #include <cmath>
 #include <cfloat>
 
+#include <limits>
+
+#define MPLOT_POS_INFINITY std::numeric_limits<qreal>::infinity()
+#define MPLOT_NEG_INFINITY -std::numeric_limits<qreal>::infinity()
 
 class MPlotAxisRange {
 public:
@@ -49,6 +53,21 @@ public:
 	/// Ensures that this MPlotAxisRange is guaranteed to have min() < max(), by swapping max and min if required.
 	void normalize() {
 		*this = normalized();
+	}
+
+	/// Return the axis range formed by constraining this range within \c constraint.  The returned range will be shortened if necessary so that both min() and max() are inside of constraint.min() and constraint.max().
+	MPlotAxisRange constrainedTo(const MPlotAxisRange& constraint) {
+		qreal effectiveMin = qMin(constraint.min(), constraint.max());
+		qreal effectiveMax = qMax(constraint.min(), constraint.max());
+
+		return MPlotAxisRange(
+					qBound(effectiveMin, min_, effectiveMax),
+					qBound(effectiveMin, max_, effectiveMax));
+	}
+
+	/// Ensures that this MPlotAxisRange is within \c constraint.  Both min() and max() will be bound inside of constraint.min() and constraint.max().
+	void constrainTo(const MPlotAxisRange& constraint) {
+		*this = constrainedTo(constraint);
 	}
 
 	qreal min() const { return min_; }
@@ -174,6 +193,8 @@ public:
 
 	qreal padding() const { return axisPadding_*100.0; }
 
+	MPlotAxisRange dataRangeConstraint() const { return dataRangeConstraint_; }
+
 
 	/// Returns a list of recommended tick values (in data coordinates) for this axis scale, based on a recommended \c minimumNumberOfTicks.  The tick values will be chosen to be within the data range, and will be "nice numbers".  They will be spaced according to what makes sense for the axis scale (ex: regularly for a linear axis, in powers of 10 for a logarithmic axis, etc.)
 /*! IntelliScale: Calculate "nice" values for starting tick and tick increment.
@@ -225,6 +246,9 @@ public slots:
 
 	void setPadding(qreal percent);
 
+	/// Applied as a constraint on setDataRange().  No matter what data range users attempt to set, it will not extend outside of this range.  To clear the constraint, use a null (invalid) MPlotAxisRange().  (You can use this, for example, to constrain a logScaleEnabled() axis from (1, 1.0/0.0), therefore ensuring that it isn't auto-scaled to include 0 even if the data includes 0.
+	void setDataRangeConstraint(const MPlotAxisRange& constraintsOnDataRange);
+
 signals:
 	/// Emitted before the drawing size (extent of the axis in screen/drawing coordinates) changes.  A drawing size change could imply a change in the data range as well, but because this event is more general, we don't emit both signals... Just this one.
 	void drawingSizeAboutToChange();
@@ -251,6 +275,9 @@ protected:
 
 	/// True if logarithmic scaling should be applied on this axis.
 	bool logScaleEnabled_;
+
+	/// Applied as a constraint on setDataRange().  No matter what data range users attempt to set, it will not extend outside of this range.  (You can use this, for example, to constrain a logScaleEnabled() axis from (1, 1.0/0.0), therefore ensuring that it isn't auto-scaled to include 0 even if the data includes 0.
+	MPlotAxisRange dataRangeConstraint_;
 
 };
 

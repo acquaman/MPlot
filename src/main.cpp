@@ -308,6 +308,7 @@
 
 
 	// 18: Log scaling. Make sure to have only positive data points when you do this (on all items that target the left axis scale)
+	plot.axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
 	plot.axisScaleLeft()->setLogScaleEnabled();
 
 
