@@ -123,12 +123,12 @@ void MPlot::insertItem(MPlotItem* newItem, int index, int yAxisTargetIndex, int 
 	if(index < 0 || index > numItems())
 		index = numItems();
 
+	newItem->setYAxisTarget(axisScale(yAxisTargetIndex));
+	newItem->setXAxisTarget(axisScale(xAxisTargetIndex));
+
 	newItem->setParentItem(dataArea_);
 	items_.insert(index, newItem);
 	newItem->setPlot(this);
-
-	newItem->setYAxisTarget(axisScale(yAxisTargetIndex));
-	newItem->setXAxisTarget(axisScale(xAxisTargetIndex));
 
 	// hook up "signals"
 	QObject::connect(newItem->signalSource(), SIGNAL(boundsChanged()), signalHandler_, SLOT(onBoundsChanged()));

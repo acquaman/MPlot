@@ -77,8 +77,8 @@ QRectF MPlotItem::boundingRect() const {
 		qWarning() << "MPlotItem: data rect not normalized...";
 
 	if(!xAxisTarget_ || !yAxisTarget_) {
-		qWarning() << "MPlotItem: Warning: No axis scale set.  Returning the unscaled data rectangle as the bounding rectangle";
-		return dataRectangle;
+		qWarning() << "MPlotItem: Warning: No axis scale set.  Returning an invalid rectangle as the bounding rectangle";
+		return QRectF();
 	}
 
 	MPlotAxisRange xRange = xAxisTarget_->mapDataToDrawing(MPlotAxisRange(dataRectangle.left(), dataRectangle.right())).normalized();
