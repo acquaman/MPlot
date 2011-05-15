@@ -107,7 +107,10 @@ MPlot::~MPlot() {
 	delete signalHandler_;
 	signalHandler_ = 0;
 
-	/// \bug Memory leak in axis scales?
+	foreach(MPlotAxis* axis, axes_)
+		delete axis;
+	foreach(MPlotAxisScale* as, axisScales_)
+		delete as;
 }
 
 /// Required paint function. (All painting is done by children)
