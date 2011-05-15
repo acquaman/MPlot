@@ -4,7 +4,7 @@
 
 MPlotAxisScale::MPlotAxisScale(Qt::Orientation orientation,
 							   const QSizeF& drawingSize,
-							   const MPlotAxisRange& dataRange,
+							   const MPlotAxisRange& dataRange, qreal axisPaddingPercent,
 							   QObject* parent)
 	: QObject(parent)
 {
@@ -12,7 +12,7 @@ MPlotAxisScale::MPlotAxisScale(Qt::Orientation orientation,
 	drawingSize_ = drawingSize;
 	logScaleEnabled_ = false;
 
-	axisPadding_ = 0.05;
+	axisPadding_ = axisPaddingPercent/100.0;
 
 	dataRangeConstraint_ = MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY);
 

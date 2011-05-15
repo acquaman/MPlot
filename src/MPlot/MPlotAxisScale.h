@@ -109,6 +109,7 @@ public:
 	MPlotAxisScale(Qt::Orientation orientation,
 				   const QSizeF& drawingSize = QSizeF(100, 100),
 				   const MPlotAxisRange& dataRange = MPlotAxisRange(0, 10),
+				   qreal axisPaddingPercent = 5,
 				   QObject* parent = 0);
 
 	qreal mapDataToDrawing(qreal dataValue) const {
