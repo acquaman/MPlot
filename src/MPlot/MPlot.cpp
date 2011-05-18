@@ -60,8 +60,8 @@ MPlot::MPlot(const QRectF& rect, QGraphicsItem* parent) :
 	axisScales_ << new MPlotAxisScale(Qt::Horizontal);	// bottom
 	axisScales_ << new MPlotAxisScale(Qt::Vertical);	// right
 	axisScales_ << new MPlotAxisScale(Qt::Horizontal);	// top
-	axisScales_ << new MPlotAxisScale(Qt::Vertical, QSizeF(100,100), MPlotAxisRange(0,1));	// verticalRelative (fixed between 0 and 1)
-	axisScales_ << new MPlotAxisScale(Qt::Horizontal, QSizeF(100,100), MPlotAxisRange(0,1));// horizontalRelative (fixed between 0 and 1)
+	axisScales_ << new MPlotAxisScale(Qt::Vertical, QSizeF(100,100), MPlotAxisRange(0,1), 0);	// verticalRelative (fixed between 0 and 1)
+	axisScales_ << new MPlotAxisScale(Qt::Horizontal, QSizeF(100,100), MPlotAxisRange(0,1), 0);// horizontalRelative (fixed between 0 and 1)
 
 	axisScaleNormalizationOn_ << false << false << false << false << false << false;
 	axisScaleWaterfallAmount_ << 0 << 0 << 0 << 0 << 0 << 0;
@@ -106,6 +106,11 @@ MPlot::~MPlot() {
 	gettingDeleted_ = true;
 	delete signalHandler_;
 	signalHandler_ = 0;
+
+	foreach(MPlotAxis* axis, axes_)
+		delete axis;
+	foreach(MPlotAxisScale* as, axisScales_)
+		delete as;
 }
 
 /// Required paint function. (All painting is done by children)
