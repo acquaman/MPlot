@@ -56,8 +56,10 @@ public:
 
 	virtual ~MPlotAbstractSeries();
 
-	/// Properties:
+	// Properties:
+	////////////////////
 	virtual void setLinePen(const QPen& pen);
+	QPen linePen() const { return linePen_; }
 
 	/// Returns the current marker, which can be used to access it's pen, brush, and size.
 	/*! If the plot has no marker (or MPlotMarkerShape::None), then this will be a null pointer. Must check before setting.*/
