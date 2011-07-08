@@ -60,7 +60,7 @@ public:
 	MPlotColorMap(const QColor& color1, const QColor& color2, int resolution = 256);
 	/// Constructs a color map based on a set of initial \c colorStops
 	MPlotColorMap(const QGradientStops& colorStops, int resolution = 256);
-	/// Convenience constructor based on the pre-built color maps that are used in other applications.
+	/// Convenience constructor based on the pre-built color maps that are used in other applications, such as Matlab
 	MPlotColorMap(StandardColorMap colorMap, int resolution = 256);
 
 	/// This function assumes that value is between 0-1.
@@ -84,7 +84,7 @@ public:
 	/// Returns the stop points for this gradient.
 	/*! If no stop points have been specified, a gradient of black at 0 to white at 1 is used.*/
 	QGradientStops stops() const { return colorStops_; }
-	/// Replaces the current set of stop points with the given \c stopPoints. The positions of the points must be in the range 0 to 1, and must be sorted with the lowest point first.
+	/// Replaces the current set of stop points with the given \c stopPoints. The positions of the points must be in the range 0 to 1, and must be sorted with the lowest point first.  As soon as you set the stops manually, if this color map was an optimized standardColorMap, it will cease to be.
 	void setStops(const QGradientStops& stopPoints);
 	/// Adds a stop the given \c position with the color \c color.
 	void addStopAt(qreal position, const QColor& color);
@@ -104,6 +104,16 @@ public:
 	/// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.  It will be called automatically as required, but you can also call it prior to calling colorAt() or rgbAt() if you want to optimize the timing of when the cached color map is calculated.
 	void recomputeCachedColors() const;
 
+
+	/// Comparison operator to see if a color map matches \c other. [implies same: resolution, standardColorMap, and if not a standard color map, same colorStops()]
+	bool operator==(const MPlotColorMap& other) { return !(*this != other); }
+	/// Comparison operator to see if a color map is different than \c other. [implies: either a different resolution, different standardColorMap, or if not a standard color map, different colorStops()]
+	bool operator!=(const MPlotColorMap& other);
+
+	/// If this map is one of the standard color maps, returns the StandardColorMap value of that map. Otherwise returns -1.
+	int standardColorMapValue() const { return standardColorMapValue_; }
+
+
 protected:
 
 
@@ -120,13 +130,19 @@ protected:
 	/// System-wide pre-computed values for default color maps: optimizes the creation of new default color maps by sharing the pre-computed color arrays.
 	static QVector<QVector<QRgb>*> precomputedMaps_;
 
+	/// Whether to blend using RGB or HSV interpolation
+	BlendMode blendMode_;
+
 private:
 	/// Returns the index for the color array if given a value within a range between 0 and 1.
 	int colorIndex(QGradientStop stop) const { if (stop.first < 0) return 0; if (stop.first >= 1) return resolution()-1; return (int)(stop.first*(resolution()-1)); }
 
-	BlendMode blendMode_;
 
 };
+
+#include <QMetaType>
+
+Q_DECLARE_METATYPE(MPlotColorMap)
 
 
 #endif // MPLOTCOLORMAP_H

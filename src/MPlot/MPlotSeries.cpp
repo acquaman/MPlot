@@ -56,6 +56,7 @@ MPlotAbstractSeries::~MPlotAbstractSeries() {
 void MPlotAbstractSeries::setLinePen(const QPen& pen) {
 	linePen_ = pen;
 	emitLegendContentChanged(); // this changes the legendColor();
+	update();
 }
 
 // Returns the current marker, which can be used to access it's pen, brush, and size.

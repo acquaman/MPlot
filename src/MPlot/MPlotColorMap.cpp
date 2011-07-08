@@ -4,10 +4,10 @@
 
 #include "MPlotColorMap.h"
 
-/// System-wide pre-computed values for default color maps: optimizes the creation of new default color maps. These all have a standard resolution of 256.
+// System-wide pre-computed values for default color maps: optimizes the creation of new default color maps. These all have a standard resolution of 256.
 QVector<QVector<QRgb>*> MPlotColorMap::precomputedMaps_ = QVector<QVector<QRgb>*>(13,0);
 
-/// Constructs a default color map (Corresponding to MPlotColorMap::Jet)
+// Constructs a default color map (Corresponding to MPlotColorMap::Jet)
 MPlotColorMap::MPlotColorMap(int resolution)
 	: colorArray_(resolution)
 {
@@ -23,7 +23,7 @@ MPlotColorMap::MPlotColorMap(int resolution)
 	recomputeCachedColorsRequired_ = true;
 }
 
-/// Constructs a linear color map between \c color1 and \c color2.
+// Constructs a linear color map between \c color1 and \c color2.
 MPlotColorMap::MPlotColorMap(const QColor& color1, const QColor& color2, int resolution )
 	: colorArray_(resolution)
 {
@@ -33,7 +33,7 @@ MPlotColorMap::MPlotColorMap(const QColor& color1, const QColor& color2, int res
 	recomputeCachedColorsRequired_ = true;
 }
 
-/// Constructs a color map based on a set of initial \c colorStops
+// Constructs a color map based on a set of initial \c colorStops
 MPlotColorMap::MPlotColorMap(const QGradientStops& colorStops, int resolution)
 	: colorArray_(resolution), colorStops_(colorStops)
 {
@@ -42,7 +42,7 @@ MPlotColorMap::MPlotColorMap(const QGradientStops& colorStops, int resolution)
 	recomputeCachedColorsRequired_ = true;
 }
 
-/// Convenience constructor based on the pre-built color maps that are used in other applications.  Since the positions come from indices on a 256 resolution scale, to compute the position I've used (x-1)/(resolution-1).  This gives a range between 0 and 1.
+// Convenience constructor based on the pre-built color maps that are used in other applications.  Since the positions come from indices on a 256 resolution scale, to compute the position I've used (x-1)/(resolution-1).  This gives a range between 0 and 1.
 MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
 	: colorArray_(resolution)
 {
@@ -130,7 +130,7 @@ MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
 }
 
 
-/// Replaces the current set of stop points with the given \c stopPoints. The positions of the points must be in the range 0 to 1, and must be sorted with the lowest point first.
+// Replaces the current set of stop points with the given \c stopPoints. The positions of the points must be in the range 0 to 1, and must be sorted with the lowest point first.
 void MPlotColorMap::setStops(const QGradientStops& stopPoints)
 {
 	standardColorMapValue_ = -1;
@@ -138,7 +138,7 @@ void MPlotColorMap::setStops(const QGradientStops& stopPoints)
 	recomputeCachedColorsRequired_ = true;
 }
 
-/// Adds a stop the given \c position with the color \c color.  Note that position must be between 0 and 1.
+// Adds a stop the given \c position with the color \c color.  Note that position must be between 0 and 1.
 void MPlotColorMap::addStopAt(qreal position, const QColor& color)
 {
 	standardColorMapValue_ = -1;
@@ -155,7 +155,7 @@ void MPlotColorMap::addStopAt(qreal position, const QColor& color)
 	recomputeCachedColorsRequired_ = true;
 }
 
-/// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.
+// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.
 void MPlotColorMap::recomputeCachedColors() const
 {
 	// we're going to be recomputing the colorArray_, so reset this flag.
@@ -241,6 +241,19 @@ void MPlotColorMap::recomputeCachedColors() const
 		precomputedMaps_[standardColorMapValue_] = new QVector<QRgb>();
 		*(precomputedMaps_[standardColorMapValue_]) = colorArray_;
 	}
+}
+
+bool MPlotColorMap::operator !=(const MPlotColorMap &other)
+{
+	if(resolution() != other.resolution())
+		return true;
+	if(standardColorMapValue_ != other.standardColorMapValue_)
+		return true;
+	// if standardColorMapValue_s are both -1, we have custom maps. Need to compare stops.
+	if(standardColorMapValue_ == -1 && colorStops_ != other.colorStops_)
+		return true;
+
+	return false;	// they're the same!
 }
 
 
