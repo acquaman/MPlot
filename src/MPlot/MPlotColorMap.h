@@ -110,6 +110,9 @@ public:
 	/// Comparison operator to see if a color map is different than \c other. [implies: either a different resolution, different standardColorMap, or if not a standard color map, different colorStops()]
 	bool operator!=(const MPlotColorMap& other);
 
+	/// If this map is one of the standard color maps, returns the StandardColorMap value of that map. Otherwise returns -1.
+	int standardColorMapValue() const { return standardColorMapValue_; }
+
 
 protected:
 
@@ -127,13 +130,19 @@ protected:
 	/// System-wide pre-computed values for default color maps: optimizes the creation of new default color maps by sharing the pre-computed color arrays.
 	static QVector<QVector<QRgb>*> precomputedMaps_;
 
+	/// Whether to blend using RGB or HSV interpolation
+	BlendMode blendMode_;
+
 private:
 	/// Returns the index for the color array if given a value within a range between 0 and 1.
 	int colorIndex(QGradientStop stop) const { if (stop.first < 0) return 0; if (stop.first >= 1) return resolution()-1; return (int)(stop.first*(resolution()-1)); }
 
-	BlendMode blendMode_;
 
 };
+
+#include <QMetaType>
+
+Q_DECLARE_METATYPE(MPlotColorMap)
 
 
 #endif // MPLOTCOLORMAP_H
