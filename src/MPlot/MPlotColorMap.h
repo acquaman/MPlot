@@ -114,6 +114,12 @@ protected:
 	/// Optimization: stores whether the colorArray_ has been already filled, or if recomputing the colors is required before asking for any rgbAt() or colorAt() values.
 	mutable bool recomputeCachedColorsRequired_;
 
+	/// This will be -1 if this is a custom colormap, and a StandardColorMap enum value if it is standard.
+	int standardColorMapValue_;
+
+	/// System-wide pre-computed values for default color maps: optimizes the creation of new default color maps by sharing the pre-computed color arrays.
+	static QVector<QVector<QRgb>*> precomputedMaps_;
+
 private:
 	/// Returns the index for the color array if given a value within a range between 0 and 1.
 	int colorIndex(QGradientStop stop) const { if (stop.first < 0) return 0; if (stop.first >= 1) return resolution()-1; return (int)(stop.first*(resolution()-1)); }
@@ -121,37 +127,6 @@ private:
 	BlendMode blendMode_;
 
 };
-
-/*
-/// This class defines the interface for color maps, which are used by image plots to turn a z-value into a color.
-class MPlotAbstractColorMap {
-public:
-	///  return a QRgb (unsigned int) representing the color for a given \c value within a \c range. (Faster than returning a full QColor)
-	virtual QRgb rgb(qreal value, MPlotInterval range = MPlotInterval(0.0, 1.0) ) const = 0;
-	/// return the color representing a given \c value within a \c range.
-	virtual QColor color(qreal value, MPlotInterval range = MPlotInterval(0, 1) ) const = 0;
-
-};
-
-
-/// This implementation of a color map linearly interpolates between two colors.
-class MPlotLinearColorMap : public MPlotAbstractColorMap {
-public:
-
-	/// Constructs a color map with \c start and \c end values.
-	MPlotLinearColorMap(const QColor& start = QColor("black"), const QColor& finish = QColor("black"));
-
-	///  return a QRgb (unsigned int) representing the color for a given \c value within a \c range. (Faster than returning a full QColor)
-	virtual QRgb rgb(qreal value, MPlotInterval range = MPlotInterval(0.0, 1.0) ) const;
-
-	/// return the color representing a given \c value within a \c range.
-	virtual QColor color(qreal value, MPlotInterval range = MPlotInterval(0, 1) ) const;
-
-
-protected:
-	QColor start_, finish_;
-};
-*/
 
 
 #endif // MPLOTCOLORMAP_H
