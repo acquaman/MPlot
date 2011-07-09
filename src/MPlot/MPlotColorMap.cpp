@@ -21,6 +21,10 @@ MPlotColorMap::MPlotColorMap(int resolution)
 				<< QGradientStop(1.0, QColor(128, 0, 0));
 
 	recomputeCachedColorsRequired_ = true;
+
+	mustApplyBCG_ = false;
+	brightness_ = 0.;
+	contrast_ = gamma_ = 1.;
 }
 
 // Constructs a linear color map between \c color1 and \c color2.
@@ -31,6 +35,10 @@ MPlotColorMap::MPlotColorMap(const QColor& color1, const QColor& color2, int res
 	standardColorMapValue_ = -1;
 	colorStops_ << QGradientStop(0.0, color1) << QGradientStop(1.0, color2);
 	recomputeCachedColorsRequired_ = true;
+
+	mustApplyBCG_ = false;
+	brightness_ = 0.;
+	contrast_ = gamma_ = 1.;
 }
 
 // Constructs a color map based on a set of initial \c colorStops
@@ -40,6 +48,10 @@ MPlotColorMap::MPlotColorMap(const QGradientStops& colorStops, int resolution)
 	blendMode_ = RGB;
 	standardColorMapValue_ = -1;
 	recomputeCachedColorsRequired_ = true;
+
+	mustApplyBCG_ = false;
+	brightness_ = 0.;
+	contrast_ = gamma_ = 1.;
 }
 
 // Convenience constructor based on the pre-built color maps that are used in other applications.  Since the positions come from indices on a 256 resolution scale, to compute the position I've used (x-1)/(resolution-1).  This gives a range between 0 and 1.
@@ -127,6 +139,10 @@ MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
 	}
 
 	recomputeCachedColorsRequired_ = true;
+
+	mustApplyBCG_ = false;
+	brightness_ = 0.;
+	contrast_ = gamma_ = 1.;
 }
 
 
@@ -245,6 +261,10 @@ void MPlotColorMap::recomputeCachedColors() const
 
 bool MPlotColorMap::operator !=(const MPlotColorMap &other)
 {
+	if(brightness_ != other.brightness_ || contrast_ != other.contrast_ || gamma_ != other.gamma_)
+		return true;
+	if(blendMode_ != other.blendMode_)
+		return true;
 	if(resolution() != other.resolution())
 		return true;
 	if(standardColorMapValue_ != other.standardColorMapValue_)
@@ -254,6 +274,37 @@ bool MPlotColorMap::operator !=(const MPlotColorMap &other)
 		return true;
 
 	return false;	// they're the same!
+}
+
+void MPlotColorMap::setBrightness(qreal brightness)
+{
+	brightness_ = brightness;
+
+	if(brightness_ == 0. && contrast_ == 1. && gamma_ == 1.)
+		mustApplyBCG_ = false;
+	else
+		mustApplyBCG_ = true;
+}
+
+void MPlotColorMap::setContrast(qreal contrast)
+{
+
+	contrast_ = contrast;
+
+	if(brightness_ == 0. && contrast_ == 1. && gamma_ == 1.)
+		mustApplyBCG_ = false;
+	else
+		mustApplyBCG_ = true;
+}
+
+void MPlotColorMap::setGamma(qreal gamma)
+{
+	gamma_ = gamma;
+
+	if(brightness_ == 0. && contrast_ == 1. && gamma_ == 1.)
+		mustApplyBCG_ = false;
+	else
+		mustApplyBCG_ = true;
 }
 
 

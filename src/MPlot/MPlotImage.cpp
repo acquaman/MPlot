@@ -47,7 +47,7 @@ MPlotAbstractImage::~MPlotAbstractImage() {
 
 // Properties:
 
-// Set the color map, used to convert numeric values into pixel colors. \c map must be a reference to a color map that exists elsewhere, and must exist as long as it is set. (We don't make a copy of the map).
+// Set the color map, used to convert numeric values into pixel colors.
 void MPlotAbstractImage::setColorMap(const MPlotColorMap &map) {
 
 	map_ = map;

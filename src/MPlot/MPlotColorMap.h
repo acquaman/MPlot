@@ -63,23 +63,41 @@ public:
 	/// Convenience constructor based on the pre-built color maps that are used in other applications, such as Matlab
 	MPlotColorMap(StandardColorMap colorMap, int resolution = 256);
 
-	/// This function assumes that value is between 0-1.
+	/// See rgbAt(value).
 	QColor colorAt(qreal value) const { return QColor::fromRgba(rgbAt(value)); }
+	/// See rgbAt(value, range)
 	QColor colorAt(qreal value, MPlotInterval range) const { return QColor::fromRgba(rgbAt(value, range)); }
+	/// See rgbAtIndex()
 	QColor colorAtIndex(int index) const { return QColor::fromRgba(rgbAtIndex(index)); }
 
-	QRgb rgbAt(qreal value) const { return rgbAt(value, MPlotInterval(0.0, 1.0)); }
-	QRgb rgbAt(qreal value, MPlotInterval range) const
-	{
-		if(recomputeCachedColorsRequired_)
-			recomputeCachedColors();
-
+	/// Returns a color for a \c value expressed with a given \c range.  [If value is outside this range, will return minimum or maximum color]
+	QRgb rgbAt(qreal value, MPlotInterval range) const {
 		if(range.first == range.second)	// don't blow up to infinite when the range is nothing.
 			return rgbAtIndex(0);
 
-		return rgbAtIndex((int)round(((value-range.first)/(range.second-range.first))*(resolution()-1)));
+		return rgbAt( (value-range.first)/(range.second-range.first) );	// map values in range to (0,1) and use rgbAt(value).
 	}
-	QRgb rgbAtIndex(int index) const { if (index < 0 || index >= resolution()) return QRgb(); return colorArray_.at(index); }
+
+	/// Returns a color for a \c value between (0,1).  [If value is outside this range, will return minimum or maximum color]
+	QRgb rgbAt(qreal value) const
+	{
+		if(mustApplyBCG_) {
+			value = contrast_*( pow(value,gamma_) + brightness_ );
+		}
+		return rgbAtIndex((int)round(value*(resolution()-1)));
+	}
+
+	/// Returns a color for an index between (0, resolution()-1) in the color map table.  [If index is outside this range, will return minimum or maximum color]
+	QRgb rgbAtIndex(int index) const {
+		if(recomputeCachedColorsRequired_)
+			recomputeCachedColors();
+
+		if (index < 0)
+			return colorArray_.first();
+		if(index >= resolution())
+			return colorArray_.last();
+		return colorArray_.at(index);
+	}
 
 	/// Returns the stop points for this gradient.
 	/*! If no stop points have been specified, a gradient of black at 0 to white at 1 is used.*/
@@ -114,6 +132,21 @@ public:
 	int standardColorMapValue() const { return standardColorMapValue_; }
 
 
+	/// Set a brightness correction for the color map. \brightness is a floating point number between 0 and 1.  Positive values make the image "lighter"; negative values make it "darker".  (A value of 1 for brightness would result in the maximum color being returned for any input value.)
+	void setBrightness(qreal brightness);
+	/// Set a brightness correction for the color map. \contrast is a floating point number greater than 0 which provides a multiplicative scaling factor; values larger than 1 increase the contrast, values less than 1 decrease the contrast.
+	void setContrast(qreal contrast);
+	/// Set a gamma correction for the color map.  \c gamma is a floating point number greater than 0 which provides an exponential scaling factor; values larger than 1 emphasize detail near the maximum values in the image; values less than 1 emphasize detail near the minimum values in the image.
+	void setGamma(qreal gamma);
+
+	/// Return the current brightness correction
+	qreal brightness() const { return brightness_; }
+	/// Return the current contrast correction
+	qreal contrast() const { return contrast_; }
+	/// Return the current gamma correction
+	qreal gamma() const { return gamma_; }
+
+
 protected:
 
 
@@ -132,6 +165,12 @@ protected:
 
 	/// Whether to blend using RGB or HSV interpolation
 	BlendMode blendMode_;
+
+
+	/// Brightness, contrast, and gamma
+	qreal brightness_, contrast_, gamma_;
+	/// Optimization flag to indicate if brightness, contrast, and gamma corrections need to be applied
+	qreal mustApplyBCG_;
 
 private:
 	/// Returns the index for the color array if given a value within a range between 0 and 1.
