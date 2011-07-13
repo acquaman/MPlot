@@ -5,14 +5,27 @@
 #include "MPlotColorMap.h"
 
 // System-wide pre-computed values for default color maps: optimizes the creation of new default color maps. These all have a standard resolution of 256.
-QVector<QVector<QRgb>*> MPlotColorMap::precomputedMaps_ = QVector<QVector<QRgb>*>(13,0);
+QVector<QVector<QRgb>*> MPlotColorMapData::precomputedMaps_ = QVector<QVector<QRgb>*>(13,0);
 
-// Constructs a default color map (Corresponding to MPlotColorMap::Jet)
-MPlotColorMap::MPlotColorMap(int resolution)
-	: colorArray_(resolution)
+
+
+MPlotColorMapData::MPlotColorMapData(const MPlotColorMapData &other)
+	: QSharedData(other),
+	  colorArray_(other.colorArray_),
+	  colorStops_(other.colorStops_),
+	  recomputeCachedColorsRequired_(other.recomputeCachedColorsRequired_),
+	  standardColorMapValue_(other.standardColorMapValue_),
+	  blendMode_(other.blendMode_),
+	  brightness_(other.brightness_),
+	  contrast_(other.contrast_),
+	  gamma_(other.gamma_),
+	  mustApplyBCG_(other.mustApplyBCG_)
 {
-	blendMode_ = RGB;
-	standardColorMapValue_ = Jet;
+}
+
+MPlotColorMapData::MPlotColorMapData(int resolution) : colorArray_(resolution) {
+	blendMode_ = MPlotColorMap::RGB;
+	standardColorMapValue_ = MPlotColorMap::Jet;
 	colorStops_ << QGradientStop(0.0, QColor(0, 0, 131))
 				<< QGradientStop(0.121569, QColor(0, 0, 255))
 				<< QGradientStop(0.372549, QColor(0, 255, 255))
@@ -21,102 +34,129 @@ MPlotColorMap::MPlotColorMap(int resolution)
 				<< QGradientStop(1.0, QColor(128, 0, 0));
 
 	recomputeCachedColorsRequired_ = true;
+
+	mustApplyBCG_ = false;
+	brightness_ = 0.;
+	contrast_ = gamma_ = 1.;
+}
+
+// Constructs a default color map (Corresponding to MPlotColorMap::Jet)
+MPlotColorMap::MPlotColorMap(int resolution)
+	: d(new MPlotColorMapData(resolution))
+{
+}
+
+MPlotColorMapData::MPlotColorMapData(const QColor& color1, const QColor& color2, int resolution) : colorArray_(resolution) {
+	blendMode_ = MPlotColorMap::RGB;
+	standardColorMapValue_ = -1;
+	colorStops_ << QGradientStop(0.0, color1) << QGradientStop(1.0, color2);
+	recomputeCachedColorsRequired_ = true;
+
+	mustApplyBCG_ = false;
+	brightness_ = 0.;
+	contrast_ = gamma_ = 1.;
 }
 
 // Constructs a linear color map between \c color1 and \c color2.
 MPlotColorMap::MPlotColorMap(const QColor& color1, const QColor& color2, int resolution )
-	: colorArray_(resolution)
+	: d(new MPlotColorMapData(color1, color2, resolution))
 {
-	blendMode_ = RGB;
+}
+
+// Constructs a color map based on a set of initial \c colorStops
+MPlotColorMapData::MPlotColorMapData(const QGradientStops& colorStops, int resolution)
+	: colorArray_(resolution), colorStops_(colorStops)
+{
+	blendMode_ = MPlotColorMap::RGB;
 	standardColorMapValue_ = -1;
-	colorStops_ << QGradientStop(0.0, color1) << QGradientStop(1.0, color2);
 	recomputeCachedColorsRequired_ = true;
+
+	mustApplyBCG_ = false;
+	brightness_ = 0.;
+	contrast_ = gamma_ = 1.;
 }
 
 // Constructs a color map based on a set of initial \c colorStops
 MPlotColorMap::MPlotColorMap(const QGradientStops& colorStops, int resolution)
-	: colorArray_(resolution), colorStops_(colorStops)
+	: d(new MPlotColorMapData(colorStops, resolution))
 {
-	blendMode_ = RGB;
-	standardColorMapValue_ = -1;
-	recomputeCachedColorsRequired_ = true;
 }
 
 // Convenience constructor based on the pre-built color maps that are used in other applications.  Since the positions come from indices on a 256 resolution scale, to compute the position I've used (x-1)/(resolution-1).  This gives a range between 0 and 1.
-MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
+MPlotColorMapData::MPlotColorMapData(int colorMap, int resolution)
 	: colorArray_(resolution)
 {
-	blendMode_ = RGB;
+	blendMode_ = MPlotColorMap::RGB;
 	standardColorMapValue_ = colorMap;
 
 	switch(colorMap){
 
-	case Autumn:
+	case MPlotColorMap::Autumn:
 		colorStops_ << QGradientStop(0, QColor(255, 0, 0))
 					<< QGradientStop(1, QColor(255, 255, 0));
 		break;
-	case Bone:
+	case MPlotColorMap::Bone:
 		colorStops_ << QGradientStop(0, QColor(0, 0, 0))
 					<< QGradientStop(0.372549, QColor(83, 83, 115))
 					<< QGradientStop(0.749020, QColor(167, 199, 199))
 					<< QGradientStop(1, QColor(255, 255, 255));
 		break;
-	case Cool:
+	case MPlotColorMap::Cool:
 		colorStops_ << QGradientStop(0, QColor(0, 255, 255))
 					<< QGradientStop(1, QColor(255, 0, 255));
 		break;
-	case Copper:
+	case MPlotColorMap::Copper:
 		colorStops_ << QGradientStop(0, QColor(0, 0, 0))
 					<< QGradientStop(1, QColor(255, 199, 127));
 		break;
-	case Gray:
+	case MPlotColorMap::Gray:
 		colorStops_ << QGradientStop(0, QColor(0, 0, 0))
 					<< QGradientStop(1, QColor(255, 255, 255));
 		break;
-	case Hot:
+	case MPlotColorMap::Hot:
 		colorStops_ << QGradientStop(0, QColor(3, 0, 0))
 					<< QGradientStop(0.372549, QColor(255, 0, 0))
 					<< QGradientStop(0.749020, QColor(255, 255, 0))
 					<< QGradientStop(1, QColor(255, 255, 255));
 		break;
-	case Hsv:
+	case MPlotColorMap::Hsv:
 		colorStops_ << QGradientStop(0, QColor(255, 0, 0))
 					<< QGradientStop(0.4, QColor(0, 255, 99))
 					<< QGradientStop(0.8, QColor(199, 0, 255))
 					<< QGradientStop(1, QColor(255, 0, 6));
-		setBlendMode(HSV);
+		blendMode_ = MPlotColorMap::HSV;
 		break;
 
-	case Pink:// This is a linear interpolation of a non-linear calculation.
+	case MPlotColorMap::Pink:// This is a linear interpolation of a non-linear calculation.
 		colorStops_ << QGradientStop(0, QColor(15, 0, 0))
 					<< QGradientStop(0.372549, QColor(195, 128, 128))
 					<< QGradientStop(0.749020, QColor(234, 234, 181))
 					<< QGradientStop(1, QColor(255, 255, 255));
 		break;
 
-	case Spring:
+	case MPlotColorMap::Spring:
 		colorStops_ << QGradientStop(0, QColor(255, 0, 255))
 					<< QGradientStop(1, QColor(255, 255, 0));
 		break;
 
-	case Summer:
+	case MPlotColorMap::Summer:
 		colorStops_ << QGradientStop(0, QColor(0, 128, 102))
 					<< QGradientStop(1, QColor(255, 255, 102));
 		break;
 
-	case White:
+	case MPlotColorMap::White:
 		colorStops_ << QGradientStop(0, QColor(255, 255, 255))
 					<< QGradientStop(1, QColor(255, 255, 255));
 		break;
 
-	case Winter:
+	case MPlotColorMap::Winter:
 		colorStops_ << QGradientStop(0, QColor(0, 0, 255))
 					<< QGradientStop(1, QColor(0, 255, 128));
 		break;
 
 	default:
-		standardColorMapValue_ = Jet;
-	case Jet:
+		standardColorMapValue_ = MPlotColorMap::Jet;
+	case MPlotColorMap::Jet:
 		colorStops_ << QGradientStop(0.0, QColor(0, 0, 131))
 					<< QGradientStop(0.121569, QColor(0, 0, 255))
 					<< QGradientStop(0.372549, QColor(0, 255, 255))
@@ -127,36 +167,48 @@ MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
 	}
 
 	recomputeCachedColorsRequired_ = true;
+
+	mustApplyBCG_ = false;
+	brightness_ = 0.;
+	contrast_ = gamma_ = 1.;
+}
+
+MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
+	: d(new MPlotColorMapData(colorMap, resolution))
+{
 }
 
 
 // Replaces the current set of stop points with the given \c stopPoints. The positions of the points must be in the range 0 to 1, and must be sorted with the lowest point first.
 void MPlotColorMap::setStops(const QGradientStops& stopPoints)
 {
-	standardColorMapValue_ = -1;
-	colorStops_ = stopPoints;
-	recomputeCachedColorsRequired_ = true;
+	d.detach();
+	d->standardColorMapValue_ = -1;
+	d->colorStops_ = stopPoints;
+	d->recomputeCachedColorsRequired_ = true;
 }
 
 // Adds a stop the given \c position with the color \c color.  Note that position must be between 0 and 1.
 void MPlotColorMap::addStopAt(qreal position, const QColor& color)
 {
-	standardColorMapValue_ = -1;
-	for (int i = 0; i < colorStops_.size(); i++){
+	d.detach();
+	d->standardColorMapValue_ = -1;
+	for (int i = 0; i < d->colorStops_.size(); i++){
 
 		// The first time position is smaller than the current position, put it in that place.  Exit loop.
-		if (position < colorStops_.at(i).first){
+		if (position < d->colorStops_.at(i).first){
 
-			colorStops_.insert(i, QGradientStop(position, color));
+			d->colorStops_.insert(i, QGradientStop(position, color));
 			break;
 		}
 	}
 
-	recomputeCachedColorsRequired_ = true;
+	d->recomputeCachedColorsRequired_ = true;
 }
 
+
 // Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.
-void MPlotColorMap::recomputeCachedColors() const
+void MPlotColorMapData::recomputeCachedColors() const
 {
 	// we're going to be recomputing the colorArray_, so reset this flag.
 	recomputeCachedColorsRequired_ = false;
@@ -173,10 +225,10 @@ void MPlotColorMap::recomputeCachedColors() const
 
 		qreal maxSize = (qreal)resolution();
 
-		if (blendMode() == HSV)
+		if (blendMode_ == MPlotColorMap::HSV)
 			for (int i = 0; i < maxSize; i++)
 				colorArray_[i] = QColor::fromHsvF(0, 0, i/resolution()).rgb();
-		else if (blendMode() == RGB)
+		else if (blendMode_ == MPlotColorMap::RGB)
 			for (int i = 0; i < maxSize; i++)
 				colorArray_[i] = QColor::fromRgbF(i/maxSize, i/maxSize, i/maxSize).rgb();
 	}
@@ -208,14 +260,14 @@ void MPlotColorMap::recomputeCachedColors() const
 			endIndex = colorIndex(end);
 			endMinusStart = endIndex-startIndex;
 
-			if (blendMode() == HSV)
+			if (blendMode_ == MPlotColorMap::HSV)
 				for (int i = 0; i <= endMinusStart; i++)
 					colorArray_[startIndex+i] = QColor::fromHsv(start.second.hue()+(end.second.hue()-start.second.hue())*i/endMinusStart,
 																start.second.saturation()+(end.second.saturation()-start.second.saturation())*i/endMinusStart,
 																start.second.value()+(end.second.value()-start.second.value())*i/endMinusStart,
 																start.second.alpha()+(end.second.alpha()-start.second.alpha())*i/endMinusStart)
 							.rgb();
-			else if (blendMode() == RGB)
+			else if (blendMode_ == MPlotColorMap::RGB)
 				for (int i = 0; i <= endMinusStart; i++)
 					colorArray_[startIndex+i] = QColor::fromRgb(start.second.red()+(end.second.red()-start.second.red())*i/endMinusStart,
 																start.second.green()+(end.second.green()-start.second.green())*i/endMinusStart,
@@ -243,8 +295,12 @@ void MPlotColorMap::recomputeCachedColors() const
 	}
 }
 
-bool MPlotColorMap::operator !=(const MPlotColorMap &other)
+bool MPlotColorMapData::operator !=(const MPlotColorMapData &other) const
 {
+	if(brightness_ != other.brightness_ || contrast_ != other.contrast_ || gamma_ != other.gamma_)
+		return true;
+	if(blendMode_ != other.blendMode_)
+		return true;
 	if(resolution() != other.resolution())
 		return true;
 	if(standardColorMapValue_ != other.standardColorMapValue_)
@@ -254,6 +310,46 @@ bool MPlotColorMap::operator !=(const MPlotColorMap &other)
 		return true;
 
 	return false;	// they're the same!
+}
+
+
+void MPlotColorMap::setBrightness(qreal brightness)
+{
+	d.detach();
+
+	d->brightness_ = brightness;
+
+	if(d->brightness_ == 0. && d->contrast_ == 1. && d->gamma_ == 1.)
+		d->mustApplyBCG_ = false;
+	else
+		d->mustApplyBCG_ = true;
+}
+
+void MPlotColorMap::setContrast(qreal contrast)
+{
+	d.detach();
+	d->contrast_ = contrast;
+
+	if(d->brightness_ == 0. && d->contrast_ == 1. && d->gamma_ == 1.)
+		d->mustApplyBCG_ = false;
+	else
+		d->mustApplyBCG_ = true;
+}
+
+void MPlotColorMap::setGamma(qreal gamma)
+{
+	d.detach();
+	d->gamma_ = gamma;
+
+	if(d->brightness_ == 0. && d->contrast_ == 1. && d->gamma_ == 1.)
+		d->mustApplyBCG_ = false;
+	else
+		d->mustApplyBCG_ = true;
+}
+
+bool MPlotColorMap::operator !=(const MPlotColorMap &other) const
+{
+	 return *d != *(other.d);
 }
 
 

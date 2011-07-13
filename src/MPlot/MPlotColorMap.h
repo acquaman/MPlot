@@ -11,6 +11,61 @@
 #include "MPlotImageData.h"
 #include <QGradientStop>
 
+#include <QSharedData>
+
+/// This private class is used to implement implicit sharing for MPlotColorMap
+class MPlotColorMapData : public QSharedData
+{
+  public:
+	MPlotColorMapData(int resolution = 256);
+	MPlotColorMapData(const QColor& color1, const QColor& color2, int resolution = 256);
+	MPlotColorMapData(const QGradientStops& colorStops, int resolution);
+	MPlotColorMapData(int standardColorMap, int resolution);
+
+	MPlotColorMapData(const MPlotColorMapData &other);
+
+	~MPlotColorMapData() {}
+
+
+	/// Stores the pre-computed colors in the map.
+	mutable QVector<QRgb> colorArray_;
+	/// Stores the current color stops which define the map.
+	QGradientStops colorStops_;
+	/// Optimization: stores whether the colorArray_ has been already filled, or if recomputing the colors is required before asking for any rgbAt() or colorAt() values.
+	mutable bool recomputeCachedColorsRequired_;
+
+	/// This will be -1 if this is a custom colormap, and a StandardColorMap enum value if it is standard.
+	int standardColorMapValue_;
+
+	/// Whether to blend using RGB or HSV interpolation
+	int blendMode_;
+
+	/// Brightness, contrast, and gamma
+	qreal brightness_, contrast_, gamma_;
+	/// Optimization flag to indicate if brightness, contrast, and gamma corrections need to be applied
+	qreal mustApplyBCG_;
+
+
+	/// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.  It will be called automatically as required, but you can also call it prior to calling colorAt() or rgbAt() if you want to optimize the timing of when the cached color map is calculated.
+	void recomputeCachedColors() const;
+
+	int resolution() const { return colorArray_.size(); }
+	bool operator!=(const MPlotColorMapData& other) const;
+
+	/// Returns the index for the color array if given a value within a range between 0 and 1.
+	int colorIndex(QGradientStop stop) const {
+		if (stop.first < 0) return 0;
+		if (stop.first >= 1) return resolution()-1;
+		return (int)(stop.first*(resolution()-1));
+	}
+
+
+	/// System-wide pre-computed values for default color maps: optimizes the creation of new default color maps by sharing the pre-computed color arrays.
+	static QVector<QVector<QRgb>*> precomputedMaps_;
+
+};
+
+
 
 /// This class converts numerical values into colors, for use in 2D image maps.  (Its output is very similar to Matlab's \c colormap function.)  Like QGradient, it can produce an infinite variety of color mappings, by using a set of color stops at arbitrary values, and interpolating between them.
 /*!
@@ -63,79 +118,107 @@ public:
 	/// Convenience constructor based on the pre-built color maps that are used in other applications, such as Matlab
 	MPlotColorMap(StandardColorMap colorMap, int resolution = 256);
 
-	/// This function assumes that value is between 0-1.
+	/// See rgbAt(value).
 	QColor colorAt(qreal value) const { return QColor::fromRgba(rgbAt(value)); }
+	/// See rgbAt(value, range)
 	QColor colorAt(qreal value, MPlotInterval range) const { return QColor::fromRgba(rgbAt(value, range)); }
+	/// See rgbAtIndex()
 	QColor colorAtIndex(int index) const { return QColor::fromRgba(rgbAtIndex(index)); }
 
-	QRgb rgbAt(qreal value) const { return rgbAt(value, MPlotInterval(0.0, 1.0)); }
-	QRgb rgbAt(qreal value, MPlotInterval range) const
-	{
-		if(recomputeCachedColorsRequired_)
-			recomputeCachedColors();
-
+	/// Returns a color for a \c value expressed with a given \c range.  [If value is outside this range, will return minimum or maximum color]
+	QRgb rgbAt(qreal value, MPlotInterval range) const {
 		if(range.first == range.second)	// don't blow up to infinite when the range is nothing.
 			return rgbAtIndex(0);
 
-		return rgbAtIndex((int)round(((value-range.first)/(range.second-range.first))*(resolution()-1)));
+		return rgbAt( (value-range.first)/(range.second-range.first) );	// map values in range to (0,1) and use rgbAt(value).
 	}
-	QRgb rgbAtIndex(int index) const { if (index < 0 || index >= resolution()) return QRgb(); return colorArray_.at(index); }
+
+	/// Returns a color for a \c value between (0,1).  [If value is outside this range, will return minimum or maximum color]
+	QRgb rgbAt(qreal value) const
+	{
+		if(d->mustApplyBCG_) {
+			value = d->contrast_*( pow(value,d->gamma_) + d->brightness_ );
+		}
+		return rgbAtIndex((int)round(value*(resolution()-1)));
+	}
+
+	/// Returns a color for an index between (0, resolution()-1) in the color map table.  [If index is outside this range, will return minimum or maximum color]
+	QRgb rgbAtIndex(int index) const {
+		if(d->recomputeCachedColorsRequired_)
+			d->recomputeCachedColors();
+
+		if (index < 0)
+			return d->colorArray_.first();
+		if(index >= resolution())
+			return d->colorArray_.last();
+		return d->colorArray_.at(index);
+	}
 
 	/// Returns the stop points for this gradient.
 	/*! If no stop points have been specified, a gradient of black at 0 to white at 1 is used.*/
-	QGradientStops stops() const { return colorStops_; }
+	QGradientStops stops() const { return d->colorStops_; }
 	/// Replaces the current set of stop points with the given \c stopPoints. The positions of the points must be in the range 0 to 1, and must be sorted with the lowest point first.  As soon as you set the stops manually, if this color map was an optimized standardColorMap, it will cease to be.
 	void setStops(const QGradientStops& stopPoints);
 	/// Adds a stop the given \c position with the color \c color.
 	void addStopAt(qreal position, const QColor& color);
 
 	/// Returns the resolution (number of color steps) in the pre-computed color map.
-	int resolution() const { return colorArray_.size(); }
+	int resolution() const { return d->colorArray_.size(); }
 	/// Set the resolution (number of color steps) in the pre-computed color map.  The default is 256.  Higher resolution could produce a smoother image, but will require more memory.  (For comparison, Matlab's default resolution is 64.)
-	void setResolution(int newResolution) { colorArray_.resize(newResolution); recomputeCachedColorsRequired_ = true; }
+	void setResolution(int newResolution) {
+		if(newResolution == resolution())
+			return;
+
+		d.detach();
+		d->colorArray_.resize(newResolution);
+		d->recomputeCachedColorsRequired_ = true;
+	}
 
 
 	/// Returns the interpolation mode used to interpolate between color stops.  RGB is fastest, while HSV preserves human-perception-based color relationships.
-	BlendMode blendMode() const { return blendMode_; }
+	BlendMode blendMode() const { return (BlendMode)d->blendMode_; }
 	/// Set the interpolation mode used to interpolate between color stops.
-	void setBlendMode(BlendMode newBlendMode) { blendMode_ = newBlendMode; recomputeCachedColorsRequired_ = true; }
+	void setBlendMode(BlendMode newBlendMode) {
+		if(d->blendMode_ == newBlendMode)
+			return;
 
+		d.detach();
+		d->blendMode_ = newBlendMode;
+		d->recomputeCachedColorsRequired_ = true;
+	}
 
-	/// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.  It will be called automatically as required, but you can also call it prior to calling colorAt() or rgbAt() if you want to optimize the timing of when the cached color map is calculated.
-	void recomputeCachedColors() const;
 
 
 	/// Comparison operator to see if a color map matches \c other. [implies same: resolution, standardColorMap, and if not a standard color map, same colorStops()]
-	bool operator==(const MPlotColorMap& other) { return !(*this != other); }
+	bool operator==(const MPlotColorMap& other) const { return !(*this != other); }
 	/// Comparison operator to see if a color map is different than \c other. [implies: either a different resolution, different standardColorMap, or if not a standard color map, different colorStops()]
-	bool operator!=(const MPlotColorMap& other);
+	bool operator!=(const MPlotColorMap& other) const;
 
 	/// If this map is one of the standard color maps, returns the StandardColorMap value of that map. Otherwise returns -1.
-	int standardColorMapValue() const { return standardColorMapValue_; }
+	int standardColorMapValue() const { return d->standardColorMapValue_; }
+
+
+	/// Set a brightness correction for the color map. \brightness is a floating point number between 0 and 1.  Positive values make the image "lighter"; negative values make it "darker".  (A value of 1 for brightness would result in the maximum color being returned for any input value.)
+	void setBrightness(qreal brightness);
+	/// Set a brightness correction for the color map. \contrast is a floating point number greater than 0 which provides a multiplicative scaling factor; values larger than 1 increase the contrast, values less than 1 decrease the contrast.
+	void setContrast(qreal contrast);
+	/// Set a gamma correction for the color map.  \c gamma is a floating point number greater than 0 which provides an exponential scaling factor; values larger than 1 emphasize detail near the maximum values in the image; values less than 1 emphasize detail near the minimum values in the image.
+	void setGamma(qreal gamma);
+
+	/// Return the current brightness correction
+	qreal brightness() const { return d->brightness_; }
+	/// Return the current contrast correction
+	qreal contrast() const { return d->contrast_; }
+	/// Return the current gamma correction
+	qreal gamma() const { return d->gamma_; }
 
 
 protected:
 
-
-	/// Stores the pre-computed colors in the map.
-	mutable QVector<QRgb> colorArray_;
-	/// Stores the current color stops which define the map.
-	QGradientStops colorStops_;
-	/// Optimization: stores whether the colorArray_ has been already filled, or if recomputing the colors is required before asking for any rgbAt() or colorAt() values.
-	mutable bool recomputeCachedColorsRequired_;
-
-	/// This will be -1 if this is a custom colormap, and a StandardColorMap enum value if it is standard.
-	int standardColorMapValue_;
-
-	/// System-wide pre-computed values for default color maps: optimizes the creation of new default color maps by sharing the pre-computed color arrays.
-	static QVector<QVector<QRgb>*> precomputedMaps_;
-
-	/// Whether to blend using RGB or HSV interpolation
-	BlendMode blendMode_;
-
 private:
-	/// Returns the index for the color array if given a value within a range between 0 and 1.
-	int colorIndex(QGradientStop stop) const { if (stop.first < 0) return 0; if (stop.first >= 1) return resolution()-1; return (int)(stop.first*(resolution()-1)); }
+
+	/// To implement implicit sharing:
+	QExplicitlySharedDataPointer<MPlotColorMapData> d;
 
 
 };
