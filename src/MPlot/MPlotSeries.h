@@ -209,8 +209,7 @@ public:
 
 	/// Required functions:
 	//////////////////////////
-	/// boundingRect: reported in our PlotSeries coordinates, which are just the actual data coordinates.
-	/// using parent implementation, but adding extra room on edges for our selection highlight and markers.
+	/// boundingRect: using parent implementation, but adding extra room on edges for our selection highlight and markers.
 	virtual QRectF boundingRect() const;
 
 	/// Paint:
