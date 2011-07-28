@@ -6,7 +6,7 @@
 #include <QList>
 #include <QRectF>
 
-
+#include <limits>
 
 class MPlotAbstractSeriesData;
 
