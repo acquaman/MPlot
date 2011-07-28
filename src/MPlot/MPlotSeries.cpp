@@ -276,8 +276,7 @@ MPlotSeriesBasic::~MPlotSeriesBasic() {
 
 // Required functions:
 //////////////////////////
-// boundingRect: reported in our PlotSeries coordinates, which are just the actual data coordinates.
-// using parent implementation, but adding extra room on edges for our selection highlight and markers.
+
 QRectF MPlotSeriesBasic::boundingRect() const {
 	QRectF br = MPlotAbstractSeries::boundingRect();
 

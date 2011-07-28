@@ -62,7 +62,8 @@ QRectF MPlotPoint::boundingRect() const {
 }
 
 QRectF MPlotPoint::dataRect() const {
-	return QRectF(point_, QSizeF(0,0));
+	return QRectF(point_,
+				  QSizeF(std::numeric_limits<qreal>::min(),std::numeric_limits<qreal>::min()));	// this gives us a valid dataRect() with a non-zero size, without extending the size any bigger than we need too.
 }
 
 void MPlotPoint::paint(QPainter* painter,
