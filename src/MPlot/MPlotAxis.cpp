@@ -225,10 +225,11 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 			painter->drawLine(x, tickTop, x, tickBottom);
 
 			// draw the label
+
 			if(tickLabelsVisible_) {
 				painter->setPen(axisPen_);
 				QRectF labelBox = QRectF(QPointF(x,tickBottom+tickLabelOffset_), QSizeF(0,0));
-				painter->drawText(labelBox, Qt::AlignTop | Qt::AlignHCenter | Qt::TextDontClip, QString::number(tickValue));
+				painter->drawText(labelBox, Qt::AlignTop | Qt::AlignHCenter | Qt::TextDontClip, formatTickLabel(tickValue));
 			}
 
 			// draw the gridline
@@ -632,6 +633,24 @@ void MPlotAxis::setFontsScaleWithDrawingSize(bool fontsShouldScale) {
 	fontsShouldScale_ = fontsShouldScale;
 	scaleFontsRequired_ = true;
 	update();
+}
+
+QString MPlotAxis::formatTickLabel(double tickValue)
+{
+	qreal rangeMin = axisScale_->min();
+	qreal rangeMax = axisScale_->max();
+
+	// in this situation, we need to look out for "almost-zero" values that need rounding to exactly zero
+	if(rangeMin < 0 && rangeMax > 0) {
+		// significance is, let's say, 8 orders of magnitude below the full range
+		qreal significance = (rangeMax - rangeMin) / 1e8; //ex: range is (-0.5, 0.5)... significance = 1e-8
+
+		qreal truncated = round(tickValue/significance) * significance;
+		return QString::number(truncated);
+	}
+	else {
+		return QString::number(tickValue);
+	}
 }
 
 

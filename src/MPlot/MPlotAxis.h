@@ -143,6 +143,10 @@ protected:
 	QFont scaleFontToDrawingSize(const QFont& sourceFont) const;
 	void scaleFonts() const;
 
+	/// Helper function to format, round as appropriate, and convert a double \c tickValue to a string for printing as an axis label.  If the tickValue should be interpreted as 0 within the context of the axis range (ex: -0.2, -0.1, 1.2343e-17, 0.1, 0.2...), this will take care of it.
+	QString formatTickLabel(double tickValue);
+
+
 };
 
 #endif
