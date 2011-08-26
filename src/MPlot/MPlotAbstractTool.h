@@ -12,11 +12,10 @@ class MPlotAbstractTool : public QGraphicsObject
 {
 	Q_OBJECT
 public:
+	/// Constructor.  Builds the basis for any real MPlot tools.  Defines a default geometry if one is not provided.
 	MPlotAbstractTool(const QRectF& geometry = QRectF(0,0,100,100));
-
+	/// Destructor.  Removes the tool from the plot.
 	virtual ~MPlotAbstractTool();
-
-	// isEnabled() and setEnabled(true/false) are used to enable or disable a tool's functionality.
 
 	/// Some tools don't need to draw anything. This provides an empty paint() function. Reimplement if drawing is needed.
 	virtual void	paint ( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 ) {
@@ -40,10 +39,15 @@ public:
 
 
 protected:
+	/// Defining the mousePressEvent as a pure virtual function to ensure that all the subclasses must reimplement it.
 	virtual void	mousePressEvent ( QGraphicsSceneMouseEvent * event ) = 0;
+	/// Defining the mouseMoveEvent as a pure virtual function to ensure that all the subclasses must reimplement it.
 	virtual void	mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) = 0;
+	/// Defining the mouseReleaseEvent as a pure virtual function to ensure that all the subclasses must reimplement it.
 	virtual void	mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) = 0;
+	/// Defining the wheelEvent as a pure virtual function to ensure that all the subclasses must reimplement it.
 	virtual void	wheelEvent ( QGraphicsSceneWheelEvent * event ) = 0;
+	/// Defining the mouseDoubleClickEvent as a pure virtual function to ensure that all the subclasses must reimplement it.
 	virtual void	mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event ) = 0;
 
 	/// The plot we're attached to
@@ -52,7 +56,6 @@ protected:
 	QRectF rect_;
 	/// The axes we're active on.
 	QList<MPlotAxisScale*> targetAxes_;
-
 };
 
 #endif // MPLOTABSTRACTTOOL_H

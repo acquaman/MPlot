@@ -106,14 +106,12 @@ public:
 	/// Remove a data-item from a plot. (Note: Does not delete the item...)
 	bool removeItem(MPlotItem* removeMe);
 
-
 	/// Returns the number of items currently displayed in the plot:
 	int numItems() const { return items_.count(); }
 	/// Returns one of the plot items, by index:
 	MPlotItem* item(int index) const { if(index>=0 && index<items_.count()) return items_.at(index); else return 0; }
 	/// Returns all the plot items in this plot
 	QList<MPlotItem*> plotItems() const { return items_; }
-
 
 	/// Add a tool to the plot:
 	void addTool(MPlotAbstractTool* newTool);
@@ -124,7 +122,6 @@ public:
 	/// Returns the QGraphicsItem that contains the plot area.
 	QGraphicsRectItem* plotArea() const { return plotArea_; }
 	// access elements of the canvas:
-
 
 	/// Returns the MPlot axis for the given \param axisIndex.  If the axisIndex is not valid, then 0 is returned.
 	MPlotAxis* axis(int axisIndex) { if((unsigned)axisIndex >= (unsigned)axes_.count()) return 0;  return axes_.at(axisIndex); }
@@ -195,7 +192,6 @@ public:
 	/// Convenience getter for setting the bottom margin to the given \param value.
 	void setMarginBottom(qreal value) { setMargin(MPlot::Bottom, value); }
 
-
 	/// Method that enables/disables axis normalization for the given MPlotAxisScale \param axisScaleIndex between the given MPlotAxisRange \param normalizationRange.  If no range is given, then the standard of 0 to 1 is used.
 	void enableAxisNormalization(int axisScaleIndex, bool normalizationOn, const MPlotAxisRange& normalizationRange = MPlotAxisRange(0,1));
 	/// Convenience method to enable/disable axis normalization for the given MPlotAxisScale \param axisScaleIndex by explicitly giving a \param min and \param max.
@@ -206,11 +202,8 @@ public:
 	/// Sets a waterfall amount to be applied to the given \param axisScaleIndex.  The \param amount defaults to 0.2 because it assumes that normalization has been enabled for the given MPlotAxisScale.  However, any amount that is within the MPlotAxisRange range is an acceptable value.
 	void setAxisScaleWaterfall(int axisScaleIndex, qreal amount = 0.2);
 
-
-
 	/// Called automatically when control returns to the event loop, this completes a delayed autoscale. (Recomputing the scale limits is optimized to be only done when necessary, rather than whenever the data values change.)  If you need the scene to be updated NOW! (for example, you're working outside of an event loop, or rendering before returning to the event loop), you can call this manually.
 	void doDelayedAutoScale();
-
 
 protected: // "slots" (proxied through MPlotSignalHandler)
 	/// Called when the x-y data in a plot item might have changed, such that a re-autoscale is necessary.
@@ -222,10 +215,7 @@ protected: // "slots" (proxied through MPlotSignalHandler)
 	/// Called when the autoscaling of an axis scale changes.
 	void onAxisScaleAutoScaleEnabledChanged(bool autoScaleEnabled);
 
-
-
 protected:
-
 	/// Request a deferred auto-scale:
 	void scheduleDelayedAutoScale();
 	/// Sets the defaults for the drawing options: margins, scale padding, background colors, initial data range.
@@ -265,10 +255,8 @@ protected:
 	/// The rectangle containing the plotting area, in scene coordinates.
 	QRectF plotAreaRect_;
 
-
 	/// Caching/optimization: counts the number of MPlotAbstractSeries plotted on the left and right axes
 	mutable int seriesCounterLeft_, seriesCounterRight_;
-
 
 	/// Indicates that a re-autoscale has been scheduled (Actually doing it is deferred until returning back to the event loop)
 	bool autoScaleScheduled_;
@@ -279,8 +267,6 @@ protected:
 	/// This proxy object handles signals and slots for MPlot (so that MPlot does not need to be a QObject)
 	MPlotSignalHandler* signalHandler_;
 	friend class MPlotSignalHandler;
-
-
 };
 
 #include <QGraphicsWidget>
