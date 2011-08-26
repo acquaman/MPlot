@@ -15,16 +15,20 @@
 class MPlot;
 
 /// This class handles signals as a proxy for MPlot.  You should never need to use this class directly.
-/*! To avoid restrictions on multipler inheritance, MPlot does not inherit QObject.  Still, it needs a way to respond to events from MPlotItems (such as re-scale and selected events).  This QObject receives signals from MPlotItem and calls the appropriate functions within MPlot.
+/*! To avoid restrictions on multiple inheritance, MPlot does not inherit QObject.  Still, it needs a way to respond to events from MPlotItems (such as re-scale and selected events).  This QObject receives signals from MPlotItem and calls the appropriate functions within MPlot.
   */
 class MPlotSignalHandler : public QObject {
 	Q_OBJECT
 protected:
+	/// Constructor.  Builds a signal source for the MPlot given by \param parent.
 	MPlotSignalHandler(MPlot* parent);
+	/// Giving the signal handler access to MPlots protected members.
 	friend class MPlot;
 
 protected slots:
+	/// Catches the boundsChanged signal and calls MPlots onBoundsChanged method with with the pointer of whichever MPlotItem emitted the signal.
 	void onBoundsChanged();
+
 	void onSelectedChanged(bool);
 	void onPlotItemLegendContentChanged();
 
