@@ -2,10 +2,7 @@
 #include <QDebug>
 
 
-MPlotAxisScale::MPlotAxisScale(Qt::Orientation orientation,
-							   const QSizeF& drawingSize,
-							   const MPlotAxisRange& dataRange, qreal axisPaddingPercent,
-							   QObject* parent)
+MPlotAxisScale::MPlotAxisScale(Qt::Orientation orientation, const QSizeF& drawingSize, const MPlotAxisRange& dataRange, qreal axisPaddingPercent, QObject* parent)
 	: QObject(parent)
 {
 	orientation_ = orientation;
@@ -104,8 +101,6 @@ void MPlotAxisScale::setPadding(qreal percent) {
 	axisPadding_ = percent/100.0;
 	setDataRange(unpaddedDataRange_, true);
 }
-
-
 
 QList<qreal> MPlotAxisScale::calculateTickValues(int minimumNumberOfTicks) const
 {

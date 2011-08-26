@@ -70,15 +70,22 @@ public:
 		*this = constrainedTo(constraint);
 	}
 
+	/// Returns the minimum value for this axis range.
 	qreal min() const { return min_; }
+	/// Returns the maximum value for this axis range.
 	qreal max() const { return max_; }
+	/// Returns the separation between the minimum and maximum in this axis range.
 	qreal length() const { return max_ - min_; }
 
+	/// Sets the minimum value to \param min for this axis range.
 	void setMin(qreal min) { min_ = min; }
+	/// Sets the maximum value to \param max for this axis range.
 	void setMax(qreal max) { max_ = max; }
 
+	/// Sets the range (min and max) for this axis range to \param min and \param max.
 	void setRange(qreal min, qreal max) { min_ = min; max_ = max; valid_ = true; }
 
+	/// Operator for MPlotAxisRanges.  Takes the lowest minimum and largest maximum from the current axis range and \param other.
 	MPlotAxisRange& operator|=(const MPlotAxisRange& other) {
 		if(!other.isValid())
 			return *this;	// if other is not valid: don't change anything.
@@ -97,21 +104,26 @@ public:
 	}
 
 protected:
+	/// Holds the minimum and maximum value for this axis range.
 	qreal min_, max_;
+	/// Holds whether or not this axis range is valid or not.
 	bool valid_;
 };
 
+/// This class handles all the size aspects for a particular axis.  It manages the range of the axis, how big the axis should be, and some of the other specifics for the axis.  It is kind of like the model for MPlotAxis.  It holds all the relevent information and MPlotAxis paints the axis based on that information.
 class MPlotAxisScale : public QObject
 {
 	Q_OBJECT
 
 public:
+	/// Constructor.  Sets some default values to the \param dataRange, \param drawingSize, and \param axisPaddingPercent.  However, it must be specified whether or not the axis scale is veritcal or horizontal because that effects the calculation of some of the properties.
 	MPlotAxisScale(Qt::Orientation orientation,
 				   const QSizeF& drawingSize = QSizeF(100, 100),
 				   const MPlotAxisRange& dataRange = MPlotAxisRange(0, 10),
 				   qreal axisPaddingPercent = 5,
 				   QObject* parent = 0);
 
+	/// Returns the data value in scene coordinates (ie: is properly scaled within the confines of the minimum and maximum range that is displayed).
 	qreal mapDataToDrawing(qreal dataValue) const {
 		qreal min = dataRange_.min();
 		qreal max = dataRange_.max();
@@ -131,12 +143,14 @@ public:
 			return drawingSize_.width() * (dataValue-min)/(max-min);
 	}
 
+	/// Returns the MPlotAxisRange of the axis scale but within the confines of the scene size.
 	MPlotAxisRange mapDataToDrawing(const MPlotAxisRange& dataRange) const {
 		return MPlotAxisRange(
 					mapDataToDrawing(dataRange.min()),
 					mapDataToDrawing(dataRange.max()));
 	}
 
+	/// The inverse operation of mapDataToDrawing.  It takes a value from scene coordinates and maps it to data coordinates.
 	qreal mapDrawingToData(qreal drawingValue) const {
 		qreal min = dataRange_.min();
 		qreal max = dataRange_.max();
@@ -156,20 +170,27 @@ public:
 
 		return logScaleOn ? pow(10, rv) : rv;
 	}
+
+	/// The inverse operation of the mapDataToDrawing.  It takes the MPlotAxisRange in scene coordinates and maps it back to data coordinates.
 	MPlotAxisRange mapDrawingToData(const MPlotAxisRange& drawingRange) const {
 		return MPlotAxisRange(
 					mapDrawingToData(drawingRange.min()),
 					mapDrawingToData(drawingRange.max()));
 	}
 
-
+	/// Returns the drawing size for this axis scale.  Defines how big can be in scene coordinates.
 	QSizeF drawingSize() const { return drawingSize_; }
+	/// Returns the size of the axis scale based on its orientation.
 	qreal drawingLength() const { return orientation_ == Qt::Vertical ? drawingSize_.height() : drawingSize_.width(); }
 
+	/// Returns the current data range used for this axis scale.
 	MPlotAxisRange dataRange() const { return dataRange_; }
+	/// Returns the minimum value in the data range for this axis scale.
 	qreal min() const { return dataRange_.min(); }
+	/// Returns the maximum value in the data range for this axis scale.
 	qreal max() const { return dataRange_.max(); }
 
+	/// Returns the orientation of the axis scale.
 	Qt::Orientation orientation() const { return orientation_; }
 
 	/// Enable or disable logarithmic scaling on this axis.  Note that log scaling is only applied when the data range's min() and max() are both > 0.
@@ -179,8 +200,6 @@ public:
 
 	/// Indicates that logarithmic scaling is enabled AND currently active. This means that logScaleEnabled() is true, and both min() and max() are > 0.
 	bool logScaleInEffect() const { return logScaleEnabled_ && dataRange_.min() > 0 && dataRange_.max() > 0; }
-
-
 
 	/// Indicates that this axis scale should be autoscaled.
 	bool autoScaleEnabled() const { return autoScaleEnabled_; }
@@ -192,8 +211,9 @@ public:
 	/// Used internally by MPlot to flag that a re-autoScale is pending for this axis scale
 	void setAutoScaleScheduled(bool autoScaleScheduled = true) { autoScaleScheduled_ = autoScaleScheduled; }
 
+	/// Returns the padding (as a percent) used for this axis scale.
 	qreal padding() const { return axisPadding_*100.0; }
-
+	/// Returns the data range constraint for the axis scale.  This defines the absolute minimum and maximum (in data coordinates) that the axis can show.
 	MPlotAxisRange dataRangeConstraint() const { return dataRangeConstraint_; }
 
 
@@ -237,14 +257,19 @@ int &numTicks)
 
 
 public slots:
+	/// Sets the orientation for the axis scale to \param orientation.
 	void setOrientation(Qt::Orientation orientation);
+	/// Sets the drawing size for the axis scale to \param newSize.
 	void setDrawingSize(const QSizeF& newSize);
+	/// Sets the data range for the axis scale to \param newDataRange.  It also automatically applies padding to the axis based on the current value of padding().
 	void setDataRange(const MPlotAxisRange& newDataRange, bool applyPadding = true);
+	/// Same as setDataRange but also disables autoscaling on the axis scale.
 	void setDataRangeAndDisableAutoScaling(const MPlotAxisRange& newDataRange, bool applyPadding = true) {
 		setDataRange(newDataRange,applyPadding);
 		emit autoScaleEnabledChanged((autoScaleEnabled_ = false));
 	}
 
+	/// Sets the padding for the axis scale to \param percent.
 	void setPadding(qreal percent);
 
 	/// Applied as a constraint on setDataRange().  No matter what data range users attempt to set, it will not extend outside of this range.  To clear the constraint, use a null (invalid) MPlotAxisRange().  (You can use this, for example, to constrain a logScaleEnabled() axis from (1, 1.0/0.0), therefore ensuring that it isn't auto-scaled to include 0 even if the data includes 0.
@@ -264,10 +289,14 @@ signals:
 
 
 protected:
+	/// Holds the drawing size.  Represents the axis scale in scene coordinates.
 	QSizeF drawingSize_;
+	/// The MPlotAxisRanges.  Holds the range for data range and the unpadded data range (which obviously are different).
 	MPlotAxisRange dataRange_, unpaddedDataRange_;
+	/// Holds the orientation for the axis scale.
 	Qt::Orientation orientation_;
-	qreal axisPadding_;	///< Amount to pad onto both the min and max of the data range provided; expressed as fraction of the total data range length.  This improves appearance by keeping data points from going right to the edges of the plots. Default is 5%.
+	///< Amount to pad onto both the min and max of the data range provided; expressed as fraction of the total data range length.  This improves appearance by keeping data points from going right to the edges of the plots. Default is 5%.
+	qreal axisPadding_;
 
 	/// Used by MPlot to store whether this axis scale should be autoscaled.
 	bool autoScaleEnabled_;
@@ -279,7 +308,6 @@ protected:
 
 	/// Applied as a constraint on setDataRange().  No matter what data range users attempt to set, it will not extend outside of this range.  (You can use this, for example, to constrain a logScaleEnabled() axis from (1, 1.0/0.0), therefore ensuring that it isn't auto-scaled to include 0 even if the data includes 0.
 	MPlotAxisRange dataRangeConstraint_;
-
 };
 
 #endif // MPLOTAXISSCALE_H
