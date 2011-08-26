@@ -42,7 +42,7 @@ MPlotAxis::~MPlotAxis() {
 
 
 // Set the number and style of ticks:
-/*! \c tStyle can be Inside, Outside, or Middle.  \c tickLength is in logical coordinates ("percent of plot") coordinates.
+/* \c tStyle can be Inside, Outside, or Middle.  \c tickLength is in logical coordinates ("percent of plot") coordinates.
  \c num is really just suggestion... there might be one less or up to three(?) more, depending on what we think would make nice label values.*/
 void MPlotAxis::setTicks(int num, TickStyle tstyle, qreal tickLength) {
 
@@ -55,10 +55,7 @@ void MPlotAxis::setTicks(int num, TickStyle tstyle, qreal tickLength) {
 	update();
 }
 
-
-
-
-/// show or hide the value labels along the axis
+// show or hide the value labels along the axis
 void MPlotAxis::showTickLabels(bool tickLabelsOn) {
 	prepareGeometryChange();
 
@@ -66,7 +63,7 @@ void MPlotAxis::showTickLabels(bool tickLabelsOn) {
 	update();
 }
 
-/// show or hide the grid lines
+// show or hide the grid lines
 void MPlotAxis::showGrid(bool gridOn) {
 
 	prepareGeometryChange();
@@ -75,7 +72,7 @@ void MPlotAxis::showGrid(bool gridOn) {
 	update();
 }
 
-/// show or hide the axis name
+// show or hide the axis name
 void MPlotAxis::showAxisName(bool axisNameOn) {
 	prepareGeometryChange();
 
@@ -83,25 +80,25 @@ void MPlotAxis::showAxisName(bool axisNameOn) {
 	update();
 }
 
-/// Set the pen for the axis line and axis name text:
+// Set the pen for the axis line and axis name text:
 void MPlotAxis::setAxisPen(const QPen& pen) {
 	axisPen_ = pen;
 	update();
 }
 
-/// set the pen for the ticks along the axis:
+// set the pen for the ticks along the axis:
 void MPlotAxis::setTickPen(const QPen& pen) {
 	tickPen_ = pen;
 	update();
 }
 
-/// set the pen for the grid lines
+// set the pen for the grid lines
 void MPlotAxis::setGridPen(const QPen& pen) {
 	gridPen_ = pen;
 	update();
 }
 
-/// set the font used for the values along the axis
+// set the font used for the values along the axis
 void MPlotAxis::setTickLabelFont(const QFont& font) {
 	prepareGeometryChange();
 
@@ -111,7 +108,7 @@ void MPlotAxis::setTickLabelFont(const QFont& font) {
 	update();
 }
 
-/// set the font used for the axis name
+// set the font used for the axis name
 void MPlotAxis::setAxisNameFont(const QFont& font) {
 	prepareGeometryChange();
 
@@ -121,7 +118,7 @@ void MPlotAxis::setAxisNameFont(const QFont& font) {
 	update();
 }
 
-/// Set the axis name:
+// Set the axis name:
 void MPlotAxis::setAxisName(const QString& name) {
 	name_ = name;
 	update();
@@ -448,18 +445,11 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 	}
 }
 
-
-
 // TODO: finer shape?
 /*
  QPainterPath shape() {
   return
  }*/
-
-
-
-
-
 
 ///// Calculates a transform suitable for applying to the painter to draw undistorted text.
 ///*! The text will shrink and grow with the size of the plot, but only within a reasonable range. (ie: infinitely small text isn't helpful, and super-humongous text isn't helpful).
@@ -490,8 +480,6 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 
 
 //}
-
-
 
 ///// Used to draw the axis name (ex: "x" or "time (s)") onto the plot.  Draw the axis labels first so we know where to put this.
 //void MPlotAxis::drawAxisName(QPainter* painter) {
@@ -544,9 +532,6 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 //	painter->restore();
 
 //}
-
-
-
 
 void MPlotAxis::setDefaults() {
 
@@ -652,7 +637,6 @@ QString MPlotAxis::formatTickLabel(double tickValue)
 		return QString::number(tickValue);
 	}
 }
-
 
 #endif
 
