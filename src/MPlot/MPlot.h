@@ -26,16 +26,20 @@ protected:
 	friend class MPlot;
 
 protected slots:
-	/// Catches the boundsChanged signal and calls MPlots onBoundsChanged method with with the pointer of whichever MPlotItem emitted the signal.
+	/// Catches the boundsChanged signal and calls MPlot::onBoundsChanged method with with the pointer of whichever MPlotItem emitted the signal.
 	void onBoundsChanged();
-
+	/// \note This slot does nothing.  It calls MPlot::onSelectedChanged, but that is an unimplemented class.
 	void onSelectedChanged(bool);
+	/// Catches the plotItemLegendContentChanged signal and calls MPlot::onPlotItemLegendContentsChanged with the pointer to item that called it.  If the qobject_cast fails, then a 0 is passed.
 	void onPlotItemLegendContentChanged();
 
+	/// Catches the doDelayedAutoscale signal.  This calls MPlot::doDelayedAutoscale which causes the plot to update if the any item within the plot has flagged to the plot that the plot needs to be re-autoscaled.
 	void doDelayedAutoscale();
+	/// This slot flags the plot that it needs to perform an autoscale the next time it returns to the event loop.
 	void onAxisScaleAutoScaleEnabledChanged(bool enabled);
 
 protected:
+	/// The instance of MPlot that this signal source is connected to.
 	MPlot* plot_;
 };
 
@@ -117,35 +121,51 @@ public:
 	/// Remove a tool from a plot. (Note: Does not delete the tool...)
 	bool removeTool(MPlotAbstractTool* removeMe);
 
+	/// Returns the QGraphicsItem that contains the plot area.
 	QGraphicsRectItem* plotArea() const { return plotArea_; }
 	// access elements of the canvas:
 
 
+	/// Returns the MPlot axis for the given \param axisIndex.  If the axisIndex is not valid, then 0 is returned.
 	MPlotAxis* axis(int axisIndex) { if((unsigned)axisIndex >= (unsigned)axes_.count()) return 0;  return axes_.at(axisIndex); }
+	/// Convenience getter for the left MPlotAxis.
 	MPlotAxis* axisLeft() { return axes_.at(MPlot::Left); }
+	/// Convenience getter for the bottom MPlotAxis.
 	MPlotAxis* axisBottom() { return axes_.at(MPlot::Bottom); }
+	/// Convenience getter for the right MPlotAxis.
 	MPlotAxis* axisRight() { return axes_.at(MPlot::Right); }
+	/// Convenience getter for the top MPlotAxis.
 	MPlotAxis* axisTop() { return axes_.at(MPlot::Top); }
+	/// Returns the axis index from the given MPlotAxis \param axis.
 	int indexOfAxis(MPlotAxis* axis) const { return axes_.indexOf(axis); }
 
+	/// Returns a modifiable reference to the MPlotAxisScale from a given \param axisScaleIndex.  If the axisScaleIndex is invalid, then 0 is returned.
 	MPlotAxisScale* axisScale(int axisScaleIndex) { if((unsigned)axisScaleIndex >= (unsigned)axisScales_.count()) return 0;  return axisScales_.at(axisScaleIndex); }
+	/// Returns a const reference to the MPlotAxisScale from a given \param axisScaleIndex.  If the axisScaleIndex is invalid, then 0 is return.
 	const MPlotAxisScale* axisScale(int axisScaleIndex) const { if((unsigned)axisScaleIndex >= (unsigned)axisScales_.count()) return 0;  return axisScales_.at(axisScaleIndex); }
+	/// Convenience getter for the left MPlotAxisScale.
 	MPlotAxisScale* axisScaleLeft() { return axisScales_.at(MPlot::Left); }
+	/// Convenience getter for the bottom MPlotAxisScale.
 	MPlotAxisScale* axisScaleBottom() { return axisScales_.at(MPlot::Bottom); }
+	/// Convenience getter for the right MPlotAxisScale.
 	MPlotAxisScale* axisScaleRight() { return axisScales_.at(MPlot::Right); }
+	/// Convenience getter for the top MPlotAxisScale.
 	MPlotAxisScale* axisScaleTop() { return axisScales_.at(MPlot::Top); }
+	/// Convenience getter for the relative horizontal MPlotAxisScale.  This MPlotAxisScale is used when plotting items that do not depend explicitly on the data contained within the plot.
 	MPlotAxisScale* axisScaleHorizontalRelative() { return axisScales_.at(MPlot::HorizontalRelative); }
+	/// Convenience getter for the relative vertical MPlotAxisScale.  This MPlotAxisScale is used when plotting items that do not depend explicitly on the data contained within the plot.
 	MPlotAxisScale* axisScaleVerticalRelative() { return axisScales_.at(MPlot::VerticalRelative); }
-	int indexOfAxisScale(const MPlotAxisScale* axisScale) const {
-		return axisScales_.indexOf(const_cast<MPlotAxisScale*>(axisScale));
-	}
+	/// Returns the axis scale index from the given MPlotAxisScale \param axisScale.
+	int indexOfAxisScale(const MPlotAxisScale* axisScale) const { return axisScales_.indexOf(const_cast<MPlotAxisScale*>(axisScale)); }
+	/// Method that adds another MPlotAxisScale to the plot.  It is appended to the end of the axis scales list.
 	void addAxisScale(MPlotAxisScale* newScale);
 
-
+	/// Returns the legend for this MPlot.
 	MPlotLegend* legend() { return legend_; }
+	/// Returns the QGraphicsItem that contains the background information.
 	QGraphicsRectItem* background() { return background_; }
 
-	/// returns the rectangle filled by this plot (in scene or parent QGraphicsItem coordinates)
+	/// Returns the rectangle filled by this plot (in scene or parent QGraphicsItem coordinates)
 	QRectF rect() const { return rect_; }
 
 	/// Sets the rectangle to be filled by this plot (in scene or parent QGraphicsItem coordinates).
@@ -153,40 +173,53 @@ public:
 	void setRect(const QRectF& rect);
 
 	// Margins: are set in logical coordinates (ie: as a percentage of the chart width or chart height);
+	/// Returns the margin (as a percentage) for the given MPlot::StandardAxis \param which.
 	qreal margin(MPlot::StandardAxis which) const { return margins_[(int)which]; }
+	/// Convenience getter for the left axis margin (expressed as a percentage).
 	qreal marginLeft() const { return margins_[MPlot::Left]; }
+	/// Convenience getter for the right axis margin (expressed as a percentage).
 	qreal marginRight() const { return margins_[MPlot::Right]; }
+	/// Convenience getter for the top axis margin (expressed as a percentage).
 	qreal marginTop() const { return margins_[MPlot::Top]; }
+	/// Convenience getter for the bottom axis margin (expressed as a percentage).
 	qreal marginBottom() const { return margins_[MPlot::Bottom]; }
 
+	/// Sets the margin for MPlot::StandardAxis \param which with value \param value.  Must be given as a percentage.
 	void setMargin(MPlot::StandardAxis which, qreal value) { margins_[(int)which] = value; setRect(rect_); }
+	/// Convenience getter for setting the left margin to the given \param value.
 	void setMarginLeft(qreal value) { setMargin(MPlot::Left, value); }
+	/// Convenience getter for setting the right margin to the given \param value.
 	void setMarginRight(qreal value) { setMargin(MPlot::Right, value); }
+	/// Convenience getter for setting the top margin to the given \param value.
 	void setMarginTop(qreal value) { setMargin(MPlot::Top, value); }
+	/// Convenience getter for setting the bottom margin to the given \param value.
 	void setMarginBottom(qreal value) { setMargin(MPlot::Bottom, value); }
 
 
+	/// Method that enables/disables axis normalization for the given MPlotAxisScale \param axisScaleIndex between the given MPlotAxisRange \param normalizationRange.  If no range is given, then the standard of 0 to 1 is used.
 	void enableAxisNormalization(int axisScaleIndex, bool normalizationOn, const MPlotAxisRange& normalizationRange = MPlotAxisRange(0,1));
+	/// Convenience method to enable/disable axis normalization for the given MPlotAxisScale \param axisScaleIndex by explicitly giving a \param min and \param max.
 	void enableAxisNormalization(int axisScaleIndex, bool normalizationOn, qreal min, qreal max) {
 		enableAxisNormalization(axisScaleIndex, normalizationOn, MPlotAxisRange(min, max));
 	}
 
+	/// Sets a waterfall amount to be applied to the given \param axisScaleIndex.  The \param amount defaults to 0.2 because it assumes that normalization has been enabled for the given MPlotAxisScale.  However, any amount that is within the MPlotAxisRange range is an acceptable value.
 	void setAxisScaleWaterfall(int axisScaleIndex, qreal amount = 0.2);
 
 
 
-	/// called automatically when control returns to the event loop, this completes a delayed autoscale. (Recomputing the scale limits is optimized to be only done when necessary, rather than whenever the data values change.)  If you need the scene to be updated NOW! (for example, you're working outside of an event loop, or rendering before returning to the event loop), you can call this manually.
+	/// Called automatically when control returns to the event loop, this completes a delayed autoscale. (Recomputing the scale limits is optimized to be only done when necessary, rather than whenever the data values change.)  If you need the scene to be updated NOW! (for example, you're working outside of an event loop, or rendering before returning to the event loop), you can call this manually.
 	void doDelayedAutoScale();
 
 
 protected: // "slots" (proxied through MPlotSignalHandler)
-	/// called when the x-y data in a plot item might have changed, such that a re-autoscale is necessary
+	/// Called when the x-y data in a plot item might have changed, such that a re-autoscale is necessary.
 	void onBoundsChanged(MPlotItem* source);
-	/// called when the selected state of a plot item changes
+	/// Called when the selected state of a plot item changes.
 	void onSelectedChanged(MPlotItem* source, bool isSelected);
-	/// called when the legend content (color, description, etc.) of a plot item changes
+	/// Called when the legend content (color, description, etc.) of a plot item changes.
 	void onPlotItemLegendContentChanged(MPlotItem* changedItem);
-	/// called when the autoscaling of an axis scale changes
+	/// Called when the autoscaling of an axis scale changes.
 	void onAxisScaleAutoScaleEnabledChanged(bool autoScaleEnabled);
 
 
@@ -199,22 +232,35 @@ protected:
 	void setDefaults();
 
 	// Members:
+	/// The bounding rectangle for the MPlot.
 	QRectF rect_;
 
+	/// The reference to the MPlotLegend contained in this MPlot.
 	MPlotLegend* legend_;
 
-	QList<MPlotAxis*> axes_;		// 0, 1, 2, 3, 4, 5 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top, ).
-	QList<MPlotAxisScale*> axisScales_;  // 0, 1, 2, and 3 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top).
+	/// The list of the MPlotAxes.  0 through 5 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top).
+	QList<MPlotAxis*> axes_;
+	/// The list of the MPlotAxisScales.  0 through 5 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top, MPlot::HorizontalRelative, MPlot::VerticalRelative).
+	QList<MPlotAxisScale*> axisScales_;
+	/// The list of the waterfall amounts for the different axis scales.  The amount for a given axis scale is indexed by the axisScaleIndex.
 	QList<qreal> axisScaleWaterfallAmount_;
+
+	/// The list of which MPlotAxisScales are normalized.  The state is indexed by the axisScaleIndex.
 	QList<bool> axisScaleNormalizationOn_;
+	/// The list of the MPlotAxisRanges for normalization.  The range is indexed by the axisScaleIndex.
 	QList<MPlotAxisRange> axisScaleNormalizationRange_;
 
-	QList<MPlotItem*> items_;	// list of current data items displayed on plot
-	QList<MPlotAbstractTool*> tools_;	// list of tools that have been installed on the plot
+	/// The list of all the MPlotItems contained in the plot.
+	QList<MPlotItem*> items_;
+	/// The list of all the MPlotAbstractTools that are currently being used in the plot.
+	QList<MPlotAbstractTool*> tools_;
 
+	/// The margins for the left, bottom, top, and right axis.
 	qreal margins_[4];			// left, bottom, right, top.
 
+	/// Reference to the QGraphicsRectItem which contains the background that can be easily added to QGraphicsScences.
 	QGraphicsRectItem* background_;
+	/// References to the QGraphicsRectItem for both the plot area and the data area.  These are used for easily adding to QGraphicsScences.
 	QGraphicsRectItem* plotArea_, *dataArea_;
 	/// The rectangle containing the plotting area, in scene coordinates.
 	QRectF plotAreaRect_;
@@ -240,19 +286,22 @@ protected:
 #include <QGraphicsWidget>
 #include <QGraphicsSceneResizeEvent>
 
-/// this class is used instead of MPlot when you need a QGraphicsWidget (instead of a simple QGraphicsItem).
+/// This class is used instead of MPlot when you need a QGraphicsWidget (instead of a simple QGraphicsItem).
 class MPlotGW : public QGraphicsWidget {
 	Q_OBJECT
 public:
+	/// Constructor.  Builds a QGraphicsWidget that encapuslates an MPlot.
 	MPlotGW(QGraphicsItem* parent = 0, Qt::WindowFlags flags = 0);
+	/// Destructor.
 	virtual ~MPlotGW();
 
+	/// Returns the MPlot encapsulated by this QGraphicsWidget.
 	MPlot* plot() const;
 
-
-
 protected:
+	/// The reference to the MPlot encapsulated by this widget.
 	MPlot* plot_;
+	/// Method that has a custom outcome to standard resizeEvents from the event loop.
 	virtual void resizeEvent ( QGraphicsSceneResizeEvent * event );
 };
 

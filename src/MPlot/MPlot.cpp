@@ -9,8 +9,6 @@
 
 #include <QDebug>
 
-
-
 MPlotSignalHandler::MPlotSignalHandler(MPlot* parent)
 	: QObject(0) {
 	plot_ = parent;
@@ -36,10 +34,7 @@ void MPlotSignalHandler::onPlotItemLegendContentChanged() {
 		plot_->onPlotItemLegendContentChanged(0);
 }
 
-
-
-
-/// This class provides plotting capabilities within a QGraphicsItem that can be added to any QGraphicsScene,
+// This class provides plotting capabilities within a QGraphicsItem that can be added to any QGraphicsScene,
 MPlot::MPlot(const QRectF& rect, QGraphicsItem* parent) :
 	QGraphicsItem(parent), rect_(rect)
 {
@@ -82,11 +77,6 @@ MPlot::MPlot(const QRectF& rect, QGraphicsItem* parent) :
 	legend_ = new MPlotLegend(this, this);
 	legend_->setZValue(1e12);	// legends should display above everything else...
 
-
-	/// \todo Fix normalization and waterfall.
-	//	normBottomEnabled_ = normLeftEnabled_ = normRightEnabled_ = false;
-	//	waterfallLeftAmount_ = waterfallRightAmount_ = 0;
-
 	// Set apperance defaults (override for custom plots)
 	setDefaults();
 
@@ -100,7 +90,6 @@ MPlot::MPlot(const QRectF& rect, QGraphicsItem* parent) :
 
 }
 
-
 MPlot::~MPlot() {
 
 	gettingDeleted_ = true;
@@ -113,7 +102,7 @@ MPlot::~MPlot() {
 		delete as;
 }
 
-/// Required paint function. (All painting is done by children)
+// Required paint function. (All painting is done by children)
 void MPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
 	Q_UNUSED(painter)
 	Q_UNUSED(option)
@@ -159,7 +148,7 @@ void MPlot::insertItem(MPlotItem* newItem, int index, int yAxisTargetIndex, int 
 	legend()->onLegendContentChanged(newItem);
 }
 
-/// Remove a data-item from a plot. (Note: Does not delete the item...)
+// Remove a data-item from a plot. (Note: Does not delete the item...)
 bool MPlot::removeItem(MPlotItem* removeMe) {
 	// optimization: speeds up the ~MPlot() destructor, which will eventually call delete on all child plot items, which will call removeItem() on their plot (ie: us!) Don't bother with this whole process.
 	if(gettingDeleted_)
@@ -209,9 +198,7 @@ bool MPlot::removeItem(MPlotItem* removeMe) {
 		return false;
 }
 
-
-
-/// Add a tool to the plot:
+// Add a tool to the plot:
 void MPlot::addTool(MPlotAbstractTool* newTool) {
 	newTool->setParentItem(plotArea_);
 	newTool->setRect(QRectF(QPointF(0,0), plotAreaRect_.size()));
@@ -227,7 +214,7 @@ void MPlot::addTool(MPlotAbstractTool* newTool) {
 	newTool->setTargetAxes(axisScales);	// by default, plot tools get attached to all the existing axis scales... EXCEPT FOR THE PLOT-RELATIVE axes... because we don't want these modified.  If they want to choose a different set, users must call setTargetAxes() after adding the tool to the plot.
 }
 
-/// Remove a tool from a plot. (Note: Does not delete the tool...)
+// Remove a tool from a plot. (Note: Does not delete the tool...)
 bool MPlot::removeTool(MPlotAbstractTool* removeMe) {
 
 	// optimization: speeds up the ~MPlot() destructor, which will eventually call delete on all child plot items, which will call removeItem() on their plot (ie: us!) Don't bother with this whole process.
@@ -246,11 +233,8 @@ bool MPlot::removeTool(MPlotAbstractTool* removeMe) {
 		return false;
 }
 
-
-
-
-/// Sets the rectangle to be filled by this plot (in scene or parent QGraphicsItem coordinates).
-/*! Also rescales and re-applies the margins and transform for the plotArea). Can call with setRect(rect()) to re-compute margins.)*/
+// Sets the rectangle to be filled by this plot (in scene or parent QGraphicsItem coordinates).
+/* Also rescales and re-applies the margins and transform for the plotArea). Can call with setRect(rect()) to re-compute margins.)*/
 void MPlot::setRect(const QRectF& rect) {
 
 	rect_ = rect;
@@ -290,21 +274,12 @@ void MPlot::setRect(const QRectF& rect) {
 
 }
 
-
-
-
-
-
-
-/// called when the autoscaling of an axis scale changes
+// called when the autoscaling of an axis scale changes
 void MPlot::onAxisScaleAutoScaleEnabledChanged(bool autoScaleEnabled) {
 	// when it turns on, need to schedule the autoscaling routine. (If it has been scheduled already, this does nothing, so it's okay to do repeatedly.)
 	if(autoScaleEnabled)
 		scheduleDelayedAutoScale();
 }
-
-
-
 
 #include <QTimer>
 
@@ -374,13 +349,7 @@ void MPlot::doDelayedAutoScale() {
 	autoScaleScheduled_ = false;
 }
 
-
-
-
-
-
-
-/// Sets the defaults for the drawing options: margins, scale padding, background colors, initial data range.
+// Sets the defaults for the drawing options: margins, scale padding, background colors, initial data range.
 void MPlot::setDefaults() {
 
 	// Set margin defaults:
@@ -409,8 +378,6 @@ void MPlot::onPlotItemLegendContentChanged(MPlotItem* changedItem) {
 	legend()->onLegendContentChanged(changedItem);
 }
 
-
-
 void MPlot::addAxisScale(MPlotAxisScale *newScale)
 {
 	axisScales_ << newScale;
@@ -429,8 +396,6 @@ void MPlotSignalHandler::onAxisScaleAutoScaleEnabledChanged(bool enabled)
 {
 	plot_->onAxisScaleAutoScaleEnabledChanged(enabled);
 }
-
-
 
 void MPlot::enableAxisNormalization(int axisScaleIndex, bool normalizationOn, const MPlotAxisRange &normalizationRange)
 {
@@ -480,9 +445,6 @@ MPlotGW::~MPlotGW() {
 }
 
 MPlot* MPlotGW::plot() const { return plot_; }
-
-
-
 
 void MPlotGW::resizeEvent ( QGraphicsSceneResizeEvent * event ) {
 	QGraphicsWidget::resizeEvent(event);
