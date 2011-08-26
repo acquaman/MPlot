@@ -12,7 +12,7 @@ MPlotItemSignalSource::MPlotItemSignalSource(MPlotItem* parent )
 	plotItem_  = parent;
 }
 
-/// Constructor calls base class (QGraphicsObject)
+// Constructor calls base class (QGraphicsObject)
 MPlotItem::MPlotItem() : QGraphicsItem() {
 	setFlag(QGraphicsItem::ItemIsSelectable, false);	// We're implementing our own selection mechanism... ignoring QGraphicsView's selection system.
 	isSelected_ = false;
@@ -24,7 +24,7 @@ MPlotItem::MPlotItem() : QGraphicsItem() {
 	signalSource_ = new MPlotItemSignalSource(this);
 }
 
-/// \todo Someday (when this becomes a full library, with .cpp files)... have the destructor remove this item from it's plot_, if there is an assocated plot_.  Also, what about being connected to multiple plots?
+// \todo Someday (when this becomes a full library, with .cpp files)... have the destructor remove this item from it's plot_, if there is an assocated plot_.  Also, what about being connected to multiple plots?
 MPlotItem::~MPlotItem() {
 	if(plot())
 		plot()->removeItem(this);
@@ -33,7 +33,7 @@ MPlotItem::~MPlotItem() {
 
 
 
-/// tell this item that it is 'selected' within the plot
+// tell this item that it is 'selected' within the plot
 void MPlotItem::setSelected(bool selected) {
 	bool updateNeeded = (selected != isSelected_);
 	isSelected_ = selected;
@@ -42,12 +42,12 @@ void MPlotItem::setSelected(bool selected) {
 		signalSource()->emitSelectedChanged(isSelected_);
 	}
 }
-/// ask if this item is currently selected on the plot
+// ask if this item is currently selected on the plot
 bool MPlotItem::selected() {
 	return isSelected_;
 }
 
-/// use this if you don't want a plot item to be selectable:
+// use this if you don't want a plot item to be selectable:
 bool MPlotItem::selectable() {
 	return isSelectable_;
 }
@@ -57,12 +57,12 @@ void MPlotItem::setSelectable(bool selectable) {
 }
 
 
-/// Don't call this. Unfortunately public because it's required by MPlot::addItem and MPlot::removeItem.
+// Don't call this. Unfortunately public because it's required by MPlot::addItem and MPlot::removeItem.
 void MPlotItem::setPlot(MPlot* plot) {
 	plot_ = plot;
 }
 
-/// returns the plot we are attached to
+// returns the plot we are attached to
 MPlot* MPlotItem::plot() const {
 	return plot_;
 }
@@ -72,9 +72,15 @@ QRectF MPlotItem::boundingRect() const {
 
 	QRectF dataRectangle = dataRect();
 
-	// debug only...
-	if(dataRectangle != dataRectangle.normalized())
-		qWarning() << "MPlotItem: data rect not normalized...";
+	if(dataRectangle.width() == 0 || dataRectangle.height() == 0) {
+		// qWarning() << "MPlotItem: Warning: The dataRect() returned an invalid rectangle for the bounds of the data. Returning an invalid rectangle as the bouning rectangle.";
+		return QRectF();
+	}
+
+	// Inverted data rect? (Wrong convention for top/right)
+	if(dataRectangle != dataRectangle.normalized()) {
+		qWarning() << "MPlotItem: Warning: The dataRect() is not normalized (ie: the top() value is < the bottom() value, or similar for left() and right().)  We'll correct this for you, but you might want to look at your data model...";
+	}
 
 	if(!xAxisTarget_ || !yAxisTarget_) {
 		qWarning() << "MPlotItem: Warning: No axis scale set.  Returning an invalid rectangle as the bounding rectangle";
@@ -83,12 +89,15 @@ QRectF MPlotItem::boundingRect() const {
 
 	MPlotAxisRange xRange = xAxisTarget_->mapDataToDrawing(MPlotAxisRange(dataRectangle.left(), dataRectangle.right())).normalized();
 	MPlotAxisRange yRange = yAxisTarget_->mapDataToDrawing(MPlotAxisRange(dataRectangle.top(), dataRectangle.bottom())).normalized();
-	QRectF rv = QRectF(xRange.min(), yRange.min(), xRange.max()-xRange.min(), yRange.max()-yRange.min());
+	QRectF rv = QRectF(xRange.min(),
+					   yRange.min(),
+					   qMax(xRange.max()-xRange.min(), std::numeric_limits<qreal>::min()),
+					   qMax(yRange.max()-yRange.min(), std::numeric_limits<qreal>::min()));	// this is in case rounding error changed the width() or height() to 0... We need to make sure we keep a valid() QRectF().
 
 	return rv;
 }
 
-/// return the active shape where clicking will select this object in the plot. Subclasses can re-implement for more accuracy.
+// return the active shape where clicking will select this object in the plot. Subclasses can re-implement for more accuracy.
 QPainterPath MPlotItem::shape() const {
 	QPainterPath shape;
 	shape.addRect(boundingRect());

@@ -127,7 +127,8 @@
 		// data1.insertPointBack(i, pow(10,-i*i+0.5));
 
 	 for(qreal i=1; i<=10; i+=1)
-		 data1.insertPointBack(i, pow(10,i));
+		 data1.insertPointBack(i, i);
+		 //data1.insertPointBack(i, pow(10,i));
 
 	 // Fill with many random data points:
 	  //for(int i=0; i<5000; i++)
@@ -308,9 +309,10 @@
 
 
 	// 18: Log scaling. Make sure to have only positive data points when you do this (on all items that target the left axis scale)
-	plot.axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
-	plot.axisScaleLeft()->setLogScaleEnabled();
+	// plot.axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+	// plot.axisScaleLeft()->setLogScaleEnabled();
 
+	plot.axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1,MPLOT_POS_INFINITY));
 
 	return app.exec();
  }

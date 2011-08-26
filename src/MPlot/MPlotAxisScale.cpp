@@ -79,10 +79,10 @@ void MPlotAxisScale::setDataRange(const MPlotAxisRange &newDataRange, bool apply
 	// safety protection limits...
 	/////////////////////////////////
 
-	qreal minRange = std::numeric_limits<qreal>::epsilon()*fabs(dataRange_.min())*8.0;	// epsilon is smallest representable difference between 1 and th next number. It will be smaller for numbers with small exponents
+	qreal minRange = std::numeric_limits<qreal>::epsilon()*fabs(dataRange_.min())*8.0;	// epsilon is smallest representable difference between 1 and the next number. minRange will be smaller for numbers with small exponents
 	if(dataRange_.length() < minRange) {
 		qWarning() << "MPlotAxisScale: Set the data range too small. Min:" << dataRange_.min() << ". Automatically expanding by epsilon:" << minRange;
-		dataRange_.setMax(dataRange_.min() + minRange);	/// \todo Figure out what this needs to be to prevent crashing at high zoom scales.
+		dataRange_.setMax(dataRange_.min() + minRange); // this prevents crashing at high zoom scales.
 	}
 	qreal maxRange = std::numeric_limits<qreal>::max()/1e10;
 	if(dataRange_.length() > maxRange) {

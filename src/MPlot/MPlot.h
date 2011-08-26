@@ -219,10 +219,6 @@ protected:
 	/// The rectangle containing the plotting area, in scene coordinates.
 	QRectF plotAreaRect_;
 
-//	bool autoScaleBottomEnabled_, autoScaleLeftEnabled_, autoScaleRightEnabled_;
-//	bool normBottomEnabled_, normLeftEnabled_, normRightEnabled_;
-//	QPair<qreal, qreal> normBottomRange_, normLeftRange_, normRightRange_;
-//	qreal waterfallLeftAmount_, waterfallRightAmount_;
 
 	/// Caching/optimization: counts the number of MPlotAbstractSeries plotted on the left and right axes
 	mutable int seriesCounterLeft_, seriesCounterRight_;

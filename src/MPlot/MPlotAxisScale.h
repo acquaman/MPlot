@@ -187,9 +187,9 @@ public:
 	/// Enable or disable autoscaling on this axis.  When autoscaling is enabled, plots will adjust the range of this axis to match the maximum range of all of the items which use it as their axis scale.
 	void setAutoScaleEnabled(bool autoScaleEnabled = true);
 
-	/// Used by MPlot to flag that a re-autoScale is pending for this axis scale
+	/// Used internally by MPlot to flag that a re-autoScale is pending for this axis scale
 	bool autoScaleScheduled() const { return autoScaleScheduled_; }
-	/// Used by MPlot to flag that a re-autoScale is pending for this axis scale
+	/// Used internally by MPlot to flag that a re-autoScale is pending for this axis scale
 	void setAutoScaleScheduled(bool autoScaleScheduled = true) { autoScaleScheduled_ = autoScaleScheduled; }
 
 	qreal padding() const { return axisPadding_*100.0; }
