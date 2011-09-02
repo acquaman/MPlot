@@ -17,11 +17,15 @@
 class MPlotColorMapData : public QSharedData
 {
   public:
+        /// Default constructor. Can set the color resolution if desired.
 	MPlotColorMapData(int resolution = 256);
+        /// Constructor that builds the color map between \param color1 and \param color2.  Can set the color resolution if desired.
 	MPlotColorMapData(const QColor& color1, const QColor& color2, int resolution = 256);
+        /// Constructor that builds a color map with the given QGradientStops \param colorStops.  Must set the resolution.
 	MPlotColorMapData(const QGradientStops& colorStops, int resolution);
+        /// Constructor using one of the standard color maps.  Must set the resolution.
 	MPlotColorMapData(int standardColorMap, int resolution);
-
+        /// Constructor using another color map.
 	MPlotColorMapData(const MPlotColorMapData &other);
 
 	~MPlotColorMapData() {}
@@ -49,7 +53,9 @@ class MPlotColorMapData : public QSharedData
 	/// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.  It will be called automatically as required, but you can also call it prior to calling colorAt() or rgbAt() if you want to optimize the timing of when the cached color map is calculated.
 	void recomputeCachedColors() const;
 
+        /// Returns the resolution.
 	int resolution() const { return colorArray_.size(); }
+        /// Operator to determine if one color map is not the same as another.
 	bool operator!=(const MPlotColorMapData& other) const;
 
 	/// Returns the index for the color array if given a value within a range between 0 and 1.
