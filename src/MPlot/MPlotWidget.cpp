@@ -26,7 +26,6 @@ void MPlotSceneAndView::enableAntiAliasing(bool antiAliasingOn) {
 		setRenderHints(QPainter::TextAntialiasing);
 }
 
-
 MPlotSceneAndView::~MPlotSceneAndView() {
 	//QGraphicsScene* scene = this->scene();
 	//setScene(0);
@@ -34,8 +33,6 @@ MPlotSceneAndView::~MPlotSceneAndView() {
 	if (scene())
 		delete scene();
 }
-
-
 
 // On resize events: keep the scene the same size as the view, and make the view look at this part of the scene.
 void MPlotSceneAndView::resizeEvent ( QResizeEvent * event ) {
@@ -45,8 +42,6 @@ void MPlotSceneAndView::resizeEvent ( QResizeEvent * event ) {
 	setSceneRect(scene()->sceneRect());
 }
 
-
-
 MPlotWidget::MPlotWidget(QWidget* parent) :
 		MPlotSceneAndView(parent)
 {
@@ -54,11 +49,10 @@ MPlotWidget::MPlotWidget(QWidget* parent) :
 	plot_ = 0;
 }
 
-
 MPlotWidget::~MPlotWidget() {
 }
 
-/// Sets the plot attached to this widget. to remove a plot, pass \c plot = 0.
+// Sets the plot attached to this widget. to remove a plot, pass \c plot = 0.
 void MPlotWidget::setPlot(MPlot* plot) {
 
 	// remove old plot?
@@ -76,8 +70,6 @@ MPlot* MPlotWidget::plot() {
 	return plot_;
 }
 
-
-
 // On resize events: notify the plot to resize it, and fill the viewport with the canvas.
 void MPlotWidget::resizeEvent ( QResizeEvent * event ) {
 	MPlotSceneAndView::resizeEvent(event);
@@ -86,7 +78,6 @@ void MPlotWidget::resizeEvent ( QResizeEvent * event ) {
 		plot_->setRect(scene()->sceneRect());
 	}
 }
-
 
 #endif
 
