@@ -13,7 +13,7 @@ class MPlotRectangle : public MPlotItem
 public:
 	/// Default constructor.
 	MPlotRectangle(const QRectF& rect, const QPen& pen = QPen(), const QBrush& brush = QBrush());
-
+        /// Returns the rank of the item.
 	virtual int rank() const { return 0; }
 
 	/// Returns the pen used to draw the rectangle's outline
@@ -58,8 +58,11 @@ public:
 	virtual QBrush legendColor() const { return brush_; }
 
 protected:
+        /// Member holding the pen used to draw the item.
 	QPen pen_;
+        /// Member holding the brush used to paint the item.
 	QBrush brush_;
+        /// Member holding the geometry of the item.
 	QRectF rect_;
 };
 

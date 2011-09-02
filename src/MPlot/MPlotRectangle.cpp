@@ -6,7 +6,6 @@ MPlotRectangle::MPlotRectangle(const QRectF& rect, const QPen& pen, const QBrush
 {
 }
 
-
 QRectF MPlotRectangle::boundingRect() const
 {
 	QRectF br = MPlotItem::boundingRect();
