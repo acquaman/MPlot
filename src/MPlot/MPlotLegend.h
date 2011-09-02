@@ -9,6 +9,7 @@ class MPlotItem;
 class MPlotLegend: public QGraphicsTextItem {
 
 public:
+        /// Constructor.  Builds a legend for the given \param plot.
 	MPlotLegend(MPlot* plot, QGraphicsItem* parent = 0);
 
 	/// Set the maximum width the legend should take up. (The height is out of your control; text will wrap to determine height)
@@ -47,14 +48,18 @@ public:
 	void onLegendContentChanged(MPlotItem* changedItem = 0);
 
 protected:
+        /// Method that rewrites all the text in the legend.
+        void redoText();
+
+        /// String holding the title, body and full text for the legend.
 	QString titleText_, bodyText_, fullText_;
+        /// Holding the color for the title and the body of the legend.
 	QColor titleTextColor_, bodyTextColor_;
 
+        /// Pointer to the plot the legend resides inside.
 	MPlot* plot_;
+        /// Bool holding whether or not a default legend look is used.
 	bool defaultLegendEnabled_;
-
-	void redoText();
-
 };
 
 #endif
