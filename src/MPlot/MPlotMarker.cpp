@@ -4,7 +4,6 @@
 
 #include "MPlotMarker.h"
 
-
 using namespace MPlotMarkerShape;
 
 MPlotAbstractMarker::MPlotAbstractMarker(qreal size, const QPen& pen, const QBrush& brush) :
@@ -16,10 +15,6 @@ MPlotAbstractMarker::~MPlotAbstractMarker()
 {
 }
 
-
-
-
-
 MPlotMarkerSquare::MPlotMarkerSquare(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
@@ -30,8 +25,6 @@ void MPlotMarkerSquare::paint(QPainter* painter) {
 	painter->drawRect(me);
 }
 
-
-
 MPlotMarkerCircle::MPlotMarkerCircle(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
@@ -40,8 +33,6 @@ MPlotMarkerCircle::MPlotMarkerCircle(qreal size, const QPen& pen, const QBrush& 
 void MPlotMarkerCircle::paint(QPainter* painter) {
 	painter->drawEllipse(QRectF(-size_/2, -size_/2, size_, size_));
 }
-
-
 
 MPlotMarkerTriangle::MPlotMarkerTriangle(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush) {
@@ -60,8 +51,6 @@ void MPlotMarkerTriangle::paint(QPainter* painter) {
 	painter->drawPolygon(triangle_);
 }
 
-
-
 MPlotMarkerVerticalBeam::MPlotMarkerVerticalBeam(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush) {
 	setSize(size);
@@ -75,9 +64,6 @@ void MPlotMarkerVerticalBeam::setSize(qreal width) {
 void MPlotMarkerVerticalBeam::paint(QPainter* painter) {
 	painter->drawLine(line_);
 }
-
-
-
 
 MPlotMarkerHorizontalBeam::MPlotMarkerHorizontalBeam(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
@@ -94,9 +80,6 @@ void MPlotMarkerHorizontalBeam::paint(QPainter* painter) {
 	painter->drawLine(line_);
 }
 
-
-
-
 MPlotMarkerPoint::MPlotMarkerPoint(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
@@ -112,10 +95,6 @@ void MPlotMarkerPoint::paint(QPainter* painter) {
 	painter->drawLine(line_);
 }
 
-
-
-
-
 MPlotMarkerDiagDownLeft::MPlotMarkerDiagDownLeft(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
@@ -130,10 +109,6 @@ void MPlotMarkerDiagDownLeft::setSize(qreal size) {
 void MPlotMarkerDiagDownLeft::paint(QPainter* painter) {
 	painter->drawLine(line_);
 }
-
-
-
-
 
 MPlotMarkerDiagDownLeftR::MPlotMarkerDiagDownLeftR(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
@@ -151,9 +126,6 @@ void MPlotMarkerDiagDownLeftR::paint(QPainter* painter) {
 	painter->drawLine(line_);
 }
 
-
-
-
 MPlotMarkerDiagDownRight::MPlotMarkerDiagDownRight(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
 {
@@ -168,9 +140,6 @@ void MPlotMarkerDiagDownRight::setSize(qreal size) {
 void MPlotMarkerDiagDownRight::paint(QPainter* painter) {
 	painter->drawLine(line_);
 }
-
-
-
 
 MPlotMarkerDiagDownRightR::MPlotMarkerDiagDownRightR(qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
@@ -187,8 +156,6 @@ void MPlotMarkerDiagDownRightR::setSize(qreal size) {
 void MPlotMarkerDiagDownRightR::paint(QPainter* painter) {
 	painter->drawLine(line_);
 }
-
-
 
 MPlotMarkerCombined::MPlotMarkerCombined(int shapeCode, qreal size, const QPen& pen, const QBrush& brush) :
 		MPlotAbstractMarker(size, pen, brush)
@@ -252,17 +219,11 @@ void MPlotMarkerCombined::setBrush(const QBrush &brush) {
 	}
 }
 
-
-
 void MPlotMarkerCombined::paint(QPainter* painter) {
 	foreach(MPlotAbstractMarker* element, elements_) {
 		element->paint(painter);
 	}
 }
-
-
-
-
 
 // Static creator function:
 MPlotAbstractMarker* MPlotMarker::create(MPlotMarkerShape::Shape type, qreal size, const QPen& pen, const QBrush& brush)
@@ -317,10 +278,7 @@ MPlotAbstractMarker* MPlotMarker::create(MPlotMarkerShape::Shape type, qreal siz
 
 		break;
 	}
-
 }
-
-
 
 #endif
 
