@@ -20,17 +20,25 @@ class MPlotAbstractImageData;
 class MPlotImageDataSignalSource : public QObject {
 	Q_OBJECT
 public:
+        /// Returns the data model for that the image this signal source is managing.
 	MPlotAbstractImageData* imageData() const { return data_; }
 protected:
+        /// Constructor.  Builds a signal source for managing signals for an MPlotImage.
 	MPlotImageDataSignalSource(MPlotAbstractImageData* parent);
-	void emitDataChanged() { emit dataChanged(); }
+        /// Emits the data changed signal for the image.
+        void emitDataChanged() { emit dataChanged(); }
+        /// Emits the bounds changed signal for the image.
 	void emitBoundsChanged() { emit boundsChanged(); }
 
+        /// Pointer to the data model.
 	MPlotAbstractImageData* data_;
+        /// Giving access to the protected members of this class to the image data class.
 	friend class MPlotAbstractImageData;
 
 signals:
+        /// Notifier that the data has changed.
 	void dataChanged();	/// < the z = f(x,y) data has changed
+        /// Notifier that the bounds of the data have changed.
 	void boundsChanged();/// < The limits / bounds of the x-y grid have changed
 };
 
@@ -41,8 +49,9 @@ signals:
 class MPlotAbstractImageData {
 
 public:
+        /// Constructor.  Builds a data model for the image.
 	MPlotAbstractImageData();
-
+        /// Destructor.
 	virtual ~MPlotAbstractImageData();
 
 	/// Use this proxy object to receive dataChanged() and boundsChanged() signals from the data
@@ -56,12 +65,16 @@ public:
 	virtual qreal z(int xIndex, int yIndex) const = 0;
 
 	/// Convenience function overloads:
-	qreal x(const QPoint& index) const { return x(index.x()); }
+        /// Returns the x position for a given point.
+        qreal x(const QPoint& index) const { return x(index.x()); }
+        /// Returns the y position for a given point.
 	qreal y(const QPoint& index) const { return y(index.y()); }
+        /// Returns the z position for a given point.
 	qreal z(const QPoint& index) const { return z(index.x(), index.y()); }
+        /// Returns the value (z value) for a given point.
 	qreal value(const QPoint& index) const { return z(index.x(), index.y()); }
+        /// Returns the value (z value) for a given set of x and y coordinates.
 	qreal value(int xIndex, int yIndex) const { return z(xIndex, yIndex); }
-
 
 
 	/// Return the number of elements in x and y
@@ -78,6 +91,7 @@ public:
 private:
 	/// Proxy object for emitting signals:
 	MPlotImageDataSignalSource* signalSource_;
+        /// Giving access to the signal source.
 	friend class MPlotImageDataSignalSource;
 
 protected:
@@ -101,10 +115,6 @@ protected:
 	// void pauseUpdates();	// to tell nothing to redraw using the plot because the data is currently invalid; a dataChanged will be emitted when it is valid again.
 	// This would need to be deterministic, so maybe we need to use function calls instead of signals.
 };
-
-
-
-
 
 
 /// This class is a very basic 2D array which implements the MPlotAbstractImageData interface
@@ -133,8 +143,6 @@ public:
 	/// Return the minimum and maximum z values:
 	virtual MPlotInterval range() const;
 
-
-
 	/// Read/Write interface. Can also set the z value at \c index.
 	virtual void setZ(qreal value, int indexX, int indexY);
 	/// Convenience function overload.
@@ -157,13 +165,10 @@ protected:
 	/// minimum and maximum z data values:
 	mutable QPoint minIndex_, maxIndex_;
 
-
 	/// manually search for minimum value
 	void minSearch() const;
-
 	/// manually search for maximum value
 	void maxSearch() const;
-
 };
 
 #endif // MPLOTIMAGEDATA_H

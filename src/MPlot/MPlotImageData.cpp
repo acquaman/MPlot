@@ -8,8 +8,6 @@ MPlotImageDataSignalSource::MPlotImageDataSignalSource(MPlotAbstractImageData *p
 	data_ = parent;
 }
 
-
-
 MPlotAbstractImageData::MPlotAbstractImageData()
 {
 	signalSource_ = new MPlotImageDataSignalSource(this);
@@ -22,7 +20,7 @@ MPlotAbstractImageData::~MPlotAbstractImageData()
 	signalSource_ = 0;
 }
 
-/// Searches for minimum z value
+// Searches for minimum z value
 qreal MPlotAbstractImageData::minZ() const {
 	QPoint c = count();
 	qreal extreme = value(0,0);
@@ -32,7 +30,8 @@ qreal MPlotAbstractImageData::minZ() const {
 				extreme = value(xx, yy);
 	return extreme;
 }
-/// Searches for maximum z value
+
+// Searches for maximum z value
 qreal MPlotAbstractImageData::maxZ() const {
 	QPoint c = count();
 	qreal extreme = value(0,0);
@@ -58,20 +57,9 @@ MPlotInterval MPlotAbstractImageData::range() const {
 	return minMaxCache_;
 }
 
+// This class is a very basic 2D array which implements the MPlotAbstractImageData interface
 
-
-
-
-
-
-
-
-
-
-
-/// This class is a very basic 2D array which implements the MPlotAbstractImageData interface
-
-/// Constructor: represent image data with physical coordinate boundaries \c dataBounds, and a resolution (number of "pixels") \c resolution.  Data values are initialized to 0.
+// Constructor: represent image data with physical coordinate boundaries \c dataBounds, and a resolution (number of "pixels") \c resolution.  Data values are initialized to 0.
 MPlotSimpleImageData::MPlotSimpleImageData(const QRectF& dataBounds, const QSize& resolution)
 	: MPlotAbstractImageData(),
 	num_(resolution.expandedTo(QSize(1,1)).width(), resolution.expandedTo(QSize(1,1)).height()),
@@ -84,20 +72,20 @@ MPlotSimpleImageData::MPlotSimpleImageData(const QRectF& dataBounds, const QSize
 
 }
 
-
-/// Return the x (data value) corresponding an (x,y) \c index:
+// Return the x (data value) corresponding an (x,y) \c index:
 qreal MPlotSimpleImageData::x(int indexX) const  {
 
 	return bounds_.left() + bounds_.width()*indexX/num_.x();
 
 }
-/// Return the y (data value) corresponding an (x,y) \c index:
+
+// Return the y (data value) corresponding an (x,y) \c index:
 qreal MPlotSimpleImageData::y(int indexY) const {
 
 	return bounds_.top() + bounds_.height()*indexY/num_.y();
 }
 
-/// Return the z = f(x,y) value corresponding an (x,y) \c index:
+// Return the z = f(x,y) value corresponding an (x,y) \c index:
 qreal MPlotSimpleImageData::z(int indexX, int indexY) const {
 
 	if((int)indexX>=num_.x() || (int)indexY>=num_.y())
@@ -106,19 +94,19 @@ qreal MPlotSimpleImageData::z(int indexX, int indexY) const {
 	return d_[indexY][indexX];
 }
 
-/// Return the number of elements in x and y
+// Return the number of elements in x and y
 QPoint MPlotSimpleImageData::count() const {
 	return num_;
 }
 
-
-/// Return the bounds of the data (the rectangle containing the max/min x- and y-values)
-/*! Use the top left corner for the (minX,minY) values, ie: boundingRect() == QRectF(minX, minY, maxX-minX, maxY-minY)... so that boundingRect().width() == maxX-minX, and boundingRect().height() == maxY - minY.
+// Return the bounds of the data (the rectangle containing the max/min x- and y-values)
+/* Use the top left corner for the (minX,minY) values, ie: boundingRect() == QRectF(minX, minY, maxX-minX, maxY-minY)... so that boundingRect().width() == maxX-minX, and boundingRect().height() == maxY - minY.
 	  */
 QRectF MPlotSimpleImageData::boundingRect() const {
 	return bounds_;
 }
-/// Return the minimum and maximum z values:
+
+// Return the minimum and maximum z values:
 MPlotInterval MPlotSimpleImageData::range() const {
 
 	if(minIndex_.x() < 0)
@@ -129,8 +117,7 @@ MPlotInterval MPlotSimpleImageData::range() const {
 	return MPlotInterval(d_[minIndex_.y()][minIndex_.x()], d_[maxIndex_.y()][maxIndex_.x()]);
 }
 
-
-/// set the z value at \c index:
+// set the z value at \c index:
 void MPlotSimpleImageData::setZ(qreal value, int indexX, int indexY) {
 
 	// if we're modifying what used to be the maximum value, and this new one is smaller, we've lost our max tracking. Don't know anymore.
@@ -155,9 +142,7 @@ void MPlotSimpleImageData::setZ(qreal value, int indexX, int indexY) {
 
 }
 
-
-
-/// manually search for minimum value
+// manually search for minimum value
 void MPlotSimpleImageData::minSearch() const {
 	minIndex_ = QPoint(0,0);
 
@@ -167,7 +152,7 @@ void MPlotSimpleImageData::minSearch() const {
 				minIndex_ = QPoint(xx, yy);
 }
 
-/// manually search for maximum value
+// manually search for maximum value
 void MPlotSimpleImageData::maxSearch() const {
 	maxIndex_ = QPoint(0,0);
 
@@ -177,6 +162,4 @@ void MPlotSimpleImageData::maxSearch() const {
 				maxIndex_ = QPoint(xx, yy);
 }
 
-
 #endif // MPLOTIMAGEDATA_H
-
