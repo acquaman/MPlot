@@ -22,13 +22,17 @@ class MPlotAbstractSeries;
 class MPlotSeriesSignalHandler : public QObject {
 	Q_OBJECT
 protected:
+        /// Builds a signal source for a series.
 	MPlotSeriesSignalHandler(MPlotAbstractSeries* parent);
+        /// Giving access to the series methods.
 	friend class MPlotAbstractSeries;
 
 protected slots:
+        /// Handles changes to the data in the series.
 	void onDataChanged();
 
 protected:
+        /// Pointer to the series the signal handler is managing.
 	MPlotAbstractSeries* series_;
 };
 
@@ -47,31 +51,36 @@ protected:
 class MPlotAbstractSeries : public MPlotItem {
 
 public:
-
+        /// Convenience enum.
 	enum { Type = MPlotItem::Series };
+        /// Returns the type which is an MPlotItem::Series.
 	virtual int type() const { return Type; }
+        /// Returns the rank.  Because it is a series it always returns 1.
 	virtual int rank() const { return 1; }
 
+        /// Constructor.  Builds the series.
 	MPlotAbstractSeries();
-
+        /// Destructor.
 	virtual ~MPlotAbstractSeries();
 
 	// Properties:
 	////////////////////
+        /// Sets the pen used to draw the series in the plot.
 	virtual void setLinePen(const QPen& pen);
+        /// Returns the current pen used to draw the series.
 	QPen linePen() const { return linePen_; }
 
 	/// Returns the current marker, which can be used to access it's pen, brush, and size.
 	/*! If the plot has no marker (or MPlotMarkerShape::None), then this will be a null pointer. Must check before setting.*/
 	virtual MPlotAbstractMarker* marker() const;
-
+        /// Sets a marker to the go with each point that makes up the series.
 	virtual void setMarker(MPlotMarkerShape::Shape shape, qreal size = 6, const QPen& pen = QPen(QColor(Qt::red)), const QBrush& brush = QBrush());
 
 
 	/// Sets this series to view the model in 'data'.  If the series should take ownership of the model (ie: delete the model when it gets deleted), set \c ownsModel to true. (If a model was previously set with \c ownsModel = true, then this function will delete the old model.)
 	virtual void setModel(const MPlotAbstractSeriesData* data, bool ownsModel = false);
 
-
+        /// Returns the data model used to draw the series.
 	virtual const MPlotAbstractSeriesData* model() const;
 
 	/// Re-implemented from MPlotItem to provide our line color as the legend color:
@@ -85,10 +94,12 @@ public:
 	void applyTransform(qreal sx = 1, qreal sy = 1, qreal dx = 0, qreal dy = 0);
 	/// Call this function to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform() in the y-axis.
 	void enableYAxisNormalization(bool on = true, qreal min = 0, qreal max = 1);
-	void enableYAxisNormalization(bool on, const MPlotAxisRange& normalizationRange) { enableYAxisNormalization(on, normalizationRange.min(), normalizationRange.max()); }
+        /// Overloaded.  Takes an MPlotAxisRange rather than a min and max.
+        void enableYAxisNormalization(bool on, const MPlotAxisRange& normalizationRange) { enableYAxisNormalization(on, normalizationRange.min(), normalizationRange.max()); }
 	/// Call this function to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform() in the x-axis.
 	void enableXAxisNormalization(bool on = true, qreal min = 0, qreal max = 1);
-	void enableXAxisNormalization(bool on, const MPlotAxisRange& normalizationRange) { enableXAxisNormalization(on, normalizationRange.min(), normalizationRange.max()); }
+        /// Overloaded.  Takes an MPlotAxisRange rather than a min and max.
+        void enableXAxisNormalization(bool on, const MPlotAxisRange& normalizationRange) { enableXAxisNormalization(on, normalizationRange.min(), normalizationRange.max()); }
 	/// You can apply an offset (commonly used for "waterfall" plots) using setOffset(qreal dx, qreal dy). This offset is always applied last, after applyTransform() or normalization is applied.
 	void setOffset(qreal dx = 0, qreal dy = 0);
 
@@ -109,11 +120,8 @@ public:
 	/// This function returns the current offset, which is a shift applied after all transformation and normalization is complete.
 	QPointF offset() const { return offset_; }
 
-
-
-	/// Required functions:
+        // Required functions:
 	//////////////////////////
-
 
 	/// Data rect: the bounding box of the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
 	virtual QRectF dataRect() const;
@@ -123,6 +131,7 @@ public:
 					   const QStyleOptionGraphicsItem* option,
 					   QWidget* widget) = 0;
 
+        /// Returns the shape of the series as a QPainterPath. Contains all the information about drawing complex shapes.
 	virtual QPainterPath shape() const;
 
 
@@ -135,13 +144,26 @@ protected: // "slots"
 	virtual void onDataChanged() = 0;
 
 protected:
+        /// Helper function to return a the transformed, normalized, offsetted x value. (Only call when model() is valid, and i<model().count()!)
+        qreal xx(unsigned i) const { return data_->x(i)*sx_+dx_+offset_.x(); }
+        /// Helper function to return a the transformed, normalized, offsetted x value. (Only call when model() is valid, and i<model().count()!)
+        qreal yy(unsigned i) const { return data_->y(i)*sy_+dy_+offset_.y(); }
+
+        /// Helper function that sets a default look and feel to the plot.
+        virtual void setDefaults();
+
+        /// Member holding the pen for drawing the series and a pen for drawing the series if it is selected.
 	QPen linePen_, selectedPen_;
+        /// Pointer to the marker used on each point of the series.
 	MPlotAbstractMarker* marker_;
 
+        /// Holds the name of the series.
 	QString name_;
 
+        /// Holds the data model for the series.
 	const MPlotAbstractSeriesData* data_;
-	bool ownsModel_;
+        /// Bool holding whether or not this series owns the data model or not.
+        bool ownsModel_;
 
 	/// Implements caching of the bounding rectangle
 	mutable QRectF cachedDataRect_;
@@ -163,24 +185,10 @@ protected:
 	/// Normalization ranges:
 	qreal normYMin_, normYMax_, normXMin_, normXMax_;
 
-	/// Helper function to return a the transformed, normalized, offsetted x value. (Only call when model() is valid, and i<model().count()!)
-	qreal xx(unsigned i) const { return data_->x(i)*sx_+dx_+offset_.x(); }
-	/// Helper function to return a the transformed, normalized, offsetted x value. (Only call when model() is valid, and i<model().count()!)
-	qreal yy(unsigned i) const { return data_->y(i)*sy_+dy_+offset_.y(); }
-
-
-	virtual void setDefaults();
-
-
-
 	/// Receives signals for us, from MPlotAbstractSeriesData implementations
 	MPlotSeriesSignalHandler* signalHandler_;
 	friend class MPlotSeriesSignalHandler;
 };
-
-
-
-
 
 
 /// When drawing large datasets, we won't draw more than MPLOT_MAX_LINES_PER_PIXEL lines per x-axis pixel.
@@ -189,7 +197,7 @@ protected:
 #define MPLOT_MAX_LINES_PER_PIXEL 2.0
 
 /// If you're going to add a lot of points to the model (without caring about updates in between), recommend this for performance reasons:
-/*
+/*!
 	MPlotSeriesBasic series;
 	 ....
 	series->setModel(0);	/// disconnect series from data model
@@ -202,8 +210,9 @@ protected:
 class MPlotSeriesBasic : public MPlotAbstractSeries {
 
 public:
-
+        /// Constructor.  Builds a series of data.  This is a standard 1D line plot.
 	MPlotSeriesBasic(const MPlotAbstractSeriesData* data = 0);
+        /// Destructor.
 	virtual ~MPlotSeriesBasic();
 
 
@@ -216,21 +225,18 @@ public:
 	virtual void paint(QPainter* painter,
 					   const QStyleOptionGraphicsItem* option,
 					   QWidget* widget);
-
+        /// Helper function that paints the lines that connect the points of the series.
 	virtual void paintLines(QPainter* painter);
-
+        /// Helper function that paints the markers on the points that make up the series.
 	virtual void paintMarkers(QPainter* painter);
 
 	/// re-implemented from MPlotItem base to draw an update if we're now selected (with our selection highlight)
 	virtual void setSelected(bool selected = true);
 
-
-
 protected: //"slots"
 
 	/// Handle implementation-specific drawing updates
 	virtual void onDataChanged();
-
 
 protected:
 
@@ -239,7 +245,6 @@ protected:
 	 virtual void setDefaults() {
 
 	 }*/
-
 };
 
 #endif

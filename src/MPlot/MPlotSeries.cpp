@@ -50,8 +50,6 @@ MPlotAbstractSeries::~MPlotAbstractSeries() {
 	signalHandler_ = 0;
 }
 
-
-
 // Properties:
 void MPlotAbstractSeries::setLinePen(const QPen& pen) {
 	linePen_ = pen;
@@ -72,7 +70,6 @@ void MPlotAbstractSeries::setMarker(MPlotMarkerShape::Shape shape, qreal size, c
 	marker_ = MPlotMarker::create(shape, size, pen, brush);
 	update();
 }
-
 
 // Sets this series to view the model in 'data';
 void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data, bool ownsModel) {
@@ -109,14 +106,10 @@ void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data, bool own
 
 }
 
-
-
 const MPlotAbstractSeriesData* MPlotAbstractSeries::model() const { return data_; }
-
 
 // Required functions:
 //////////////////////////
-
 
 // Data rect: also reported in our PlotSeries coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
 QRectF MPlotAbstractSeries::dataRect() const {
@@ -147,7 +140,6 @@ QRectF MPlotAbstractSeries::dataRect() const {
 	return cachedDataRect_;
 }
 
-
 QPainterPath MPlotAbstractSeries::shape() const {
 
 	QPainterPath shape;
@@ -171,9 +163,6 @@ QPainterPath MPlotAbstractSeries::shape() const {
 	return shape;
 }
 
-
-
-
 void	MPlotAbstractSeries::onDataChangedPrivate() {
 	// flag cached bounding rect as dirty:
 	dataChangedUpdateNeeded_ = true;
@@ -185,7 +174,6 @@ void	MPlotAbstractSeries::onDataChangedPrivate() {
 	// call any base-class specific re-drawing
 	onDataChanged();
 }
-
 
 void MPlotAbstractSeries::setDefaults() {
 
@@ -200,8 +188,8 @@ void MPlotAbstractSeries::setDefaults() {
 }
 
 
-/// Use this function to apply a constant transformation to the series, on top of the underlying data. All data points are first scaled by (\c sx, \c sy) and then shifted by (\c dx, \c dy).
-/*! Calling this function will only have an effect on axes which do not have normalization enabled (using enableYAxisNormalization() or enableXAxisNormalization()). If you want your changes to stick, be sure to disable normalization first.*/
+// Use this function to apply a constant transformation to the series, on top of the underlying data. All data points are first scaled by (\c sx, \c sy) and then shifted by (\c dx, \c dy).
+/* Calling this function will only have an effect on axes which do not have normalization enabled (using enableYAxisNormalization() or enableXAxisNormalization()). If you want your changes to stick, be sure to disable normalization first.*/
 void MPlotAbstractSeries::applyTransform(qreal sx, qreal sy, qreal dx, qreal dy) {
 	sx_ = sx;
 	sy_ = sy;
@@ -211,7 +199,7 @@ void MPlotAbstractSeries::applyTransform(qreal sx, qreal sy, qreal dx, qreal dy)
 	onDataChangedPrivate();	// will require an update to the bounding rect, geometry, and plot
 }
 
-/// Call this function to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform() in the y-axis.
+// Call this function to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform() in the y-axis.
 void MPlotAbstractSeries::enableYAxisNormalization(bool on, qreal min, qreal max) {
 	yAxisNormalizationOn_ = on;
 	if(on) {
@@ -226,7 +214,7 @@ void MPlotAbstractSeries::enableYAxisNormalization(bool on, qreal min, qreal max
 	onDataChangedPrivate();
 }
 
-/// Call this function to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform() in the x-axis.
+// Call this function to keep the data normalized within a specified range.  When normalization is enabled, regardless of how the data source changes, the minimum value will always appear at \c min and the maximum value will always appear at \c max.  This effectively disables applyTransform() in the x-axis.
 void MPlotAbstractSeries::enableXAxisNormalization(bool on, qreal min, qreal max) {
 	xAxisNormalizationOn_ = on;
 	if(on) {
@@ -241,18 +229,11 @@ void MPlotAbstractSeries::enableXAxisNormalization(bool on, qreal min, qreal max
 	onDataChangedPrivate();
 }
 
-
 void MPlotAbstractSeries::setOffset(qreal dx, qreal dy) {
 	offset_ = QPointF(dx, dy);
 
 	onDataChangedPrivate();
 }
-
-
-
-
-
-
 
 /////////////////////////////
 // MPlotSeriesBasic
@@ -267,12 +248,9 @@ MPlotSeriesBasic::MPlotSeriesBasic(const MPlotAbstractSeriesData* data)
 	setModel(data);
 }
 
-
-
 MPlotSeriesBasic::~MPlotSeriesBasic() {
 
 }
-
 
 // Required functions:
 //////////////////////////
@@ -405,7 +383,7 @@ void MPlotSeriesBasic::paintMarkers(QPainter* painter) {
 }
 
 
-/// re-implemented from MPlotItem base to draw an update if we're now selected (with our selection highlight)
+// re-implemented from MPlotItem base to draw an update if we're now selected (with our selection highlight)
 void MPlotSeriesBasic::setSelected(bool selected) {
 
 	bool wasSelected = isSelected();
@@ -415,11 +393,9 @@ void MPlotSeriesBasic::setSelected(bool selected) {
 
 }
 
-/// All the specific re-drawing we need to do when the data changes (or a new model is set) is contained in update().
+// All the specific re-drawing we need to do when the data changes (or a new model is set) is contained in update().
 void MPlotSeriesBasic::onDataChanged() {
 	update();
 }
 
-
 #endif
-
