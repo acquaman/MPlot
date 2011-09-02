@@ -32,13 +32,17 @@ class MPlotItem;
 class MPlotItemSignalSource : public QObject {
 	Q_OBJECT
 public:
+        /// Returns the plot item this signal source is managing.
 	MPlotItem* plotItem() const { return plotItem_; }
 
 public slots:
+        /// Slot handling initial setup if the axis scale is about to change.
 	void onAxisScaleAboutToChange() const;
+        /// Slot handling the axis change.
 	void onAxisScaleChanged() const;
 
 protected:
+        /// Constructor.  Builds a signal source to manage an MPlot item.
 	MPlotItemSignalSource(MPlotItem* parent);
 
 	/// called within MPlotItem to forward this signal
@@ -50,12 +54,15 @@ protected:
 
 	/// Allow MPlotItem access to these protected functions:
 	friend class MPlotItem;
-
+        /// Pointer to the plot item this source is managing.
 	MPlotItem* plotItem_;
 
 signals:
+        /// Notifier that the bounds for the plot item has changed.
 	void boundsChanged();
+        /// Notifier that whether the item is selected or not has changed.
 	void selectedChanged(bool);
+        /// Notifier that the legend has changed.
 	void legendContentChanged();
 
 };
@@ -68,7 +75,7 @@ public:
 
 	/// Used to distinguish types/subclasses of MPlotItem.  See MPlotItem::type() and QGraphicsItem::type().
 	enum ItemTypes { PlotItem = QGraphicsItem::UserType + 3003, Series, Image };
-
+        /// Convenience enum.
 	enum { Type = PlotItem };
 
 	/// Returns the type of this item, to enable qgraphicsitem_cast() for casting to different MPlotItem subclasses.  See qgraphicsitem_cast() for more information.
@@ -83,8 +90,6 @@ public:
 
 	/// Constructor calls base class (QGraphicsObject)
 	MPlotItem();
-
-
 
 	/// \todo What to do about being connected to multiple plots?
 
@@ -110,8 +115,6 @@ public:
 	bool ignoreWhenAutoScaling() const { return ignoreWhenAutoScaling_; }
 	/// Set that this item should be ignored when auto-scaling (ie: it should not be considered to affect the range of its xAxisTarget() and yAxisTarget() when these target axis scales have autoScaling enabled.)
 	void setIgnoreWhenAutoScaling(bool ignore);
-
-
 
 	/// tell this item that it is 'selected' within the plot
 	virtual void setSelected(bool selected = true);
@@ -158,17 +161,24 @@ public:
 
 
 private:
+        /// Bool holding whether the item is selectable and selected.
 	bool isSelected_, isSelectable_;
+        /// The x and y axis scale for the plot item.
 	MPlotAxisScale* yAxisTarget_, *xAxisTarget_;
 
+        /// The plot that this item belongs to.
 	MPlot* plot_;
 
+        /// Description for the plot item.
 	QString description_;
 
+        /// Bool holding whether or not the plot item should be considered when auto-scaling.
 	bool ignoreWhenAutoScaling_;
 
 protected:
+        /// Pointer to the signal source managing the signals for the plot item.
 	MPlotItemSignalSource* signalSource_;
+        /// Giving access to the signal source.
 	friend class MPlotItemSignalSource;
 
 	/// called within MPlotItem to forward this signal

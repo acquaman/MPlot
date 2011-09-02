@@ -31,8 +31,6 @@ MPlotItem::~MPlotItem() {
 	delete signalSource_;
 }
 
-
-
 // tell this item that it is 'selected' within the plot
 void MPlotItem::setSelected(bool selected) {
 	bool updateNeeded = (selected != isSelected_);
@@ -42,6 +40,7 @@ void MPlotItem::setSelected(bool selected) {
 		signalSource()->emitSelectedChanged(isSelected_);
 	}
 }
+
 // ask if this item is currently selected on the plot
 bool MPlotItem::selected() {
 	return isSelected_;
@@ -55,7 +54,6 @@ bool MPlotItem::selectable() {
 void MPlotItem::setSelectable(bool selectable) {
 	isSelectable_ = selectable;
 }
-
 
 // Don't call this. Unfortunately public because it's required by MPlot::addItem and MPlot::removeItem.
 void MPlotItem::setPlot(MPlot* plot) {
@@ -167,6 +165,4 @@ void MPlotItem::setIgnoreWhenAutoScaling(bool ignore)
 	ignoreWhenAutoScaling_ = ignore;
 }
 
-
 #endif // MPLOTITEM_H
-
