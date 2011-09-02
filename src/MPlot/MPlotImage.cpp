@@ -59,8 +59,6 @@ MPlotColorMap MPlotAbstractImage::colorMap() const {
 	return map_;
 }
 
-
-
 // Sets this series to view the model in 'data';
 void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data, bool ownsModel) {
 
@@ -100,11 +98,10 @@ const MPlotAbstractImageData* MPlotAbstractImage::model() const {
 	return data_;
 }
 
-
 // Required functions:
 //////////////////////////
 
-/// Data rect: also reported in PlotItem coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
+// Data rect: also reported in PlotItem coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
 QRectF MPlotAbstractImage::dataRect() const {
 	if(data_)
 		return data_->boundingRect();
@@ -121,10 +118,6 @@ void MPlotAbstractImage::onDataChangedPrivate() {
 	onDataChanged();
 }
 
-
-
-
-
 void MPlotAbstractImage::setDefaults() {
 
 	map_ = MPlotColorMap::Jet;
@@ -132,9 +125,9 @@ void MPlotAbstractImage::setDefaults() {
 
 
 
-/// This class implements an image (2d intensity plot), using a cached, scaled QPixmap for drawing
+// This class implements an image (2d intensity plot), using a cached, scaled QPixmap for drawing
 
-/// Constructor
+// Constructor
 MPlotImageBasic::MPlotImageBasic(const MPlotAbstractImageData* data)
 	: MPlotAbstractImage(),
 	image_(1,1, QImage::Format_ARGB32)
@@ -143,9 +136,7 @@ MPlotImageBasic::MPlotImageBasic(const MPlotAbstractImageData* data)
 	setModel(data);
 }
 
-
-
-/// Paint: must be implemented in subclass.
+// Paint: must be implemented in subclass.
 void MPlotImageBasic::paint(QPainter* painter,
 				   const QStyleOptionGraphicsItem* option,
 				   QWidget* widget) {
@@ -199,8 +190,8 @@ QRectF MPlotImageBasic::boundingRect() const {
 
 
 
-/// Called when the z-data changes, so that the plot needs to be updated. This fills the pixmap buffer
-/// \todo CRITICAL TODO: only schedule this, and perform it the next time it needs to be drawn... Don't re-compute the image every time.
+// Called when the z-data changes, so that the plot needs to be updated. This fills the pixmap buffer
+// \todo CRITICAL TODO: only schedule this, and perform it the next time it needs to be drawn... Don't re-compute the image every time.
 void MPlotImageBasic::onDataChanged() {
 
 	// flag the image as dirty; this avoids the expensive act of re-filling the image every time the data changes, if we're not re-drawing as fast as the data is changing.
@@ -231,7 +222,7 @@ void MPlotImageBasic::fillImageFromData() {
 	}
 }
 
-/// If the bounds of the data change (in x- and y-) this might require re-auto-scaling of a plot.
+// If the bounds of the data change (in x- and y-) this might require re-auto-scaling of a plot.
 void MPlotImageBasic::onBoundsChanged(const QRectF& newBounds) {
 	Q_UNUSED(newBounds)
 	// signal a re-scaling needed on the plot: (REDUNDANT... already done in base class)
@@ -240,7 +231,6 @@ void MPlotImageBasic::onBoundsChanged(const QRectF& newBounds) {
 	// schedule an update of the plot, but computing a new pixmap is not needed
 	update();
 }
-
 
 #endif // MPLOTIMAGE_H
 

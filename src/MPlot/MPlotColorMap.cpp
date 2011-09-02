@@ -8,7 +8,6 @@
 QVector<QVector<QRgb>*> MPlotColorMapData::precomputedMaps_ = QVector<QVector<QRgb>*>(13,0);
 
 
-
 MPlotColorMapData::MPlotColorMapData(const MPlotColorMapData &other)
 	: QSharedData(other),
 	  colorArray_(other.colorArray_),
@@ -178,7 +177,6 @@ MPlotColorMap::MPlotColorMap(StandardColorMap colorMap, int resolution)
 {
 }
 
-
 // Replaces the current set of stop points with the given \c stopPoints. The positions of the points must be in the range 0 to 1, and must be sorted with the lowest point first.
 void MPlotColorMap::setStops(const QGradientStops& stopPoints)
 {
@@ -205,7 +203,6 @@ void MPlotColorMap::addStopAt(qreal position, const QColor& color)
 
 	d->recomputeCachedColorsRequired_ = true;
 }
-
 
 // Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.
 void MPlotColorMapData::recomputeCachedColors() const
@@ -312,7 +309,6 @@ bool MPlotColorMapData::operator !=(const MPlotColorMapData &other) const
 	return false;	// they're the same!
 }
 
-
 void MPlotColorMap::setBrightness(qreal brightness)
 {
 	d.detach();
@@ -351,7 +347,5 @@ bool MPlotColorMap::operator !=(const MPlotColorMap &other) const
 {
 	 return *d != *(other.d);
 }
-
-
 
 #endif // MPLOTCOLORMAP_H
