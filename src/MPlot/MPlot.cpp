@@ -58,6 +58,7 @@ MPlot::MPlot(const QRectF& rect, QGraphicsItem* parent) :
 	axisScales_ << new MPlotAxisScale(Qt::Vertical, QSizeF(100,100), MPlotAxisRange(0,1), 0);	// verticalRelative (fixed between 0 and 1)
 	axisScales_ << new MPlotAxisScale(Qt::Horizontal, QSizeF(100,100), MPlotAxisRange(0,1), 0);// horizontalRelative (fixed between 0 and 1)
 
+	axisScaleLogScaleOn_ << false << false << false << false << false << false;
 	axisScaleNormalizationOn_ << false << false << false << false << false << false;
 	axisScaleWaterfallAmount_ << 0 << 0 << 0 << 0 << 0 << 0;
 	axisScaleNormalizationRange_ << MPlotAxisRange(0,1) << MPlotAxisRange(0,1) << MPlotAxisRange(0,1) << MPlotAxisRange(0,1) << MPlotAxisRange(0,1) << MPlotAxisRange(0,1);
@@ -381,6 +382,7 @@ void MPlot::onPlotItemLegendContentChanged(MPlotItem* changedItem) {
 void MPlot::addAxisScale(MPlotAxisScale *newScale)
 {
 	axisScales_ << newScale;
+	axisScaleLogScaleOn_ << false;
 	axisScaleNormalizationOn_ << false;
 	axisScaleNormalizationRange_ << MPlotAxisRange(0,1);
 	axisScaleWaterfallAmount_ << 0;
@@ -395,6 +397,13 @@ void MPlotSignalHandler::doDelayedAutoscale()
 void MPlotSignalHandler::onAxisScaleAutoScaleEnabledChanged(bool enabled)
 {
 	plot_->onAxisScaleAutoScaleEnabledChanged(enabled);
+}
+
+void MPlot::enableLogScale(int axisScaleIndex, bool logScaleOn)
+{
+	axisScaleLogScaleOn_[axisScaleIndex] = logScaleOn;
+
+	axisScale(axisScaleIndex)->setLogScaleEnabled(logScaleOn);
 }
 
 void MPlot::enableAxisNormalization(int axisScaleIndex, bool normalizationOn, const MPlotAxisRange &normalizationRange)

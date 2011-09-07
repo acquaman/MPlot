@@ -192,6 +192,8 @@ public:
 	/// Convenience getter for setting the bottom margin to the given \param value.
 	void setMarginBottom(qreal value) { setMargin(MPlot::Bottom, value); }
 
+	/// Method that enables/disables the logarithmic scale for the give MPlotAxisScale \param axisScaleIndex.
+	void enableLogScale(int axisScaleIndex, bool logScaleOn);
 	/// Method that enables/disables axis normalization for the given MPlotAxisScale \param axisScaleIndex between the given MPlotAxisRange \param normalizationRange.  If no range is given, then the standard of 0 to 1 is used.
 	void enableAxisNormalization(int axisScaleIndex, bool normalizationOn, const MPlotAxisRange& normalizationRange = MPlotAxisRange(0,1));
 	/// Convenience method to enable/disable axis normalization for the given MPlotAxisScale \param axisScaleIndex by explicitly giving a \param min and \param max.
@@ -234,6 +236,9 @@ protected:
 	QList<MPlotAxisScale*> axisScales_;
 	/// The list of the waterfall amounts for the different axis scales.  The amount for a given axis scale is indexed by the axisScaleIndex.
 	QList<qreal> axisScaleWaterfallAmount_;
+
+	/// The list of the MPlotAxisScales that have log scale enabled.  The state is indexed by the axisScaleIndex.
+	QList<bool> axisScaleLogScaleOn_;
 
 	/// The list of which MPlotAxisScales are normalized.  The state is indexed by the axisScaleIndex.
 	QList<bool> axisScaleNormalizationOn_;
