@@ -439,6 +439,32 @@ void MPlot::setAxisScaleWaterfall(int axisScaleIndex, qreal amount)
 	}
 }
 
+double MPlot::minimumSeriesValue()
+{
+	double min = MPLOT_POS_INFINITY;
+
+	foreach(MPlotItem* item, items_) {
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(item);
+		if (series && series->model()->boundingRect().top() < min)
+			min = series->model()->boundingRect().top();
+	}
+
+	return min == MPLOT_POS_INFINITY ? MPLOT_NEG_INFINITY : min;
+}
+
+double MPlot::maximumSeriesValue()
+{
+	double max = MPLOT_NEG_INFINITY;
+
+	foreach(MPlotItem* item, items_) {
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(item);
+		if (series && series->model()->boundingRect().top() + series->model()->boundingRect().height() > max)
+			max = series->model()->boundingRect().top() + series->model()->boundingRect().height();
+	}
+
+	return max == MPLOT_NEG_INFINITY ? MPLOT_POS_INFINITY : max;
+}
+
 //////////////////////
 // MPlotGW
 ////////////////////////////

@@ -207,6 +207,11 @@ public:
 	/// Called automatically when control returns to the event loop, this completes a delayed autoscale. (Recomputing the scale limits is optimized to be only done when necessary, rather than whenever the data values change.)  If you need the scene to be updated NOW! (for example, you're working outside of an event loop, or rendering before returning to the event loop), you can call this manually.
 	void doDelayedAutoScale();
 
+	/// Retrieves the overall minimum value from all the series contained within the plot.  If there are no series contained in the plot then MPLOT_NEG_INFINITY is returned.
+	double minimumSeriesValue();
+	/// Retrieves the overall maximum value from all the series contained within the plot.  If there are no series contained in the plot then MPLOT_POS_INFINITY is returned.
+	double maximumSeriesValue();
+
 protected: // "slots" (proxied through MPlotSignalHandler)
 	/// Called when the x-y data in a plot item might have changed, such that a re-autoscale is necessary.
 	void onBoundsChanged(MPlotItem* source);
