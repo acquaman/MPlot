@@ -445,8 +445,8 @@ double MPlot::minimumSeriesValue()
 
 	foreach(MPlotItem* item, items_) {
 		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(item);
-		if (series && series->model()->boundingRect().top() < min)
-			min = series->model()->boundingRect().top();
+		if (series && series->dataRect().top() < min)
+			min = series->dataRect().top();
 	}
 
 	return min == MPLOT_POS_INFINITY ? MPLOT_NEG_INFINITY : min;
@@ -458,8 +458,8 @@ double MPlot::maximumSeriesValue()
 
 	foreach(MPlotItem* item, items_) {
 		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(item);
-		if (series && series->model()->boundingRect().top() + series->model()->boundingRect().height() > max)
-			max = series->model()->boundingRect().top() + series->model()->boundingRect().height();
+		if (series && series->dataRect().top() + series->dataRect().height() > max)
+			max = series->dataRect().top() + series->dataRect().height();
 	}
 
 	return max == MPLOT_NEG_INFINITY ? MPLOT_POS_INFINITY : max;
