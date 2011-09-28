@@ -439,7 +439,43 @@ void MPlot::setAxisScaleWaterfall(int axisScaleIndex, qreal amount)
 	}
 }
 
-double MPlot::minimumSeriesValue()
+double MPlot::minimumXSeriesValue()
+{
+	double min = MPLOT_POS_INFINITY;
+
+	foreach(MPlotItem* item, items_) {
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(item);
+		if (series){
+
+			QRectF rect(series->dataRect());
+
+			if (rect.isValid() && rect.left() < min)
+				min = rect.left();
+		}
+	}
+
+	return min == MPLOT_POS_INFINITY ? MPLOT_NEG_INFINITY : min;
+}
+
+double MPlot::maximumXSeriesValue()
+{
+	double max = MPLOT_NEG_INFINITY;
+
+	foreach(MPlotItem* item, items_) {
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(item);
+		if (series) {
+
+			QRectF rect(series->dataRect());
+
+			if (rect.isValid() && rect.right() > max)
+				max = rect.right();
+		}
+	}
+
+	return max == MPLOT_NEG_INFINITY ? MPLOT_POS_INFINITY : max;
+}
+
+double MPlot::minimumYSeriesValue()
 {
 	double min = MPLOT_POS_INFINITY;
 
@@ -457,7 +493,7 @@ double MPlot::minimumSeriesValue()
 	return min == MPLOT_POS_INFINITY ? MPLOT_NEG_INFINITY : min;
 }
 
-double MPlot::maximumSeriesValue()
+double MPlot::maximumYSeriesValue()
 {
 	double max = MPLOT_NEG_INFINITY;
 
@@ -467,8 +503,8 @@ double MPlot::maximumSeriesValue()
 
 			QRectF rect(series->dataRect());
 
-			if (rect.isValid() && rect.top() + rect.height() > max)
-				max = rect.top() + rect.height();
+			if (rect.isValid() && rect.bottom() > max)
+				max = rect.bottom();
 		}
 	}
 
