@@ -26,7 +26,8 @@ HEADERS += src/MPlot/MPlotWidget.h \
 	src/MPlot/MPlotImageData.h \
 	src/MPlot/MPlotPoint.h \
     src/MPlot/MPlotAxisScale.h \
-    src/MPlot/MPlotRectangle.h
+    src/MPlot/MPlotRectangle.h \
+    src/MPlot/MPlotMarkerTransparentVerticalRectangle.h
 
 SOURCES += src/main.cpp \
 	src/MPlot/MPlot.cpp \
@@ -44,4 +45,7 @@ SOURCES += src/main.cpp \
 	src/MPlot/MPlotTools.cpp \
 	src/MPlot/MPlotWidget.cpp \
     src/MPlot/MPlotAxisScale.cpp \
-    src/MPlot/MPlotRectangle.cpp
+    src/MPlot/MPlotRectangle.cpp \
+    src/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp
+
+
