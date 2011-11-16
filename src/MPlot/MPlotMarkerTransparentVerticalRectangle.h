@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MPLOTMARKERTRANSPARENTVERTICALRECTANGLE_H
 #define MPLOTMARKERTRANSPARENTVERTICALRECTANGLE_H
 
-#include "MPlot/MPlotItem.h"
+#include "MPlotItem.h"
 
 #include <QPen>
 #include <QBrush>

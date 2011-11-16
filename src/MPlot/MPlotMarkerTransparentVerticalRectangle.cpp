@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "MPlot/MPlotMarkerTransparentVerticalRectangle.h"
+#include "MPlotMarkerTransparentVerticalRectangle.h"
 #include <QPainter>
 
 MPlotMarkerTransparentVerticalRectangle::MPlotMarkerTransparentVerticalRectangle(QString name, double center, double low, double high)
