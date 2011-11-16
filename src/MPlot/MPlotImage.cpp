@@ -125,7 +125,7 @@ void MPlotAbstractImage::setDefaults() {
 
 
 
-// This class implements an image (2d intensity plot), using a cached, scaled QPixmap for drawing
+// This class implements an image (2d intensity plot), using a cached, scaled QImage for drawing
 
 // Constructor
 MPlotImageBasic::MPlotImageBasic(const MPlotAbstractImageData* data)
