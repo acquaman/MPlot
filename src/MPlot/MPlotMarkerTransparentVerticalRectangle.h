@@ -39,15 +39,15 @@ public:
 	/// Returns the position of the center line.
 	double center() const { return center_; }
 	/// Sets the center position of marker.
-	void setCenter(double position) { center_ = position; updatePlot(); }
+	void setCenter(double position) { prepareGeometryChange(); center_ = position; updatePlot(); }
 	/// Returns the lower end of the boundingRect.
 	double lowEnd() const { return low_; }
 	/// Sets the position of the lower end of the boundingRect.
-	void setLowEnd(double position) { low_ = position; updatePlot(); }
+	void setLowEnd(double position) { prepareGeometryChange(); low_ = position; updatePlot(); }
 	/// Returns the higher end of the boundingRect.
 	double highEnd() const { return high_; }
 	/// Sets the position of the higher end of the boundingRect.
-	void setHighEnd(double position) { high_ = position; updatePlot(); }
+	void setHighEnd(double position) { prepareGeometryChange(); high_ = position; updatePlot(); }
 	/// Sets whether the marker has been "selected" or not.  Changes the colour of the marker here.
 	void setHighlighted(bool highlight);
 	/// Returns whether the marker is highlighted or not.
@@ -83,7 +83,7 @@ public:
 					   QWidget* widget);
 
 	/// Updates the plot to show the new size and shape of the marker.
-	virtual void updatePlot() { prepareGeometryChange(); emitBoundsChanged(); emitLegendContentChanged(); if (low_ == -1 && high_ == -1) hide(); else show(); }
+	virtual void updatePlot() { emitBoundsChanged(); emitLegendContentChanged(); if (low_ == -1 && high_ == -1) hide(); else show(); }
 
 	/// The color used to represent this plot item in the legend.  Subclasses can re-implement this for more detail.
 	virtual QBrush legendColor() const { return QBrush(QColor(0, 0, 0)); }
