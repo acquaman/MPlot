@@ -39,7 +39,8 @@ void MPlotMarkerTransparentVerticalRectangle::setHighlighted(bool highlight)
 		brush_.setColor(QColor(0, 150, 0, 100)); // Light green
 
 	isHighlighted_ = highlight;
-	updatePlot();
+	emitLegendContentChanged();
+	update();
 }
 
 QRectF MPlotMarkerTransparentVerticalRectangle::boundingRect() const
