@@ -40,6 +40,9 @@ MPlot::MPlot(const QRectF& rect, QGraphicsItem* parent) :
 {
 	signalHandler_ = new MPlotSignalHandler(this);
 
+	// No auto-scale scheduled right now.
+	autoScaleScheduled_ = false;
+
 	setFlags(QGraphicsItem::ItemHasNoContents);	// drawing optimization; all drawing done by children
 
 	// Create background rectangle of the given size, as a child of this QGraphicsObject.
@@ -83,9 +86,6 @@ MPlot::MPlot(const QRectF& rect, QGraphicsItem* parent) :
 
 	// Place and scale everything as required...
 	setRect(rect_);
-
-	// No auto-scale scheduled right now.
-	autoScaleScheduled_ = false;
 
 	gettingDeleted_ = false;
 
