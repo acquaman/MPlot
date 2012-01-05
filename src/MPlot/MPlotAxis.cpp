@@ -57,6 +57,9 @@ void MPlotAxis::setTicks(int num, TickStyle tstyle, qreal tickLength) {
 
 // show or hide the value labels along the axis
 void MPlotAxis::showTickLabels(bool tickLabelsOn) {
+	if(tickLabelsVisible_ == tickLabelsOn)
+		return;
+
 	prepareGeometryChange();
 
 	tickLabelsVisible_ = tickLabelsOn;
@@ -65,6 +68,8 @@ void MPlotAxis::showTickLabels(bool tickLabelsOn) {
 
 // show or hide the grid lines
 void MPlotAxis::showGrid(bool gridOn) {
+	if(gridVisible_ == gridOn)
+		return;
 
 	prepareGeometryChange();
 
@@ -74,6 +79,9 @@ void MPlotAxis::showGrid(bool gridOn) {
 
 // show or hide the axis name
 void MPlotAxis::showAxisName(bool axisNameOn) {
+	if(axisNameVisible_ == axisNameOn)
+		return;
+
 	prepareGeometryChange();
 
 	axisNameVisible_ = axisNameOn;
@@ -82,24 +90,36 @@ void MPlotAxis::showAxisName(bool axisNameOn) {
 
 // Set the pen for the axis line and axis name text:
 void MPlotAxis::setAxisPen(const QPen& pen) {
+	if(axisPen_ == pen)
+		return;
+
 	axisPen_ = pen;
 	update();
 }
 
 // set the pen for the ticks along the axis:
 void MPlotAxis::setTickPen(const QPen& pen) {
+	if(tickPen_ == pen)
+		return;
+
 	tickPen_ = pen;
 	update();
 }
 
 // set the pen for the grid lines
 void MPlotAxis::setGridPen(const QPen& pen) {
+	if(gridPen_ == pen)
+		return;
+
 	gridPen_ = pen;
 	update();
 }
 
 // set the font used for the values along the axis
 void MPlotAxis::setTickLabelFont(const QFont& font) {
+	if(tickLabelFontU_ == font)
+		return;
+
 	prepareGeometryChange();
 
 	tickLabelFontU_ = font;
@@ -110,6 +130,9 @@ void MPlotAxis::setTickLabelFont(const QFont& font) {
 
 // set the font used for the axis name
 void MPlotAxis::setAxisNameFont(const QFont& font) {
+	if(axisNameFontU_ == font)
+		return;
+
 	prepareGeometryChange();
 
 	axisNameFontU_ = font;
@@ -120,6 +143,9 @@ void MPlotAxis::setAxisNameFont(const QFont& font) {
 
 // Set the axis name:
 void MPlotAxis::setAxisName(const QString& name) {
+	if(name_ == name)
+		return;
+
 	name_ = name;
 	update();
 }
@@ -570,7 +596,6 @@ void MPlotAxis::setAxisScale(MPlotAxisScale *newScale)
 {
 	if(axisScale_ == newScale)
 		return;
-
 
 	disconnect(axisScale_, 0, this, 0);
 

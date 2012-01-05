@@ -112,6 +112,10 @@ public:
 	MPlotItem* item(int index) const { if(index>=0 && index<items_.count()) return items_.at(index); else return 0; }
 	/// Returns all the plot items in this plot
 	QList<MPlotItem*> plotItems() const { return items_; }
+	/// Counts the number of MPlotAbstractSeries items in this plot.
+	int seriesItemsCount() const;
+	/// Counts the number of MPlotAbstractImage items in this plot
+	int imageItemsCount() const;
 
 	/// Add a tool to the plot:
 	void addTool(MPlotAbstractTool* newTool);
@@ -183,13 +187,13 @@ public:
 
 	/// Sets the margin for MPlot::StandardAxis \param which with value \param value.  Must be given as a percentage.
 	void setMargin(MPlot::StandardAxis which, qreal value) { margins_[(int)which] = value; setRect(rect_); }
-	/// Convenience getter for setting the left margin to the given \param value.
+	/// Sets the left margin to the given \param value.
 	void setMarginLeft(qreal value) { setMargin(MPlot::Left, value); }
-	/// Convenience getter for setting the right margin to the given \param value.
+	/// Sets the right margin to the given \param value.
 	void setMarginRight(qreal value) { setMargin(MPlot::Right, value); }
-	/// Convenience getter for setting the top margin to the given \param value.
+	/// Sets the top margin to the given \param value.
 	void setMarginTop(qreal value) { setMargin(MPlot::Top, value); }
-	/// Convenience getter for setting the bottom margin to the given \param value.
+	/// Sets the bottom margin to the given \param value.
 	void setMarginBottom(qreal value) { setMargin(MPlot::Bottom, value); }
 
 	/// Method that enables/disables the logarithmic scale for the give MPlotAxisScale \param axisScaleIndex.
@@ -240,7 +244,7 @@ protected:
 	/// The reference to the MPlotLegend contained in this MPlot.
 	MPlotLegend* legend_;
 
-	/// The list of the MPlotAxes.  0 through 5 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top).
+	/// The list of the MPlotAxes.  0 through 3 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top).
 	QList<MPlotAxis*> axes_;
 	/// The list of the MPlotAxisScales.  0 through 5 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top, MPlot::HorizontalRelative, MPlot::VerticalRelative).
 	QList<MPlotAxisScale*> axisScales_;
@@ -270,8 +274,6 @@ protected:
 	/// The rectangle containing the plotting area, in scene coordinates.
 	QRectF plotAreaRect_;
 
-	/// Caching/optimization: counts the number of MPlotAbstractSeries plotted on the left and right axes
-	mutable int seriesCounterLeft_, seriesCounterRight_;
 
 	/// Indicates that a re-autoscale has been scheduled (Actually doing it is deferred until returning back to the event loop)
 	bool autoScaleScheduled_;

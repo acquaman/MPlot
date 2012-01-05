@@ -5,9 +5,8 @@
 #include "MPlot.h"
 #include "MPlotAxisScale.h"
 #include "MPlotSeries.h"
+#include "MPlotImage.h"
 #include "MPlotAbstractTool.h"
-
-#include <QDebug>
 
 MPlotSignalHandler::MPlotSignalHandler(MPlot* parent)
 	: QObject(0) {
@@ -511,6 +510,29 @@ double MPlot::maximumYSeriesValue()
 	return max == MPLOT_NEG_INFINITY ? MPLOT_POS_INFINITY : max;
 }
 
+int MPlot::seriesItemsCount() const
+{
+	int rv = 0;
+	foreach(MPlotItem* item, items_) {
+		MPlotAbstractSeries* series = qgraphicsitem_cast<MPlotAbstractSeries*>(item);
+		if (series)
+			rv++;
+	}
+	return rv;
+}
+
+int MPlot::imageItemsCount() const
+{
+	int rv = 0;
+	foreach(MPlotItem* item, items_) {
+		MPlotAbstractImage* image = qgraphicsitem_cast<MPlotAbstractImage*>(item);
+		if (image)
+			rv++;
+	}
+	return rv;
+}
+
+
 //////////////////////
 // MPlotGW
 ////////////////////////////
@@ -532,5 +554,7 @@ void MPlotGW::resizeEvent ( QGraphicsSceneResizeEvent * event ) {
 
 	plot_->setRect(QRectF(QPointF(0,0), event->newSize() ));
 }
+
+
 
 #endif
