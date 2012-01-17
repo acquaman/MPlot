@@ -220,7 +220,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 	case OnBottom: {
 		// draw the main axis line:
 		painter->setPen(axisPen_);
-		painter->drawLine(0, drawingSize.height(), drawingSize.width(), drawingSize.height());
+		painter->drawLine(QPointF(0, drawingSize.height()), QPointF(drawingSize.width(), drawingSize.height()));
 
 		// draw the ticks
 		qreal tickLength = drawingSize.height()*tickLength_;
@@ -245,7 +245,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 			qreal x = axisScale_->mapDataToDrawing(tickValue);
 			painter->setPen(tickPen_);
 			// draw the tick
-			painter->drawLine(x, tickTop, x, tickBottom);
+			painter->drawLine(QPointF(x, tickTop), QPointF(x, tickBottom));
 
 			// draw the label
 
@@ -258,7 +258,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 			// draw the gridline
 			if(gridVisible_) {
 				painter->setPen(gridPen_);
-				painter->drawLine(x, 0, x, drawingSize.height());
+				painter->drawLine(QPointF(x, 0), QPointF(x, drawingSize.height()));
 			}
 		}
 
@@ -281,7 +281,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 	case OnTop: {
 		// draw the main axis line:
 		painter->setPen(axisPen_);
-		painter->drawLine(0, 0, drawingSize.width(), 0);
+		painter->drawLine(QPointF(0, 0), QPointF(drawingSize.width(), 0));
 
 		// draw the ticks
 		qreal tickLength = drawingSize.height()*tickLength_;
@@ -306,7 +306,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 			qreal x = axisScale_->mapDataToDrawing(tickValue);
 			painter->setPen(tickPen_);
 			// draw the tick
-			painter->drawLine(x, tickTop, x, tickBottom);
+			painter->drawLine(QPointF(x, tickTop), QPointF(x, tickBottom));
 
 			// draw the label
 			if(tickLabelsVisible_) {
@@ -318,7 +318,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 			// draw the gridline
 			if(gridVisible_) {
 				painter->setPen(gridPen_);
-				painter->drawLine(x, 0, x, drawingSize.height());
+				painter->drawLine(QPointF(x, 0), QPointF(x, drawingSize.height()));
 			}
 		}
 
@@ -339,7 +339,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 	case OnLeft: {
 		// draw the main axis line:
 		painter->setPen(axisPen_);
-		painter->drawLine(0, 0, 0, drawingSize.height());
+		painter->drawLine(QPointF(0, 0), QPointF(0, drawingSize.height()));
 
 		// draw the ticks
 		qreal tickLength = drawingSize.width()*tickLength_;
@@ -366,7 +366,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 			qreal y = axisScale_->mapDataToDrawing(tickValue);
 			painter->setPen(tickPen_);
 			// draw the tick
-			painter->drawLine(tickLeft, y, tickRight, y);
+			painter->drawLine(QPointF(tickLeft, y), QPointF(tickRight, y));
 
 			// draw the label
 			if(tickLabelsVisible_) {
@@ -381,7 +381,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 			// draw the gridline
 			if(gridVisible_) {
 				painter->setPen(gridPen_);
-				painter->drawLine(0, y, drawingSize.width(), y);
+				painter->drawLine(QPointF(0, y), QPointF(drawingSize.width(), y));
 			}
 		}
 
@@ -405,7 +405,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 	case OnRight: {
 		// draw the main axis line:
 		painter->setPen(axisPen_);
-		painter->drawLine(drawingSize.width(), 0, drawingSize.width(), drawingSize.height());
+		painter->drawLine(QPointF(drawingSize.width(), 0), QPointF(drawingSize.width(), drawingSize.height()));
 
 		// draw the ticks
 		qreal tickLength = drawingSize.width()*tickLength_;
@@ -432,7 +432,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 			qreal y = axisScale_->mapDataToDrawing(tickValue);
 			painter->setPen(tickPen_);
 			// draw the tick
-			painter->drawLine(tickLeft, y, tickRight, y);
+			painter->drawLine(QPointF(tickLeft, y), QPointF(tickRight, y));
 
 			// draw the label
 			if(tickLabelsVisible_) {
@@ -447,7 +447,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 			// draw the gridline
 			if(gridVisible_) {
 				painter->setPen(gridPen_);
-				painter->drawLine(0, y, drawingSize.width(), y);
+				painter->drawLine(QPointF(0, y), QPointF(drawingSize.width(), y));
 			}
 		}
 
