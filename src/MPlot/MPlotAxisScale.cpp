@@ -157,12 +157,12 @@ QList<qreal> MPlotAxisScale::calculateTickValues(int minimumNumberOfTicks) const
 				}
 			}
 			else
-				ticksFound += floor(logRange);
+				ticksFound += int(floor(logRange));
 
 			// add 0.005, 0.5, 5, 50, 500, etc.?
 			if(ticksFound < minimumNumberOfTicks) {
 				include5s = true;
-				for(int d=outerMinPowerOfTen; d<outerMaxPowerOfTen; d++) {
+				for(int d=int(outerMinPowerOfTen); d<outerMaxPowerOfTen; d++) {
 					qreal potential5 = d + log5;
 					if(potential5 >= logMin && potential5 <=logMax)
 						ticksFound++;

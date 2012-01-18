@@ -259,17 +259,17 @@ void MPlotColorMapData::recomputeCachedColors() const
 
 			if (blendMode_ == MPlotColorMap::HSV)
 				for (int i = 0; i <= endMinusStart; i++)
-					colorArray_[startIndex+i] = QColor::fromHsv(start.second.hue()+(end.second.hue()-start.second.hue())*i/endMinusStart,
-																start.second.saturation()+(end.second.saturation()-start.second.saturation())*i/endMinusStart,
-																start.second.value()+(end.second.value()-start.second.value())*i/endMinusStart,
-																start.second.alpha()+(end.second.alpha()-start.second.alpha())*i/endMinusStart)
+					colorArray_[startIndex+i] = QColor::fromHsv(int(start.second.hue()+(end.second.hue()-start.second.hue())*i/endMinusStart),
+																int(start.second.saturation()+(end.second.saturation()-start.second.saturation())*i/endMinusStart),
+																int(start.second.value()+(end.second.value()-start.second.value())*i/endMinusStart),
+																int(start.second.alpha()+(end.second.alpha()-start.second.alpha())*i/endMinusStart))
 							.rgb();
 			else if (blendMode_ == MPlotColorMap::RGB)
 				for (int i = 0; i <= endMinusStart; i++)
-					colorArray_[startIndex+i] = QColor::fromRgb(start.second.red()+(end.second.red()-start.second.red())*i/endMinusStart,
-																start.second.green()+(end.second.green()-start.second.green())*i/endMinusStart,
-																start.second.blue()+(end.second.blue()-start.second.blue())*i/endMinusStart,
-																start.second.alpha()+(end.second.alpha()-start.second.alpha())*i/endMinusStart)
+					colorArray_[startIndex+i] = QColor::fromRgb(int(start.second.red()+(end.second.red()-start.second.red())*i/endMinusStart),
+																int(start.second.green()+(end.second.green()-start.second.green())*i/endMinusStart),
+																int(start.second.blue()+(end.second.blue()-start.second.blue())*i/endMinusStart),
+																int(start.second.alpha()+(end.second.alpha()-start.second.alpha())*i/endMinusStart))
 							.rgb();
 		}
 
