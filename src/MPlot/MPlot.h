@@ -93,6 +93,7 @@ public:
 	enum StandardAxis { Left = 0, Bottom, Right, Top, VerticalRelative, HorizontalRelative };
 
 	MPlot(const QRectF& rect = QRectF(0,0,100,100), QGraphicsItem* parent = 0);
+	/// Destructor. Any items within the plot will be deleted as well, because they are QGraphicsItem children of the plot.
 	virtual ~MPlot();
 	/// Required paint function. (All painting is done by children)
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);

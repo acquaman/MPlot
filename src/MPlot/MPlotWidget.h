@@ -15,17 +15,17 @@ class MPlotSceneAndView : public QGraphicsView {
 	Q_OBJECT
 
 public:
-        /// Constructor.  Builds the scene and view that the plot will reside in.
+	/// Constructor.  Builds the scene and view that the plot will reside in.
 	MPlotSceneAndView(QWidget* parent = 0);
 
-        /// Setter to enable/disable anti-aliasing.
+	/// Setter to enable/disable anti-aliasing.
 	void enableAntiAliasing(bool antiAliasingOn = true);
-        /// Destructor.
+	/// Destructor.
 	virtual ~MPlotSceneAndView();
 
 protected:
 
-        /// On resize events: keep the scene the same size as the view, and make the view look at this part of the scene.
+	/// On resize events: keep the scene the same size as the view, and make the view look at this part of the scene.
 	virtual void resizeEvent ( QResizeEvent * event );
 
 };
@@ -35,21 +35,21 @@ class MPlotWidget : public MPlotSceneAndView {
 	Q_OBJECT
 
 public:
-        /// Constructor.  Builds the scene and view, and sets up everything to make viewing a plot possible.
+	/// Constructor.  Builds the scene and view, and sets up everything to make viewing a plot possible.
 	MPlotWidget(QWidget* parent = 0);
-        /// Destructor.
+	/// Destructor. If there is a current plot(), it will be deleted automatically because it is an item within our scene.
 	virtual ~MPlotWidget();
 
-	/// Sets the plot attached to this widget. to remove a plot, pass \c plot = 0.
+	/// Sets the plot displayed by this widget. To remove a plot, pass \c plot = 0.
 	void setPlot(MPlot* plot);
 
-        /// Returns a pointer to the plot that this widget is painting.
+	/// Returns a pointer to the plot that this widget is displaying, or 0 if none.
 	MPlot* plot();
 
 protected:
 
-        // On resize events: notify the plot to resize it, and fill the viewport with the canvas.
-        virtual void resizeEvent ( QResizeEvent * event );
+	// On resize events: notify the plot to resize it, and fill the viewport with the canvas.
+	virtual void resizeEvent ( QResizeEvent * event );
 
 	// Member variables:
 	MPlot* plot_;
