@@ -143,7 +143,10 @@ public:
 	QRgb rgbAt(qreal value) const
 	{
 		if(d->mustApplyBCG_) {
-			value = d->contrast_*( pow(value,d->gamma_) + d->brightness_ );
+			if(d->gamma_ == 1.0)
+				value = d->contrast_ * (value + d->brightness_);
+			else
+				value = d->contrast_*( pow(value,d->gamma_) + d->brightness_ );
 		}
 		return rgbAtIndex((int)round(value*(resolution()-1)));
 	}
