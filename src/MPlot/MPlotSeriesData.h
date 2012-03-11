@@ -5,6 +5,7 @@
 #include <QQueue>
 #include <QList>
 #include <QRectF>
+#include <QVector>
 
 #include <limits>
 
@@ -13,6 +14,10 @@ class MPlotAbstractSeriesData;
 
 /// This class acts as a proxy to emit signals for MPlotAbstractSeriesData. You can receive the dataChanged() signal by hooking up to MPlotAbstractSeries::signalSource().
 /*! To allow classes that implement MPlotAbstractSeriesData to also inherit QObject, MPlotAbstractSeriesData does NOT inherit QObject.  However, it still needs a way to emit signals notifying of changes to the data, which is the role of this class.
+
+  Implementations must do two things:
+  1) Implement the virtual functions x(), y(), and count()
+  2) Call emitDataChanged() whenever the count() or x/y values have changed.
   */
 class MPlotSeriesDataSignalSource : public QObject {
 	Q_OBJECT
@@ -39,12 +44,12 @@ public:
 	/// Use this object to receive signals from the data when the data has changed in any way (ie: new points, deleted points, or values changed)
 	MPlotSeriesDataSignalSource* signalSource() const { return signalSource_; }
 
-	/// Return the x-value at index:
+	/// Return the x-value at index.  You can assume that \c index is valid (< count()).
 	virtual qreal x(unsigned index) const = 0;
-	/// Return the y-value at index:
+	/// Return the y-value at index.  You can assume that \c index is value (< count()).
 	virtual qreal y(unsigned index) const = 0;
 
-	/// Return the number of elements
+	/// Return the number of data points.
 	virtual int count() const = 0;
 
 
@@ -84,14 +89,41 @@ protected:
 };
 
 
+/// This is a simple example implementation of MPlotAbstractSeriesData that uses a QVector<qreal> to represent the X and Y point values.  You can use it directly if you want to draw a simple plot and don't want to implement your own data model.
+class MPlotVectorSeriesData : public MPlotAbstractSeriesData {
+
+public:
+	/// Constructs an empty data model
+	MPlotVectorSeriesData();
+
+	/// Implements MPlotAbstractSeriesData: returns the x value at \c index.
+	virtual qreal x(unsigned index) const { return xValues_.at(index); }
+	/// Implements MPlotAbstractSeriesData: returns the y value at \c index.
+	virtual qreal y(unsigned index) const { return yValues_.at(index); }
+	/// Implements MPlotAbstractSeriesData: returns the number of data points.
+	virtual int count() const { return xValues_.count(); }
+
+
+	/// Set the X and Y values. \c xValues and \c yValues must have the same size(); if not, this does nothing and returns false.
+	bool setValues(const QVector<qreal>& xValues, const QVector<qreal>& yValues);
+	/// Set a specfic X value. \c index must be in range for the current data, otherwise does nothing and returns false.
+	bool setXValue(int index, qreal xValue);
+	/// Set a specific Y value. \c index must be in range for the current data, otherwise does nothing and returns false.
+	bool setYValue(int index, qreal yValue);
+
+
+
+protected:
+	QVector<qreal> xValues_;
+	QVector<qreal> yValues_;
+};
 
 
 /// This class provides a Qt TableModel implementation of XY data.  It is optimized for fast storage of real-time data.
 /*! It provides fast (usually constant-time) lookups of the min and max values for each axis, which is important for plotting so that
 	// boundingRect() and autoscaling calls run quickly.
-// When using for real-time data, calling insertPointFront and insertPointBack is very fast.
-// This class implements all the functions of the MPlotAbstractSeriesData interface.  However, if we told the compiler that, it would
-// imply multiple inheritance of QObject, which is not allowed. To pass this class to plot->setModel(), you must use wrapper-class MPlotRealtimeModelSeriesData
+
+When using for real-time data, calling insertPointFront and insertPointBack is very fast.
   */
 class MPlotRealtimeModel : public QAbstractTableModel, public MPlotAbstractSeriesData {
 
