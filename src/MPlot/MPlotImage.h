@@ -128,7 +128,28 @@ protected:
 	bool imageRefillRequired_;
 
 	/// helper function to fill image_ based on the data
-	void fillImageFromData();
+    virtual void fillImageFromData();
+};
+
+/// This class is a simple extension to MPlotImageBasic where you can define a colour for pixels that are invalid (ie: not range.min <= z <= range.max).  The default is white, but can be customized.
+class MPlotImageBasicwDefault : public MPlotImageBasic
+{
+
+public:
+    /// Constructor.  Takes an MPlotAbstractImageData pointer.
+    MPlotImageBasicwDefault(const MPlotAbstractImageData *data = 0, QColor defaultImageColor = Qt::white);
+
+    /// Retuns the default color.
+    QColor defaultColor() const { return defaultColor_; }
+    /// Sets the default color.
+    void setDefaultColor(QColor color) { defaultColor_ = color; onDataChanged(); }
+
+protected:
+    /// Reimplemented to utilize the default color.  Fills image_ based on the data.
+    virtual void fillImageFromData();
+
+    /// The default color.
+    QColor defaultColor_;
 };
 
 #endif // MPLOTIMAGE_H
