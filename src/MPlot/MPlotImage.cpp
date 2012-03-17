@@ -236,36 +236,37 @@ void MPlotImageBasic::onBoundsChanged(const QRectF& newBounds) {
 //////////////////////////////////////
 
 MPlotImageBasicwDefault::MPlotImageBasicwDefault(const MPlotAbstractImageData *data, QColor defaultImageColor)
-    : MPlotImageBasic(data)
+	: MPlotImageBasic(data)
 {
-    defaultColor_ = defaultImageColor;
+	defaultColor_ = defaultImageColor;
 }
 
 void MPlotImageBasicwDefault::fillImageFromData()
 {
-    if(data_) {
-        imageRefillRequired_ = false;
+	if(data_) {
+		imageRefillRequired_ = false;
 
-        // resize if req'd:
-        QSize dataSize = data_->size();
+		// resize if req'd:
+		QSize dataSize = data_->size();
 
-        if(image_.size() != dataSize)
-            image_ = QImage(dataSize, QImage::Format_ARGB32);
+		if(image_.size() != dataSize)
+			image_ = QImage(dataSize, QImage::Format_ARGB32);
 
-        int yHeight = dataSize.height();
-        int xWidth = dataSize.width();
+		int yHeight = dataSize.height();
+		int xWidth = dataSize.width();
+		MPlotInterval range = data_->range();
 
-        // This is slower than MPlotImageBasic because of the check that needs to be done for every pixel.
-        for(int yy=0; yy<yHeight; yy++)
-            for(int xx=0; xx<xWidth; xx++){
+		// This is slower than MPlotImageBasic because of the check that needs to be done for every pixel.
+		for(int yy=0; yy<yHeight; yy++)
+			for(int xx=0; xx<xWidth; xx++){
 
-                if (data_->z(QPoint(xx, yy)) < data_->range().first || data_->z(QPoint(xx, yy)) > data_->range().second)
-                    image_.setPixel(xx, yHeight-1-yy, defaultColor().rgb());
+				if (data_->z(QPoint(xx, yy)) == -1 || data_->z(QPoint(xx, yy)) == 0 || (data_->z(QPoint(xx, yy)) < range.first || data_->z(QPoint(xx, yy)) > range.second))
+					image_.setPixel(xx, yHeight-1-yy, defaultColor().rgb());
 
-                else
-                    image_.setPixel(xx, yHeight-1-yy, map_.rgbAt(data_->z(QPoint(xx,yy)), data_->range()));	// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
-            }
-    }
+				else
+					image_.setPixel(xx, yHeight-1-yy, map_.rgbAt(data_->z(QPoint(xx,yy)), data_->range()));	// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
+			}
+	}
 }
 
 #endif // MPLOTIMAGE_H

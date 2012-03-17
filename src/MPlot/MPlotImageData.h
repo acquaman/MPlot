@@ -20,25 +20,25 @@ class MPlotAbstractImageData;
 class MPlotImageDataSignalSource : public QObject {
 	Q_OBJECT
 public:
-        /// Returns the data model for that the image this signal source is managing.
+		/// Returns the data model for that the image this signal source is managing.
 	MPlotAbstractImageData* imageData() const { return data_; }
 protected:
-        /// Constructor.  Builds a signal source for managing signals for an MPlotImage.
+		/// Constructor.  Builds a signal source for managing signals for an MPlotImage.
 	MPlotImageDataSignalSource(MPlotAbstractImageData* parent);
-        /// Emits the data changed signal for the image.
-        void emitDataChanged() { emit dataChanged(); }
-        /// Emits the bounds changed signal for the image.
+		/// Emits the data changed signal for the image.
+		void emitDataChanged() { emit dataChanged(); }
+		/// Emits the bounds changed signal for the image.
 	void emitBoundsChanged() { emit boundsChanged(); }
 
-        /// Pointer to the data model.
+		/// Pointer to the data model.
 	MPlotAbstractImageData* data_;
-        /// Giving access to the protected members of this class to the image data class.
+		/// Giving access to the protected members of this class to the image data class.
 	friend class MPlotAbstractImageData;
 
 signals:
-        /// Notifier that the data has changed.
+		/// Notifier that the data has changed.
 	void dataChanged();	/// < the z = f(x,y) data has changed
-        /// Notifier that the bounds of the data have changed.
+		/// Notifier that the bounds of the data have changed.
 	void boundsChanged();/// < The limits / bounds of the x-y grid have changed
 };
 
@@ -49,9 +49,9 @@ signals:
 class MPlotAbstractImageData {
 
 public:
-        /// Constructor.  Builds a data model for the image.
+		/// Constructor.  Builds a data model for the image.
 	MPlotAbstractImageData();
-        /// Destructor.
+		/// Destructor.
 	virtual ~MPlotAbstractImageData();
 
 	/// Use this proxy object to receive dataChanged() and boundsChanged() signals from the data
@@ -65,15 +65,15 @@ public:
 	virtual qreal z(int xIndex, int yIndex) const = 0;
 
 	/// Convenience function overloads:
-        /// Returns the x position for a given point.
-        qreal x(const QPoint& index) const { return x(index.x()); }
-        /// Returns the y position for a given point.
+		/// Returns the x position for a given point.
+		qreal x(const QPoint& index) const { return x(index.x()); }
+		/// Returns the y position for a given point.
 	qreal y(const QPoint& index) const { return y(index.y()); }
-        /// Returns the z position for a given point.
+		/// Returns the z position for a given point.
 	qreal z(const QPoint& index) const { return z(index.x(), index.y()); }
-        /// Returns the value (z value) for a given point.
+		/// Returns the value (z value) for a given point.
 	qreal value(const QPoint& index) const { return z(index.x(), index.y()); }
-        /// Returns the value (z value) for a given set of x and y coordinates.
+		/// Returns the value (z value) for a given set of x and y coordinates.
 	qreal value(int xIndex, int yIndex) const { return z(xIndex, yIndex); }
 
 
@@ -91,7 +91,7 @@ public:
 private:
 	/// Proxy object for emitting signals:
 	MPlotImageDataSignalSource* signalSource_;
-        /// Giving access to the signal source.
+		/// Giving access to the signal source.
 	friend class MPlotImageDataSignalSource;
 
 protected:
@@ -106,9 +106,9 @@ protected:
 	/// Used to cache the minimum and maximum Z-values
 	mutable bool minMaxCacheUpdateRequired_;
 	/// Searches for minimum z value
-	qreal minZ() const;
+	virtual qreal minZ() const;
 	/// Searches for maximum z value
-	qreal maxZ() const;
+	virtual qreal maxZ() const;
 
 
 	// todo: to support multi-threading, consider a

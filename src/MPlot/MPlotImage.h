@@ -128,28 +128,35 @@ protected:
 	bool imageRefillRequired_;
 
 	/// helper function to fill image_ based on the data
-    virtual void fillImageFromData();
+	virtual void fillImageFromData();
 };
 
 /// This class is a simple extension to MPlotImageBasic where you can define a colour for pixels that are invalid (ie: not range.min <= z <= range.max).  The default is white, but can be customized.
+/*!
+	This is intended for an intensity plot.  Since intensities will only be positive numbers, the default colour is used for the following situations:
+
+	1) If somehow the z value is not in the range of the data.
+	2) If the z value is invalid.  In these cases, the model returns -1.
+	3) If the z value is exactly 0.  This is meant to distinguish the lowest intensity from a value that is either not set, or perhaps not valid.
+  */
 class MPlotImageBasicwDefault : public MPlotImageBasic
 {
 
 public:
-    /// Constructor.  Takes an MPlotAbstractImageData pointer.
-    MPlotImageBasicwDefault(const MPlotAbstractImageData *data = 0, QColor defaultImageColor = Qt::white);
+	/// Constructor.  Takes an MPlotAbstractImageData pointer.
+	MPlotImageBasicwDefault(const MPlotAbstractImageData *data = 0, QColor defaultImageColor = Qt::white);
 
-    /// Retuns the default color.
-    QColor defaultColor() const { return defaultColor_; }
-    /// Sets the default color.
-    void setDefaultColor(QColor color) { defaultColor_ = color; onDataChanged(); }
+	/// Retuns the default color.
+	QColor defaultColor() const { return defaultColor_; }
+	/// Sets the default color.
+	void setDefaultColor(QColor color) { defaultColor_ = color; onDataChanged(); }
 
 protected:
-    /// Reimplemented to utilize the default color.  Fills image_ based on the data.
-    virtual void fillImageFromData();
+	/// Reimplemented to utilize the default color.  Fills image_ based on the data.
+	virtual void fillImageFromData();
 
-    /// The default color.
-    QColor defaultColor_;
+	/// The default color.
+	QColor defaultColor_;
 };
 
 #endif // MPLOTIMAGE_H
