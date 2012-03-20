@@ -38,6 +38,10 @@ protected slots:
 	/// This slot flags the plot that it needs to perform an autoscale the next time it returns to the event loop.
 	void onAxisScaleAutoScaleEnabledChanged(bool enabled);
 
+signals:
+	/// Notifer that the data position has been updated.  Passes the index of item inside the position indicator tool and the new position (in data coordinates).  Only emitted when the MPlotDataPositionTool has been added to the plot.
+	void dataPositionChanged(unsigned index, const QPointF &point);
+
 protected:
 	/// The instance of MPlot that this signal source is connected to.
 	MPlot* plot_;
@@ -95,6 +99,10 @@ public:
 	MPlot(const QRectF& rect = QRectF(0,0,100,100), QGraphicsItem* parent = 0);
 	/// Destructor. Any items within the plot will be deleted as well, because they are QGraphicsItem children of the plot.
 	virtual ~MPlot();
+
+	/// Connect to this proxy object to receive MPlotItem signals:
+	MPlotSignalHandler* signalSource() const { return signalHandler_; }
+
 	/// Required paint function. (All painting is done by children)
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 	virtual QRectF boundingRect() const;

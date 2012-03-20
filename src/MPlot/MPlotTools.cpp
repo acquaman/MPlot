@@ -467,8 +467,129 @@ void MPlotCursorTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event )
 	QGraphicsObject::mouseDoubleClickEvent(event);
 }
 
+// MPlotDataPositionTool
+/////////////////////////////////////////////////
 
+MPlotDataPositionTool::MPlotDataPositionTool()
+	: MPlotAbstractTool()
+{
+	connect(this, SIGNAL(positionChanged(uint,QPointF)), plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)));
+}
 
+MPlotDataPositionTool::~MPlotDataPositionTool()
+{
+	foreach(MPlotPoint* c, indicators_) {
+
+		if(plot())
+			plot()->removeItem(c);
+
+		delete c;
+	}
+
+	indicators_.clear();
+	disconnect(this, SIGNAL(positionChanged(uint,QPointF)), plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)));
+}
+
+unsigned MPlotDataPositionTool::count() const
+{
+	return indicators_.size();
+}
+
+QPointF MPlotDataPositionTool::currentPosition(unsigned index) const
+{
+	if (index < count()){
+
+		QPointF pos;
+		MPlotPoint *point = indicators_.at(index);
+		pos.setX(point->xAxisTarget()->mapDrawingToData(point->pos().x()));
+		pos.setY(point->yAxisTarget()->mapDrawingToData(point->pos().y()));
+
+		return pos;
+	}
+
+	return QPointF();
+}
+
+bool MPlotDataPositionTool::addDataPositionIndicator(MPlotAxisScale *xAxisScale, MPlotAxisScale *yAxisScale)
+{
+	// Can't add an item to a non-existent plot.
+	if(!plot())
+		return false;
+
+	// xAxisScale needs to be horizontal (and valid).
+	if(xAxisScale && xAxisScale->orientation() != Qt::Horizontal)
+		return false;
+
+	// yAxisScale needs to be vertical (and valid).
+	if(yAxisScale && yAxisScale->orientation() != Qt::Vertical)
+		return false;
+
+	MPlotPoint* newIndicator = new MPlotPoint();
+	newIndicator->setIgnoreWhenAutoScaling(true);
+
+	plot()->addItem(newIndicator);
+
+	newIndicator->setYAxisTarget(yAxisScale);
+	newIndicator->setXAxisTarget(xAxisScale);
+
+	newIndicator->setDescription(QString("Position Indicator %1").arg(indicators_.size()));
+	indicators_ << newIndicator;
+
+	return true;
+}
+
+bool MPlotDataPositionTool::removeDataPositionIndicator(unsigned index)
+{
+	if(index < count()) {
+
+		MPlotPoint* removeMe = indicators_.takeAt(index);
+
+		if(plot())
+			plot()->removeItem(removeMe);
+
+		delete removeMe;
+
+		return true;
+	}
+
+	return false;
+}
+
+void MPlotDataPositionTool::mousePressEvent ( QGraphicsSceneMouseEvent * event )
+{
+	if (event->button() == Qt::LeftButton) {
+
+		QPointF clickPos = event->pos();
+
+		for(unsigned i = 0; i < count(); i++){
+
+			indicators_.at(i)->setPos(clickPos);
+			emit positionChanged(i, currentPosition(i));
+		}
+	}
+
+	event->ignore();
+}
+
+void MPlotDataPositionTool::mouseMoveEvent ( QGraphicsSceneMouseEvent * event )
+{
+	QGraphicsObject::mouseMoveEvent(event);
+}
+
+void MPlotDataPositionTool::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
+{
+	QGraphicsObject::mouseReleaseEvent(event);
+}
+
+void MPlotDataPositionTool::wheelEvent ( QGraphicsSceneWheelEvent * event )
+{
+	QGraphicsObject::wheelEvent(event);
+}
+
+void MPlotDataPositionTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event )
+{
+	QGraphicsObject::mouseDoubleClickEvent(event);
+}
 
 #endif // MPLOTTOOLS_H
 

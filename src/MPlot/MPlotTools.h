@@ -218,4 +218,46 @@ protected:
 
 };
 
+/// This class provides a tool that enables feedback on the x and y position inside a plot.
+class MPlotDataPositionTool : public MPlotAbstractTool
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.
+	MPlotDataPositionTool();
+	/// Destructor.
+	virtual ~MPlotDataPositionTool();
+
+	/// Returns the number of data position indicators currently in the plot.
+	unsigned count() const;
+
+	/// Returns the current position (in data coordinates) for a given \param index.  Returns a null point if an invalid index is passed.
+	QPointF currentPosition(unsigned index) const;
+
+	/// Adds a data position indicator.  The axis scales for both x and y must be provided and must both be different.  If an indicator already exists with both axis scales being the same, this function returns false.
+	bool addDataPositionIndicator(MPlotAxisScale *xAxisScale, MPlotAxisScale *yAxisScale);
+	/// Removes a data position indicator from \param index.
+	bool removeDataPositionIndicator(unsigned index);
+
+signals:
+	/// Notifier that the position inside the plot has changed.  Passes the new position.
+	void positionChanged(unsigned indicatorIndex, const QPointF &position);
+
+protected:
+	/// Re-implemented for the mouse press event.  Moves the indicators to the position of the mouse click.
+	virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
+	/// No added functionality.
+	virtual void mouseMoveEvent ( QGraphicsSceneMouseEvent * event );
+	/// No added functionality.
+	virtual void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event );
+	/// No added functionality.
+	virtual void wheelEvent ( QGraphicsSceneWheelEvent * event );
+	/// No added functionality.
+	virtual void mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event );
+
+	/// List of points.
+	QList<MPlotPoint *> indicators_;
+};
+
 #endif // MPLOTTOOLS_H
