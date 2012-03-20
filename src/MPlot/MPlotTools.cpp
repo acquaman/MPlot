@@ -473,7 +473,7 @@ void MPlotCursorTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event )
 MPlotDataPositionTool::MPlotDataPositionTool()
 	: MPlotAbstractTool()
 {
-	connect(this, SIGNAL(positionChanged(uint,QPointF)), plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)));
+
 }
 
 MPlotDataPositionTool::~MPlotDataPositionTool()
@@ -487,7 +487,6 @@ MPlotDataPositionTool::~MPlotDataPositionTool()
 	}
 
 	indicators_.clear();
-	disconnect(this, SIGNAL(positionChanged(uint,QPointF)), plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)));
 }
 
 unsigned MPlotDataPositionTool::count() const
@@ -534,6 +533,9 @@ bool MPlotDataPositionTool::addDataPositionIndicator(MPlotAxisScale *xAxisScale,
 
 	newIndicator->setDescription(QString("Position Indicator %1").arg(indicators_.size()));
 	indicators_ << newIndicator;
+
+	if (count() == 1)
+		connect(this, SIGNAL(positionChanged(uint,QPointF)), plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)));
 
 	return true;
 }
