@@ -339,11 +339,7 @@ MPlotCursorTool::MPlotCursorTool()
 }
 
 MPlotCursorTool::~MPlotCursorTool() {
-	foreach(MPlotPoint* c, cursors_) {
-		if(plot())
-			plot()->removeItem(c);
-		delete c;
-	}
+
 	cursors_.clear();
 }
 
@@ -478,14 +474,6 @@ MPlotDataPositionTool::MPlotDataPositionTool()
 
 MPlotDataPositionTool::~MPlotDataPositionTool()
 {
-	foreach(MPlotPoint* c, indicators_) {
-
-		if(plot())
-			plot()->removeItem(c);
-
-		delete c;
-	}
-
 	indicators_.clear();
 }
 
