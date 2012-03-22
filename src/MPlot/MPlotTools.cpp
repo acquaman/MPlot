@@ -547,7 +547,7 @@ bool MPlotDataPositionTool::removeDataPositionIndicator(unsigned index)
 
 void MPlotDataPositionTool::mousePressEvent ( QGraphicsSceneMouseEvent * event )
 {
-	if (event->button() == Qt::LeftButton) {
+	if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) {
 
 		QPointF clickPos = event->pos();
 
