@@ -558,7 +558,8 @@ void MPlotDataPositionTool::mousePressEvent ( QGraphicsSceneMouseEvent * event )
 		}
 	}
 
-	event->ignore();
+//	event->ignore();
+	QGraphicsObject::mousePressEvent(event);
 }
 
 void MPlotDataPositionTool::mouseMoveEvent ( QGraphicsSceneMouseEvent * event )
