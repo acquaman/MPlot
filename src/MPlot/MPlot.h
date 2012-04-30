@@ -41,6 +41,8 @@ protected slots:
 signals:
 	/// Notifer that the data position has been updated.  Passes the index of item inside the position indicator tool and the new position (in data coordinates).  Only emitted when the MPlotDataPositionTool has been added to the plot.
 	void dataPositionChanged(unsigned index, const QPointF &point);
+	/// Notifier of the size of the data rectangle that has been drawn once it is finished.  Only emitted when the MPlotDataPositionTool has been added to the plot.
+	void selectedDataRectChanged(unsigned indicatorIndex, const QRectF &rect);
 
 protected:
 	/// The instance of MPlot that this signal source is connected to.

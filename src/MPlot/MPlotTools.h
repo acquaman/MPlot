@@ -5,6 +5,7 @@
 #include <QGraphicsSceneMouseEvent>
 
 class MPlotItem;
+class MPlotRectangle;
 
 /// When selecting lines on plots with the mouse, this is how wide the selection ballpark is, in pixels. (Actually, in sceneCoordinates, but we prefer that you don't transform the view, so viewCoordinates = sceneCoordinates)
 #define MPLOT_SELECTION_BALLPARK 10
@@ -234,6 +235,8 @@ public:
 
 	/// Returns the current position (in data coordinates) for a given \param index.  Returns a null point if an invalid index is passed.
 	QPointF currentPosition(unsigned index) const;
+	/// Returns the current selection rect (in data coordinates) for a given \param index.  Returns a null point if an invalid index is passed.
+	QRectF currentRect(unsigned index) const;
 
 	/// Adds a data position indicator.  The axis scales for both x and y must be provided and must both be different.  If an indicator already exists with both axis scales being the same, this function returns false.
 	bool addDataPositionIndicator(MPlotAxisScale *xAxisScale, MPlotAxisScale *yAxisScale);
@@ -243,6 +246,8 @@ public:
 signals:
 	/// Notifier that the position inside the plot has changed.  Passes the new position.
 	void positionChanged(unsigned indicatorIndex, const QPointF &position);
+	/// Notifier of the size of the data rectangle that has been drawn once it is finished.
+	void selectedDataRectChanged(unsigned indicatorIndex, const QRectF &rect);
 
 protected:
 	/// Re-implemented for the mouse press event.  Moves the indicators to the position of the mouse click.
@@ -258,6 +263,15 @@ protected:
 
 	/// List of points.
 	QList<MPlotPoint *> indicators_;
+	/// List of selection rects.
+	QList<MPlotRectangle *> selectedRects_;
+
+	/// The selection rectangle that shows the region selected in the plot.
+	QGraphicsRectItem* selectionRect_;
+	/// Means that a click has happened, but we might not yet have exceeded the drag deadzone to count as a drag event.
+	bool dragStarted_;
+	/// Means that a drag event is currently happening. We're in between exceeding the drag deadzone and finishing the drag.
+	bool dragInProgress_;
 };
 
 #endif // MPLOTTOOLS_H
