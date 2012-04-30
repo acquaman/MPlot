@@ -512,8 +512,17 @@ QPointF MPlotDataPositionTool::currentPosition(unsigned index) const
 
 QRectF MPlotDataPositionTool::currentRect(unsigned index) const
 {
-	if (index < count())
-		return selectedRects_.at(index)->dataRect();
+	if (index < count()){
+
+		QRectF rect;
+		MPlotRectangle *mRect = selectedRects_.at(index);
+		rect.setTop(mRect->yAxisTarget()->mapDrawingToData(mRect->dataRect().top()));
+		rect.setLeft(mRect->xAxisTarget()->mapDrawingToData(mRect->dataRect().left()));
+		rect.setBottom(mRect->yAxisTarget()->mapDrawingToData(mRect->dataRect().bottom()));
+		rect.setRight(mRect->xAxisTarget()->mapDrawingToData(mRect->dataRect().right()));
+
+		return rect;
+	}
 
 	return QRectF();
 }
