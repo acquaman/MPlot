@@ -8,6 +8,8 @@
 
 /// This is the color of the selection highlight
 #define MPLOT_SELECTION_COLOR QColor(255, 210, 129)
+/// This is the alternate color of the selection highlight.
+#define MPLOT_SELECTION_COLOR_ALT QColor(138, 43, 226)
 /// The opacity level (0=transparent, 1=opaque) of selection rectangles:
 #define MPLOT_SELECTION_OPACITY 0.35
 /// This is the width of selection highlight lines
@@ -32,17 +34,17 @@ class MPlotItem;
 class MPlotItemSignalSource : public QObject {
 	Q_OBJECT
 public:
-        /// Returns the plot item this signal source is managing.
+		/// Returns the plot item this signal source is managing.
 	MPlotItem* plotItem() const { return plotItem_; }
 
 public slots:
-        /// Slot handling initial setup if the axis scale is about to change.
+		/// Slot handling initial setup if the axis scale is about to change.
 	void onAxisScaleAboutToChange() const;
-        /// Slot handling the axis change.
+		/// Slot handling the axis change.
 	void onAxisScaleChanged() const;
 
 protected:
-        /// Constructor.  Builds a signal source to manage an MPlot item.
+		/// Constructor.  Builds a signal source to manage an MPlot item.
 	MPlotItemSignalSource(MPlotItem* parent);
 
 	/// called within MPlotItem to forward this signal
@@ -54,15 +56,15 @@ protected:
 
 	/// Allow MPlotItem access to these protected functions:
 	friend class MPlotItem;
-        /// Pointer to the plot item this source is managing.
+		/// Pointer to the plot item this source is managing.
 	MPlotItem* plotItem_;
 
 signals:
-        /// Notifier that the bounds for the plot item has changed.
+		/// Notifier that the bounds for the plot item has changed.
 	void boundsChanged();
-        /// Notifier that whether the item is selected or not has changed.
+		/// Notifier that whether the item is selected or not has changed.
 	void selectedChanged(bool);
-        /// Notifier that the legend has changed.
+		/// Notifier that the legend has changed.
 	void legendContentChanged();
 
 };
@@ -75,7 +77,7 @@ public:
 
 	/// Used to distinguish types/subclasses of MPlotItem.  See MPlotItem::type() and QGraphicsItem::type().
 	enum ItemTypes { PlotItem = QGraphicsItem::UserType + 3003, Series, Image };
-        /// Convenience enum.
+		/// Convenience enum.
 	enum { Type = PlotItem };
 
 	/// Returns the type of this item, to enable qgraphicsitem_cast() for casting to different MPlotItem subclasses.  See qgraphicsitem_cast() for more information.
@@ -161,24 +163,24 @@ public:
 
 
 private:
-        /// Bool holding whether the item is selectable and selected.
+		/// Bool holding whether the item is selectable and selected.
 	bool isSelected_, isSelectable_;
-        /// The x and y axis scale for the plot item.
+		/// The x and y axis scale for the plot item.
 	MPlotAxisScale* yAxisTarget_, *xAxisTarget_;
 
-        /// The plot that this item belongs to.
+		/// The plot that this item belongs to.
 	MPlot* plot_;
 
-        /// Description for the plot item.
+		/// Description for the plot item.
 	QString description_;
 
-        /// Bool holding whether or not the plot item should be considered when auto-scaling.
+		/// Bool holding whether or not the plot item should be considered when auto-scaling.
 	bool ignoreWhenAutoScaling_;
 
 protected:
-        /// Pointer to the signal source managing the signals for the plot item.
+		/// Pointer to the signal source managing the signals for the plot item.
 	MPlotItemSignalSource* signalSource_;
-        /// Giving access to the signal source.
+		/// Giving access to the signal source.
 	friend class MPlotItemSignalSource;
 
 	/// called within MPlotItem to forward this signal

@@ -472,8 +472,8 @@ MPlotDataPositionTool::MPlotDataPositionTool()
 {
 	selectionRect_ = new QGraphicsRectItem(QRectF(), this);
 
-	QPen selectionPen = QPen(QBrush(MPLOT_SELECTION_COLOR), MPLOT_RUBBERBAND_WIDTH);
-	QColor brushColor = MPLOT_SELECTION_COLOR;
+	QPen selectionPen = QPen(QBrush(MPLOT_SELECTION_COLOR_ALT), MPLOT_RUBBERBAND_WIDTH);
+	QColor brushColor = MPLOT_SELECTION_COLOR_ALT;
 	brushColor.setAlphaF(MPLOT_SELECTION_OPACITY);
 
 	selectionRect_->setPen(selectionPen);
