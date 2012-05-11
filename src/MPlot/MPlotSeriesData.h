@@ -46,12 +46,16 @@ public:
 
 	/// Return the x-value at index.  You can assume that \c index is valid (< count()).
 	virtual qreal x(unsigned index) const = 0;
-	/// Return the y-value at index.  You can assume that \c index is value (< count()).
+	/// Copy all the x values from \c indexStart to \c indexEnd (inclusive) into \c outputValues. You can assume that the indexes are valid.
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal* outputValues) const = 0;
+
+	/// Return the y-value at index.  You can assume that \c index is valid (< count()).
 	virtual qreal y(unsigned index) const = 0;
+	/// Copy all the y values from \c indexStart to \c indexEnd (inclusive) into \c outputValues.  You can assume that the indexes are valid.
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal* outputValues) const = 0;
 
 	/// Return the number of data points.
 	virtual int count() const = 0;
-
 
 	/// Return the bounds of the data (the rectangle containing the max/min x- and y-values). It should be expressed as: QRectF(left, top, width, height) = QRectF(minX, minY, maxX-minX, maxY-minY);
 	/*! \todo Should we change this so that the QRectF's "top()" is actually maxY instead of minY?
@@ -98,8 +102,13 @@ public:
 
 	/// Implements MPlotAbstractSeriesData: returns the x value at \c index.
 	virtual qreal x(unsigned index) const { return xValues_.at(index); }
+	/// Copy all the x values from \c indexStart to \c indexEnd (inclusive) into \c outputValues. You can assume that the indexes are valid.
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const { memcpy(outputValues, xValues_.constData()+indexStart, (indexEnd-indexStart+1)*sizeof(qreal)); }
 	/// Implements MPlotAbstractSeriesData: returns the y value at \c index.
 	virtual qreal y(unsigned index) const { return yValues_.at(index); }
+	/// Copy all the y values from \c indexStart to \c indexEnd (inclusive) into \c outputValues.  You can assume that the indexes are valid.
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal* outputValues) const { memcpy(outputValues, yValues_.constData()+indexStart, (indexEnd-indexStart+1)*sizeof(qreal)); }
+
 	/// Implements MPlotAbstractSeriesData: returns the number of data points.
 	virtual int count() const { return xValues_.count(); }
 
@@ -137,7 +146,9 @@ public:
 	int columnCount(const QModelIndex & /*parent*/) const;
 
 	virtual qreal x(unsigned index) const;
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
 	virtual qreal y(unsigned index) const;
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
 
 
 	QVariant data(const QModelIndex &index, int role) const;
