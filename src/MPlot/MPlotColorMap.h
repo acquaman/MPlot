@@ -148,7 +148,7 @@ public:
 			else
 				value = d->contrast_*( pow(value,d->gamma_) + d->brightness_ );
 		}
-		return rgbAtIndex((int)round(value*(d->colorArray_.size()-1)));
+		return rgbAtIndex((int)round(value*(resolution()-1)));
 	}
 
 	/// Returns a color for an index between (0, resolution()-1) in the color map table.  [If index is outside this range, will return minimum or maximum color]
@@ -158,7 +158,7 @@ public:
 
 		if (index < 0)
 			return d->colorArray_.first();
-		if(index >= d->colorArray_.size())
+		if(index >= resolution())
 			return d->colorArray_.last();
 		return d->colorArray_.at(index);
 	}

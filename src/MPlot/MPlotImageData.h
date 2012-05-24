@@ -105,8 +105,10 @@ protected:
 	mutable MPlotInterval minMaxCache_;
 	/// Used to cache the minimum and maximum Z-values
 	mutable bool minMaxCacheUpdateRequired_;
-	/// Searches for minimum and maximum z value; stores in minMaxCache_.  Used by the base-class implementation of range().
-	virtual void minMaxSearch() const;
+	/// Searches for minimum z value
+	virtual qreal minZ() const;
+	/// Searches for maximum z value
+	virtual qreal maxZ() const;
 
 
 	// todo: to support multi-threading, consider a
