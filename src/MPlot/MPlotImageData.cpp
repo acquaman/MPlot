@@ -23,22 +23,22 @@ MPlotAbstractImageData::~MPlotAbstractImageData()
 // Searches for minimum z value
 qreal MPlotAbstractImageData::minZ() const {
 	QPoint c = count();
-	qreal extreme = z(0,0);
+	qreal extreme = value(0,0);
 	for(int xx=0; xx<c.x(); xx++)
 		for(int yy=0; yy<c.y(); yy++)
-			if(z(xx, yy) < extreme)
-				extreme = z(xx, yy);
+			if(value(xx, yy) < extreme)
+				extreme = value(xx, yy);
 	return extreme;
 }
 
 // Searches for maximum z value
 qreal MPlotAbstractImageData::maxZ() const {
 	QPoint c = count();
-	qreal extreme = z(0,0);
+	qreal extreme = value(0,0);
 	for(int xx=0; xx<c.x(); xx++)
 		for(int yy=0; yy<c.y(); yy++)
-			if(z(xx, yy) > extreme)
-				extreme = z(xx, yy);
+			if(value(xx, yy) > extreme)
+				extreme = value(xx, yy);
 	return extreme;
 }
 
@@ -87,6 +87,9 @@ qreal MPlotSimpleImageData::y(int indexY) const {
 
 // Return the z = f(x,y) value corresponding an (x,y) \c index:
 qreal MPlotSimpleImageData::z(int indexX, int indexY) const {
+
+	if((int)indexX>=num_.x() || (int)indexY>=num_.y())
+		return -1.;
 
 	return d_[indexY][indexX];
 }
@@ -157,13 +160,6 @@ void MPlotSimpleImageData::maxSearch() const {
 		for(int xx=0; xx<num_.x(); xx++)
 			if(d_[yy][xx] > d_[maxIndex_.y()][maxIndex_.x()])
 				maxIndex_ = QPoint(xx, yy);
-}
-
-void MPlotSimpleImageData::zValues(int xStart, int yStart, int xEnd, int yEnd, qreal *outputValues) const
-{
-	for(int xx=xStart; xx<=xEnd; ++xx)
-		for(int yy=yStart; yy<=yEnd; ++yy)
-			*(outputValues++) = d_[yy][xx];
 }
 
 #endif // MPLOTIMAGEDATA_H

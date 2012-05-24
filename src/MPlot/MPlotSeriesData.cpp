@@ -451,18 +451,6 @@ MPlotVectorSeriesData::MPlotVectorSeriesData()
 {
 }
 
-void MPlotRealtimeModel::xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
-{
-	for(unsigned i=indexStart; i<=indexEnd; ++i)
-		*(outputValues++) = xval_.at(i);
-}
-
-void MPlotRealtimeModel::yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
-{
-	for(unsigned i=indexStart; i<=indexEnd; ++i)
-		*(outputValues++) = yval_.at(i);
-}
-
 
 #endif
 
