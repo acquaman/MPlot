@@ -130,7 +130,7 @@ void MPlotAbstractImage::setDefaults() {
 // Constructor
 MPlotImageBasic::MPlotImageBasic(const MPlotAbstractImageData* data)
 	: MPlotAbstractImage(),
-	image_(1,1, QImage::Format_ARGB32)
+	  image_(1,1, QImage::Format_ARGB32)
 {
 	imageRefillRequired_ = true;
 	setModel(data);
@@ -138,8 +138,8 @@ MPlotImageBasic::MPlotImageBasic(const MPlotAbstractImageData* data)
 
 // Paint: must be implemented in subclass.
 void MPlotImageBasic::paint(QPainter* painter,
-				   const QStyleOptionGraphicsItem* option,
-				   QWidget* widget) {
+							const QStyleOptionGraphicsItem* option,
+							QWidget* widget) {
 	Q_UNUSED(option)
 	Q_UNUSED(widget)
 
@@ -202,9 +202,15 @@ void MPlotImageBasic::onDataChanged() {
 
 }
 
+
 void MPlotImageBasic::fillImageFromData() {
 
 	if(data_) {
+
+//		QTime runTime;
+//		runTime.start();
+//		qDebug() << "MPlotImageBasic: fillImageFromData()";
+
 		imageRefillRequired_ = false;
 
 		// resize if req'd:
@@ -212,15 +218,39 @@ void MPlotImageBasic::fillImageFromData() {
 
 		if(image_.size() != dataSize)
 			image_ = QImage(dataSize, QImage::Format_ARGB32);
+//		qDebug() << "   QImage resize time:" << runTime.restart();
 
 		int yHeight = dataSize.height();
 		int xWidth = dataSize.width();
-		for(int yy=0; yy<yHeight; yy++)
-			for(int xx=0; xx<xWidth; xx++)
-				image_.setPixel(xx, yHeight-1-yy, map_.rgbAt(data_->z(QPoint(xx,yy)), data_->range()));	// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
 
+//		qDebug() << "   data source get height, width:" << runTime.restart();
+
+		if(xWidth > 0 && yHeight > 0) {
+			QVector<qreal> dataBuffer(xWidth*yHeight);
+//			qDebug() << "   vector creation time:" << runTime.restart();
+			data_->zValues(0, 0, xWidth-1, yHeight-1, dataBuffer.data());
+//			qDebug() << "   block data access time:" << runTime.restart();
+
+			qreal minZ, maxZ;
+			minZ = maxZ = dataBuffer.at(0);
+			foreach(qreal d, dataBuffer) {
+				if(d<minZ) minZ = d;
+				if(d>maxZ) maxZ = d;
+			}
+			MPlotInterval range(minZ,maxZ);
+//			qDebug() << "   Manually search range:" << runTime.restart() << range;
+
+			for(int xx=0; xx<xWidth; ++xx) {
+				int xc = xx*yHeight;
+				for(int yy=0; yy<yHeight; ++yy)
+					image_.setPixel(xx, yHeight-1-yy, map_.rgbAt(dataBuffer.at(xc+yy), range));// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
+			}
+//			qDebug() << "   rgb conversion time:" << runTime.restart();
+		}
 	}
 }
+
+
 
 // If the bounds of the data change (in x- and y-) this might require re-auto-scaling of a plot.
 void MPlotImageBasic::onBoundsChanged(const QRectF& newBounds) {
