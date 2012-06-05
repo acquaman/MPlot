@@ -21,6 +21,9 @@ MPlotAxis::MPlotAxis(MPlotAxisScale* scale, Placement placement, const QString& 
 	connect(axisScale_, SIGNAL(dataRangeChanged()), this, SLOT(onAxisDataRangeChanged()));
 	name_ = name;
 
+	axisNameFontU_.setPixelSize(12);
+	tickLabelFontU_.setPixelSize(12);
+	fontsShouldScale_ = true;
 	scaleFontsRequired_ = true;
 
 	placement_ = placement;
@@ -202,6 +205,7 @@ QRectF MPlotAxis::boundingRect() const {
 
 	return br;
 }
+
 // Paint:
 void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) {
 
@@ -238,8 +242,9 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 			break;
 		}
 
-		if(tickLabelsVisible_)
+		if(tickLabelsVisible_) {
 			painter->setFont(tickLabelFont_);
+		}
 
 		foreach(qreal tickValue, ticks) {
 			qreal x = axisScale_->mapDataToDrawing(tickValue);
@@ -359,8 +364,9 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 
 		qreal maxLabelWidth = 0;
 
-		if(tickLabelsVisible_)
+		if(tickLabelsVisible_) {
 			painter->setFont(tickLabelFont_);
+		}
 
 		foreach(qreal tickValue, ticks) {
 			qreal y = axisScale_->mapDataToDrawing(tickValue);
@@ -425,8 +431,9 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 
 		qreal maxLabelWidth = 0;
 
-		if(tickLabelsVisible_)
+		if(tickLabelsVisible_) {
 			painter->setFont(tickLabelFont_);
+		}
 
 		foreach(qreal tickValue, ticks) {
 			qreal y = axisScale_->mapDataToDrawing(tickValue);
@@ -616,15 +623,25 @@ QFont MPlotAxis::scaleFontToDrawingSize(const QFont &sourceFont) const
 
 	qreal diagonal = sqrt(pow(axisScale_->drawingSize().width(),2) + pow(axisScale_->drawingSize().height(), 2));
 
-	rv.setPointSizeF(qBound(8.5, 12.0*diagonal/600,18.0));
+	// need to ensure we use pixel sizes, not point sizes, otherwise text blows up when rendering to high-resolution outputs (PDF, printer, etc.). Seems backwards [point is supposed to be a printing unit], but it's true.
+	rv.setPixelSize(qBound(8.5, 12.0*diagonal/600,18.0));
 
 	return rv;
 }
 
 void MPlotAxis::scaleFonts() const
 {
-	axisNameFont_ = fontsShouldScale_ ? scaleFontToDrawingSize(axisNameFontU_) : axisNameFontU_;
-	tickLabelFont_ = fontsShouldScale_ ? scaleFontToDrawingSize(tickLabelFontU_) : tickLabelFontU_;
+	if(fontsShouldScale_) {
+		axisNameFont_ = scaleFontToDrawingSize(axisNameFontU_);
+		tickLabelFont_ = scaleFontToDrawingSize(tickLabelFontU_);
+	}
+	else {
+		// need to ensure we use pixel sizes, not point sizes, otherwise text blows up when rendering to high-resolution outputs (PDF, printer, etc.). Seems backwards [point is supposed to be a printing unit], but it's true.
+		axisNameFont_ = axisNameFontU_;
+		if(axisNameFont_.pixelSize() < 1) axisNameFont_.setPixelSize(axisNameFont_.pointSize());
+		tickLabelFont_ = tickLabelFontU_;
+		if(tickLabelFont_.pixelSize() < 1) tickLabelFont_.setPixelSize(tickLabelFont_.pointSize());
+	}
 
 	axisNameHeight_ = QFontMetrics(axisNameFont_).height();
 
