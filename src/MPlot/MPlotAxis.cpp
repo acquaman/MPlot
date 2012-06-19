@@ -624,7 +624,7 @@ QFont MPlotAxis::scaleFontToDrawingSize(const QFont &sourceFont) const
 	qreal diagonal = sqrt(pow(axisScale_->drawingSize().width(),2) + pow(axisScale_->drawingSize().height(), 2));
 
 	// need to ensure we use pixel sizes, not point sizes, otherwise text blows up when rendering to high-resolution outputs (PDF, printer, etc.). Seems backwards [point is supposed to be a printing unit], but it's true.
-	rv.setPixelSize(qBound(8.5, 12.0*diagonal/600,18.0));
+	rv.setPixelSize(int(qBound(8.5, 12.0*diagonal/600,18.0)));
 
 	return rv;
 }
