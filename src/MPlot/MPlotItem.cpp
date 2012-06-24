@@ -1,9 +1,9 @@
 #ifndef MPLOTITEM_CPP
 #define MPLOTITEM_CPP
 
-#include "MPlotItem.h"
-#include "MPlotAxisScale.h"
-#include "MPlot.h"
+#include "MPlot/MPlotItem.h"
+#include "MPlot/MPlotAxisScale.h"
+#include "MPlot/MPlot.h"
 
 #include <QDebug>
 

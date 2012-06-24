@@ -1,12 +1,14 @@
 #ifndef __MPlotLegend_H__
 #define __MPlotLegend_H__
 
+#include "MPlot/MPlot_global.h"
+
 #include <QGraphicsTextItem>
 
 class MPlot;
 class MPlotItem;
 
-class MPlotLegend: public QGraphicsTextItem {
+class MPLOTSHARED_EXPORT MPlotLegend: public QGraphicsTextItem {
 
 public:
         /// Constructor.  Builds a legend for the given \param plot.

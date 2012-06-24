@@ -1,9 +1,11 @@
 #ifndef __MPlotWidget_H__
 #define __MPlotWidget_H__
 
+#include "MPlot/MPlot_global.h"
+
 #include <QGraphicsView>
 #include <QResizeEvent>
-#include "MPlot.h"
+#include "MPlot/MPlot.h"
 
 
 // TODO: test performance of:
@@ -11,7 +13,7 @@
 // makes a big difference if drawing plots using many separate QGraphicsItem elements (for ex: separate QGraphicsLineItems for each line element in a series)
 
 /// This class holds the scene and view for MPlot.  Everything inside the plot will be part of the MPlot scene and viewed through this class.
-class MPlotSceneAndView : public QGraphicsView {
+class MPLOTSHARED_EXPORT MPlotSceneAndView : public QGraphicsView {
 	Q_OBJECT
 
 public:
@@ -31,7 +33,7 @@ protected:
 };
 
 /// This class is the widget that holds the plot.  It extends the standard scene and view requirements of basic visualization for the plot to be visualized properly.
-class MPlotWidget : public MPlotSceneAndView {
+class MPLOTSHARED_EXPORT MPlotWidget : public MPlotSceneAndView {
 	Q_OBJECT
 
 public:

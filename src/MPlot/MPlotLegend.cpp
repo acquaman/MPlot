@@ -1,8 +1,8 @@
 #ifndef __MPlotLegend_CPP__
 #define __MPlotLegend_CPP__
 
-#include "MPlotLegend.h"
-#include "MPlot.h"
+#include "MPlot/MPlotLegend.h"
+#include "MPlot/MPlot.h"
 
 MPlotLegend::MPlotLegend(MPlot* plot, QGraphicsItem* parent) : QGraphicsTextItem(parent) {
 	plot_ = plot;

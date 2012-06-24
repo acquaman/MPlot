@@ -1,10 +1,11 @@
 #ifndef __MPlotSeries_H__
 #define __MPlotSeries_H__
 
+#include "MPlot/MPlot_global.h"
 
-#include "MPlotMarker.h"
-#include "MPlotItem.h"
-#include "MPlotSeriesData.h"
+#include "MPlot/MPlotMarker.h"
+#include "MPlot/MPlotItem.h"
+#include "MPlot/MPlotSeriesData.h"
 
 #include <QPen>
 #include <QBrush>
@@ -48,7 +49,7 @@ protected:
  - currentTransform() returns the current transformation being applied on top of the data, either due to an explicit setTransform() call, or the transform that was calculated for the last normalization.
  */
 
-class MPlotAbstractSeries : public MPlotItem {
+class MPLOTSHARED_EXPORT MPlotAbstractSeries : public MPlotItem {
 
 public:
 	/// Convenience enum.
@@ -207,7 +208,7 @@ protected:
 
 /// MPlotSeriesBasic provides one drawing implementation for a 2D plot curve.  It is optimized to efficiently draw curves with 1,000,000+ data points along the x-axis, by only drawing as many lines as would be visible.
 
-class MPlotSeriesBasic : public MPlotAbstractSeries {
+class MPLOTSHARED_EXPORT MPlotSeriesBasic : public MPlotAbstractSeries {
 
 public:
 	/// Constructor.  Builds a series of data.  This is a standard 1D line plot.

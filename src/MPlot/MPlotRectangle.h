@@ -1,14 +1,16 @@
 #ifndef MPLOTRECTANGLE_H
 #define MPLOTRECTANGLE_H
 
-#include "MPlotItem.h"
+#include "MPlot/MPlot_global.h"
+
+#include "MPlot/MPlotItem.h"
 #include <QPen>
 #include <QRectF>
 #include <QBrush>
 class QPainter;
 
 /// This type of MPlotItem plots a rectangle.  It's useful to highlight a rectangular region of interest on a plot.  The outline and fill color of the rectangle can be configured with setPen() and setBrush(), and the position and size of the rectangle (in data coordinates) controlled with setRect().
-class MPlotRectangle : public MPlotItem
+class MPLOTSHARED_EXPORT MPlotRectangle : public MPlotItem
 {
 public:
 	/// Default constructor.

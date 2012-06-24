@@ -1,7 +1,7 @@
 #ifndef __MPlotWidget_CPP__
 #define __MPlotWidget_CPP__
 
-#include "MPlotWidget.h"
+#include "MPlot/MPlotWidget.h"
 
 MPlotSceneAndView::MPlotSceneAndView(QWidget* parent) :
 		QGraphicsView(parent)

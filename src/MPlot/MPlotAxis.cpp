@@ -1,8 +1,8 @@
 #ifndef __MPlotAxis_CPP__
 #define __MPlotAxis_CPP__
 
-#include "MPlotAxis.h"
-#include "MPlotAxisScale.h"
+#include "MPlot/MPlotAxis.h"
+#include "MPlot/MPlotAxisScale.h"
 
 #include <QPainter>
 #include <math.h>

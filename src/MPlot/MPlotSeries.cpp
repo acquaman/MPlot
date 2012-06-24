@@ -1,7 +1,7 @@
 #ifndef __MPlotSeries_CPP__
 #define __MPlotSeries_CPP__
 
-#include "MPlotSeries.h"
+#include "MPlot/MPlotSeries.h"
 #include <QPainter>
 #include <QDebug>
 

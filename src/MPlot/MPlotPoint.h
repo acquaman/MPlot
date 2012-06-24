@@ -1,12 +1,14 @@
 #ifndef MPLOTPOINT_H
 #define MPLOTPOINT_H
 
-#include "MPlotMarker.h"
-#include "MPlotAxis.h"
-#include "MPlotItem.h"
+#include "MPlot/MPlot_global.h"
+
+#include "MPlot/MPlotMarker.h"
+#include "MPlot/MPlotAxis.h"
+#include "MPlot/MPlotItem.h"
 
 /// This Plot Item is useful for displaying a single data point on a plot.
-class MPlotPoint : public MPlotItem {
+class MPLOTSHARED_EXPORT MPlotPoint : public MPlotItem {
 
 public:
 

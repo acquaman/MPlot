@@ -1,6 +1,8 @@
 #ifndef __MPlotSeriesData_H__
 #define __MPlotSeriesData_H__
 
+#include "MPlot/MPlot_global.h"
+
 #include <QAbstractTableModel>
 #include <QQueue>
 #include <QList>
@@ -19,7 +21,7 @@ class MPlotAbstractSeriesData;
   1) Implement the virtual functions x(), y(), and count()
   2) Call emitDataChanged() whenever the count() or x/y values have changed.
   */
-class MPlotSeriesDataSignalSource : public QObject {
+class MPLOTSHARED_EXPORT MPlotSeriesDataSignalSource : public QObject {
 	Q_OBJECT
 public:
 	MPlotAbstractSeriesData* seriesData() const { return data_; }
@@ -35,7 +37,7 @@ signals:
 };
 
 /// This defines the interface for classes which may be used for Series (XY scatter) plot data.
-class MPlotAbstractSeriesData  {
+class MPLOTSHARED_EXPORT MPlotAbstractSeriesData  {
 
 public:
 	MPlotAbstractSeriesData();
@@ -94,7 +96,7 @@ protected:
 
 
 /// This is a simple example implementation of MPlotAbstractSeriesData that uses a QVector<qreal> to represent the X and Y point values.  You can use it directly if you want to draw a simple plot and don't want to implement your own data model.
-class MPlotVectorSeriesData : public MPlotAbstractSeriesData {
+class MPLOTSHARED_EXPORT MPlotVectorSeriesData : public MPlotAbstractSeriesData {
 
 public:
 	/// Constructs an empty data model
@@ -134,7 +136,7 @@ protected:
 
 When using for real-time data, calling insertPointFront and insertPointBack is very fast.
   */
-class MPlotRealtimeModel : public QAbstractTableModel, public MPlotAbstractSeriesData {
+class MPLOTSHARED_EXPORT MPlotRealtimeModel : public QAbstractTableModel, public MPlotAbstractSeriesData {
 
 	Q_OBJECT
 

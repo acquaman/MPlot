@@ -1,6 +1,7 @@
 #ifndef __MPlotMarker_H__
 #define __MPlotMarker_H__
 
+#include "MPlot/MPlot_global.h"
 
 #include <QPainter>
 #include <QPolygonF>
@@ -20,7 +21,7 @@ namespace MPlotMarkerShape {
 // would be a switch() over the different marker types (inside a common paint() event.)    The paint() is called for every data point, so for large datasets it must be fast.
 
 // Abstract class: all plot markers must have these:
-class MPlotAbstractMarker {
+class MPLOTSHARED_EXPORT MPlotAbstractMarker {
 
 public:
         /// Constructor.  Builds a default marker.
@@ -68,7 +69,7 @@ public:
 	virtual void paint(QPainter*) {}
 };*/
 
-class MPlotMarkerSquare : public MPlotAbstractMarker {
+class MPLOTSHARED_EXPORT MPlotMarkerSquare : public MPlotAbstractMarker {
 
 public:
         /// Constructor.  Builds a square plot marker.
@@ -77,7 +78,7 @@ public:
 	virtual void paint(QPainter* painter);
 };
 
-class MPlotMarkerCircle : public MPlotAbstractMarker {
+class MPLOTSHARED_EXPORT MPlotMarkerCircle : public MPlotAbstractMarker {
 
 public:
         /// Constructor.  Builds a circle plot marker.
@@ -86,7 +87,7 @@ public:
 	virtual void paint(QPainter* painter);
 };
 
-class MPlotMarkerTriangle : public MPlotAbstractMarker {
+class MPLOTSHARED_EXPORT MPlotMarkerTriangle : public MPlotAbstractMarker {
 
 
 public:
@@ -103,7 +104,7 @@ protected:
 	QPolygonF triangle_;
 };
 
-class MPlotMarkerVerticalBeam : public MPlotAbstractMarker {
+class MPLOTSHARED_EXPORT MPlotMarkerVerticalBeam : public MPlotAbstractMarker {
 
 public:
         /// Constructor.  Builds a vertical beam marker.
@@ -119,7 +120,7 @@ protected:
 };
 
 
-class MPlotMarkerHorizontalBeam : public MPlotAbstractMarker {
+class MPLOTSHARED_EXPORT MPlotMarkerHorizontalBeam : public MPlotAbstractMarker {
 
 public:
         /// Constructor.  Builds a horizontal beam marker.
@@ -134,7 +135,7 @@ protected:
 	QLineF line_;
 };
 
-class MPlotMarkerPoint : public MPlotAbstractMarker {
+class MPLOTSHARED_EXPORT MPlotMarkerPoint : public MPlotAbstractMarker {
 
 public:
         /// Constructor.  Builds a point marker.
@@ -149,7 +150,7 @@ protected:
 	QLineF line_;
 };
 
-class MPlotMarkerDiagDownLeft : public MPlotAbstractMarker {
+class MPLOTSHARED_EXPORT MPlotMarkerDiagDownLeft : public MPlotAbstractMarker {
 
 public:
         /// Constructor.  Builds a downward left diagonal.  Think \ as a marker.
@@ -165,7 +166,7 @@ protected:
 };
 
 // A shorter version... This one has a length of size instead of size*sqrt(2). (Matches dia. of a circle of 'size')
-class MPlotMarkerDiagDownLeftR : public MPlotAbstractMarker {
+class MPLOTSHARED_EXPORT MPlotMarkerDiagDownLeftR : public MPlotAbstractMarker {
 
 public:
         /// Constructor.  Builds a downward left diagonal with length of size rather than size*sqrt(2).  Think \ as a marker.
@@ -178,7 +179,7 @@ protected:
 	QLineF line_;
 };
 
-class MPlotMarkerDiagDownRight : public MPlotAbstractMarker {
+class MPLOTSHARED_EXPORT MPlotMarkerDiagDownRight : public MPlotAbstractMarker {
 
 public:
         /// Constructor.  Builds a downward right diagonal.  Think / as a marker.
@@ -193,7 +194,7 @@ protected:
 	QLineF line_;
 };
 
-class MPlotMarkerDiagDownRightR : public MPlotAbstractMarker {
+class MPLOTSHARED_EXPORT MPlotMarkerDiagDownRightR : public MPlotAbstractMarker {
 
 public:
         /// Constructor.  Builds a downward right diagonal with a length of size and not size*sqrt(2).  Think / as a marker.
@@ -208,7 +209,7 @@ protected:
 	QLineF line_;
 };
 
-class MPlotMarkerCombined : public MPlotAbstractMarker {
+class MPLOTSHARED_EXPORT MPlotMarkerCombined : public MPlotAbstractMarker {
 public:
         /// Constructor.  Builds a marker based on a bitwise OR of the different MPlotMarkerShapes.
 	MPlotMarkerCombined(int shapeCode, qreal size = 6, const QPen& pen = QPen(), const QBrush& brush = QBrush());
@@ -228,7 +229,7 @@ protected:
 	QList<MPlotAbstractMarker*> elements_;
 };
 
-class MPlotMarker {
+class MPLOTSHARED_EXPORT MPlotMarker {
 
 public:
 

@@ -1,14 +1,16 @@
 #ifndef MPLOTABSTRACTTOOL_H
 #define MPLOTABSTRACTTOOL_H
 
-#include "MPlotAxisScale.h"
+#include "MPlot/MPlot_global.h"
+
+#include "MPlot/MPlotAxisScale.h"
 #include <QGraphicsObject>
 
 class MPlot;
 
 /// MPlotTools are objects that can be added to an MPlot to allow different kinds of interaction with it.
 /*! This class defines the interface for all plot tools. */
-class MPlotAbstractTool : public QGraphicsObject
+class MPLOTSHARED_EXPORT MPlotAbstractTool : public QGraphicsObject
 {
 	Q_OBJECT
 public:

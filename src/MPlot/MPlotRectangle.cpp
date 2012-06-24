@@ -1,4 +1,4 @@
-#include "MPlotRectangle.h"
+#include "MPlot/MPlotRectangle.h"
 #include <QPainter>
 
 MPlotRectangle::MPlotRectangle(const QRectF& rect, const QPen& pen, const QBrush& brush)

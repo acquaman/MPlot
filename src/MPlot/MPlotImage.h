@@ -1,9 +1,11 @@
 #ifndef MPLOTIMAGE_H
 #define MPLOTIMAGE_H
 
-#include "MPlotImageData.h"
-#include "MPlotColorMap.h"
-#include "MPlotItem.h"
+#include "MPlot/MPlot_global.h"
+
+#include "MPlot/MPlotImageData.h"
+#include "MPlot/MPlotColorMap.h"
+#include "MPlot/MPlotItem.h"
 
 
 class MPlotAbstractImage;
@@ -30,7 +32,7 @@ protected:
 };
 
 /// This class represents a plot item that represents a function z = f(x, y) as a color map / image
-class MPlotAbstractImage : public MPlotItem {
+class MPLOTSHARED_EXPORT MPlotAbstractImage : public MPlotItem {
 
 public:
 		/// An enum that defines the Type as an MPlotItem::Image.
@@ -100,7 +102,7 @@ private:
 
 
 /// This class implements an image (2d intensity plot), using a cached, scaled QImage for drawing
-class MPlotImageBasic : public MPlotAbstractImage {
+class MPLOTSHARED_EXPORT MPlotImageBasic : public MPlotAbstractImage {
 
 public:
 	/// Constructor
@@ -139,7 +141,7 @@ protected:
 	2) If the z value is invalid.  In these cases, the model returns -1.
 	3) If the z value is exactly 0.  This is meant to distinguish the lowest intensity from a value that is either not set, or perhaps not valid.
   */
-class MPlotImageBasicwDefault : public MPlotImageBasic
+class MPLOTSHARED_EXPORT MPlotImageBasicwDefault : public MPlotImageBasic
 {
 
 public:

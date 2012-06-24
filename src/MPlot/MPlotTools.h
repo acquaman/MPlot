@@ -1,7 +1,9 @@
 #ifndef MPLOTTOOLS_H
 #define MPLOTTOOLS_H
 
-#include "MPlotAbstractTool.h"
+#include "MPlot/MPlot_global.h"
+
+#include "MPlot/MPlotAbstractTool.h"
 #include <QGraphicsSceneMouseEvent>
 
 class MPlotItem;
@@ -19,7 +21,7 @@ class MPlotRectangle;
 
 
 /// This class provides a plot tool that can be used to select a single data-item in a plot.
-class MPlotPlotSelectorTool : public MPlotAbstractTool {
+class MPLOTSHARED_EXPORT MPlotPlotSelectorTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:
 	MPlotPlotSelectorTool();
@@ -50,7 +52,7 @@ protected:
 };
 
 
-class MPlotWheelZoomerTool : public MPlotAbstractTool {
+class MPLOTSHARED_EXPORT MPlotWheelZoomerTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:
 	/// Constructor. By default, this tool operates on all axes (Left, Right, and Bottom), and adds/subtracts 25% to the axis range on each mousewheel click.  Use setZoomIncrement() and setAxisTargets() to change these later.
@@ -128,7 +130,7 @@ protected:
 /// This class provides a plot tool that can be used to choose a selection rectangle with a "rubber-band", and zoom into that region. Right-clicking will restore the zoom to the previous state. (Infinite zoom/restore levels are available.)
 /*! Limitation: when adding multiple MPlotTools to a plot, this one must be added first (ie: "on the bottom").  To track the mouse drag, it needs to become the QGraphicsScene::mouseGrabberItem(), which will prevent other tools from receiving mouse clicks if it is "on top" of them.
   */
-class MPlotDragZoomerTool : public MPlotAbstractTool {
+class MPLOTSHARED_EXPORT MPlotDragZoomerTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:
 	/// Constructor. By default, after adding to a plot, this tool will be active on all axes.  If you want to restrict which axes it zooms, call setAxisTargets() after it is added to the plot.
@@ -165,7 +167,7 @@ protected:
 
 
 
-#include "MPlotPoint.h"
+#include "MPlot/MPlotPoint.h"
 
 /// this is a hack: plot markers for the cursor tool are created with this size (in pixels).  Make it as big as you expect screen resolution to be.  (NO! It's worse... because cursor may not be centered at center of data coordinates.  Needs to be REALLY BIG...) \todo solve this intelligently.
 #define MPLOT_CURSOR_BIG_HACK 4000
@@ -179,7 +181,7 @@ protected:
 
   \todo multiple cursor modes: click, hover, dataSnap
   */
-class MPlotCursorTool : public MPlotAbstractTool {
+class MPLOTSHARED_EXPORT MPlotCursorTool : public MPlotAbstractTool {
 	Q_OBJECT
 public:
 	MPlotCursorTool();
@@ -220,7 +222,7 @@ protected:
 };
 
 /// This class provides a tool that enables feedback on the x and y position inside a plot.
-class MPlotDataPositionTool : public MPlotAbstractTool
+class MPLOTSHARED_EXPORT MPlotDataPositionTool : public MPlotAbstractTool
 {
 	Q_OBJECT
 

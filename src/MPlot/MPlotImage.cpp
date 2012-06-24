@@ -1,7 +1,7 @@
 #ifndef MPLOTIMAGE_CPP
 #define MPLOTIMAGE_CPP
 
-#include "MPlotImage.h"
+#include "MPlot/MPlotImage.h"
 #include <QPainter>
 
 MPlotImageSignalHandler::MPlotImageSignalHandler(MPlotAbstractImage *parent)
