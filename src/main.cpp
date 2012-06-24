@@ -1,13 +1,13 @@
 #include <QApplication>
 
-#include "MPlotWidget.h"
-#include "MPlotSeriesData.h"
-#include "MPlotSeries.h"
+#include "MPlot/MPlotWidget.h"
+#include "MPlot/MPlotSeriesData.h"
+#include "MPlot/MPlotSeries.h"
 
-#include "MPlotImageData.h"
-#include "MPlotImage.h"
+#include "MPlot/MPlotImageData.h"
+#include "MPlot/MPlotImage.h"
 
-#include "MPlotPoint.h"
+#include "MPlot/MPlotPoint.h"
 
 #include <QTableView>
 #include <QPen>
@@ -22,8 +22,8 @@
 // #include <QGLWidget>
 #include <cmath>
 
-#include "MPlotTools.h"
-#include "MPlotRectangle.h"
+#include "MPlot/MPlotTools.h"
+#include "MPlot/MPlotRectangle.h"
 
 
  int main(int argc, char *argv[])
