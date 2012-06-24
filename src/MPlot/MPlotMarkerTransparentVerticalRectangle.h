@@ -21,12 +21,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MPLOTMARKERTRANSPARENTVERTICALRECTANGLE_H
 #define MPLOTMARKERTRANSPARENTVERTICALRECTANGLE_H
 
-#include "MPlotItem.h"
+#include "MPlot/MPlot_global.h"
+
+#include "MPlot/MPlotItem.h"
 
 #include <QPen>
 #include <QBrush>
 
-class MPlotMarkerTransparentVerticalRectangle : public MPlotItem
+class MPLOTSHARED_EXPORT MPlotMarkerTransparentVerticalRectangle : public MPlotItem
 {
 public:
 	/// Constructor.  Requires the original geometry of the ROI to set correctly.

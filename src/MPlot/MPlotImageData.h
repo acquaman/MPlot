@@ -1,6 +1,8 @@
 #ifndef MPLOTIMAGEDATA_H
 #define MPLOTIMAGEDATA_H
 
+#include "MPlot/MPlot_global.h"
+
 #include <QObject>
 #include <QPoint>
 #include <QRectF>
@@ -17,7 +19,7 @@ class MPlotAbstractImageData;
 /// This class acts as a proxy to emit signals for MPlotAbstractImageData. You can receive the dataChanged() signal by hooking up to MPlotAbstractImage::signalSource().
 /*! To allow classes that implement MPlotAbstractImageData to also inherit QObject, MPlotAbstractImageData does NOT inherit QObject.  However, it still needs a way to emit signals notifying of changes to the data, which is the role of this class.
   */
-class MPlotImageDataSignalSource : public QObject {
+class MPLOTSHARED_EXPORT MPlotImageDataSignalSource : public QObject {
 	Q_OBJECT
 public:
 		/// Returns the data model for that the image this signal source is managing.
@@ -46,7 +48,7 @@ signals:
 /// This class defines the interface to represent 3D data z = f(x,y), used by image plots and contour plots.
   /*! \todo: figure out resolution question. Data sets resolution? plot sets resoution>?
 	*/
-class MPlotAbstractImageData {
+class MPLOTSHARED_EXPORT MPlotAbstractImageData {
 
 public:
 		/// Constructor.  Builds a data model for the image.
@@ -118,7 +120,7 @@ protected:
 
 
 /// This class is a very basic 2D array which implements the MPlotAbstractImageData interface
-class MPlotSimpleImageData : public MPlotAbstractImageData {
+class MPLOTSHARED_EXPORT MPlotSimpleImageData : public MPlotAbstractImageData {
 
 public:
 	/// Constructor: represent image data with physical coordinate boundaries \c dataBounds, and a resolution (number of "pixels") \c resolution.  Data values are initialized to 0.

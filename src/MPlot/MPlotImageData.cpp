@@ -1,7 +1,7 @@
 #ifndef MPLOTIMAGEDATA_CPP
 #define MPLOTIMAGEDATA_CPP
 
-#include "MPlotImageData.h"
+#include "MPlot/MPlotImageData.h"
 
 MPlotImageDataSignalSource::MPlotImageDataSignalSource(MPlotAbstractImageData *parent)
 	: QObject(0) {

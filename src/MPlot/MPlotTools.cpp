@@ -1,10 +1,10 @@
 #ifndef MPLOTTOOLS_CPP
 #define MPLOTTOOLS_CPP
 
-#include "MPlotTools.h"
-#include "MPlotItem.h"
-#include "MPlot.h"
-#include "MPlotRectangle.h"
+#include "MPlot/MPlotTools.h"
+#include "MPlot/MPlotItem.h"
+#include "MPlot/MPlot.h"
+#include "MPlot/MPlotRectangle.h"
 
 #include <QDebug>
 

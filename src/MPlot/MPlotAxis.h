@@ -1,6 +1,8 @@
 #ifndef __MPlotAxis_H__
 #define __MPlotAxis_H__
 
+#include "MPlot/MPlot_global.h"
+
 #include <QGraphicsObject>
 class QPainter;
 #include <QFont>
@@ -9,7 +11,7 @@ class QPainter;
 class MPlotAxisScale;
 
 /// Graphics item which draws a coordinate axis.  In most cases this class does not need to be used directly; it's used by MPlot to draw the plot axes.
-class MPlotAxis : public QGraphicsObject {
+class MPLOTSHARED_EXPORT MPlotAxis : public QGraphicsObject {
 
 	Q_OBJECT
 

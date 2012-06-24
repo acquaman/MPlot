@@ -1,7 +1,7 @@
 #ifndef __MPlotSeriesData_CPP__
 #define __MPlotSeriesData_CPP__
 
-#include "MPlotSeriesData.h"
+#include "MPlot/MPlotSeriesData.h"
 
 MPlotSeriesDataSignalSource::MPlotSeriesDataSignalSource(MPlotAbstractSeriesData* parent)
 	: QObject(0) {

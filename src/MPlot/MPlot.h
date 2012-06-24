@@ -1,10 +1,13 @@
 #ifndef __MPlot_H__
 #define __MPlot_H__
 
-#include "MPlotAxis.h"
-#include "MPlotLegend.h"
-#include "MPlotItem.h"
-#include "MPlotAbstractTool.h"
+#include "MPlot/MPlot_global.h"
+
+#include "MPlot/MPlotAxis.h"
+#include "MPlot/MPlotLegend.h"
+#include "MPlot/MPlotItem.h"
+#include "MPlot/MPlotAbstractTool.h"
+
 
 
 #include <QList>
@@ -91,7 +94,7 @@ The axis ranges for all three axes can be set manually using setXDataRange(), se
   - MPlotCursorTool: place one or more cursors on the plot, and read their locations.
   */
 
-class MPlot : public QGraphicsItem {
+class MPLOTSHARED_EXPORT MPlot : public QGraphicsItem {
 
 public:
 
@@ -301,7 +304,7 @@ protected:
 #include <QGraphicsSceneResizeEvent>
 
 /// This class is used instead of MPlot when you need a QGraphicsWidget (instead of a simple QGraphicsItem).
-class MPlotGW : public QGraphicsWidget {
+class MPLOTSHARED_EXPORT MPlotGW : public QGraphicsWidget {
 	Q_OBJECT
 public:
 	/// Constructor.  Builds a QGraphicsWidget that encapuslates an MPlot.

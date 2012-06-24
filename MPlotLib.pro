@@ -9,6 +9,8 @@ TEMPLATE = lib
 
 DEFINES += MPLOT_LIBRARY
 
+INCLUDEPATH += src
+
 HEADERS += src/MPlot/MPlot_global.h \
 		src/MPlot/MPlotWidget.h \
 		src/MPlot/MPlotAxis.h \

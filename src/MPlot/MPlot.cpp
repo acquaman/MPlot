@@ -2,11 +2,11 @@
 #ifndef __MPlot_CPP__
 #define __MPlot_CPP__
 
-#include "MPlot.h"
-#include "MPlotAxisScale.h"
-#include "MPlotSeries.h"
-#include "MPlotImage.h"
-#include "MPlotAbstractTool.h"
+#include "MPlot/MPlot.h"
+#include "MPlot/MPlotAxisScale.h"
+#include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotImage.h"
+#include "MPlot/MPlotAbstractTool.h"
 
 MPlotSignalHandler::MPlotSignalHandler(MPlot* parent)
 	: QObject(0) {

@@ -1,6 +1,8 @@
 #ifndef MPLOTAXISSCALE_H
 #define MPLOTAXISSCALE_H
 
+#include "MPlot/MPlot_global.h"
+
 #include <QPair>
 #include <QSizeF>
 #include <QRectF>
@@ -14,7 +16,7 @@
 #define MPLOT_POS_INFINITY std::numeric_limits<qreal>::infinity()
 #define MPLOT_NEG_INFINITY -std::numeric_limits<qreal>::infinity()
 
-class MPlotAxisRange {
+class MPLOTSHARED_EXPORT MPlotAxisRange {
 public:
 	/// Constructs a null axis range
 	MPlotAxisRange() { min_ = 0.0; max_ = 0.0; valid_ = false; }
@@ -111,7 +113,7 @@ protected:
 };
 
 /// This class handles all the size aspects for a particular axis.  It manages the range of the axis, how big the axis should be, and some of the other specifics for the axis.  It is kind of like the model for MPlotAxis.  It holds all the relevent information and MPlotAxis paints the axis based on that information.
-class MPlotAxisScale : public QObject
+class MPLOTSHARED_EXPORT MPlotAxisScale : public QObject
 {
 	Q_OBJECT
 

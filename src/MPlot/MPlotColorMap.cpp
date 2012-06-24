@@ -2,7 +2,7 @@
 #ifndef MPLOTCOLORMAP_CPP
 #define MPLOTCOLORMAP_CPP
 
-#include "MPlotColorMap.h"
+#include "MPlot/MPlotColorMap.h"
 
 // System-wide pre-computed values for default color maps: optimizes the creation of new default color maps. These all have a standard resolution of 256.
 QVector<QVector<QRgb>*> MPlotColorMapData::precomputedMaps_ = QVector<QVector<QRgb>*>(13,0);

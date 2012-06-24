@@ -1,6 +1,8 @@
 #ifndef MPLOTCOLORMAP_H
 #define MPLOTCOLORMAP_H
 
+#include "MPlot/MPlot_global.h"
+
 #include <QPair>
 #include <QColor>
 #include <QDebug>
@@ -8,7 +10,7 @@
 #include <cmath>
 
 /// only required for MPlotInterval typedef. \todo: move somewhere more appropriate?
-#include "MPlotImageData.h"
+#include "MPlot/MPlotImageData.h"
 #include <QGradientStop>
 
 #include <QSharedData>
@@ -107,7 +109,7 @@ This class is intended to be passed value, in the same way that QColor and QGrad
 */
 
 
-class MPlotColorMap {
+class MPLOTSHARED_EXPORT MPlotColorMap {
 public:
 
 	/// Describes the interpolation mode used to interpolate between color stops.  RGB is fastest, while HSV preserves human-perception-based color relationships.

@@ -1,4 +1,4 @@
-#include "MPlotAxisScale.h"
+#include "MPlot/MPlotAxisScale.h"
 #include <QDebug>
 
 

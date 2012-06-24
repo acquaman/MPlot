@@ -1,7 +1,7 @@
 #ifndef MPLOTPOINT_CPP
 #define MPLOTPOINT_CPP
 
-#include "MPlotPoint.h"
+#include "MPlot/MPlotPoint.h"
 
 
 /// Default constructor. Override setDefaults() for a custom look off the bat.

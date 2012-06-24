@@ -1,9 +1,9 @@
 #ifndef MPLOTABSTRACTTOOL_CPP
 #define MPLOTABSTRACTTOOL_CPP
 
-#include "MPlotAbstractTool.h"
+#include "MPlot/MPlotAbstractTool.h"
 
-#include "MPlot.h"
+#include "MPlot/MPlot.h"
 
 MPlotAbstractTool::MPlotAbstractTool(const QRectF& geometry) :
 	QGraphicsObject()

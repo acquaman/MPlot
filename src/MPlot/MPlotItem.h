@@ -1,6 +1,8 @@
 #ifndef MPLOTITEM_H
 #define MPLOTITEM_H
 
+#include "MPlot/MPlot_global.h"
+
 #include <QGraphicsItem>
 #include <QObject>
 #include <QBrush>
@@ -16,7 +18,7 @@
 #define MPLOT_SELECTION_LINEWIDTH 10
 
 class MPlot;
-#include "MPlotAxisScale.h"
+#include "MPlot/MPlotAxisScale.h"
 
 /// This class is a proxy that emits signals for an MPlotItem.
 /*! To avoid multipler-inheritance restrictions, MPlotItems do not inherit QObject.  However, they need some way to emit signals to notify plots of relevant events.  Therefore, they each contain an MPlotItemSignalSource, which emits signals on their behalf.  You can access it with MPlotItem::signalSource().
@@ -31,7 +33,7 @@ class MPlot;
 
 class MPlotItem;
 
-class MPlotItemSignalSource : public QObject {
+class MPLOTSHARED_EXPORT MPlotItemSignalSource : public QObject {
 	Q_OBJECT
 public:
 		/// Returns the plot item this signal source is managing.
@@ -70,7 +72,7 @@ signals:
 };
 
 /// This class defines the interface for all data-representation objects which can be added to an MPlot (ex: series/curves, images and spectrograms, contour maps, etc.)
-class MPlotItem : public QGraphicsItem {
+class MPLOTSHARED_EXPORT MPlotItem : public QGraphicsItem {
 
 
 public:
