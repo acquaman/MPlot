@@ -10,7 +10,7 @@ DEPENDPATH += . \
 	src \
 	src/MPlot
 
-INCLUDEPATH += ./include
+INCLUDEPATH += include
 
 MPLOTLIBPATH = $${PWD}/lib
 LIBS += -L$${MPLOTLIBPATH} -lMPlot
