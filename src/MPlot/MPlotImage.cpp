@@ -269,6 +269,7 @@ MPlotImageBasicwDefault::MPlotImageBasicwDefault(const MPlotAbstractImageData *d
 	: MPlotImageBasic(data)
 {
 	defaultColor_ = defaultImageColor;
+	defaultValue_ = 0;
 }
 
 void MPlotImageBasicwDefault::fillImageFromData()
@@ -290,7 +291,7 @@ void MPlotImageBasicwDefault::fillImageFromData()
 		for(int yy=0; yy<yHeight; yy++)
 			for(int xx=0; xx<xWidth; xx++){
 
-				if (data_->z(QPoint(xx, yy)) == -1 || data_->z(QPoint(xx, yy)) == 0 || (data_->z(QPoint(xx, yy)) < range.first || data_->z(QPoint(xx, yy)) > range.second))
+				if (data_->z(QPoint(xx, yy)) == -1 || data_->z(QPoint(xx, yy)) == defaultValue_ || (data_->z(QPoint(xx, yy)) < range.first || data_->z(QPoint(xx, yy)) > range.second))
 					image_.setPixel(xx, yHeight-1-yy, defaultColor().rgb());
 
 				else

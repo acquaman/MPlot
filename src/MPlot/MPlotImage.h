@@ -135,11 +135,12 @@ protected:
 
 /// This class is a simple extension to MPlotImageBasic where you can define a colour for pixels that are invalid (ie: not range.min <= z <= range.max).  The default is white, but can be customized.
 /*!
-	This is intended for an intensity plot.  Since intensities will only be positive numbers, the default colour is used for the following situations:
+	The default is for an intensity plot.  Since intensities will only be positive numbers, the default colour is used for the following situations:
 
 	1) If somehow the z value is not in the range of the data.
 	2) If the z value is invalid.  In these cases, the model returns -1.
-	3) If the z value is exactly 0.  This is meant to distinguish the lowest intensity from a value that is either not set, or perhaps not valid.
+
+	However, the default value can be set to anything depending on the circumstances you wish to plot.
   */
 class MPLOTSHARED_EXPORT MPlotImageBasicwDefault : public MPlotImageBasic
 {
@@ -148,6 +149,10 @@ public:
 	/// Constructor.  Takes an MPlotAbstractImageData pointer.
 	MPlotImageBasicwDefault(const MPlotAbstractImageData *data = 0, QColor defaultImageColor = Qt::white);
 
+	/// Sets the default value.  This is the value associated with the default colour.
+	void setDefaultValue(qreal val) { defaultValue_ = val; onDataChanged(); }
+	/// Returns the default value.
+	qreal defalutValue() const { return defaultValue_; }
 	/// Retuns the default color.
 	QColor defaultColor() const { return defaultColor_; }
 	/// Sets the default color.
@@ -159,6 +164,8 @@ protected:
 
 	/// The default color.
 	QColor defaultColor_;
+	/// The default value.
+	qreal defaultValue_;
 };
 
 #endif // MPLOTIMAGE_H
