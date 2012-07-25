@@ -275,6 +275,11 @@ MPlotImageBasicwDefault::MPlotImageBasicwDefault(const MPlotAbstractImageData *d
 void MPlotImageBasicwDefault::fillImageFromData()
 {
 	if(data_) {
+
+//		QTime runTime;
+//		runTime.start();
+//		qDebug() << "MPlotImageBasic: fillImageFromData()";
+
 		imageRefillRequired_ = false;
 
 		// resize if req'd:
@@ -282,21 +287,43 @@ void MPlotImageBasicwDefault::fillImageFromData()
 
 		if(image_.size() != dataSize)
 			image_ = QImage(dataSize, QImage::Format_ARGB32);
+//		qDebug() << "   QImage resize time:" << runTime.restart();
 
 		int yHeight = dataSize.height();
 		int xWidth = dataSize.width();
-		MPlotInterval range = data_->range();
 
-		// This is slower than MPlotImageBasic because of the check that needs to be done for every pixel.
-		for(int yy=0; yy<yHeight; yy++)
-			for(int xx=0; xx<xWidth; xx++){
+//		qDebug() << "   data source get height, width:" << runTime.restart();
 
-				if (data_->z(QPoint(xx, yy)) == -1 || data_->z(QPoint(xx, yy)) == defaultValue_ || (data_->z(QPoint(xx, yy)) < range.first || data_->z(QPoint(xx, yy)) > range.second))
-					image_.setPixel(xx, yHeight-1-yy, defaultColor().rgb());
+		if(xWidth > 0 && yHeight > 0) {
+			QVector<qreal> dataBuffer(xWidth*yHeight);
+//			qDebug() << "   vector creation time:" << runTime.restart();
+			data_->zValues(0, 0, xWidth-1, yHeight-1, dataBuffer.data());
+//			qDebug() << "   block data access time:" << runTime.restart();
 
-				else
-					image_.setPixel(xx, yHeight-1-yy, map_.rgbAt(data_->z(QPoint(xx,yy)), data_->range()));	// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
+			qreal minZ, maxZ;
+			minZ = maxZ = dataBuffer.at(0);
+			foreach(qreal d, dataBuffer) {
+				if(d<minZ && d != 0) minZ = d;
+				if(d>maxZ) maxZ = d;
 			}
+			MPlotInterval range(minZ,maxZ);
+//			qDebug() << "   Manually search range:" << runTime.restart() << range;
+
+			for(int xx=0; xx<xWidth; ++xx) {
+				int xc = xx*yHeight;
+				for(int yy=0; yy<yHeight; ++yy){
+
+					double val = dataBuffer.at(xc+yy);
+
+					if (val != 0)
+						image_.setPixel(xx, yHeight-1-yy, map_.rgbAt(dataBuffer.at(xc+yy), range));// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
+
+					else
+						image_.setPixel(xx, yHeight-1-yy, defaultColor_.rgb());// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
+				}
+			}
+//			qDebug() << "   rgb conversion time:" << runTime.restart();
+		}
 	}
 }
 
