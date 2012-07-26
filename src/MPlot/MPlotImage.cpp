@@ -275,6 +275,11 @@ MPlotImageBasicwDefault::MPlotImageBasicwDefault(const MPlotAbstractImageData *d
 void MPlotImageBasicwDefault::fillImageFromData()
 {
 	if(data_) {
+
+//		QTime runTime;
+//		runTime.start();
+//		qDebug() << "MPlotImageBasic: fillImageFromData()";
+
 		imageRefillRequired_ = false;
 
 		// resize if req'd:
@@ -282,21 +287,43 @@ void MPlotImageBasicwDefault::fillImageFromData()
 
 		if(image_.size() != dataSize)
 			image_ = QImage(dataSize, QImage::Format_ARGB32);
+//		qDebug() << "   QImage resize time:" << runTime.restart();
 
 		int yHeight = dataSize.height();
 		int xWidth = dataSize.width();
-		MPlotInterval range = data_->range();
-//		qDebug() << defaultValue_ << range.first << range.second;
-		// This is slower than MPlotImageBasic because of the check that needs to be done for every pixel.
-		for(int yy=0; yy<yHeight; yy++)
-			for(int xx=0; xx<xWidth; xx++){
-//				qDebug() << data_->z(QPoint(xx,yy));
-				if (data_->z(QPoint(xx, yy)) == -1 || data_->z(QPoint(xx, yy)) == defaultValue_ || (data_->z(QPoint(xx, yy)) < range.first || data_->z(QPoint(xx, yy)) > range.second))
-					image_.setPixel(xx, yHeight-1-yy, defaultColor().rgb());
 
-				else
-					image_.setPixel(xx, yHeight-1-yy, map_.rgbAt(data_->z(QPoint(xx,yy)), data_->range()));	// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
+//		qDebug() << "   data source get height, width:" << runTime.restart();
+
+		if(xWidth > 0 && yHeight > 0) {
+			QVector<qreal> dataBuffer(xWidth*yHeight);
+//			qDebug() << "   vector creation time:" << runTime.restart();
+			data_->zValues(0, 0, xWidth-1, yHeight-1, dataBuffer.data());
+//			qDebug() << "   block data access time:" << runTime.restart();
+
+			qreal minZ, maxZ;
+			minZ = maxZ = dataBuffer.at(0);
+			foreach(qreal d, dataBuffer) {
+				if(d<minZ && d != defaultValue_ && d != -1.0) minZ = d;	// NOTE: -1.0 here is from AMNUMBER_INVALID_FLOATINGPOINT
+				if(d>maxZ) maxZ = d;
 			}
+			MPlotInterval range(minZ,maxZ);
+//			qDebug() << "   Manually search range:" << runTime.restart() << range;
+
+			for(int xx=0; xx<xWidth; ++xx) {
+				int xc = xx*yHeight;
+				for(int yy=0; yy<yHeight; ++yy){
+
+					double val = dataBuffer.at(xc+yy);
+
+					if (val != defaultValue_ && val != -1.0) // NOTE: -1.0 here is from AMNUMBER_INVALID_FLOATINGPOINT
+						image_.setPixel(xx, yHeight-1-yy, map_.rgbAt(dataBuffer.at(xc+yy), range));// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
+
+					else
+						image_.setPixel(xx, yHeight-1-yy, defaultColor_.rgb());// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
+				}
+			}
+//			qDebug() << "   rgb conversion time:" << runTime.restart();
+		}
 	}
 }
 
