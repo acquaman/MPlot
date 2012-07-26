@@ -152,8 +152,8 @@ public:
 	/// Sets the default value.  This is the value associated with the default colour.
 	void setDefaultValue(qreal val) { defaultValue_ = val; onDataChanged(); }
 	/// Returns the default value.
-	qreal defalutValue() const { return defaultValue_; }
-	/// Retuns the default color.
+	qreal defaultValue() const { return defaultValue_; }
+	/// Returns the default colour.
 	QColor defaultColor() const { return defaultColor_; }
 	/// Sets the default color.
 	void setDefaultColor(QColor color) { defaultColor_ = color; onDataChanged(); }
