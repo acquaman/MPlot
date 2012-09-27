@@ -205,6 +205,10 @@ protected:
 	qreal mapX(qreal dataCoordinate) const { return xAxisTarget_->mapDataToDrawing(dataCoordinate); }
 	/// Shorthand to map a data coordinate to drawing coordinate.  Only call when yAxisTarget_ is valid.
 	qreal mapY(qreal dataCoordinate) const { return yAxisTarget_->mapDataToDrawing(dataCoordinate); }
+	/// Shorthand to map all data coordinates to drawing coordinates.  Only call when xAxisTarget_ is valid.
+	void mapXValues(unsigned size, const qreal *dataValues, qreal *outputValues) const { xAxisTarget_->mapDataValuesToDrawingValues(size, dataValues, outputValues); }
+	/// Shorthand to map all data coordinates to drawing coordinates.  Only call when yAxisTarget_ is valid.
+	void mapYValues(unsigned size, const qreal *dataValues, qreal *outputValues) const { yAxisTarget_->mapDataValuesToDrawingValues(size, dataValues, outputValues); }
 };
 
 #endif // MPLOTITEM_H

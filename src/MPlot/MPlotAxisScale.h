@@ -145,6 +145,68 @@ public:
 			return drawingSize_.width() * (dataValue-min)/(max-min);
 	}
 
+	/// Maps all of the data values to drawing values.  Size contains the size of the dataValues and outputValues array.
+	void mapDataValuesToDrawingValues(unsigned size, const qreal *dataValues, qreal *outputValues) const
+	{
+		qreal min = dataRange_.min();
+		qreal max = dataRange_.max();
+
+		// Handling the log separately because if we don't have to worry about logging the data we can compute the output values in a tight loop.
+		if (logScaleEnabled_ && min > 0.0 && max > 0.0){
+
+			for (unsigned i = 0; i < size; i++){
+
+				if (dataValues[i] <= 0.0)
+					outputValues[i] = log10(qBound(qMin(min, max), dataValues[i], qMax(min, max)));
+
+				else
+					outputValues[i] = log10(dataValues[i]);
+			}
+
+			min = log10(min);
+			max = log10(max);
+
+			if (orientation_ == Qt::Vertical){
+
+				qreal height = drawingSize_.height();
+				qreal maxMinDifference = max - min;
+
+				for (unsigned i = 0; i < size; i++)
+					outputValues[i] = height * (1 - (outputValues[i]-min)/maxMinDifference);
+			}
+
+			else {
+
+				qreal width = drawingSize_.width();
+				qreal maxMinDifference = max - min;
+
+				for (unsigned i = 0; i < size; i++)
+					outputValues[i] = width * ((outputValues[i]-min)/maxMinDifference);
+			}
+		}
+
+		else {
+
+			if (orientation_ == Qt::Vertical){
+
+				qreal height = drawingSize_.height();
+				qreal maxMinDifference = max - min;
+
+				for (unsigned i = 0; i < size; i++)
+					outputValues[i] = height * (1 - (dataValues[i]-min)/maxMinDifference);
+			}
+
+			else {
+
+				qreal width = drawingSize_.width();
+				qreal maxMinDifference = max - min;
+
+				for (unsigned i = 0; i < size; i++)
+					outputValues[i] = width * ((dataValues[i]-min)/maxMinDifference);
+			}
+		}
+	}
+
 	/// Returns the MPlotAxisRange of the axis scale but within the confines of the scene size.
 	MPlotAxisRange mapDataToDrawing(const MPlotAxisRange& dataRange) const {
 		return MPlotAxisRange(

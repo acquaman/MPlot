@@ -108,6 +108,28 @@ void MPlotAbstractSeries::setModel(const MPlotAbstractSeriesData* data, bool own
 
 const MPlotAbstractSeriesData* MPlotAbstractSeries::model() const { return data_; }
 
+void MPlotAbstractSeries::xxValues(unsigned start, unsigned end, qreal *outputValues) const
+{
+	qreal offset = offset_.x();
+	int size = end-start+1;
+	QVector<qreal> x = QVector<qreal>(size);
+	data_->xValues(start, end, x.data());
+
+	for (int i = 0; i < size; i++)
+		outputValues[i] = x.at(i)*sx_ + dx_ + offset;
+}
+
+void MPlotAbstractSeries::yyValues(unsigned start, unsigned end, qreal *outputValues) const
+{
+	qreal offset = offset_.y();
+	int size = end-start+1;
+	QVector<qreal> y = QVector<qreal>(size);
+	data_->yValues(start, end, y.data());
+
+	for (int i = 0; i < size; i++)
+		outputValues[i] = y.at(i)*sy_ + dy_ + offset;
+}
+
 // Required functions:
 //////////////////////////
 
@@ -150,14 +172,30 @@ QPainterPath MPlotAbstractSeries::shape() const {
 		shape.addRect(boundingRect());
 
 
-	else if(data_ && data_->count() > 0) {
-		shape.moveTo(mapX(xx(0)), mapY(yy(0)));
-		for(int i=0; i<data_->count(); i++)
-			shape.lineTo(mapX(xx(i)), mapY(yy(i)));
+	else if (data_ && data_->count() > 0){
 
-		for(int i=data_->count()-2; i>=0; i--)
-			shape.lineTo(mapX(xx(i)), mapY(yy(i)));
-		shape.lineTo(mapX(xx(0)), mapY(yy(0)));
+		int dataCount = data_->count();
+		QVector<qreal> x = QVector<qreal>(dataCount);
+		QVector<qreal> y = QVector<qreal>(dataCount);
+
+		xxValues(0, dataCount-1, x.data());
+		yyValues(0, dataCount-1, y.data());
+
+		QVector<qreal> mappedX = QVector<qreal>(dataCount);
+		QVector<qreal> mappedY = QVector<qreal>(dataCount);
+
+		mapXValues(mappedX.size(), x.constData(), mappedX.data());
+		mapYValues(mappedY.size(), y.constData(), mappedY.data());
+
+		shape.moveTo(mappedX.at(0), mappedY.at(0));
+
+		for (int i = 0, count = data_->count(); i < count; i++)
+			shape.lineTo(mappedX.at(i), mappedY.at(i));
+
+		for (int i = data_->count()-2; i >= 0; i--)
+			shape.lineTo(mappedX.at(i), mappedY.at(i));
+
+		shape.moveTo(mappedX.at(0), mappedY.at(0));
 	}
 
 	return shape;
@@ -306,7 +344,6 @@ void MPlotSeriesBasic::paint(QPainter* painter,
 	}
 	painter->setPen(linePen_);
 	paintLines(painter);
-
 }
 
 void MPlotSeriesBasic::paintLines(QPainter* painter) {
@@ -318,13 +355,24 @@ void MPlotSeriesBasic::paintLines(QPainter* painter) {
 		QTransform wt = painter->deviceTransform();	// equivalent to worldTransform and combinedTransform
 		qreal xinc = 1.0 / wt.m11() / MPLOT_MAX_LINES_PER_PIXEL;	// will just be 1/MPLOT_MAX_LINES_PER_PIXEL = 0.5 as long as not using a scaled/transformed painter.
 
+		int dataCount = data_->count();
+		QVector<qreal> x = QVector<qreal>(dataCount);
+		QVector<qreal> y = QVector<qreal>(dataCount);
+
+		xxValues(0, dataCount-1, x.data());
+		yyValues(0, dataCount-1, y.data());
+
+		QVector<qreal> mappedX = QVector<qreal>(dataCount);
+		QVector<qreal> mappedY = QVector<qreal>(dataCount);
+
+		mapXValues(mappedX.size(), x.constData(), mappedX.data());
+		mapYValues(mappedY.size(), y.constData(), mappedY.data());
+
 		// should we just draw normally and quickly? Do that if the number of data points is less than the number of x-pixels in the drawing space (or half-pixels, in the conservative case where MPLOT_MAX_LINES_PER_PIXEL = 2).
 		if(data_->count() < xAxisTarget()->drawingSize().width()/xinc) {
-			int count = data_->count();
-			for(int i=1; i<count; i++) {
-				painter->drawLine(QPointF(mapX(xx(i-1)), mapY(yy(i-1))),
-								  QPointF(mapX(xx(i)), mapY(yy(i))));
-			}
+
+			for (int i = 1, count = data_->count(); i < count; i++)
+				painter->drawLine(QPointF(mappedX.at(i-1), mappedY.at(i-1)), QPointF(mappedX.at(i), mappedY.at(i)));
 		}
 
 		else {	// do sub-pixel simplification.
@@ -333,14 +381,15 @@ void MPlotSeriesBasic::paintLines(QPainter* painter) {
 			qreal xstart;
 			qreal ystart, ymin, ymax;
 
-			xstart = mapX(xx(0));
-			ymin = ymax = ystart = mapY(yy(0));
+			xstart = mappedX.at(0);
+			ymin = ymax = ystart = mappedY.at(0);
 
 			// move through the datapoints along x. (Note that x could be jumping forward or backward here... it's not necessarily sorted)
-			for(int i=1; i<data_->count(); i++) {
+			for(int i=1, count = data_->count(); i < count; i++) {
+
 				// if within the range around xstart: update max/min to be representative of this range
-				if(fabs(mapX(xx(i)) - xstart) < xinc) {
-					qreal mappedYYI = mapY(yy(i));
+				if(fabs(mappedX.at(i) - xstart) < xinc) {
+					qreal mappedYYI = mappedY.at(i);
 
 					if(mappedYYI > ymax)
 						ymax = mappedYYI;
@@ -356,11 +405,11 @@ void MPlotSeriesBasic::paintLines(QPainter* painter) {
 					if(ymin != ymax)
 						painter->drawLine(QPointF(xstart, ymin), QPointF(xstart, ymax));
 
-					painter->drawLine(QPointF(mapX(xx(i-1)), mapY(yy(i-1))), QPointF(mapX(xx(i)), mapY(yy(i))));
+					painter->drawLine(QPointF(mappedX.at(i-1), mappedY.at(i-1)), QPointF(mappedX.at(i), mappedY.at(i)));
 					//NOT: painter->drawLine(QPointF(xstart, ystart), QPointF(mapX(xx(i)), mapY(yy(i))));
 
-					xstart = mapX(xx(i));
-					ymin = ymax = ystart = mapY(yy(i));
+					xstart = mappedX.at(i);
+					ymin = ymax = ystart = mappedY.at(i);
 				}
 			}
 		}
@@ -371,13 +420,24 @@ void MPlotSeriesBasic::paintMarkers(QPainter* painter) {
 
 	if(data_ && marker_) {
 
-		for(int i=data_->count()-1; i>=0; i--) {
-			// Paint marker:
-			qreal x = mapX(xx(i)), y = mapY(yy(i));
+		int dataCount = data_->count();
+		QVector<qreal> x = QVector<qreal>(dataCount);
+		QVector<qreal> y = QVector<qreal>(dataCount);
 
-			painter->translate(x, y);
+		xxValues(0, dataCount-1, x.data());
+		yyValues(0, dataCount-1, y.data());
+
+		QVector<qreal> mappedX = QVector<qreal>(dataCount);
+		QVector<qreal> mappedY = QVector<qreal>(dataCount);
+
+		mapXValues(mappedX.size(), x.constData(), mappedX.data());
+		mapYValues(mappedY.size(), y.constData(), mappedY.data());
+
+		for (int i = data_->count()-1; i >= 0; i--){
+
+			painter->translate(mappedX.at(i), mappedY.at(i));
 			marker_->paint(painter);
-			painter->translate(-x, -y);
+			painter->translate(-mappedX.at(i), -mappedY.at(i));
 		}
 	}
 }

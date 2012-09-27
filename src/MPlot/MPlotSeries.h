@@ -149,6 +149,10 @@ protected:
 	qreal xx(unsigned i) const { return data_->x(i)*sx_+dx_+offset_.x(); }
 	/// Helper function to return a the transformed, normalized, offsetted x value. (Only call when model() is valid, and i<model().count()!)
 	qreal yy(unsigned i) const { return data_->y(i)*sy_+dy_+offset_.y(); }
+	/// Helper function that sets outputValues to a transformed, normalized, offsetted value.
+	void xxValues(unsigned start, unsigned end, qreal *outputValues) const;
+	/// Helper function that sets output values to a transformed, normalized, offsetted value.
+	void yyValues(unsigned start, unsigned end, qreal *outputValues) const;
 
 	/// Helper function that sets a default look and feel to the plot.
 	virtual void setDefaults();

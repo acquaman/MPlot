@@ -20,12 +20,14 @@ MPlotAbstractSeriesData::~MPlotAbstractSeriesData()
 	signalSource_ = 0;
 }
 
-
+#include <QDebug>
+#include <QTime>
 QRectF MPlotAbstractSeriesData::boundingRect() const {
 	if(count() == 0)
 		return QRectF();
 
 	if(cachedDataRectUpdateRequired_) {
+
 		qreal minY = searchMinY();
 		qreal maxY = searchMaxY();
 		qreal minX = searchMinX();
@@ -42,40 +44,64 @@ QRectF MPlotAbstractSeriesData::boundingRect() const {
 }
 
 qreal MPlotAbstractSeriesData::searchMinY() const {
-	qreal extreme = y(0);
-	for(int i=1; i<count(); i++)
-		if(y(i) < extreme)
-			extreme = y(i);
+
+	int size = count();
+	QVector<qreal> y = QVector<qreal>(size);
+	yValues(0, unsigned(size)-1, y.data());
+
+	qreal extreme = y.at(0);
+
+	for (int i = 1; i < size; i++)
+		if (y.at(i) < extreme)
+			extreme = y.at(i);
+
 	return extreme;
 }
+
 qreal MPlotAbstractSeriesData::searchMaxY() const {
-	qreal extreme = y(0);
-	for(int i=1; i<count(); i++)
-		if(y(i) > extreme)
-			extreme = y(i);
+
+	int size = count();
+	QVector<qreal> y = QVector<qreal>(size);
+	yValues(0, unsigned(size)-1, y.data());
+
+	qreal extreme = y.at(0);
+
+	for (int i = 1; i < size; i++)
+		if (y.at(i) > extreme)
+			extreme = y.at(i);
+
 	return extreme;
 }
+
 qreal MPlotAbstractSeriesData::searchMinX() const {
-	qreal extreme = x(0);
-	for(int i=1; i<count(); i++)
-		if(x(i) < extreme)
-			extreme = x(i);
-	return extreme;
 
+	int size = count();
+	QVector<qreal> x = QVector<qreal>(size);
+	xValues(0, unsigned(size)-1, x.data());
+
+	qreal extreme = x.at(0);
+
+	for (int i = 1; i < size; i++)
+		if (x.at(i) < extreme)
+			extreme = x.at(i);
+
+	return extreme;
 }
+
 qreal MPlotAbstractSeriesData::searchMaxX() const {
-	qreal extreme = x(0);
-	for(int i=1; i<count(); i++)
-		if(x(i) > extreme)
-			extreme = x(i);
+
+	int size = count();
+	QVector<qreal> x = QVector<qreal>(size);
+	xValues(0, unsigned(size)-1, x.data());
+
+	qreal extreme = x.at(0);
+
+	for (int i = 1; i < size; i++)
+		if (x.at(i) > extreme)
+			extreme = x.at(i);
+
 	return extreme;
 }
-
-
-
-
-
-
 
 MPlotRealtimeModel::MPlotRealtimeModel(QObject *parent) :
 		QAbstractTableModel(parent), MPlotAbstractSeriesData(), xName_("x"), yName_("y")
