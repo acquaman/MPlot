@@ -137,7 +137,10 @@ public:
 	virtual void setDescription(const QString& description) { description_ = description; emitLegendContentChanged(); }
 	/// The color used to represent this plot item in the legend.  Subclasses can re-implement this for more detail.
 	virtual QBrush legendColor() const { return QBrush(QColor(121, 121, 121)); }
-
+	/// Returns whether the item is visible in the legend.
+	bool legendVisibility() const { return legendVisibility_; }
+	/// Sets whether this item should be visible in the legend.
+	void setLegendVisibility(bool visible) { legendVisibility_ = visible; emitLegendContentChanged(); }
 
 	/// Don't call this. Unfortunately public because it's required by MPlot::addItem and MPlot::removeItem.
 	void setPlot(MPlot* plot);
@@ -184,6 +187,9 @@ protected:
 	MPlotItemSignalSource* signalSource_;
 		/// Giving access to the signal source.
 	friend class MPlotItemSignalSource;
+
+	/// Flag for setting the whether an item should be shown in the legend or not.
+	bool legendVisibility_;
 
 	/// called within MPlotItem to forward this signal
 	void emitBoundsChanged() { signalSource_->emitBoundsChanged(); }

@@ -36,16 +36,19 @@ void MPlotLegend::redoText() {
 
 		for(int i=0; i<plot_->numItems(); i++) {
 
-			QString description = plot_->item(i)->description();
-			if(description.isEmpty())
-				description = QString("Item %1").arg(i);
+			if (plot_->item(i)->legendVisibility()){
 
-			QColor color = plot_->item(i)->legendColor().color();
-			fullText_.append(QString("<font color=#%1%2%3 size=-1>%4</font><br>")
-							 .arg(color.red(), 2, 16, QChar('0'))
-							 .arg(color.green(), 2, 16, QChar('0'))
-							 .arg(color.blue(), 2, 16, QChar('0'))
-							 .arg(description));
+				QString description = plot_->item(i)->description();
+				if(description.isEmpty())
+					description = QString("Item %1").arg(i);
+
+				QColor color = plot_->item(i)->legendColor().color();
+				fullText_.append(QString("<font color=#%1%2%3 size=-1>%4</font><br>")
+								 .arg(color.red(), 2, 16, QChar('0'))
+								 .arg(color.green(), 2, 16, QChar('0'))
+								 .arg(color.blue(), 2, 16, QChar('0'))
+								 .arg(description));
+			}
 		}
 
 	}

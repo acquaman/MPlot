@@ -21,6 +21,7 @@ MPlotItem::MPlotItem() : QGraphicsItem() {
 	plot_ = 0;
 	yAxisTarget_ = 0;
 	xAxisTarget_ = 0;
+	legendVisibility_ = true;
 	signalSource_ = new MPlotItemSignalSource(this);
 }
 

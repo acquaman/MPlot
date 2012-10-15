@@ -544,6 +544,8 @@ bool MPlotDataPositionTool::addDataPositionIndicator(MPlotAxisScale *xAxisScale,
 	// The position indicator.
 	MPlotPoint* newIndicator = new MPlotPoint();
 	newIndicator->setIgnoreWhenAutoScaling(true);
+	newIndicator->setMarker(MPlotMarkerShape::None);
+	newIndicator->setLegendVisibility(false);
 
 	plot()->addItem(newIndicator);
 
@@ -556,6 +558,7 @@ bool MPlotDataPositionTool::addDataPositionIndicator(MPlotAxisScale *xAxisScale,
 	// The selection rectangle.
 	MPlotRectangle *newSelectionRect = new MPlotRectangle(QRectF());
 	newSelectionRect->setIgnoreWhenAutoScaling(true);
+	newSelectionRect->setLegendVisibility(false);
 
 	plot()->addItem(newSelectionRect);
 
