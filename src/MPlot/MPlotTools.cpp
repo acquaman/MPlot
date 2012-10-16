@@ -467,17 +467,22 @@ void MPlotCursorTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event )
 // MPlotDataPositionTool
 /////////////////////////////////////////////////
 
-MPlotDataPositionTool::MPlotDataPositionTool()
+MPlotDataPositionTool::MPlotDataPositionTool(bool useSelectionRect)
 	: MPlotAbstractTool()
 {
-	selectionRect_ = new QGraphicsRectItem(QRectF(), this);
+	useSelectionRect_ = useSelectionRect;
 
-	QPen selectionPen = QPen(QBrush(MPLOT_SELECTION_COLOR_ALT), MPLOT_RUBBERBAND_WIDTH);
-	QColor brushColor = MPLOT_SELECTION_COLOR_ALT;
-	brushColor.setAlphaF(MPLOT_SELECTION_OPACITY);
+	if (useSelectionRect_){
 
-	selectionRect_->setPen(selectionPen);
-	selectionRect_->setBrush(brushColor);
+		selectionRect_ = new QGraphicsRectItem(QRectF(), this);
+
+		QPen selectionPen = QPen(QBrush(MPLOT_SELECTION_COLOR_ALT), MPLOT_RUBBERBAND_WIDTH);
+		QColor brushColor = MPLOT_SELECTION_COLOR_ALT;
+		brushColor.setAlphaF(MPLOT_SELECTION_OPACITY);
+
+		selectionRect_->setPen(selectionPen);
+		selectionRect_->setBrush(brushColor);
+	}
 
 	dragInProgress_ = false;
 	dragStarted_ = false;
@@ -485,41 +490,28 @@ MPlotDataPositionTool::MPlotDataPositionTool()
 
 MPlotDataPositionTool::~MPlotDataPositionTool()
 {
-	indicators_.clear();
-	selectedRects_.clear();
-	delete selectionRect_;
+	if (useSelectionRect_)
+		delete selectionRect_;
 }
 
-unsigned MPlotDataPositionTool::count() const
+QPointF MPlotDataPositionTool::currentPosition() const
 {
-	return indicators_.size();	// This is okay because indicators and selectedRects are always the same size.
+	QPointF pos;
+	pos.setX(indicator_->xAxisTarget()->mapDrawingToData(indicator_->pos().x()));
+	pos.setY(indicator_->yAxisTarget()->mapDrawingToData(indicator_->pos().y()));
+
+	return pos;
 }
 
-QPointF MPlotDataPositionTool::currentPosition(unsigned index) const
+QRectF MPlotDataPositionTool::currentRect() const
 {
-	if (index < count()){
-
-		QPointF pos;
-		MPlotPoint *point = indicators_.at(index);
-		pos.setX(point->xAxisTarget()->mapDrawingToData(point->pos().x()));
-		pos.setY(point->yAxisTarget()->mapDrawingToData(point->pos().y()));
-
-		return pos;
-	}
-
-	return QPointF();
-}
-
-QRectF MPlotDataPositionTool::currentRect(unsigned index) const
-{
-	if (index < count()){
+	if (useSelectionRect_){
 
 		QRectF rect;
-		MPlotRectangle *mRect = selectedRects_.at(index);
-		rect.setTop(mRect->yAxisTarget()->mapDrawingToData(mRect->dataRect().top()));
-		rect.setLeft(mRect->xAxisTarget()->mapDrawingToData(mRect->dataRect().left()));
-		rect.setBottom(mRect->yAxisTarget()->mapDrawingToData(mRect->dataRect().bottom()));
-		rect.setRight(mRect->xAxisTarget()->mapDrawingToData(mRect->dataRect().right()));
+		rect.setTop(selectedRect_->yAxisTarget()->mapDrawingToData(selectedRect_->dataRect().top()));
+		rect.setLeft(selectedRect_->xAxisTarget()->mapDrawingToData(selectedRect_->dataRect().left()));
+		rect.setBottom(selectedRect_->yAxisTarget()->mapDrawingToData(selectedRect_->dataRect().bottom()));
+		rect.setRight(selectedRect_->xAxisTarget()->mapDrawingToData(selectedRect_->dataRect().right()));
 
 		return rect;
 	}
@@ -527,7 +519,7 @@ QRectF MPlotDataPositionTool::currentRect(unsigned index) const
 	return QRectF();
 }
 
-bool MPlotDataPositionTool::addDataPositionIndicator(MPlotAxisScale *xAxisScale, MPlotAxisScale *yAxisScale)
+bool MPlotDataPositionTool::setDataPositionIndicator(MPlotAxisScale *xAxisScale, MPlotAxisScale *yAxisScale)
 {
 	// Can't add an item to a non-existent plot.
 	if(!plot())
@@ -542,61 +534,38 @@ bool MPlotDataPositionTool::addDataPositionIndicator(MPlotAxisScale *xAxisScale,
 		return false;
 
 	// The position indicator.
-	MPlotPoint* newIndicator = new MPlotPoint();
-	newIndicator->setIgnoreWhenAutoScaling(true);
-	newIndicator->setMarker(MPlotMarkerShape::None);
-	newIndicator->setLegendVisibility(false);
+	indicator_ = new MPlotPoint();
+	indicator_->setIgnoreWhenAutoScaling(true);
+	indicator_->setMarker(MPlotMarkerShape::None);
+	indicator_->setLegendVisibility(false);
 
-	plot()->addItem(newIndicator);
+	plot()->addItem(indicator_);
 
-	newIndicator->setYAxisTarget(yAxisScale);
-	newIndicator->setXAxisTarget(xAxisScale);
+	indicator_->setYAxisTarget(yAxisScale);
+	indicator_->setXAxisTarget(xAxisScale);
 
-	newIndicator->setDescription(QString("Position Indicator %1").arg(indicators_.size()));
-	indicators_ << newIndicator;
+	indicator_->setDescription(QString("Position Indicator"));
+
+	connect(this, SIGNAL(positionChanged(QPointF)), plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)));
 
 	// The selection rectangle.
-	MPlotRectangle *newSelectionRect = new MPlotRectangle(QRectF());
-	newSelectionRect->setIgnoreWhenAutoScaling(true);
-	newSelectionRect->setLegendVisibility(false);
+	if (useSelectionRect_){
 
-	plot()->addItem(newSelectionRect);
+		selectedRect_ = new MPlotRectangle(QRectF());
+		selectedRect_->setIgnoreWhenAutoScaling(true);
+		selectedRect_->setLegendVisibility(false);
 
-	newSelectionRect->setYAxisTarget(yAxisScale);
-	newSelectionRect->setXAxisTarget(xAxisScale);
+		plot()->addItem(selectedRect_);
 
-	newSelectionRect->setDescription("");
-	selectedRects_ << newSelectionRect;
+		selectedRect_->setYAxisTarget(yAxisScale);
+		selectedRect_->setXAxisTarget(xAxisScale);
 
-	if (count() == 1){
+		selectedRect_->setDescription("");
 
-		connect(this, SIGNAL(positionChanged(uint,QPointF)), plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)));
-		connect(this, SIGNAL(selectedDataRectChanged(uint,QRectF)), plot()->signalSource(), SIGNAL(selectedDataRectChanged(uint,QRectF)));
+		connect(this, SIGNAL(selectedDataRectChanged(QRectF)), plot()->signalSource(), SIGNAL(selectedDataRectChanged(QRectF)));
 	}
 
 	return true;
-}
-
-bool MPlotDataPositionTool::removeDataPositionIndicator(unsigned index)
-{
-	if(index < count()) {
-
-		MPlotPoint* removePoint = indicators_.takeAt(index);
-		MPlotRectangle *removeRect = selectedRects_.takeAt(index);
-
-		if(plot()){
-
-			plot()->removeItem(removePoint);
-			plot()->removeItem(removeRect);
-		}
-
-		delete removePoint;
-		delete removeRect;
-
-		return true;
-	}
-
-	return false;
 }
 
 void MPlotDataPositionTool::mousePressEvent ( QGraphicsSceneMouseEvent * event )
@@ -604,30 +573,29 @@ void MPlotDataPositionTool::mousePressEvent ( QGraphicsSceneMouseEvent * event )
 	if (event->button() == Qt::LeftButton) {
 
 		QPointF clickPos = event->pos();
+		indicator_->setPos(clickPos);
+		emit positionChanged(currentPosition());
 
-		// cancel any old drag state, in case we started a drag but didn't finish it
-		dragInProgress_ = false;
-		dragStarted_ = true;
-		// disable the selection rectangle:
-		selectionRect_->setRect(QRectF());
+		if (useSelectionRect_){
 
-		for(unsigned i = 0; i < count(); i++){
+			// cancel any old drag state, in case we started a drag but didn't finish it
+			dragInProgress_ = false;
+			dragStarted_ = true;
+			// disable the selection rectangle:
+			selectionRect_->setRect(QRectF());
 
-			indicators_.at(i)->setPos(clickPos);
-			selectedRects_.at(i)->setRect(selectionRect_->rect());
-			emit positionChanged(i, currentPosition(i));
-			emit selectedDataRectChanged(i, currentRect(i));
+			selectedRect_->setRect(selectionRect_->rect());
+			emit selectedDataRectChanged(currentRect());
 		}
 	}
 
-	else
-		QGraphicsObject::mousePressEvent(event);
+	QGraphicsObject::mousePressEvent(event);
 }
 
 void MPlotDataPositionTool::mouseMoveEvent ( QGraphicsSceneMouseEvent * event )
 {
 	// Possible transition: A drag event has started, and the user exceeded the drag deadzone to count as a real drag.
-	if(dragStarted_) {
+	if(useSelectionRect_ && dragStarted_) {
 
 		QPointF dragDistance = event->buttonDownScenePos(Qt::LeftButton) - event->scenePos();
 
@@ -640,7 +608,7 @@ void MPlotDataPositionTool::mouseMoveEvent ( QGraphicsSceneMouseEvent * event )
 	}
 
 	// If we're dragging, draw/update the selection rectangle.
-	if(dragInProgress_ )
+	if(useSelectionRect_ && dragInProgress_ )
 		selectionRect_->setRect(QRectF(event->buttonDownPos(Qt::LeftButton), event->pos()).normalized());
 
 	else
@@ -650,19 +618,15 @@ void MPlotDataPositionTool::mouseMoveEvent ( QGraphicsSceneMouseEvent * event )
 void MPlotDataPositionTool::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
 {
 	// left mouse button release: drag event is done.
-	if(event->button() == Qt::LeftButton) {
+	if(useSelectionRect_ && event->button() == Qt::LeftButton) {
 
 		dragStarted_ = false;
 
 		if(dragInProgress_){
 
 			dragInProgress_ = false;
-
-			for(unsigned i = 0; i < count(); i++){
-
-				selectedRects_.at(i)->setRect(selectionRect_->rect());
-				emit selectedDataRectChanged(i, currentRect(i));
-			}
+			selectedRect_->setRect(selectionRect_->rect());
+			emit selectedDataRectChanged(currentRect());
 		}
 	}
 

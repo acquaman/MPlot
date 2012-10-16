@@ -221,35 +221,30 @@ protected:
 
 };
 
-/// This class provides a tool that enables feedback on the x and y position inside a plot.
+/// This class provides a tool that enables feedback on the x and y position inside a plot.  It also includes a selection rectangle if you wish to include it.  However, it conflicts with the MPlotDragZoomTool and can't be used at the same time.
 class MPLOTSHARED_EXPORT MPlotDataPositionTool : public MPlotAbstractTool
 {
 	Q_OBJECT
 
 public:
-	/// Constructor.
-	MPlotDataPositionTool();
+	/// Constructor.  \param useSelectionRect notes whether the selection rectangle should be included in this particular tool.
+	MPlotDataPositionTool(bool useSelectionRect = true);
 	/// Destructor.
 	virtual ~MPlotDataPositionTool();
 
-	/// Returns the number of data position indicators currently in the plot.
-	unsigned count() const;
-
-	/// Returns the current position (in data coordinates) for a given \param index.  Returns a null point if an invalid index is passed.
-	QPointF currentPosition(unsigned index) const;
-	/// Returns the current selection rect (in data coordinates) for a given \param index.  Returns a null point if an invalid index is passed.
-	QRectF currentRect(unsigned index) const;
+	/// Returns the current position (in data coordinates).
+	QPointF currentPosition() const;
+	/// Returns the current selection rect (in data coordinates).  Returns a null QRectF if the tool was told not to use the selection rectangle.
+	QRectF currentRect() const;
 
 	/// Adds a data position indicator.  The axis scales for both x and y must be provided and must both be different.  If an indicator already exists with both axis scales being the same, this function returns false.
-	bool addDataPositionIndicator(MPlotAxisScale *xAxisScale, MPlotAxisScale *yAxisScale);
-	/// Removes a data position indicator from \param index.
-	bool removeDataPositionIndicator(unsigned index);
+	bool setDataPositionIndicator(MPlotAxisScale *xAxisScale, MPlotAxisScale *yAxisScale);
 
 signals:
 	/// Notifier that the position inside the plot has changed.  Passes the new position.
-	void positionChanged(unsigned indicatorIndex, const QPointF &position);
+	void positionChanged(const QPointF &position);
 	/// Notifier of the size of the data rectangle that has been drawn once it is finished.
-	void selectedDataRectChanged(unsigned indicatorIndex, const QRectF &rect);
+	void selectedDataRectChanged(const QRectF &rect);
 
 protected:
 	/// Re-implemented for the mouse press event.  Moves the indicators to the position of the mouse click.
@@ -263,13 +258,15 @@ protected:
 	/// No added functionality.
 	virtual void mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event );
 
-	/// List of points.
-	QList<MPlotPoint *> indicators_;
-	/// List of selection rects.
-	QList<MPlotRectangle *> selectedRects_;
+	/// Position indicator.
+	MPlotPoint *indicator_;
+	/// Selection rectangle.
+	MPlotRectangle *selectedRect_;
 
 	/// The selection rectangle that shows the region selected in the plot.
 	QGraphicsRectItem* selectionRect_;
+	/// Flag that holds whether we are using the selectionRect_ or not.
+	bool useSelectionRect_;
 	/// Means that a click has happened, but we might not yet have exceeded the drag deadzone to count as a drag event.
 	bool dragStarted_;
 	/// Means that a drag event is currently happening. We're in between exceeding the drag deadzone and finishing the drag.
