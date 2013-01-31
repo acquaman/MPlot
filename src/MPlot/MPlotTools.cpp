@@ -589,7 +589,8 @@ void MPlotDataPositionTool::mousePressEvent ( QGraphicsSceneMouseEvent * event )
 		}
 	}
 
-	QGraphicsObject::mousePressEvent(event);
+	if (!useSelectionRect_)
+		QGraphicsObject::mousePressEvent(event);
 }
 
 void MPlotDataPositionTool::mouseMoveEvent ( QGraphicsSceneMouseEvent * event )
