@@ -587,9 +587,12 @@ void MPlotDataPositionTool::mousePressEvent ( QGraphicsSceneMouseEvent * event )
 			selectedRect_->setRect(selectionRect_->rect());
 			emit selectedDataRectChanged(currentRect());
 		}
+
+		else
+			QGraphicsObject::mousePressEvent(event);
 	}
 
-	if (!useSelectionRect_)
+	else
 		QGraphicsObject::mousePressEvent(event);
 }
 
