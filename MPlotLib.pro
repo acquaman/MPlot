@@ -28,7 +28,8 @@ HEADERS += src/MPlot/MPlot_global.h \
 		src/MPlot/MPlotPoint.h \
 		src/MPlot/MPlotAxisScale.h \
 		src/MPlot/MPlotRectangle.h \
-		src/MPlot/MPlotMarkerTransparentVerticalRectangle.h
+		src/MPlot/MPlotMarkerTransparentVerticalRectangle.h \
+		src/MPlot/MPlotColorLegend.h
 
 SOURCES += src/MPlot/MPlot.cpp \
 		src/MPlot/MPlotAbstractTool.cpp \
@@ -46,7 +47,8 @@ SOURCES += src/MPlot/MPlot.cpp \
 		src/MPlot/MPlotWidget.cpp \
 		src/MPlot/MPlotAxisScale.cpp \
 		src/MPlot/MPlotRectangle.cpp \
-		src/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp
+		src/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp \
+		src/MPlot/MPlotColorLegend.cpp
 
 # Location to install the library in. By default, we use the current folder (top-level MPlot). This needs to be an absolute path for the macx QMAKE_POST_LINK step to work.
 INSTALLBASE = $${PWD}

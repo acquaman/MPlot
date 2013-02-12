@@ -80,6 +80,11 @@ MPlot::MPlot(const QRectF& rect, QGraphicsItem* parent) :
 	legend_ = new MPlotLegend(this, this);
 	legend_->setZValue(1e12);	// legends should display above everything else...
 
+	colorLegend_ = new MPlotColorLegend(this, this);
+	colorLegend_->setZValue(1e12);
+	colorLegend_->setBoxNumber(20);
+	colorLegend_->setVisible(false);
+
 	// Set apperance defaults (override for custom plots)
 	setDefaults();
 
@@ -272,6 +277,7 @@ void MPlot::setRect(const QRectF& rect) {
 	legend_->setPos(left, top);
 	legend_->setWidth(w);
 
+	colorLegend_->setHorizontalOffset(rect_.right()-70);
 }
 
 // called when the autoscaling of an axis scale changes

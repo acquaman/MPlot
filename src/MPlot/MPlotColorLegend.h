@@ -1,12 +1,14 @@
 #ifndef MPLOTCOLORLEGEND_H
 #define MPLOTCOLORLEGEND_H
 
+#include "MPlot/MPlot_global.h"
+
 #include <QGraphicsItem>
 
 class MPlot;
 class MPlotItem;
 
-class MPlotColorLegend : public QGraphicsItem
+class MPLOTSHARED_EXPORT MPlotColorLegend : public QGraphicsItem
 {
 
 public:
@@ -19,9 +21,22 @@ public:
 	/// Pure virutal implementation.  The paint function.
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
+	/// Set the number of boxes in the color legend..
+	void setBoxNumber(int number) { boxNumber_ = number; prepareGeometryChange(); update(); }
+	/// Set the top left position of the color legend.
+	void setTopLeft(const QPoint& point) { topLeft_ = point; prepareGeometryChange(); update(); }
+	/// Offset the color legend in the x direction.
+	void setHorizontalOffset(qreal x) { topLeft_.setX(x); prepareGeometryChange(); update(); }
+	/// Offset the color legend in the y direction.
+	void setVerticalOffset(qreal y) { topLeft_.setY(y); prepareGeometryChange(); update(); }
+
 protected:
 	/// Pointer to the plot the colour legend resides in.
 	MPlot *plot_;
+	/// Number of boxes in the colour legend.
+	int boxNumber_;
+	/// The top left point of the color legend.
+	QPoint topLeft_;
 };
 
 #endif // MPLOTCOLORLEGEND_H

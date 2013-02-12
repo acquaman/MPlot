@@ -81,27 +81,27 @@
 
 	 // Disable tick marks completely:
 	 plot.axisTop()->setTicks(0);
-	 plot.axisTop()->setAxisName("time (s)");
-	 plot.axisTop()->showAxisName();
+//	 plot.axisTop()->setAxisName("time (s)");
+//	 plot.axisTop()->showAxisName();
 
 	// plot.axisTop()->showTickLabels(true);
 
 
 	 // 13: Adding 2d data and Image plots:
-//	 MPlotSimpleImageData data2d(QRectF(-0.5,-0.5,1,1), QSize(1024,1024));
-//	 for(int yy=0; yy<1024; yy++) {
-//		 for(int xx=0; xx<1024; xx++) {
-//			 qreal x = data2d.x(xx);
-//			 qreal y = data2d.y(yy);
-//			 //qreal r2 = x*x + y*y;
-//			 //data2d.setZ(exp(-r2/0.1), xx, yy);
-//			 data2d.setZ(sin(x*4*M_PI)*sin(y*2*M_PI), xx, yy);
-//		 }
-//	 }
+	 MPlotSimpleImageData data2d(QRectF(-0.5,-0.5,1,1), QSize(1024,1024));
+	 for(int yy=0; yy<1024; yy++) {
+		 for(int xx=0; xx<1024; xx++) {
+			 qreal x = data2d.x(xx);
+			 qreal y = data2d.y(yy);
+			 //qreal r2 = x*x + y*y;
+			 //data2d.setZ(exp(-r2/0.1), xx, yy);
+			 data2d.setZ(sin(x*4*M_PI)*sin(y*2*M_PI), xx, yy);
+		 }
+	 }
 
-//	 MPlotImageBasic* plot2d = new MPlotImageBasic(&data2d);
-//	 plot2d->setColorMap(MPlotColorMap::Jet);	//This should be the default color map.
-//	 plot.addItem(plot2d);
+	 MPlotImageBasic* plot2d = new MPlotImageBasic(&data2d);
+	 plot2d->setColorMap(MPlotColorMap::Jet);	//This should be the default color map.
+	 plot.addItem(plot2d);
 
 
 	 // 3. Add data. Data is contained in the first two columns of an MPlotSeriesData:
@@ -180,7 +180,7 @@
 	 // 6. Adding a series to a plot:
 	 ///////////////////////////////
 	 series1->setDescription("series 1");
-	 plot.addItem(series1);
+//	 plot.addItem(series1);
 	 //plot.addItem(series2);
 
 	 // 2. (continued) Axis / Axis Scale Settings
@@ -303,16 +303,17 @@
 	QPen rPen = QPen(rColor, 5, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
 	rColor.setAlphaF(0.5);
 	MPlotRectangle* r = new MPlotRectangle(QRectF(0.25, 0.25, 0.5, 0.5), rPen, QBrush(rColor));
-	plot.addItem(r);
+//	plot.addItem(r);
 	r->setXAxisTarget(plot.axisScale(MPlot::HorizontalRelative));
 	r->setYAxisTarget(plot.axisScale(MPlot::VerticalRelative));
 
+//	plot.colorLegend()->setHorizontalOffset(plot.rect().right()-60);
 
 	// 18: Log scaling. Make sure to have only positive data points when you do this (on all items that target the left axis scale)
 	// plot.axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
 	// plot.axisScaleLeft()->setLogScaleEnabled();
 
-	plot.axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1,MPLOT_POS_INFINITY));
+//	plot.axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1,MPLOT_POS_INFINITY));
 
 	return app.exec();
  }

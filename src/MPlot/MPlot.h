@@ -7,7 +7,7 @@
 #include "MPlot/MPlotLegend.h"
 #include "MPlot/MPlotItem.h"
 #include "MPlot/MPlotAbstractTool.h"
-
+#include "MPlot/MPlotColorLegend.h"
 
 
 #include <QList>
@@ -177,6 +177,8 @@ public:
 
 	/// Returns the legend for this MPlot.
 	MPlotLegend* legend() { return legend_; }
+	/// Returns the color legend for this MPlot.
+	MPlotColorLegend *colorLegend() { return colorLegend_; }
 	/// Returns the QGraphicsItem that contains the background information.
 	QGraphicsRectItem* background() { return background_; }
 
@@ -257,6 +259,8 @@ protected:
 
 	/// The reference to the MPlotLegend contained in this MPlot.
 	MPlotLegend* legend_;
+	/// The reference to the MPlotColorLegend contained in this MPlot.
+	MPlotColorLegend *colorLegend_;
 
 	/// The list of the MPlotAxes.  0 through 3 are provided by default (MPlot::Left, MPlot::Bottom, MPlot::Right, MPlot::Top).
 	QList<MPlotAxis*> axes_;
