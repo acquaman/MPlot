@@ -87,7 +87,7 @@ void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data, bool ownsM
 		QObject::connect(data_->signalSource(), SIGNAL(boundsChanged()), signalHandler_, SLOT(onBoundsChanged()));
 	}
 
-
+	clearRange();
 	onBoundsChanged(data_ ? data_->boundingRect() : QRectF());
 	onDataChanged();
 	emitBoundsChanged();
@@ -96,6 +96,84 @@ void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data, bool ownsM
 
 const MPlotAbstractImageData* MPlotAbstractImage::model() const {
 	return data_;
+}
+
+MPlotInterval MPlotAbstractImage::range() const
+{
+	if (minZ_.first && maxZ_.first)
+		return MPlotInterval(minZ_.second, maxZ_.second);
+
+	else if (minZ_.first)
+		return MPlotInterval(minZ_.second, data_->range().second);
+
+	else if (maxZ_.first)
+		return MPlotInterval(data_->range().first, maxZ_.second);
+
+	else
+		return MPlotInterval(data_->range());
+}
+
+void MPlotAbstractImage::setMinimum(qreal min)
+{
+	MPlotInterval range = data_->range();
+
+	if (((constrainToData_ && min > range.first && min < range.second) || !constrainToData_)
+			&& (!maxZ_.first || (maxZ_.first && min < maxZ_.second))){
+
+		minZ_ = qMakePair(true, min);
+		repaintRequired();
+	}
+}
+
+void MPlotAbstractImage::setMaximum(qreal max)
+{
+	MPlotInterval range = data_->range();
+
+	if (((constrainToData_ && max > range.first && max < range.second) || !constrainToData_)
+			&& (!minZ_.first || (minZ_.first && max > minZ_.second))){
+
+		maxZ_ = qMakePair(true, max);
+		repaintRequired();
+	}
+}
+
+bool MPlotAbstractImage::constrainToData() const
+{
+	return constrainToData_;
+}
+
+void MPlotAbstractImage::setConstrainToData(bool constrain)
+{
+	constrainToData_ = constrain;
+}
+
+void MPlotAbstractImage::clearMinimum()
+{
+	minZ_ =	qMakePair(false, -1.0);
+	repaintRequired();
+}
+
+void MPlotAbstractImage::clearMaximum()
+{
+	maxZ_ = qMakePair(false, -1.0);
+	repaintRequired();
+}
+
+void MPlotAbstractImage::clearRange()
+{
+	minZ_ = qMakePair(false, -1.0);
+	maxZ_ = qMakePair(false, -1.0);
+	repaintRequired();
+}
+
+bool MPlotAbstractImage::manualMinimum() const
+{
+	return minZ_.first;
+}
+
+bool MPlotAbstractImage::manualMaximum() const
+{
+	return maxZ_.first;
 }
 
 // Required functions:
@@ -121,6 +199,9 @@ void MPlotAbstractImage::onDataChangedPrivate() {
 void MPlotAbstractImage::setDefaults() {
 
 	map_ = MPlotColorMap::Jet;
+	minZ_ = qMakePair(false, -1.0);
+	maxZ_ = qMakePair(false, -1.0);
+	constrainToData_ = true;
 }
 
 
@@ -169,6 +250,12 @@ void MPlotImageBasic::paint(QPainter* painter,
 	}
 
 	/// \todo selection border
+}
+
+void MPlotImageBasic::repaintRequired()
+{
+	imageRefillRequired_ = true;
+	update();
 }
 
 // boundingRect: reported in PlotItem coordinates, which are just the actual data coordinates.
@@ -232,11 +319,44 @@ void MPlotImageBasic::fillImageFromData() {
 //			qDebug() << "   block data access time:" << runTime.restart();
 
 			qreal minZ, maxZ;
-			minZ = maxZ = dataBuffer.at(0);
-			foreach(qreal d, dataBuffer) {
-				if(d<minZ) minZ = d;
-				if(d>maxZ) maxZ = d;
+
+			if (manualMinimum() && manualMaximum()){
+
+				minZ = range().first;
+				maxZ = range().second;
 			}
+
+			else if (manualMinimum()){
+
+				minZ = range().first;
+				maxZ = dataBuffer.at(0);
+
+				foreach(qreal d, dataBuffer) {
+					if(d>maxZ) maxZ = d;
+				}
+			}
+
+			else if (manualMaximum()){
+
+				maxZ = range().second;
+				minZ = dataBuffer.at(0);
+
+				foreach(qreal d, dataBuffer) {
+
+					if (d < minZ)
+						minZ = d;
+				}
+			}
+
+			else {
+
+				minZ = maxZ = dataBuffer.at(0);
+				foreach(qreal d, dataBuffer) {
+					if(d<minZ) minZ = d;
+					if(d>maxZ) maxZ = d;
+				}
+			}
+
 			MPlotInterval range(minZ,maxZ);
 //			qDebug() << "   Manually search range:" << runTime.restart() << range;
 
@@ -301,11 +421,44 @@ void MPlotImageBasicwDefault::fillImageFromData()
 //			qDebug() << "   block data access time:" << runTime.restart();
 
 			qreal minZ, maxZ;
-			minZ = maxZ = dataBuffer.at(0);
-			foreach(qreal d, dataBuffer) {
-				if(d<minZ && d != defaultValue_ && d != -1.0) minZ = d;	// NOTE: -1.0 here is from AMNUMBER_INVALID_FLOATINGPOINT
-				if(d>maxZ) maxZ = d;
+
+			if (manualMinimum() && manualMaximum()){
+
+				minZ = range().first;
+				maxZ = range().second;
 			}
+
+			else if (manualMinimum()){
+
+				minZ = range().first;
+				maxZ = dataBuffer.at(0);
+
+				foreach(qreal d, dataBuffer) {
+					if(d>maxZ) maxZ = d;
+				}
+			}
+
+			else if (manualMaximum()){
+
+				maxZ = range().second;
+				minZ = dataBuffer.at(0);
+
+				foreach(qreal d, dataBuffer) {
+
+					if (d < minZ && d != defaultValue_ && d != -1.0)
+						minZ = d;
+				}
+			}
+
+			else {
+
+				minZ = maxZ = dataBuffer.at(0);
+				foreach(qreal d, dataBuffer) {
+					if(d<minZ && d != defaultValue_ && d != -1.0) minZ = d;
+					if(d>maxZ) maxZ = d;
+				}
+			}
+
 			MPlotInterval range(minZ,maxZ);
 //			qDebug() << "   Manually search range:" << runTime.restart() << range;
 

@@ -29,7 +29,8 @@ HEADERS += src/MPlot/MPlot_global.h \
 		src/MPlot/MPlotAxisScale.h \
 		src/MPlot/MPlotRectangle.h \
 		src/MPlot/MPlotMarkerTransparentVerticalRectangle.h \
-		src/MPlot/MPlotColorLegend.h
+		src/MPlot/MPlotColorLegend.h \
+    src/MPlot/MPlotImageRangeDialog.h
 
 SOURCES += src/MPlot/MPlot.cpp \
 		src/MPlot/MPlotAbstractTool.cpp \
@@ -48,7 +49,8 @@ SOURCES += src/MPlot/MPlot.cpp \
 		src/MPlot/MPlotAxisScale.cpp \
 		src/MPlot/MPlotRectangle.cpp \
 		src/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp \
-		src/MPlot/MPlotColorLegend.cpp
+		src/MPlot/MPlotColorLegend.cpp \
+    src/MPlot/MPlotImageRangeDialog.cpp
 
 # Location to install the library in. By default, we use the current folder (top-level MPlot). This needs to be an absolute path for the macx QMAKE_POST_LINK step to work.
 INSTALLBASE = $${PWD}
@@ -68,4 +70,6 @@ QMAKE_POST_LINK = make install;
 macx {
 	QMAKE_POST_LINK += install_name_tool -id "$${INSTALLBASE}/lib/libMPlot.1.dylib" $${INSTALLBASE}/lib/libMPlot.1.dylib
 }
+
+
 

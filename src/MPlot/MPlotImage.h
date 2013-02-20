@@ -35,14 +35,14 @@ protected:
 class MPLOTSHARED_EXPORT MPlotAbstractImage : public MPlotItem {
 
 public:
-		/// An enum that defines the Type as an MPlotItem::Image.
+	/// An enum that defines the Type as an MPlotItem::Image.
 	enum { Type = MPlotItem::Image };
-		/// Returns the type cast to an int.
+	/// Returns the type cast to an int.
 	virtual int type() const { return Type; }
-		/// Returns the rank.  Should be 2 because an image has two dimension.
+	/// Returns the rank.  Should be 2 because an image has two dimension.
 	virtual int rank() const { return 2; }
 
-		/// Constructor.
+	/// Constructor.
 	MPlotAbstractImage();
 
 	/// The destructor deletes the model if its been set with \c ownsModel = true in setModel().
@@ -60,9 +60,28 @@ public:
 	/// Sets this series to view the model in 'data'.  If the image should delete the model when it gets deleted, set \c ownsModel to true.  (If there was a previous model, and \c ownsModel was set for it, this function will delete the old model.)
 	virtual void setModel(const MPlotAbstractImageData* data, bool ownsModel = false);
 
-		/// Returns the data model for this image.
+	/// Returns the data model for this image.
 	virtual const MPlotAbstractImageData* model() const;
-
+	/// Returns the range of the image.  May be the same as the MPlotAbstractImageData::range(), but not guaranteed.
+	MPlotInterval range() const;
+	/// Sets the minimum value of the image.
+	void setMinimum(qreal min);
+	/// Sets the maximum value of the image.
+	void setMaximum(qreal max);
+	/// Sets the flag that determines if the minimum and maximum must be confined to the data or not.
+	void setConstrainToData(bool constrain);
+	/// Returns the state of the flag that determines if the minimum and maximum must be confined to the data or not.
+	bool constrainToData() const;
+	/// Clears the flag associated with the minimum range.  The min will now use the actual minimum of the data.
+	void clearMinimum();
+	/// Clears the flag assocated with the maximum range.  The max will now use the actual maximum of the data.
+	void clearMaximum();
+	/// Clears both minimum and maximum flags for the range.  This brings it back to the default where the min and max follow the data.
+	void clearRange();
+	/// Returns whether the minimum is set manually or not.
+	bool manualMinimum() const;
+	/// Returns whether the maximum is set manually or not.
+	bool manualMaximum() const;
 
 	// Required functions:
 	//////////////////////////
@@ -71,31 +90,39 @@ public:
 	virtual QRectF dataRect() const;
 
 protected:
-		/// Helper function that sets some defaults for the image.
-		virtual void setDefaults();
+	/// Helper function that sets some defaults for the image.
+	virtual void setDefaults();
 
-		/// When the z-data changes, this is called to allow an update:
-		virtual void onDataChanged() = 0;
-		/// When the bounds change, this is called to allow whatever needs to happen for computing a new raster grid, etc.
-		virtual void onBoundsChanged(const QRectF& newBounds) = 0;
+	/// When the z-data changes, this is called to allow an update:
+	virtual void onDataChanged() = 0;
+	/// When the bounds change, this is called to allow whatever needs to happen for computing a new raster grid, etc.
+	virtual void onBoundsChanged(const QRectF& newBounds) = 0;
+	/// Virtual helper method to help notify that the image needs to be repainted.
+	virtual void repaintRequired() = 0;
 
-		/// Pointer to the data model.
+	/// Pointer to the data model.
 	const MPlotAbstractImageData* data_;
-		/// Bool for determining if the image owns the model or not.
+	/// Bool for determining if the image owns the model or not.
 	bool ownsModel_;
 
-		/// The color map used to paint the image.
+	/// The color map used to paint the image.
 	MPlotColorMap map_;
+	/// The member that contains whether the minimum is manually set and if so, the value.
+	QPair<bool, qreal> minZ_;
+	/// The member that conntains whether the maximmum is manually set and if so, the value.
+	QPair<bool, qreal> maxZ_;
+	/// The flag that holds whether the image constrains the range to the data.
+	bool constrainToData_;
 
-		/// The signal hander for the image.
+	/// The signal hander for the image.
 	MPlotImageSignalHandler* signalHandler_;
-		/// Friending the image handler so it has access to its methods.
+	/// Friending the image handler so it has access to its methods.
 	friend class MPlotImageSignalHandler;
 
 private:
 	/// This is called within the base class to handle signals from the signal handler
 	void onBoundsChangedPrivate();
-		/// Called within the base class to handle the data changed signal from the signal hander.
+	/// Called within the base class to handle the data changed signal from the signal hander.
 	void onDataChangedPrivate();
 
 };
@@ -121,6 +148,9 @@ protected:	// "slots"
 
 	/// If the bounds of the data change (in x- and y-) this might require re-auto-scaling of a plot.
 	virtual void onBoundsChanged(const QRectF& newBounds);
+	/// Virtual helper method to help notify that the image needs to be repainted.
+	virtual void repaintRequired();
+
 
 protected:
 		/// The variable that holds the image.

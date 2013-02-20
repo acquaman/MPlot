@@ -7,6 +7,7 @@
 
 class MPlot;
 class MPlotItem;
+class MPlotAbstractImage;
 
 class MPLOTSHARED_EXPORT MPlotColorLegend : public QGraphicsItem
 {
@@ -31,8 +32,13 @@ public:
 	void setVerticalOffset(qreal y) { topLeft_.setY(y); prepareGeometryChange(); update(); }
 
 protected:
+	/// The double click event.
+	virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+
 	/// Pointer to the plot the colour legend resides in.
 	MPlot *plot_;
+	/// Pointer to the image the legend represents.
+	MPlotAbstractImage *image_;
 	/// Number of boxes in the colour legend.
 	int boxNumber_;
 	/// The top left point of the color legend.
