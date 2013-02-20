@@ -68,8 +68,8 @@ void MPlotColorLegend::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
 void MPlotColorLegend::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-//	MPlotImageRangeDialog dialog(image_);
-//	dialog.exec();
-//	update();
+	MPlotImageRangeDialog dialog(image_);
+	dialog.exec();
+	update();
 	QGraphicsItem::mouseDoubleClickEvent(event);
 }

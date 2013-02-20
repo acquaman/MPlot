@@ -19,11 +19,24 @@ MPlotImageRangeDialog::MPlotImageRangeDialog(MPlotAbstractImage *image, QWidget 
 	maximum_->setText(QString::number(image_->range().second, 'g', 3));
 
 	QPushButton *clearRangeButton = new QPushButton("Reset Range");
+	clearRangeButton->setAutoDefault(false);
+	clearRangeButton->setDefault(false);
 	QPushButton *clearMinimumButton = new QPushButton("Reset Minimum");
+	clearMinimumButton->setAutoDefault(false);
+	clearMinimumButton->setDefault(false);
 	QPushButton *clearMaximumButton = new QPushButton("Reset Maximum");
+	clearMaximumButton->setAutoDefault(false);
+	clearMaximumButton->setDefault(false);
 
 	QCheckBox *constrainCheckBox = new QCheckBox("Constrain range to data");
 	constrainCheckBox->setChecked(image_->constrainToData());
+
+	connect(minimum_, SIGNAL(editingFinished()), this, SLOT(onManualMinimumChanged()));
+	connect(maximum_, SIGNAL(editingFinished()), this, SLOT(onManualMaximumChanged()));
+	connect(clearRangeButton, SIGNAL(clicked()), this, SLOT(onClearClicked()));
+	connect(clearMinimumButton, SIGNAL(clicked()), this, SLOT(onClearMinimumClicked()));
+	connect(clearMaximumButton, SIGNAL(clicked()), this, SLOT(onClearMaximumClicked()));
+	connect(constrainCheckBox, SIGNAL(toggled(bool)), this, SLOT(onConstrainRangeToData(bool)));
 
 	QHBoxLayout *minimumLayout = new QHBoxLayout;
 	minimumLayout->addWidget(new QLabel("Minimum:"));
@@ -47,29 +60,42 @@ MPlotImageRangeDialog::MPlotImageRangeDialog(MPlotAbstractImage *image, QWidget 
 void MPlotImageRangeDialog::onClearClicked()
 {
 	image_->clearRange();
+	updateDialog();
 }
 
 void MPlotImageRangeDialog::onClearMinimumClicked()
 {
 	image_->clearMinimum();
+	updateDialog();
 }
 
 void MPlotImageRangeDialog::onClearMaximumClicked()
 {
 	image_->clearMaximum();
+	updateDialog();
 }
 
 void MPlotImageRangeDialog::onConstrainRangeToData(bool constrain)
 {
 	image_->setConstrainToData(constrain);
+	updateDialog();
 }
 
 void MPlotImageRangeDialog::onManualMinimumChanged()
 {
 	image_->setMinimum(minimum_->text().toDouble());
+	updateDialog();
 }
 
 void MPlotImageRangeDialog::onManualMaximumChanged()
 {
 	image_->setMaximum(maximum_->text().toDouble());
+	updateDialog();
+}
+
+void MPlotImageRangeDialog::updateDialog()
+{
+	MPlotInterval range = image_->range();
+	minimum_->setText(QString::number(range.first, 'g', 3));
+	maximum_->setText(QString::number(range.second, 'g', 3));
 }

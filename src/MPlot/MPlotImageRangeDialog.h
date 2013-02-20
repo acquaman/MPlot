@@ -29,6 +29,8 @@ protected slots:
 	void onManualMinimumChanged();
 	/// Helper slot that handles setting the maximum value manually.
 	void onManualMaximumChanged();
+	/// Helper slot that makes sure that all the information is up-to-date.
+	void updateDialog();
 
 protected:
 	/// The pointer to the image.

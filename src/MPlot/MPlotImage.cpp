@@ -145,6 +145,9 @@ bool MPlotAbstractImage::constrainToData() const
 void MPlotAbstractImage::setConstrainToData(bool constrain)
 {
 	constrainToData_ = constrain;
+
+	if (constrainToData_)
+		clearRange();
 }
 
 void MPlotAbstractImage::clearMinimum()
