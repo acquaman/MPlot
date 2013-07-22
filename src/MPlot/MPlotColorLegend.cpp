@@ -7,11 +7,23 @@
 
 #include <QPainter>
 
+MPlotColorLegendSignalHandler::MPlotColorLegendSignalHandler(MPlotColorLegend *parent)
+	: QObject(0)
+{
+	legend_ = parent;
+}
+
+void MPlotColorLegendSignalHandler::onDataChanged()
+{
+	legend_->onDataChangedPrivate();
+}
+
 MPlotColorLegend::MPlotColorLegend(MPlot *plot, QGraphicsItem *parent)
 	: QGraphicsItem(parent)
 {
 	plot_ = plot;
 	image_ = 0;
+	signalHandler_ = new MPlotColorLegendSignalHandler(this);
 
 	setFlags(flags() | QGraphicsItem::ItemIsMovable);
 }
@@ -43,6 +55,7 @@ void MPlotColorLegend::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 				return;
 
 			image_ = image;
+			QObject::connect(image_->model()->signalSource(), SIGNAL(dataChanged()), signalHandler_, SLOT(onDataChanged()));
 		}
 
 		MPlotInterval dataRange = image_->range();
@@ -72,4 +85,9 @@ void MPlotColorLegend::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 	dialog.exec();
 	update();
 	QGraphicsItem::mouseDoubleClickEvent(event);
+}
+
+void MPlotColorLegend::onDataChangedPrivate()
+{
+	update();
 }

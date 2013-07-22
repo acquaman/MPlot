@@ -8,6 +8,26 @@
 class MPlot;
 class MPlotItem;
 class MPlotAbstractImage;
+class MPlotColorLegend;
+
+class MPlotColorLegendSignalHandler : public QObject
+{
+	Q_OBJECT
+
+protected:
+	/// Constructor.  Builds a signal handler for the MPlotImage object.
+	MPlotColorLegendSignalHandler(MPlotColorLegend *parent);
+	/// Giving access to the MPlotAbstractImage to the signal handler.
+	friend class MPlotColorLegend;
+
+protected slots:
+	/// Slot that handles updating the data in the the image.
+	void onDataChanged();
+
+protected:
+	/// Pointer to the image this signal handler manages.
+	MPlotColorLegend *legend_;
+};
 
 class MPLOTSHARED_EXPORT MPlotColorLegend : public QGraphicsItem
 {
@@ -43,6 +63,15 @@ protected:
 	int boxNumber_;
 	/// The top left point of the color legend.
 	QPoint topLeft_;
+
+	/// The signal hander for the image.
+	MPlotColorLegendSignalHandler* signalHandler_;
+	/// Friending the image handler so it has access to its methods.
+	friend class MPlotColorLegendSignalHandler;
+
+private:
+	/// Called within the base class to handle the data changed signal from the signal hander.
+	void onDataChangedPrivate();
 };
 
 #endif // MPLOTCOLORLEGEND_H
