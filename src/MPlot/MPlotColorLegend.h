@@ -47,9 +47,9 @@ public:
 	/// Set the top left position of the color legend.
 	void setTopLeft(const QPoint& point) { topLeft_ = point; prepareGeometryChange(); update(); }
 	/// Offset the color legend in the x direction.
-	void setHorizontalOffset(qreal x) { topLeft_.setX(x); prepareGeometryChange(); update(); }
+	void setHorizontalOffset(qreal x) { topLeft_.setX(int(x)); prepareGeometryChange(); update(); }
 	/// Offset the color legend in the y direction.
-	void setVerticalOffset(qreal y) { topLeft_.setY(y); prepareGeometryChange(); update(); }
+	void setVerticalOffset(qreal y) { topLeft_.setY(int(y)); prepareGeometryChange(); update(); }
 
 protected:
 	/// The double click event.
