@@ -10,7 +10,7 @@ class MPlotItem;
 class MPlotAbstractImage;
 class MPlotColorLegend;
 
-class MPlotColorLegendSignalHandler : public QObject
+class MPLOTSHARED_EXPORT MPlotColorLegendSignalHandler : public QObject
 {
 	Q_OBJECT
 
