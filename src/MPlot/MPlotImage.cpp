@@ -291,7 +291,7 @@ void MPlotImageBasic::onDataChanged() {
 	update();
 
 }
-
+#include <QTime>
 
 void MPlotImageBasic::fillImageFromData() {
 
@@ -362,13 +362,25 @@ void MPlotImageBasic::fillImageFromData() {
 
 			MPlotInterval range(minZ,maxZ);
 //			qDebug() << "   Manually search range:" << runTime.restart() << range;
+//			runTime.start();
 
-			for(int xx=0; xx<xWidth; ++xx) {
+			QVector<QRgb> rgbs = QVector<QRgb>(dataBuffer.size());
+			map_.rgbValues(dataBuffer, range, rgbs.data());
+
+//			qDebug() << "   filling rgb data:" << runTime.restart();
+
+			QRgb *image = (QRgb *)image_.bits();
+			int heightModifier = (yHeight-1)*xWidth;
+
+			for (int xx = 0; xx < xWidth; xx++){
+
 				int xc = xx*yHeight;
-				for(int yy=0; yy<yHeight; ++yy)
-					image_.setPixel(xx, yHeight-1-yy, map_.rgbAt(dataBuffer.at(xc+yy), range));// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
+
+				for (int yy = 0; yy < yHeight; yy++)
+					image[xx-yy*xWidth+heightModifier] = rgbs.at(xc+yy);
 			}
-//			qDebug() << "   rgb conversion time:" << runTime.restart();
+
+//			qDebug() << "   setting pixels time:" << runTime.restart();
 		}
 	}
 }
@@ -410,18 +422,18 @@ void MPlotImageBasicwDefault::fillImageFromData()
 
 		if(image_.size() != dataSize)
 			image_ = QImage(dataSize, QImage::Format_ARGB32);
-//		qDebug() << "   QImage resize time:" << runTime.restart();
+//		qDebug() << "   QImage resize time:" << runTime.restart() << "ms" ;
 
 		int yHeight = dataSize.height();
 		int xWidth = dataSize.width();
 
-//		qDebug() << "   data source get height, width:" << runTime.restart();
+//		qDebug() << "   data source get height, width:" << runTime.restart() << "ms" ;
 
 		if(xWidth > 0 && yHeight > 0) {
 			QVector<qreal> dataBuffer(xWidth*yHeight);
-//			qDebug() << "   vector creation time:" << runTime.restart();
+//			qDebug() << "   vector creation time:" << runTime.restart() << "ms" ;
 			data_->zValues(0, 0, xWidth-1, yHeight-1, dataBuffer.data());
-//			qDebug() << "   block data access time:" << runTime.restart();
+//			qDebug() << "   block data access time:" << runTime.restart() << "ms" ;
 
 			qreal minZ, maxZ;
 
@@ -464,21 +476,34 @@ void MPlotImageBasicwDefault::fillImageFromData()
 
 			MPlotInterval range(minZ,maxZ);
 //			qDebug() << "   Manually search range:" << runTime.restart() << range;
+//			runTime.start();
 
-			for(int xx=0; xx<xWidth; ++xx) {
+			QVector<QRgb> rgbs = QVector<QRgb>(dataBuffer.size());
+			map_.rgbValues(dataBuffer, range, rgbs.data());
+
+//			qDebug() << "   filling rgb data:" << runTime.restart();
+
+			QRgb *image = (QRgb *)image_.bits();
+			int heightModifier = (yHeight-1)*xWidth;
+			QRgb defaultRgb = defaultColor_.rgb();
+
+			for (int xx = 0; xx < xWidth; xx++){
+
 				int xc = xx*yHeight;
-				for(int yy=0; yy<yHeight; ++yy){
+
+				for (int yy = 0; yy < yHeight; yy++){
 
 					double val = dataBuffer.at(xc+yy);
 
 					if (val != defaultValue_ && val != -1.0) // NOTE: -1.0 here is from AMNUMBER_INVALID_FLOATINGPOINT
-						image_.setPixel(xx, yHeight-1-yy, map_.rgbAt(dataBuffer.at(xc+yy), range));// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
+						image[xx-yy*xWidth+heightModifier] = rgbs.at(xc+yy);// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
 
 					else
-						image_.setPixel(xx, yHeight-1-yy, defaultColor_.rgb());// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
+						image[xx-yy*xWidth+heightModifier] = defaultRgb;// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
 				}
 			}
-//			qDebug() << "   rgb conversion time:" << runTime.restart();
+
+//			qDebug() << "   setting pixels time:" << runTime.restart();
 		}
 	}
 }

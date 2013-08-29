@@ -309,6 +309,175 @@ bool MPlotColorMapData::operator !=(const MPlotColorMapData &other) const
 	return false;	// they're the same!
 }
 
+bool MPlotColorMap::rgbValues(const QVector<qreal> &values, MPlotInterval range, QRgb *output)
+{
+	if (d->recomputeCachedColorsRequired_)
+		d->recomputeCachedColors();
+
+	if (range.first == range.second){
+
+		QRgb defaultValue = rgbAtIndex(0);
+
+		for (int i = 0, size = values.size(); i < size; i++)
+			output[i] = defaultValue;
+	}
+
+	else {
+
+		qreal rangeDifference = range.second - range.first;
+		int lastColorArrayIndex = d->colorArray_.size() - 1;
+		qreal contrast = d->contrast_;
+		qreal brightness = d->brightness_;
+		qreal gamma = d->gamma_;
+		QVector<QRgb> colorArray = d->colorArray_;
+		int colorArraySize = colorArray.size();
+
+		if (d->mustApplyBCG_){
+
+			if (gamma == 1.0){
+
+				for (int i = 0, size = values.size(); i < size; i++){
+
+					int index = (int)qRound((contrast*((values.at(i)-range.first)/rangeDifference+brightness))*lastColorArrayIndex);
+
+					if (index < 0)
+						index = 0;
+
+					else if (index >= colorArraySize)
+						index = lastColorArrayIndex;
+
+					output[i] = colorArray.at(index);
+				}
+			}
+
+			else{
+
+				for(int i = 0, size = values.size(); i < size; i++){
+
+					int index = (int)qRound((contrast*(pow((values.at(i)-range.first)/rangeDifference, gamma)+brightness))*lastColorArrayIndex);
+
+					if (index < 0)
+						index = 0;
+
+					else if (index >= colorArraySize)
+						index = lastColorArrayIndex;
+
+					output[i] = colorArray.at(index);
+				}
+			}
+		}
+
+		else{
+
+			for(int i = 0, size = values.size(); i < size; i++){
+
+				int index = (int)qRound(((values.at(i)-range.first)/rangeDifference*lastColorArrayIndex));
+
+				if (index < 0)
+					index = 0;
+
+				else if (index >= colorArraySize)
+					index = lastColorArrayIndex;
+
+				output[i] = colorArray.at(index);
+			}
+		}
+	}
+
+	return true;
+}
+
+bool MPlotColorMap::rgbValues(const QVector<qreal> &values, QRgb *output)
+{
+	if (d->recomputeCachedColorsRequired_)
+		d->recomputeCachedColors();
+
+	int lastColorArrayIndex = d->colorArray_.size() - 1;
+	qreal contrast = d->contrast_;
+	qreal brightness = d->brightness_;
+	qreal gamma = d->gamma_;
+	QVector<QRgb> colorArray = d->colorArray_;
+	int colorArraySize = colorArray.size();
+
+	if (d->mustApplyBCG_){
+
+		if (d->gamma_ == 1.0){
+
+			for (int i = 0, size = values.size(); i < size; i++){
+
+				int index = (int)qRound((contrast*(values.at(i)+brightness))*colorArraySize);
+
+				if (index < 0)
+					index = 0;
+
+				else if (index >= colorArraySize)
+					index = lastColorArrayIndex;
+
+				output[i] = colorArray.at(index);
+			}
+		}
+
+		else{
+
+			for(int i = 0, size = values.size(); i < size; i++){
+
+				int index = (int)qRound((contrast*(pow(values.at(i), gamma)+brightness))*colorArraySize);
+
+				if (index < 0)
+					index = 0;
+
+				else if (index >= colorArraySize)
+					index = lastColorArrayIndex;
+
+				output[i] = colorArray.at(index);
+			}
+		}
+	}
+
+	else{
+
+		for(int i = 0, size = values.size(); i < size; i++){
+
+			int index = (int)qRound((values.at(i)*colorArraySize));
+
+			if (index < 0)
+				index = 0;
+
+			else if (index >= colorArraySize)
+				index = lastColorArrayIndex;
+
+			output[i] = colorArray.at(index);
+		}
+	}
+
+	return true;
+}
+
+bool MPlotColorMap::rgbValues(const QVector<int> &values, QRgb *output)
+{
+	if (d->recomputeCachedColorsRequired_)
+		d->recomputeCachedColors();
+
+	int lastColorArrayIndex = d->colorArray_.size() - 1;
+	QVector<QRgb> colorArray = d->colorArray_;
+	int colorArraySize = colorArray.size();
+
+	for (int i = 0, size = values.size(); i < size; i++){
+
+		int index = values.at(i);
+
+		if (index < 0)
+			index = 0;
+
+		else if (index >= colorArraySize)
+			output[i] = lastColorArrayIndex;
+
+		output[i] = colorArray.at(index);
+	}
+
+	return true;
+}
+
 void MPlotColorMap::setBrightness(qreal brightness)
 {
 	d.detach();

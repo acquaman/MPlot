@@ -19,15 +19,15 @@
 class MPlotColorMapData : public QSharedData
 {
   public:
-        /// Default constructor. Can set the color resolution if desired.
+		/// Default constructor. Can set the color resolution if desired.
 	MPlotColorMapData(int resolution = 256);
-        /// Constructor that builds the color map between \param color1 and \param color2.  Can set the color resolution if desired.
+		/// Constructor that builds the color map between \param color1 and \param color2.  Can set the color resolution if desired.
 	MPlotColorMapData(const QColor& color1, const QColor& color2, int resolution = 256);
-        /// Constructor that builds a color map with the given QGradientStops \param colorStops.  Must set the resolution.
+		/// Constructor that builds a color map with the given QGradientStops \param colorStops.  Must set the resolution.
 	MPlotColorMapData(const QGradientStops& colorStops, int resolution);
-        /// Constructor using one of the standard color maps.  Must set the resolution.
+		/// Constructor using one of the standard color maps.  Must set the resolution.
 	MPlotColorMapData(int standardColorMap, int resolution);
-        /// Constructor using another color map.
+		/// Constructor using another color map.
 	MPlotColorMapData(const MPlotColorMapData &other);
 
 	~MPlotColorMapData() {}
@@ -55,9 +55,9 @@ class MPlotColorMapData : public QSharedData
 	/// Helper function to recompute the cached color array when the color stops, resolution, or blend mode are changed.  It will be called automatically as required, but you can also call it prior to calling colorAt() or rgbAt() if you want to optimize the timing of when the cached color map is calculated.
 	void recomputeCachedColors() const;
 
-        /// Returns the resolution.
+		/// Returns the resolution.
 	int resolution() const { return colorArray_.size(); }
-        /// Operator to determine if one color map is not the same as another.
+		/// Operator to determine if one color map is not the same as another.
 	bool operator!=(const MPlotColorMapData& other) const;
 
 	/// Returns the index for the color array if given a value within a range between 0 and 1.
@@ -164,6 +164,13 @@ public:
 			return d->colorArray_.last();
 		return d->colorArray_.at(index);
 	}
+
+	/// Values implementation for returning QRgb values.  The method requires a list of values that need to be converted, the range, and the pointer to the list of QRgb's you want the results saved to.  Returns true if successful.  \param output needs to be properly allocated before being passed in.
+	bool rgbValues(const QVector<qreal> &values, MPlotInterval range, QRgb *output);
+	/// Values implementation for returning QRgb values.  The method requires a list of values between 0 and 1 and the pointer to the list of QRgb values.  \param output needs to be properly allocated before being passed in.
+	bool rgbValues(const QVector<qreal> &values, QRgb *output);
+	/// Values implementation for returning QRgb values.  The method takes a list of indices between 0 and resolution()-1 and sets QRgb values.  \param output needs to be properly allocated before being passed in.
+	bool rgbValues(const QVector<int> &indices, QRgb *output);
 
 	/// Returns the stop points for this gradient.
 	/*! If no stop points have been specified, a gradient of black at 0 to white at 1 is used.*/
