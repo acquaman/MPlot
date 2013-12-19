@@ -141,11 +141,13 @@ QRectF MPlotAbstractSeries::dataRect() const {
 			cachedDataRect_ = data_->boundingRect();
 
 			if(yAxisNormalizationOn_) {
-				sy_ = (normYMax_ - normYMin_)/(qMax(MPLOT_MIN_NORMALIZATION_RANGE, cachedDataRect_.height()));
+//				sy_ = (normYMax_ - normYMin_)/(qMax(MPLOT_MIN_NORMALIZATION_RANGE, cachedDataRect_.height()));
+				sy_ = (normYMax_ - normYMin_)/(qMax(MPLOT_MIN_NORMALIZATION_RANGE, cachedDataRect_.height()) == MPLOT_MIN_NORMALIZATION_RANGE ? 1.0 : cachedDataRect_.height());
 				dy_ = normYMin_ - cachedDataRect_.top()*sy_;
 			}
 			if(xAxisNormalizationOn_) {
-				sx_ = (normXMax_ - normXMin_)/(qMax(MPLOT_MIN_NORMALIZATION_RANGE, cachedDataRect_.width()));
+//				sx_ = (normXMax_ - normXMin_)/(qMax(MPLOT_MIN_NORMALIZATION_RANGE, cachedDataRect_.width()));
+				sx_ = (normXMax_ - normXMin_)/(qMax(MPLOT_MIN_NORMALIZATION_RANGE, cachedDataRect_.width()) == MPLOT_MIN_NORMALIZATION_RANGE ? 1.0 : cachedDataRect_.width());
 				dx_ = normXMin_ - cachedDataRect_.left()*sx_;
 			}
 			cachedDataRect_ = completeTransform().mapRect(cachedDataRect_);
