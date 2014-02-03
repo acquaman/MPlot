@@ -71,8 +71,8 @@ QRectF MPlotItem::boundingRect() const {
 
 	QRectF dataRectangle = dataRect();
 
-	if(dataRectangle.width() == 0 || dataRectangle.height() == 0) {
-		// qWarning() << "MPlotItem: Warning: The dataRect() returned an invalid rectangle for the bounds of the data. Returning an invalid rectangle as the bouning rectangle.";
+    if(dataRectangle.width() == 0 || dataRectangle.height() == 0) {
+//        qWarning() << "MPlotItem: Warning: The dataRect() returned an invalid rectangle for the bounds of the data. Returning an invalid rectangle as the bouning rectangle.";
 		return QRectF();
 	}
 
@@ -91,7 +91,8 @@ QRectF MPlotItem::boundingRect() const {
 	QRectF rv = QRectF(xRange.min(),
 					   yRange.min(),
 					   qMax(xRange.max()-xRange.min(), std::numeric_limits<qreal>::min()),
-					   qMax(yRange.max()-yRange.min(), std::numeric_limits<qreal>::min()));	// this is in case rounding error changed the width() or height() to 0... We need to make sure we keep a valid() QRectF().
+                       qMax(yRange.max()-yRange.min(), std::numeric_limits<qreal>::min()));	// this is in case rounding error changed the width() or height() to 0... We need to make sure we keep a valid() QRectF().
+
 
 	return rv;
 }

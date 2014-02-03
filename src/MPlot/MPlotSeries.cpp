@@ -142,13 +142,22 @@ QRectF MPlotAbstractSeries::dataRect() const {
 
 			if(yAxisNormalizationOn_) {
 //				sy_ = (normYMax_ - normYMin_)/(qMax(MPLOT_MIN_NORMALIZATION_RANGE, cachedDataRect_.height()));
-				sy_ = (normYMax_ - normYMin_)/(qMax(MPLOT_MIN_NORMALIZATION_RANGE, cachedDataRect_.height()) == MPLOT_MIN_NORMALIZATION_RANGE ? 1.0 : cachedDataRect_.height());
-				dy_ = normYMin_ - cachedDataRect_.top()*sy_;
+                sy_ = (normYMax_ - normYMin_)/(qMax(MPLOT_MIN_NORMALIZATION_RANGE, cachedDataRect_.height()) == MPLOT_MIN_NORMALIZATION_RANGE ? 1.0 : cachedDataRect_.height());
+
+                if (sy_ == 0)
+                    sy_ = 1.0; // Because there is no practical reason to have a scale of 0.
+
+                dy_ = normYMin_ - cachedDataRect_.top()*sy_;
 			}
-			if(xAxisNormalizationOn_) {
+
+            if(xAxisNormalizationOn_) {
 //				sx_ = (normXMax_ - normXMin_)/(qMax(MPLOT_MIN_NORMALIZATION_RANGE, cachedDataRect_.width()));
 				sx_ = (normXMax_ - normXMin_)/(qMax(MPLOT_MIN_NORMALIZATION_RANGE, cachedDataRect_.width()) == MPLOT_MIN_NORMALIZATION_RANGE ? 1.0 : cachedDataRect_.width());
-				dx_ = normXMin_ - cachedDataRect_.left()*sx_;
+
+                if (sx_ == 0)
+                    sx_ = 1.0; // Because there is no practical reason to have a scale of 0.
+
+                dx_ = normXMin_ - cachedDataRect_.left()*sx_;
 			}
 			cachedDataRect_ = completeTransform().mapRect(cachedDataRect_);
 
@@ -332,7 +341,7 @@ void MPlotSeriesBasic::paint(QPainter* painter,
 	// use plot->setMarkerShape(MPlotMarkerShape::None) for large sets.
 	/////////////////////////////////////////
 
-	if(marker_) {
+    if(marker_) {
 		painter->setPen(marker_->pen());
 		painter->setBrush(marker_->brush());
 		paintMarkers(painter);

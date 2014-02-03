@@ -70,8 +70,8 @@ void MPlotAxisScale::setDataRange(const MPlotAxisRange &newDataRange, bool apply
 
 	// constraints
 	//////////////////////
-	dataRange_ = dataRange_.constrainedTo(dataRangeConstraint_);
-	unpaddedDataRange_ = unpaddedDataRange_.constrainedTo(dataRangeConstraint_);
+    dataRange_ = dataRange_.constrainedTo(dataRangeConstraint_);
+    unpaddedDataRange_ = unpaddedDataRange_.constrainedTo(dataRangeConstraint_);
 
 	// safety protection limits...
 	/////////////////////////////////
