@@ -4,14 +4,15 @@
 #include "MPlot/MPlotImageData.h"
 
 MPlotImageDataSignalSource::MPlotImageDataSignalSource(MPlotAbstractImageData *parent)
-	: QObject(0) {
+	: QObject(0)
+{
 	data_ = parent;
 }
 
 MPlotAbstractImageData::MPlotAbstractImageData()
 {
 	signalSource_ = new MPlotImageDataSignalSource(this);
-	minMaxCacheUpdateRequired_ = true;
+	range_ = MPlotInterval(0, 1);
 }
 
 MPlotAbstractImageData::~MPlotAbstractImageData()
@@ -20,76 +21,9 @@ MPlotAbstractImageData::~MPlotAbstractImageData()
 	signalSource_ = 0;
 }
 
-void MPlotAbstractImageData::minMaxSearch() const {
-	QPoint c = count();
-	int sizeX = c.x();
-	int sizeY = c.y();
-
-	if(sizeX == 0 || sizeY == 0)
-		return;
-
-	// performance optimization.  If total points is less than 500, just call z() repeatedly.  If total points is over that, usually faster to allocate a vector and use the block zValues().  However, to limit memory usage, don't allocate blocks over 1MB (125000 doubles).
-	if(sizeX*sizeY < 500) {
-		qreal minZ, maxZ, d;
-		minZ = maxZ = z(0,0);
-		for(int xx=0; xx<sizeX; ++xx)
-			for(int yy=0; yy<sizeY; ++yy) {
-				d = z(xx,yy);
-				if(d<minZ) minZ=d;
-				if(d>maxZ) maxZ=d;
-			}
-		minMaxCache_.first = minZ;
-		minMaxCache_.second = maxZ;
-		minMaxCacheUpdateRequired_ = false;
-	}
-	else if(sizeX*sizeY < 125000) {	// less than 1MB buffer: do in one shot
-		QVector<qreal> dataBuffer(sizeX*sizeY);
-		zValues(0,0, sizeX-1, sizeY-1, dataBuffer.data());
-		qreal minZ, maxZ;
-		minZ = maxZ = dataBuffer.at(0);
-		foreach(qreal d, dataBuffer) {
-			if(d<minZ) minZ=d;
-			if(d>maxZ) maxZ=d;
-		}
-		minMaxCache_.first = minZ;
-		minMaxCache_.second = maxZ;
-		minMaxCacheUpdateRequired_ = false;
-	}
-	else {	// large array; don't want to allocate more than 1MB buffer. Do in sections of approximately 1MB.
-		int rowsAtOnce = 125000 / sizeY;
-		if(rowsAtOnce == 0) rowsAtOnce = 1;
-		qreal minZ, maxZ;
-		minZ = maxZ = z(0,0);
-		QVector<qreal> dataBuffer(rowsAtOnce*sizeY);
-
-		for(int xrow=0; xrow<sizeX; xrow+=rowsAtOnce) {
-			int maxRow = qMin(sizeX-1, xrow+rowsAtOnce-1);
-			dataBuffer.resize((maxRow-xrow+1)*sizeY);	// for all blocks except the last block, will do nothing. Resizing on the last (partial) block allows us to use foreach, which is faster than a for-loop over the space we know we have.
-			zValues(xrow, 0, maxRow, sizeY-1, dataBuffer.data());
-
-			foreach(qreal d, dataBuffer) {
-				if(d<minZ) minZ=d;
-				if(d>maxZ) maxZ=d;
-			}
-		}
-		minMaxCache_.first = minZ;
-		minMaxCache_.second = maxZ;
-		minMaxCacheUpdateRequired_ = false;
-	}
-}
-
-MPlotInterval MPlotAbstractImageData::range() const {
-
-	// empty data set? Return default interval of (0,1)
-	QPoint c = count();
-	if(c.x() == 0 || c.y() == 0)
-		return MPlotInterval(0,1);
-
-	if(minMaxCacheUpdateRequired_) {
-		minMaxSearch();
-	}
-
-	return minMaxCache_;
+MPlotInterval MPlotAbstractImageData::range() const
+{
+	return range_;
 }
 
 // This class is a very basic 2D array which implements the MPlotAbstractImageData interface
@@ -108,8 +42,8 @@ MPlotSimpleImageData::MPlotSimpleImageData(const QRectF& dataBounds, const QSize
 }
 
 // Return the x (data value) corresponding an (x,y) \c index:
-qreal MPlotSimpleImageData::x(int indexX) const  {
-
+qreal MPlotSimpleImageData::x(int indexX) const
+{
 	return bounds_.left() + bounds_.width()*indexX/num_.x();
 
 }

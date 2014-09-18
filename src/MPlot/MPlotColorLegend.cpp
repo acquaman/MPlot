@@ -26,6 +26,7 @@ MPlotColorLegend::MPlotColorLegend(MPlot *plot, QGraphicsItem *parent)
 	signalHandler_ = new MPlotColorLegendSignalHandler(this);
 
 	setFlags(flags() | QGraphicsItem::ItemIsMovable);
+	setZValue(10);
 }
 
 QRectF MPlotColorLegend::boundingRect() const

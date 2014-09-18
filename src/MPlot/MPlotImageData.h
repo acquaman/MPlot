@@ -76,18 +76,14 @@ public:
 	/// Returns the z position for a given point.
 	qreal z(const QPoint& index) const { return z(index.x(), index.y()); }
 
-
-
-
 	/// Return the number of elements in x and y
 	virtual QPoint count() const = 0;
 	/// Identical to count(), but returning the information as a QSize instead of QPoint
 	QSize size() const { QPoint c = count(); return QSize(c.x(), c.y()); }
 
-
 	/// Return the bounds of the data (the rectangle containing the max/min x- and y-values)
 	virtual QRectF boundingRect() const = 0;
-	/// Return the minimum and maximum z values. The base implementation does a search through all data values, and caches the result until the z-values change (ie: until emitDataChanged() is called.)  If your implementation has a faster way of doing this, please re-implement.
+	/// Return the minimum and maximum z values. It is up to sub classes to ensure that the range is computed correctly and updated appropriately.
 	virtual MPlotInterval range() const;
 
 private:
@@ -99,21 +95,12 @@ private:
 protected:
 
 	/// Implementing classes should call this when their z- data changes in value
-	void emitDataChanged() { minMaxCacheUpdateRequired_ = true; signalSource_->emitDataChanged(); }
+	void emitDataChanged() { signalSource_->emitDataChanged(); }
 	/// Implementing classes should call this when their x- y- data changes in extent
 	void emitBoundsChanged() { signalSource_->emitBoundsChanged(); }
 
 	/// Used to cache the minimum and maximum Z-values
-	mutable MPlotInterval minMaxCache_;
-	/// Used to cache the minimum and maximum Z-values
-	mutable bool minMaxCacheUpdateRequired_;
-	/// Searches for minimum and maximum z value; stores in minMaxCache_.  Used by the base-class implementation of range().
-	virtual void minMaxSearch() const;
-
-
-	// todo: to support multi-threading, consider a
-	// void pauseUpdates();	// to tell nothing to redraw using the plot because the data is currently invalid; a dataChanged will be emitted when it is valid again.
-	// This would need to be deterministic, so maybe we need to use function calls instead of signals.
+	MPlotInterval range_;
 };
 
 
