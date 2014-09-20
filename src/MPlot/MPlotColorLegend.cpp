@@ -26,7 +26,6 @@ MPlotColorLegend::MPlotColorLegend(MPlot *plot, QGraphicsItem *parent)
 	signalHandler_ = new MPlotColorLegendSignalHandler(this);
 
 	setFlags(flags() | QGraphicsItem::ItemIsMovable);
-	setZValue(10);
 }
 
 QRectF MPlotColorLegend::boundingRect() const
@@ -62,19 +61,20 @@ void MPlotColorLegend::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 		MPlotInterval dataRange = image_->range();
 
 		qreal height = 0.75*plot_->rect().height();
-		QBrush brush(image_->colorMap().colorAt(dataRange.second));
+		MPlotColorMap colorMap = image_->colorMap();
+		QBrush brush(colorMap.colorAt(dataRange.second));
 		qreal delH = height/boxNumber_;
 		qreal delD = (dataRange.second-dataRange.first)/boxNumber_;
 
 		for (int i = 0; i <= boxNumber_; i++){
 
-			brush.setColor(image_->colorMap().colorAt((dataRange.second-i*delD), dataRange));
+			brush.setColor(colorMap.colorAt((dataRange.second-i*delD), dataRange));
 			painter->setBrush(brush);
 			painter->drawRect(QRectF(30, i*delH+40, 25, delH));
 		}
 
-		painter->drawText(QRectF(0, 20, 70, 20), QString::number(dataRange.second, 'e', 2));
-		painter->drawText(QRectF(0,  height+delH+40, 70, 20), QString::number(dataRange.first, 'e', 2));
+		painter->drawText(QRectF(5, 20, 60, 40), QString("%1").arg(dataRange.second, 0, 'e', 2));
+		painter->drawText(QRectF(5, height+delH+40, 60, 40), QString("%1").arg(dataRange.first, 0, 'e', 2));
 
 		painter->restore();
 	}

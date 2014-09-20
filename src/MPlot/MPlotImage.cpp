@@ -368,7 +368,7 @@ void MPlotImageBasicwDefault::fillImageFromData()
 			QRgb *image = (QRgb *)image_.bits();
 			int heightModifier = (yHeight-1)*xWidth;
 			QVector<QRgb> defaultValues = QVector<QRgb>(dataBuffer.size(), defaultColor_.rgb());
-			memcpy(image, defaultValues.constData(), defaultValues.size()*sizeof(QRgb));
+			memcpy(image, defaultValues.constData(), dataBuffer.size()*sizeof(QRgb));
 
 			for (int xx = 0; xx < xWidth; xx++){
 
