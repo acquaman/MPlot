@@ -87,21 +87,21 @@
 	// plot.axisTop()->showTickLabels(true);
 
 
-	 // 13: Adding 2d data and Image plots:
-	 MPlotSimpleImageData data2d(QRectF(-0.5,-0.5,1,1), QSize(1024,1024));
-	 for(int yy=0; yy<1024; yy++) {
-		 for(int xx=0; xx<1024; xx++) {
-			 qreal x = data2d.x(xx);
-			 qreal y = data2d.y(yy);
-			 //qreal r2 = x*x + y*y;
-			 //data2d.setZ(exp(-r2/0.1), xx, yy);
-			 data2d.setZ(sin(x*4*M_PI)*sin(y*2*M_PI), xx, yy);
-		 }
-	 }
+//	 // 13: Adding 2d data and Image plots:
+//	 MPlotSimpleImageData data2d(QRectF(-0.5,-0.5,1,1), QSize(1024,1024));
+//	 for(int yy=0; yy<1024; yy++) {
+//		 for(int xx=0; xx<1024; xx++) {
+//			 qreal x = data2d.x(xx);
+//			 qreal y = data2d.y(yy);
+//			 //qreal r2 = x*x + y*y;
+//			 //data2d.setZ(exp(-r2/0.1), xx, yy);
+//			 data2d.setZ(sin(x*4*M_PI)*sin(y*2*M_PI), xx, yy);
+//		 }
+//	 }
 
-	 MPlotImageBasic* plot2d = new MPlotImageBasic(&data2d);
-	 plot2d->setColorMap(MPlotColorMap::Jet);	//This should be the default color map.
-	 plot.addItem(plot2d);
+//	 MPlotImageBasic* plot2d = new MPlotImageBasic(&data2d);
+//	 plot2d->setColorMap(MPlotColorMap::Jet);	//This should be the default color map.
+//	 plot.addItem(plot2d);
 
 
 	 // 3. Add data. Data is contained in the first two columns of an MPlotSeriesData:
