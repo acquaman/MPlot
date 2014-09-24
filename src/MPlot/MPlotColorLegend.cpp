@@ -30,7 +30,7 @@ MPlotColorLegend::MPlotColorLegend(MPlot *plot, QGraphicsItem *parent)
 
 QRectF MPlotColorLegend::boundingRect() const
 {
-	return QRectF(topLeft_.x(), topLeft_.y(), 70, plot_->rect().height());
+	return boundingRect_;
 }
 
 void MPlotColorLegend::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -91,4 +91,9 @@ void MPlotColorLegend::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 void MPlotColorLegend::onDataChangedPrivate()
 {
 	update();
+}
+
+void MPlotColorLegend::updateBoundingRect()
+{
+	boundingRect_ = QRectF(topLeft_.x(), topLeft_.y(), 70, plot_->rect().height());
 }
