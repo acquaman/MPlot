@@ -98,7 +98,7 @@ const MPlotAbstractImageData* MPlotAbstractImage::model() const
 	return data_;
 }
 
-MPlotInterval MPlotAbstractImage::range() const
+MPlotRange MPlotAbstractImage::range() const
 {
 	return range_;
 }
@@ -107,7 +107,7 @@ void MPlotAbstractImage::setMinimum(qreal min)
 {
 	if (!constrainToData_){
 
-		range_.first = min;
+		range_.setX(min);
 		manualMinimum_ = true;
 		repaintRequired();
 	}
@@ -117,7 +117,7 @@ void MPlotAbstractImage::setMaximum(qreal max)
 {
 	if (!constrainToData_){
 
-		range_.second = max;
+		range_.setY(max);
 		manualMaximum_ = true;
 		repaintRequired();
 	}
@@ -138,14 +138,14 @@ void MPlotAbstractImage::setConstrainToData(bool constrain)
 
 void MPlotAbstractImage::clearMinimum()
 {
-	range_.first = data_->range().first;
+	range_.setX(data_->range().x());
 	manualMinimum_ = false;
 	repaintRequired();
 }
 
 void MPlotAbstractImage::clearMaximum()
 {
-	range_.second = data_->range().second;
+	range_.setY(data_->range().y());
 	manualMaximum_ = false;
 	repaintRequired();
 }
@@ -162,19 +162,19 @@ void MPlotAbstractImage::clearRange()
 //////////////////////////
 
 // Data rect: also reported in PlotItem coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
-QRectF MPlotAbstractImage::dataRect() const {
-	if(data_)
-		return data_->boundingRect();
-	else
-		return QRectF();
+QRectF MPlotAbstractImage::dataRect() const
+{
+	return (data_ ? data_->boundingRect() : QRectF());
 }
 
-void MPlotAbstractImage::onBoundsChangedPrivate() {
+void MPlotAbstractImage::onBoundsChangedPrivate()
+{
 	onBoundsChanged(data_? data_->boundingRect() : QRectF());
 	emitBoundsChanged();
 }
 
-void MPlotAbstractImage::onDataChangedPrivate() {
+void MPlotAbstractImage::onDataChangedPrivate()
+{
 	onDataChanged();
 }
 
@@ -242,8 +242,10 @@ void MPlotImageBasic::repaintRequired()
 
 // boundingRect: reported in PlotItem coordinates, which are just the actual data coordinates.
 // using parent implementation, but adding extra room on edges for our selection highlight.
-QRectF MPlotImageBasic::boundingRect() const {
+QRectF MPlotImageBasic::boundingRect() const
+{
 	QRectF br = MPlotAbstractImage::boundingRect();
+
 	if(br.isValid()) {
 		// create rectangle at least as big as our selection highlight, and if we have a marker, the marker size.
 		QRectF hs = QRectF(0, 0, MPLOT_SELECTION_LINEWIDTH, MPLOT_SELECTION_LINEWIDTH);
@@ -254,6 +256,7 @@ QRectF MPlotImageBasic::boundingRect() const {
 		// really we just need 1/2 the marker size and 1/2 the selection highlight width. But extra doesn't hurt.
 		br.adjust(-hs.width(),-hs.height(),hs.width(), hs.height());
 	}
+
 	return br;
 }
 
@@ -268,13 +271,13 @@ void MPlotImageBasic::onDataChanged() {
 
 	if (data_){
 
-		MPlotInterval range = data_->range();
+		MPlotRange range = data_->range();
 
 		if (!manualMinimum_)
-			range_.first = range.first;
+			range_.setX(range.x());
 
 		if (!manualMaximum_)
-			range_.second = range.second;
+			range_.setY(range.y());
 
 	}
 
@@ -323,7 +326,8 @@ void MPlotImageBasic::fillImageFromData() {
 
 
 // If the bounds of the data change (in x- and y-) this might require re-auto-scaling of a plot.
-void MPlotImageBasic::onBoundsChanged(const QRectF& newBounds) {
+void MPlotImageBasic::onBoundsChanged(const QRectF& newBounds)
+{
 	Q_UNUSED(newBounds)
 	// signal a re-scaling needed on the plot: (REDUNDANT... already done in base class)
 	// signalSource()->emitBoundsChanged();

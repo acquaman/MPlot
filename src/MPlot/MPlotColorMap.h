@@ -129,16 +129,16 @@ public:
 	/// See rgbAt(value).
 	QColor colorAt(qreal value) const { return QColor::fromRgba(rgbAt(value)); }
 	/// See rgbAt(value, range)
-	QColor colorAt(qreal value, MPlotInterval range) const { return QColor::fromRgba(rgbAt(value, range)); }
+	QColor colorAt(qreal value, MPlotRange range) const { return QColor::fromRgba(rgbAt(value, range)); }
 	/// See rgbAtIndex()
 	QColor colorAtIndex(int index) const { return QColor::fromRgba(rgbAtIndex(index)); }
 
 	/// Returns a color for a \c value expressed with a given \c range.  [If value is outside this range, will return minimum or maximum color]
-	QRgb rgbAt(qreal value, MPlotInterval range) const {
-		if(range.first == range.second)	// don't blow up to infinite when the range is nothing.
+	QRgb rgbAt(qreal value, MPlotRange range) const {
+		if(range.x() == range.y())	// don't blow up to infinite when the range is nothing.
 			return rgbAtIndex(0);
 
-		return rgbAt( (value-range.first)/(range.second-range.first) );	// map values in range to (0,1) and use rgbAt(value).
+		return rgbAt( (value-range.x())/(range.y()-range.x()) );	// map values in range to (0,1) and use rgbAt(value).
 	}
 
 	/// Returns a color for a \c value between (0,1).  [If value is outside this range, will return minimum or maximum color]
@@ -166,7 +166,7 @@ public:
 	}
 
 	/// Values implementation for returning QRgb values.  The method requires a list of values that need to be converted, the range, and the pointer to the list of QRgb's you want the results saved to.  Returns true if successful.  \param output needs to be properly allocated before being passed in.
-	bool rgbValues(const QVector<qreal> &values, MPlotInterval range, QRgb *output);
+	bool rgbValues(const QVector<qreal> &values, MPlotRange range, QRgb *output);
 	/// Values implementation for returning QRgb values.  The method requires a list of values between 0 and 1 and the pointer to the list of QRgb values.  \param output needs to be properly allocated before being passed in.
 	bool rgbValues(const QVector<qreal> &values, QRgb *output);
 	/// Values implementation for returning QRgb values.  The method takes a list of indices between 0 and resolution()-1 and sets QRgb values.  \param output needs to be properly allocated before being passed in.

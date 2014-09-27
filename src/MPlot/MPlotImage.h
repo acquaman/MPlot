@@ -63,7 +63,7 @@ public:
 	/// Returns the data model for this image.
 	virtual const MPlotAbstractImageData* model() const;
 	/// Returns the range of the image.  May be the same as the MPlotAbstractImageData::range(), but not guaranteed.
-	MPlotInterval range() const;
+	MPlotRange range() const;
 	/// Sets the minimum value of the image.
 	void setMinimum(qreal min);
 	/// Sets the maximum value of the image.
@@ -104,7 +104,7 @@ protected:
 	/// The color map used to paint the image.
 	MPlotColorMap map_;
 	/// The range that the image will base the color around.
-	MPlotInterval range_;
+	MPlotRange range_;
 	/// The flag that holds whether we need to update the minimum range.
 	bool manualMinimum_;
 	/// The flag that holds whether we need to update the maxium range.

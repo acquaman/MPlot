@@ -5,13 +5,14 @@
 
 #include <QObject>
 #include <QPoint>
+#include <QPointF>
 #include <QRectF>
 #include <QPair>
 #include <QVector>
 
 
-/// An MPlotInterval is just a typedef for a pair of qreals
-typedef QPair<qreal,qreal> MPlotInterval;
+/// An MPlotInterval is just a typedef for a QPointF (not because it's a point, but because it's an encapsulation that works for 90% of what I want).
+typedef QPointF MPlotRange;
 
 class MPlotAbstractImageData;
 
@@ -84,7 +85,7 @@ public:
 	/// Return the bounds of the data (the rectangle containing the max/min x- and y-values)
 	virtual QRectF boundingRect() const = 0;
 	/// Return the minimum and maximum z values. It is up to sub classes to ensure that the range is computed correctly and updated appropriately.
-	virtual MPlotInterval range() const;
+	virtual MPlotRange range() const;
 
 private:
 	/// Proxy object for emitting signals:
@@ -100,7 +101,7 @@ protected:
 	void emitBoundsChanged() { signalSource_->emitBoundsChanged(); }
 
 	/// Used to cache the minimum and maximum Z-values
-	MPlotInterval range_;
+	MPlotRange range_;
 };
 
 
@@ -109,7 +110,7 @@ class MPLOTSHARED_EXPORT MPlotSimpleImageData : public MPlotAbstractImageData {
 
 public:
 	/// Constructor: represent image data with physical coordinate boundaries \c dataBounds, and a resolution (number of "pixels") \c resolution.  Data values are initialized to 0.
-    MPlotSimpleImageData(int xSize, int ySize);
+	MPlotSimpleImageData(int xSize, int ySize);
 
 
 	/// Return the x (independent data value) corresponding to \c indexX.
@@ -122,15 +123,15 @@ public:
 	/// Copy an entire block of z = f(x,y) values from (xStart,yStart) to (xEnd,yEnd) inclusive, into \c outputValues. The data is copied in row-major order, ie: with the x-axis varying the slowest. (Can assume \c outputValues has enough room to hold all the values, that (xStart,yStart) <= (xEnd,yEnd), and that the indexes are not out of range.)
 	virtual void zValues(int xStart, int yStart, int xEnd, int yEnd, qreal* outputValues) const;
 
-    /// Set the z value at (\c indexX, \c indexY).
-    virtual void setZ(int indexX, int indexY, qreal z);
+	/// Set the z value at (\c indexX, \c indexY).
+	virtual void setZ(int indexX, int indexY, qreal z);
 
-    /// Set a block x values at once.
-    void setXValues(int start, int end, qreal *newValues);
-    /// Set a block of y values at once.
-    void setYValues(int start, int end, qreal *newValues);
-    /// Set a block of z values at once defined by the provided start and end indices.
-    virtual void setZValues(int xStart, int yStart, int xEnd, int yEnd, qreal *newValues);
+	/// Set a block x values at once.
+	void setXValues(int start, int end, qreal *newValues);
+	/// Set a block of y values at once.
+	void setYValues(int start, int end, qreal *newValues);
+	/// Set a block of z values at once defined by the provided start and end indices.
+	virtual void setZValues(int xStart, int yStart, int xEnd, int yEnd, qreal *newValues);
 
 	/// Return the number of elements in x and y
 	virtual QPoint count() const;
@@ -141,39 +142,39 @@ public:
 	virtual QRectF boundingRect() const;
 
 protected:
-    /// Recompute the bounding rectangle.
-    void recomputeBoundingRect();
+	/// Recompute the bounding rectangle.
+	void recomputeBoundingRect();
 
-    /// The x-values.
-    QVector<qreal> x_;
-    /// The y-values.
-    QVector<qreal> y_;
-    /// The z-values.
-    QVector<qreal> z_;
+	/// The x-values.
+	QVector<qreal> x_;
+	/// The y-values.
+	QVector<qreal> y_;
+	/// The z-values.
+	QVector<qreal> z_;
 	/// the (min/max) (x/y) values, in physical(data) coordinates. bounds_.upperLeft is == (minX, minY)
-    QRectF boundingRect_;
+	QRectF boundingRect_;
 };
 
 /// This class is a very basic 2D array which implements the MPlotAbstractImageData interface
 class MPLOTSHARED_EXPORT MPlotSimpleImageDatawDefault : public MPlotSimpleImageData {
 
 public:
-    /// Constructor: represent image data with physical coordinate boundaries \c dataBounds, and a resolution (number of "pixels") \c resolution.  Data values are initialized to 0.
-    MPlotSimpleImageDatawDefault(int xSize, int ySize, qreal defaultValue);
+	/// Constructor: represent image data with physical coordinate boundaries \c dataBounds, and a resolution (number of "pixels") \c resolution.  Data values are initialized to 0.
+	MPlotSimpleImageDatawDefault(int xSize, int ySize, qreal defaultValue);
 
-    /// Sets the default value.  This is the value associated with the default colour.
-    void setDefaultValue(qreal val) { defaultValue_ = val; emitDataChanged(); }
-    /// Returns the default value.
-    qreal defaultValue() const { return defaultValue_; }
+	/// Sets the default value.  This is the value associated with the default colour.
+	void setDefaultValue(qreal val) { defaultValue_ = val; emitDataChanged(); }
+	/// Returns the default value.
+	qreal defaultValue() const { return defaultValue_; }
 
-    /// Set the z value at (\c indexX, \c indexY).
-    virtual void setZ(int indexX, int indexY, qreal z);
-    /// Set a block of z values at once defined by the provided start and end indices.
-    virtual void setZValues(int xStart, int yStart, int xEnd, int yEnd, qreal *newValues);
+	/// Set the z value at (\c indexX, \c indexY).
+	virtual void setZ(int indexX, int indexY, qreal z);
+	/// Set a block of z values at once defined by the provided start and end indices.
+	virtual void setZValues(int xStart, int yStart, int xEnd, int yEnd, qreal *newValues);
 
 protected:
-    /// The default value.
-    qreal defaultValue_;
+	/// The default value.
+	qreal defaultValue_;
 };
 
 #endif // MPLOTIMAGEDATA_H

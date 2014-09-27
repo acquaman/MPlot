@@ -309,22 +309,22 @@ bool MPlotColorMapData::operator !=(const MPlotColorMapData &other) const
 	return false;	// they're the same!
 }
 
-bool MPlotColorMap::rgbValues(const QVector<qreal> &values, MPlotInterval range, QRgb *output)
+bool MPlotColorMap::rgbValues(const QVector<qreal> &values, MPlotRange range, QRgb *output)
 {
 	if (d->recomputeCachedColorsRequired_)
 		d->recomputeCachedColors();
 
-	if (range.first == range.second){
+	if (range.x() == range.y()){
 
-		QRgb defaultValue = rgbAtIndex(0);
-
-		for (int i = 0, size = values.size(); i < size; i++)
-			output[i] = defaultValue;
+		int size = values.size();
+		QVector<QRgb> defaultValues = QVector<QRgb>(size, rgbAtIndex(0));
+		memcpy(output, defaultValues.constData(), size*sizeof(QRgb));
 	}
 
 	else {
 
-		qreal rangeDifference = range.second - range.first;
+		qreal rangeMinimum = range.x();
+		qreal rangeDifference = range.y() - rangeMinimum;
 		int lastColorArrayIndex = d->colorArray_.size() - 1;
 		qreal contrast = d->contrast_;
 		qreal brightness = d->brightness_;
@@ -338,7 +338,7 @@ bool MPlotColorMap::rgbValues(const QVector<qreal> &values, MPlotInterval range,
 
 				for (int i = 0, size = values.size(); i < size; i++){
 
-					int index = (int)qRound((contrast*((values.at(i)-range.first)/rangeDifference+brightness))*lastColorArrayIndex);
+					int index = (int)qRound((contrast*((values.at(i)-rangeMinimum)/rangeDifference+brightness))*lastColorArrayIndex);
 
 					if (index < 0)
 						index = 0;
@@ -354,7 +354,7 @@ bool MPlotColorMap::rgbValues(const QVector<qreal> &values, MPlotInterval range,
 
 				for(int i = 0, size = values.size(); i < size; i++){
 
-					int index = (int)qRound((contrast*(pow((values.at(i)-range.first)/rangeDifference, gamma)+brightness))*lastColorArrayIndex);
+					int index = (int)qRound((contrast*(pow((values.at(i)-rangeMinimum)/rangeDifference, gamma)+brightness))*lastColorArrayIndex);
 
 					if (index < 0)
 						index = 0;
@@ -371,7 +371,7 @@ bool MPlotColorMap::rgbValues(const QVector<qreal> &values, MPlotInterval range,
 
 			for(int i = 0, size = values.size(); i < size; i++){
 
-				int index = (int)qRound(((values.at(i)-range.first)/rangeDifference*lastColorArrayIndex));
+				int index = (int)qRound(((values.at(i)-rangeMinimum)/rangeDifference*lastColorArrayIndex));
 
 				if (index < 0)
 					index = 0;
@@ -470,7 +470,7 @@ bool MPlotColorMap::rgbValues(const QVector<int> &values, QRgb *output)
 			index = 0;
 
 		else if (index >= colorArraySize)
-			output[i] = lastColorArrayIndex;
+			index = lastColorArrayIndex;
 
 		output[i] = colorArray.at(index);
 	}
@@ -481,35 +481,22 @@ bool MPlotColorMap::rgbValues(const QVector<int> &values, QRgb *output)
 void MPlotColorMap::setBrightness(qreal brightness)
 {
 	d.detach();
-
 	d->brightness_ = brightness;
-
-	if(d->brightness_ == 0. && d->contrast_ == 1. && d->gamma_ == 1.)
-		d->mustApplyBCG_ = false;
-	else
-		d->mustApplyBCG_ = true;
+	d->mustApplyBCG_ = !(d->brightness_ == 0.0 && d->contrast_ == 1.0 && d->gamma_ == 1.0);
 }
 
 void MPlotColorMap::setContrast(qreal contrast)
 {
 	d.detach();
 	d->contrast_ = contrast;
-
-	if(d->brightness_ == 0. && d->contrast_ == 1. && d->gamma_ == 1.)
-		d->mustApplyBCG_ = false;
-	else
-		d->mustApplyBCG_ = true;
+	d->mustApplyBCG_ = !(d->brightness_ == 0.0 && d->contrast_ == 1.0 && d->gamma_ == 1.0);
 }
 
 void MPlotColorMap::setGamma(qreal gamma)
 {
 	d.detach();
 	d->gamma_ = gamma;
-
-	if(d->brightness_ == 0. && d->contrast_ == 1. && d->gamma_ == 1.)
-		d->mustApplyBCG_ = false;
-	else
-		d->mustApplyBCG_ = true;
+	d->mustApplyBCG_ = !(d->brightness_ == 0.0 && d->contrast_ == 1.0 && d->gamma_ == 1.0);
 }
 
 bool MPlotColorMap::operator !=(const MPlotColorMap &other) const
