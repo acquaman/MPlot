@@ -101,7 +101,7 @@ protected:
 	void emitBoundsChanged() { signalSource_->emitBoundsChanged(); }
 
 	/// Used to cache the minimum and maximum Z-values
-	MPlotRange range_;
+	mutable MPlotRange range_;
 };
 
 
