@@ -12,6 +12,10 @@ DEPENDPATH += . \
 
 INCLUDEPATH += include
 
+equals(QMAKE_CXX, "clang++"){
+	DEFINES *= MPLOT_PRAGMA_WARNING_CONTROLS
+}
+
 MPLOTLIBPATH = $${PWD}/lib
 LIBS += -L$${MPLOTLIBPATH} -lMPlot
 

@@ -9,6 +9,10 @@ TEMPLATE = lib
 
 DEFINES += MPLOT_LIBRARY
 
+equals(QMAKE_CXX, "clang++"){
+	DEFINES *= MPLOT_PRAGMA_WARNING_CONTROLS
+}
+
 INCLUDEPATH += src
 
 HEADERS += src/MPlot/MPlot_global.h \
