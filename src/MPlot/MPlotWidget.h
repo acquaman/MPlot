@@ -4,7 +4,15 @@
 #include "MPlot/MPlot_global.h"
 
 #include <QGraphicsView>
+
+#ifdef MPLOT_PRAGMA_WARNING_CONTROLS
+#pragma clang diagnostic ignored "-Wunused-private-field"
+#endif
 #include <QResizeEvent>
+#ifdef MPLOT_PRAGMA_WARNING_CONTROLS
+#pragma clang diagnostic warning "-Wunused-private-field"
+#endif
+
 #include "MPlot/MPlot.h"
 
 

@@ -304,8 +304,15 @@ protected:
 	friend class MPlotSignalHandler;
 };
 
-#include <QGraphicsWidget>
 #include <QGraphicsSceneResizeEvent>
+
+#ifdef MPLOT_PRAGMA_WARNING_CONTROLS
+#pragma clang diagnostic ignored "-Wunused-private-field"
+#endif
+#include <QGraphicsWidget>
+#ifdef MPLOT_PRAGMA_WARNING_CONTROLS
+#pragma clang diagnostic warning "-Wunused-private-field"
+#endif
 
 /// This class is used instead of MPlot when you need a QGraphicsWidget (instead of a simple QGraphicsItem).
 class MPLOTSHARED_EXPORT MPlotGW : public QGraphicsWidget {
