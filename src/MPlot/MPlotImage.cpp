@@ -87,52 +87,38 @@ void MPlotAbstractImage::setModel(const MPlotAbstractImageData* data, bool ownsM
 		QObject::connect(data_->signalSource(), SIGNAL(boundsChanged()), signalHandler_, SLOT(onBoundsChanged()));
 	}
 
-	clearRange();
 	onBoundsChanged(data_ ? data_->boundingRect() : QRectF());
 	onDataChanged();
+	clearRange();
 	emitBoundsChanged();
-
 }
 
-const MPlotAbstractImageData* MPlotAbstractImage::model() const {
+const MPlotAbstractImageData* MPlotAbstractImage::model() const
+{
 	return data_;
 }
 
-MPlotInterval MPlotAbstractImage::range() const
+MPlotRange MPlotAbstractImage::range() const
 {
-	if (minZ_.first && maxZ_.first)
-		return MPlotInterval(minZ_.second, maxZ_.second);
-
-	else if (minZ_.first)
-		return MPlotInterval(minZ_.second, data_->range().second);
-
-	else if (maxZ_.first)
-		return MPlotInterval(data_->range().first, maxZ_.second);
-
-	else
-		return MPlotInterval(data_->range());
+	return range_;
 }
 
 void MPlotAbstractImage::setMinimum(qreal min)
 {
-	MPlotInterval range = data_->range();
+	if (!constrainToData_){
 
-	if (((constrainToData_ && min > range.first && min < range.second) || !constrainToData_)
-			&& (!maxZ_.first || (maxZ_.first && min < maxZ_.second))){
-
-		minZ_ = qMakePair(true, min);
+		range_.setX(min);
+		manualMinimum_ = true;
 		repaintRequired();
 	}
 }
 
 void MPlotAbstractImage::setMaximum(qreal max)
 {
-	MPlotInterval range = data_->range();
+	if (!constrainToData_){
 
-	if (((constrainToData_ && max > range.first && max < range.second) || !constrainToData_)
-			&& (!minZ_.first || (minZ_.first && max > minZ_.second))){
-
-		maxZ_ = qMakePair(true, max);
+		range_.setY(max);
+		manualMaximum_ = true;
 		repaintRequired();
 	}
 }
@@ -152,58 +138,51 @@ void MPlotAbstractImage::setConstrainToData(bool constrain)
 
 void MPlotAbstractImage::clearMinimum()
 {
-	minZ_ =	qMakePair(false, -1.0);
+	range_.setX(data_->range().x());
+	manualMinimum_ = false;
 	repaintRequired();
 }
 
 void MPlotAbstractImage::clearMaximum()
 {
-	maxZ_ = qMakePair(false, -1.0);
+	range_.setY(data_->range().y());
+	manualMaximum_ = false;
 	repaintRequired();
 }
 
 void MPlotAbstractImage::clearRange()
 {
-	minZ_ = qMakePair(false, -1.0);
-	maxZ_ = qMakePair(false, -1.0);
+	range_ = data_->range();
+	manualMinimum_ = false;
+	manualMaximum_ = false;
 	repaintRequired();
-}
-
-bool MPlotAbstractImage::manualMinimum() const
-{
-	return minZ_.first;
-}
-
-bool MPlotAbstractImage::manualMaximum() const
-{
-	return maxZ_.first;
 }
 
 // Required functions:
 //////////////////////////
 
 // Data rect: also reported in PlotItem coordinates, which are the actual data coordinates. This is used by the auto-scaling to figure out the range of our data on an axis.
-QRectF MPlotAbstractImage::dataRect() const {
-	if(data_)
-		return data_->boundingRect();
-	else
-		return QRectF();
+QRectF MPlotAbstractImage::dataRect() const
+{
+	return (data_ ? data_->boundingRect() : QRectF());
 }
 
-void MPlotAbstractImage::onBoundsChangedPrivate() {
+void MPlotAbstractImage::onBoundsChangedPrivate()
+{
 	onBoundsChanged(data_? data_->boundingRect() : QRectF());
 	emitBoundsChanged();
 }
 
-void MPlotAbstractImage::onDataChangedPrivate() {
+void MPlotAbstractImage::onDataChangedPrivate()
+{
 	onDataChanged();
 }
 
 void MPlotAbstractImage::setDefaults() {
 
 	map_ = MPlotColorMap::Jet;
-	minZ_ = qMakePair(false, -1.0);
-	maxZ_ = qMakePair(false, -1.0);
+	manualMinimum_ = false;
+	manualMaximum_ = false;
 	constrainToData_ = true;
 }
 
@@ -263,8 +242,10 @@ void MPlotImageBasic::repaintRequired()
 
 // boundingRect: reported in PlotItem coordinates, which are just the actual data coordinates.
 // using parent implementation, but adding extra room on edges for our selection highlight.
-QRectF MPlotImageBasic::boundingRect() const {
+QRectF MPlotImageBasic::boundingRect() const
+{
 	QRectF br = MPlotAbstractImage::boundingRect();
+
 	if(br.isValid()) {
 		// create rectangle at least as big as our selection highlight, and if we have a marker, the marker size.
 		QRectF hs = QRectF(0, 0, MPLOT_SELECTION_LINEWIDTH, MPLOT_SELECTION_LINEWIDTH);
@@ -275,6 +256,7 @@ QRectF MPlotImageBasic::boundingRect() const {
 		// really we just need 1/2 the marker size and 1/2 the selection highlight width. But extra doesn't hurt.
 		br.adjust(-hs.width(),-hs.height(),hs.width(), hs.height());
 	}
+
 	return br;
 }
 
@@ -287,19 +269,26 @@ void MPlotImageBasic::onDataChanged() {
 	// flag the image as dirty; this avoids the expensive act of re-filling the image every time the data changes, if we're not re-drawing as fast as the data is changing.
 	imageRefillRequired_ = true;
 
+	if (data_){
+
+		MPlotRange range = data_->range();
+
+		if (!manualMinimum_)
+			range_.setX(range.x());
+
+		if (!manualMaximum_)
+			range_.setY(range.y());
+
+	}
+
 	// schedule a draw update
 	update();
 
 }
-#include <QTime>
 
 void MPlotImageBasic::fillImageFromData() {
 
 	if(data_) {
-
-//		QTime runTime;
-//		runTime.start();
-//		qDebug() << "MPlotImageBasic: fillImageFromData()";
 
 		imageRefillRequired_ = false;
 
@@ -308,66 +297,17 @@ void MPlotImageBasic::fillImageFromData() {
 
 		if(image_.size() != dataSize)
 			image_ = QImage(dataSize, QImage::Format_ARGB32);
-//		qDebug() << "   QImage resize time:" << runTime.restart();
 
 		int yHeight = dataSize.height();
 		int xWidth = dataSize.width();
 
-//		qDebug() << "   data source get height, width:" << runTime.restart();
-
 		if(xWidth > 0 && yHeight > 0) {
+
 			QVector<qreal> dataBuffer(xWidth*yHeight);
-//			qDebug() << "   vector creation time:" << runTime.restart();
 			data_->zValues(0, 0, xWidth-1, yHeight-1, dataBuffer.data());
-//			qDebug() << "   block data access time:" << runTime.restart();
-
-			qreal minZ, maxZ;
-
-			if (manualMinimum() && manualMaximum()){
-
-				minZ = range().first;
-				maxZ = range().second;
-			}
-
-			else if (manualMinimum()){
-
-				minZ = range().first;
-				maxZ = dataBuffer.at(0);
-
-				foreach(qreal d, dataBuffer) {
-					if(d>maxZ) maxZ = d;
-				}
-			}
-
-			else if (manualMaximum()){
-
-				maxZ = range().second;
-				minZ = dataBuffer.at(0);
-
-				foreach(qreal d, dataBuffer) {
-
-					if (d < minZ)
-						minZ = d;
-				}
-			}
-
-			else {
-
-				minZ = maxZ = dataBuffer.at(0);
-				foreach(qreal d, dataBuffer) {
-					if(d<minZ) minZ = d;
-					if(d>maxZ) maxZ = d;
-				}
-			}
-
-			MPlotInterval range(minZ,maxZ);
-//			qDebug() << "   Manually search range:" << runTime.restart() << range;
-//			runTime.start();
 
 			QVector<QRgb> rgbs = QVector<QRgb>(dataBuffer.size());
-			map_.rgbValues(dataBuffer, range, rgbs.data());
-
-//			qDebug() << "   filling rgb data:" << runTime.restart();
+			map_.rgbValues(dataBuffer, range(), rgbs.data());
 
 			QRgb *image = (QRgb *)image_.bits();
 			int heightModifier = (yHeight-1)*xWidth;
@@ -379,8 +319,6 @@ void MPlotImageBasic::fillImageFromData() {
 				for (int yy = 0; yy < yHeight; yy++)
 					image[xx-yy*xWidth+heightModifier] = rgbs.at(xc+yy);
 			}
-
-//			qDebug() << "   setting pixels time:" << runTime.restart();
 		}
 	}
 }
@@ -388,7 +326,8 @@ void MPlotImageBasic::fillImageFromData() {
 
 
 // If the bounds of the data change (in x- and y-) this might require re-auto-scaling of a plot.
-void MPlotImageBasic::onBoundsChanged(const QRectF& newBounds) {
+void MPlotImageBasic::onBoundsChanged(const QRectF& newBounds)
+{
 	Q_UNUSED(newBounds)
 	// signal a re-scaling needed on the plot: (REDUNDANT... already done in base class)
 	// signalSource()->emitBoundsChanged();
@@ -411,10 +350,6 @@ void MPlotImageBasicwDefault::fillImageFromData()
 {
 	if(data_) {
 
-//		QTime runTime;
-//		runTime.start();
-//		qDebug() << "MPlotImageBasic: fillImageFromData()";
-
 		imageRefillRequired_ = false;
 
 		// resize if req'd:
@@ -422,70 +357,22 @@ void MPlotImageBasicwDefault::fillImageFromData()
 
 		if(image_.size() != dataSize)
 			image_ = QImage(dataSize, QImage::Format_ARGB32);
-//		qDebug() << "   QImage resize time:" << runTime.restart() << "ms" ;
 
 		int yHeight = dataSize.height();
 		int xWidth = dataSize.width();
 
-//		qDebug() << "   data source get height, width:" << runTime.restart() << "ms" ;
-
 		if(xWidth > 0 && yHeight > 0) {
+
 			QVector<qreal> dataBuffer(xWidth*yHeight);
-//			qDebug() << "   vector creation time:" << runTime.restart() << "ms" ;
 			data_->zValues(0, 0, xWidth-1, yHeight-1, dataBuffer.data());
-//			qDebug() << "   block data access time:" << runTime.restart() << "ms" ;
-
-			qreal minZ, maxZ;
-
-			if (manualMinimum() && manualMaximum()){
-
-				minZ = range().first;
-				maxZ = range().second;
-			}
-
-			else if (manualMinimum()){
-
-				minZ = range().first;
-				maxZ = dataBuffer.at(0);
-
-				foreach(qreal d, dataBuffer) {
-					if(d>maxZ) maxZ = d;
-				}
-			}
-
-			else if (manualMaximum()){
-
-				maxZ = range().second;
-				minZ = dataBuffer.at(0);
-
-				foreach(qreal d, dataBuffer) {
-
-					if (d < minZ && d != defaultValue_ && d != -1.0)
-						minZ = d;
-				}
-			}
-
-			else {
-
-				minZ = maxZ = dataBuffer.at(0);
-				foreach(qreal d, dataBuffer) {
-					if(d<minZ && d != defaultValue_ && d != -1.0) minZ = d;
-					if(d>maxZ) maxZ = d;
-				}
-			}
-
-			MPlotInterval range(minZ,maxZ);
-//			qDebug() << "   Manually search range:" << runTime.restart() << range;
-//			runTime.start();
 
 			QVector<QRgb> rgbs = QVector<QRgb>(dataBuffer.size());
-			map_.rgbValues(dataBuffer, range, rgbs.data());
-
-//			qDebug() << "   filling rgb data:" << runTime.restart();
+			map_.rgbValues(dataBuffer, range_, rgbs.data());
 
 			QRgb *image = (QRgb *)image_.bits();
 			int heightModifier = (yHeight-1)*xWidth;
-			QRgb defaultRgb = defaultColor_.rgb();
+			QVector<QRgb> defaultValues = QVector<QRgb>(dataBuffer.size(), defaultColor_.rgb());
+			memcpy(image, defaultValues.constData(), dataBuffer.size()*sizeof(QRgb));
 
 			for (int xx = 0; xx < xWidth; xx++){
 
@@ -497,13 +384,8 @@ void MPlotImageBasicwDefault::fillImageFromData()
 
 					if (val != defaultValue_ && val != -1.0) // NOTE: -1.0 here is from AMNUMBER_INVALID_FLOATINGPOINT
 						image[xx-yy*xWidth+heightModifier] = rgbs.at(xc+yy);// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
-
-					else
-						image[xx-yy*xWidth+heightModifier] = defaultRgb;// note the inversion here. It's necessary because we'll be painting in graphics drawing coordinates.
 				}
 			}
-
-//			qDebug() << "   setting pixels time:" << runTime.restart();
 		}
 	}
 }

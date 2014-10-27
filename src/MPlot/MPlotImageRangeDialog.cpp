@@ -12,11 +12,13 @@ MPlotImageRangeDialog::MPlotImageRangeDialog(MPlotAbstractImage *image, QWidget 
 {
 	image_ = image;
 
+	MPlotRange range = image_->range();
+
 	minimum_ = new QLineEdit;
-	minimum_->setText(QString::number(image_->range().first, 'g', 3));
+	minimum_->setText(QString::number(range.x(), 'g', 3));
 
 	maximum_ = new QLineEdit;
-	maximum_->setText(QString::number(image_->range().second, 'g', 3));
+	maximum_->setText(QString::number(range.y(), 'g', 3));
 
 	QPushButton *clearRangeButton = new QPushButton("Reset Range");
 	clearRangeButton->setAutoDefault(false);
@@ -95,7 +97,7 @@ void MPlotImageRangeDialog::onManualMaximumChanged()
 
 void MPlotImageRangeDialog::updateDialog()
 {
-	MPlotInterval range = image_->range();
-	minimum_->setText(QString::number(range.first, 'g', 3));
-	maximum_->setText(QString::number(range.second, 'g', 3));
+	MPlotRange range = image_->range();
+	minimum_->setText(QString::number(range.x(), 'g', 3));
+	maximum_->setText(QString::number(range.y(), 'g', 3));
 }

@@ -30,7 +30,7 @@ MPlotColorLegend::MPlotColorLegend(MPlot *plot, QGraphicsItem *parent)
 
 QRectF MPlotColorLegend::boundingRect() const
 {
-	return QRectF(topLeft_.x(), topLeft_.y(), 70, plot_->rect().height());
+	return boundingRect_;
 }
 
 void MPlotColorLegend::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -58,22 +58,24 @@ void MPlotColorLegend::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 			QObject::connect(image_->model()->signalSource(), SIGNAL(dataChanged()), signalHandler_, SLOT(onDataChanged()));
 		}
 
-		MPlotInterval dataRange = image_->range();
+		MPlotRange dataRange = image_->range();
 
 		qreal height = 0.75*plot_->rect().height();
-		QBrush brush(image_->colorMap().colorAt(dataRange.second));
+		MPlotColorMap colorMap = image_->colorMap();
+		qreal rangeMaximum = dataRange.y();
+		QBrush brush(colorMap.colorAt(rangeMaximum));
 		qreal delH = height/boxNumber_;
-		qreal delD = (dataRange.second-dataRange.first)/boxNumber_;
+		qreal delD = (rangeMaximum-dataRange.x())/boxNumber_;
 
 		for (int i = 0; i <= boxNumber_; i++){
 
-			brush.setColor(image_->colorMap().colorAt((dataRange.second-i*delD), dataRange));
+			brush.setColor(colorMap.colorAt((rangeMaximum-i*delD), dataRange));
 			painter->setBrush(brush);
 			painter->drawRect(QRectF(30, i*delH+40, 25, delH));
 		}
 
-		painter->drawText(QRectF(0, 20, 70, 20), QString::number(dataRange.second, 'e', 2));
-		painter->drawText(QRectF(0,  height+delH+40, 70, 20), QString::number(dataRange.first, 'e', 2));
+		painter->drawText(QRectF(5, 20, 60, 40), QString("%1").arg(dataRange.y(), 0, 'e', 2));
+		painter->drawText(QRectF(5, height+delH+40, 60, 40), QString("%1").arg(dataRange.x(), 0, 'e', 2));
 
 		painter->restore();
 	}
@@ -90,4 +92,9 @@ void MPlotColorLegend::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 void MPlotColorLegend::onDataChangedPrivate()
 {
 	update();
+}
+
+void MPlotColorLegend::updateBoundingRect()
+{
+	boundingRect_ = QRectF(topLeft_.x(), topLeft_.y(), 70, plot_->rect().height());
 }

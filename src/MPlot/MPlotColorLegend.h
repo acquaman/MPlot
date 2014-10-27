@@ -43,17 +43,19 @@ public:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
 	/// Set the number of boxes in the color legend..
-	void setBoxNumber(int number) { boxNumber_ = number; prepareGeometryChange(); update(); }
+	void setBoxNumber(int number) { boxNumber_ = number; prepareGeometryChange(); updateBoundingRect(); update(boundingRect_); }
 	/// Set the top left position of the color legend.
-	void setTopLeft(const QPoint& point) { topLeft_ = point; prepareGeometryChange(); update(); }
+	void setTopLeft(const QPoint& point) { topLeft_ = point; prepareGeometryChange(); updateBoundingRect(); update(boundingRect_); }
 	/// Offset the color legend in the x direction.
-	void setHorizontalOffset(qreal x) { topLeft_.setX(int(x)); prepareGeometryChange(); update(); }
+	void setHorizontalOffset(qreal x) { topLeft_.setX(int(x)); prepareGeometryChange(); updateBoundingRect(); update(boundingRect_); }
 	/// Offset the color legend in the y direction.
-	void setVerticalOffset(qreal y) { topLeft_.setY(int(y)); prepareGeometryChange(); update(); }
+	void setVerticalOffset(qreal y) { topLeft_.setY(int(y)); prepareGeometryChange(); updateBoundingRect(); update(boundingRect_); }
 
 protected:
 	/// The double click event.
 	virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+	/// Updates the bounding rect when things that effect it are changed.
+	void updateBoundingRect();
 
 	/// Pointer to the plot the colour legend resides in.
 	MPlot *plot_;
@@ -63,6 +65,8 @@ protected:
 	int boxNumber_;
 	/// The top left point of the color legend.
 	QPoint topLeft_;
+	/// The bounding rect.
+	QRectF boundingRect_;
 
 	/// The signal hander for the image.
 	MPlotColorLegendSignalHandler* signalHandler_;

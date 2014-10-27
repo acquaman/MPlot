@@ -277,8 +277,8 @@ void MPlot::setRect(const QRectF& rect) {
 	legend_->setPos(left, top);
 	legend_->setWidth(w);
 
-	colorLegend_->setHorizontalOffset(rect_.right()-70);
-	colorLegend_->setVerticalOffset(10);
+	colorLegend_->setHorizontalOffset(w+(marginRight()/100*rect_.width()));
+	colorLegend_->setVerticalOffset(marginTop());
 }
 
 // called when the autoscaling of an axis scale changes

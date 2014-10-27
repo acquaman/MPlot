@@ -4,14 +4,15 @@
 #include "MPlot/MPlotImageData.h"
 
 MPlotImageDataSignalSource::MPlotImageDataSignalSource(MPlotAbstractImageData *parent)
-	: QObject(0) {
+	: QObject(0)
+{
 	data_ = parent;
 }
 
 MPlotAbstractImageData::MPlotAbstractImageData()
 {
 	signalSource_ = new MPlotImageDataSignalSource(this);
-	minMaxCacheUpdateRequired_ = true;
+	range_ = MPlotRange();
 }
 
 MPlotAbstractImageData::~MPlotAbstractImageData()
@@ -20,185 +21,199 @@ MPlotAbstractImageData::~MPlotAbstractImageData()
 	signalSource_ = 0;
 }
 
-void MPlotAbstractImageData::minMaxSearch() const {
-	QPoint c = count();
-	int sizeX = c.x();
-	int sizeY = c.y();
-
-	if(sizeX == 0 || sizeY == 0)
-		return;
-
-	// performance optimization.  If total points is less than 500, just call z() repeatedly.  If total points is over that, usually faster to allocate a vector and use the block zValues().  However, to limit memory usage, don't allocate blocks over 1MB (125000 doubles).
-	if(sizeX*sizeY < 500) {
-		qreal minZ, maxZ, d;
-		minZ = maxZ = z(0,0);
-		for(int xx=0; xx<sizeX; ++xx)
-			for(int yy=0; yy<sizeY; ++yy) {
-				d = z(xx,yy);
-				if(d<minZ) minZ=d;
-				if(d>maxZ) maxZ=d;
-			}
-		minMaxCache_.first = minZ;
-		minMaxCache_.second = maxZ;
-		minMaxCacheUpdateRequired_ = false;
-	}
-	else if(sizeX*sizeY < 125000) {	// less than 1MB buffer: do in one shot
-		QVector<qreal> dataBuffer(sizeX*sizeY);
-		zValues(0,0, sizeX-1, sizeY-1, dataBuffer.data());
-		qreal minZ, maxZ;
-		minZ = maxZ = dataBuffer.at(0);
-		foreach(qreal d, dataBuffer) {
-			if(d<minZ) minZ=d;
-			if(d>maxZ) maxZ=d;
-		}
-		minMaxCache_.first = minZ;
-		minMaxCache_.second = maxZ;
-		minMaxCacheUpdateRequired_ = false;
-	}
-	else {	// large array; don't want to allocate more than 1MB buffer. Do in sections of approximately 1MB.
-		int rowsAtOnce = 125000 / sizeY;
-		if(rowsAtOnce == 0) rowsAtOnce = 1;
-		qreal minZ, maxZ;
-		minZ = maxZ = z(0,0);
-		QVector<qreal> dataBuffer(rowsAtOnce*sizeY);
-
-		for(int xrow=0; xrow<sizeX; xrow+=rowsAtOnce) {
-			int maxRow = qMin(sizeX-1, xrow+rowsAtOnce-1);
-			dataBuffer.resize((maxRow-xrow+1)*sizeY);	// for all blocks except the last block, will do nothing. Resizing on the last (partial) block allows us to use foreach, which is faster than a for-loop over the space we know we have.
-			zValues(xrow, 0, maxRow, sizeY-1, dataBuffer.data());
-
-			foreach(qreal d, dataBuffer) {
-				if(d<minZ) minZ=d;
-				if(d>maxZ) maxZ=d;
-			}
-		}
-		minMaxCache_.first = minZ;
-		minMaxCache_.second = maxZ;
-		minMaxCacheUpdateRequired_ = false;
-	}
-}
-
-MPlotInterval MPlotAbstractImageData::range() const {
-
-	// empty data set? Return default interval of (0,1)
-	QPoint c = count();
-	if(c.x() == 0 || c.y() == 0)
-		return MPlotInterval(0,1);
-
-	if(minMaxCacheUpdateRequired_) {
-		minMaxSearch();
-	}
-
-	return minMaxCache_;
-}
-
-// This class is a very basic 2D array which implements the MPlotAbstractImageData interface
-
-// Constructor: represent image data with physical coordinate boundaries \c dataBounds, and a resolution (number of "pixels") \c resolution.  Data values are initialized to 0.
-MPlotSimpleImageData::MPlotSimpleImageData(const QRectF& dataBounds, const QSize& resolution)
-	: MPlotAbstractImageData(),
-	num_(resolution.expandedTo(QSize(1,1)).width(), resolution.expandedTo(QSize(1,1)).height()),
-	d_(num_.y(), QVector<qreal>(num_.x(), 0)),
-	bounds_(dataBounds)
+MPlotRange MPlotAbstractImageData::range() const
 {
-	// max and min trackers are valid from the beginning; every data value is 0, so we might as well use z(0,0) = max = min.
-	minIndex_ = QPoint(0,0);
-	maxIndex_ = QPoint(0,0);
-
+	return range_;
 }
 
-// Return the x (data value) corresponding an (x,y) \c index:
-qreal MPlotSimpleImageData::x(int indexX) const  {
+// MPlotSimpleImageData
+// /////////////////////////////////////////////
 
-	return bounds_.left() + bounds_.width()*indexX/num_.x();
-
+MPlotSimpleImageData::MPlotSimpleImageData(int xSize, int ySize)
+	: MPlotAbstractImageData()
+{
+	x_ = QVector<qreal>(xSize);
+	y_ = QVector<qreal>(ySize);
+	z_ = QVector<qreal>(xSize*ySize);
 }
 
-// Return the y (data value) corresponding an (x,y) \c index:
-qreal MPlotSimpleImageData::y(int indexY) const {
-
-	return bounds_.top() + bounds_.height()*indexY/num_.y();
+qreal MPlotSimpleImageData::x(int indexX) const
+{
+	return x_.at(indexX);
 }
 
-// Return the z = f(x,y) value corresponding an (x,y) \c index:
-qreal MPlotSimpleImageData::z(int indexX, int indexY) const {
-
-	return d_[indexY][indexX];
+qreal MPlotSimpleImageData::y(int indexY) const
+{
+	return y_.at(indexY);
 }
 
-// Return the number of elements in x and y
-QPoint MPlotSimpleImageData::count() const {
-	return num_;
+qreal MPlotSimpleImageData::z(int indexX, int indexY) const
+{
+	return z_.at(indexX + indexY*x_.size());
 }
 
-// Return the bounds of the data (the rectangle containing the max/min x- and y-values)
-/* Use the top left corner for the (minX,minY) values, ie: boundingRect() == QRectF(minX, minY, maxX-minX, maxY-minY)... so that boundingRect().width() == maxX-minX, and boundingRect().height() == maxY - minY.
-	  */
-QRectF MPlotSimpleImageData::boundingRect() const {
-	return bounds_;
+QRectF MPlotSimpleImageData::boundingRect() const
+{
+	return boundingRect_;
 }
 
-// Return the minimum and maximum z values:
-MPlotInterval MPlotSimpleImageData::range() const {
-
-	if(minIndex_.x() < 0)
-		minSearch();
-	if(maxIndex_.x() < 0)
-		maxSearch();
-
-	return MPlotInterval(d_[minIndex_.y()][minIndex_.x()], d_[maxIndex_.y()][maxIndex_.x()]);
+QPoint MPlotSimpleImageData::count() const
+{
+	return QPoint(x_.size(), y_.size());
 }
 
-// set the z value at \c index:
-void MPlotSimpleImageData::setZ(qreal value, int indexX, int indexY) {
+void MPlotSimpleImageData::setZ(int indexX, int indexY, qreal z)
+{
+	if (range_.isNull()){
 
-	// if we're modifying what used to be the maximum value, and this new one is smaller, we've lost our max tracking. Don't know anymore.
-	if((int)indexX == maxIndex_.x() && (int)indexY == maxIndex_.y() && value < d_[maxIndex_.y()][maxIndex_.x()])
-		maxIndex_ = QPoint(-1,-1);
+		range_.setX(z);
+		range_.setY(z);
+	}
 
-	// if we're modifying what used to be the minimum value, and this new one is larger, we've lost our min tracking. Don't know anymore.
-	if((int)indexX == minIndex_.x() && (int)indexY == minIndex_.y() && value > d_[minIndex_.y()][minIndex_.x()])
-		minIndex_ = QPoint(-1, -1);
+	else {
 
-	// if we're tracking the min index, and this new value is smaller, it becomes the new min.
-	if(minIndex_.x()>=0 && value < d_[minIndex_.y()][minIndex_.x()])
-		minIndex_ = QPoint(indexX, indexY);
+		if (z < range_.x())
+			range_.setX(z);
 
-	// if we're tracking the max index, and this new value is larger, it becomes the new max.
-	if(maxIndex_.x()>=0 && value > d_[maxIndex_.y()][maxIndex_.x()])
-		maxIndex_ = QPoint(indexX, indexY);
+		if (z > range_.y())
+			range_.setY(z);
+	}
 
-	// store value:
-	d_[indexY][indexX] = value;
+	z_[indexX + indexY*x_.size()] = z;
 	emitDataChanged();
-
 }
 
-// manually search for minimum value
-void MPlotSimpleImageData::minSearch() const {
-	minIndex_ = QPoint(0,0);
+void MPlotSimpleImageData::recomputeBoundingRect()
+{
+	double minimumX = x_.first();
+	double maximumX = x_.last();
+	double minimumY = y_.first();
+	double maximumY = y_.last();
 
-	for(int yy=0; yy<num_.y(); yy++)
-		for(int xx=0; xx<num_.x(); xx++)
-			if(d_[yy][xx] < d_[minIndex_.y()][minIndex_.x()])
-				minIndex_ = QPoint(xx, yy);
-}
+	if(maximumX < minimumX)
+		qSwap(minimumX, maximumX);
 
-// manually search for maximum value
-void MPlotSimpleImageData::maxSearch() const {
-	maxIndex_ = QPoint(0,0);
+	if(maximumY < minimumY)
+		qSwap(minimumY, maximumY);
 
-	for(int yy=0; yy<num_.y(); yy++)
-		for(int xx=0; xx<num_.x(); xx++)
-			if(d_[yy][xx] > d_[maxIndex_.y()][maxIndex_.x()])
-				maxIndex_ = QPoint(xx, yy);
+	boundingRect_ = QRectF(minimumX, minimumY, maximumX-minimumX, maximumY-minimumY);
 }
 
 void MPlotSimpleImageData::zValues(int xStart, int yStart, int xEnd, int yEnd, qreal *outputValues) const
 {
-	for(int xx=xStart; xx<=xEnd; ++xx)
-		for(int yy=yStart; yy<=yEnd; ++yy)
-			*(outputValues++) = d_[yy][xx];
+	if ((xEnd-xStart+1) == x_.size() && (yEnd-yStart+1) == y_.size())
+		memcpy(outputValues, z_.constData(), z_.size()*sizeof(qreal));
+
+	else{
+
+		int ySize = y_.size();
+
+		for (int j = 0, jSize = yEnd-yStart+1; j < jSize; j++)
+			for (int i = 0, iSize = xEnd-xStart+1; i < iSize; i++)
+				outputValues[i*jSize+j] = z_.at((i+xStart)*ySize + (j+yStart));
+	}
+}
+
+void MPlotSimpleImageData::setXValues(int start, int end, qreal *newValues)
+{
+	memcpy(x_.data()+start, newValues, (end-start+1)*sizeof(qreal));
+	recomputeBoundingRect();
+	MPlotAbstractImageData::emitBoundsChanged();
+}
+
+void MPlotSimpleImageData::setYValues(int start, int end, qreal *newValues)
+{
+	memcpy(y_.data()+start, newValues, (end-start+1)*sizeof(qreal));
+	recomputeBoundingRect();
+	MPlotAbstractImageData::emitBoundsChanged();
+}
+
+void MPlotSimpleImageData::setZValues(int xStart, int yStart, int xEnd, int yEnd, qreal *newValues)
+{
+	int ySize = y_.size();
+	int xOffset = xStart*y_.size();
+	int yOffset = yStart;
+	double rangeMinimum = newValues[0];
+	double rangeMaximum = newValues[0];
+
+	for (int j = 0, jSize = yEnd-yStart+1; j < jSize; j++){
+
+		for (int i = 0, iSize = xEnd-xStart+1; i < iSize; i++){
+
+			double newValue = newValues[i*jSize+j];
+
+			if (newValue > rangeMaximum)
+				rangeMaximum = newValue;
+
+			if (newValue < rangeMinimum)
+				rangeMinimum = newValue;
+
+			z_[i*ySize+xOffset + j + yOffset] = newValue;
+		}
+	}
+
+	range_ = MPlotRange(rangeMinimum, rangeMaximum);
+
+	MPlotAbstractImageData::emitDataChanged();
+}
+
+// MPlotSimpleImageDatawDefault
+// ////////////////////////////////////////////
+
+MPlotSimpleImageDatawDefault::MPlotSimpleImageDatawDefault(int xSize, int ySize, qreal defaultValue)
+	: MPlotSimpleImageData(xSize, ySize)
+{
+	defaultValue_ = defaultValue;
+}
+
+void MPlotSimpleImageDatawDefault::setZValues(int xStart, int yStart, int xEnd, int yEnd, qreal *newValues)
+{
+	int ySize = y_.size();
+	int xOffset = xStart*y_.size();
+	int yOffset = yStart;
+	double rangeMinimum = newValues[0];
+	double rangeMaximum = newValues[0];
+
+	for (int j = 0, jSize = yEnd-yStart+1; j < jSize; j++){
+
+		for (int i = 0, iSize = xEnd-xStart+1; i < iSize; i++){
+
+			double newValue = newValues[i*jSize+j];
+
+			if (newValue > rangeMaximum)
+				rangeMaximum = newValue;
+
+			if (newValue < rangeMinimum && newValue != defaultValue_)
+				rangeMinimum = newValue;
+
+			z_[i*ySize+xOffset + j + yOffset] = newValue;
+		}
+	}
+
+	range_ = MPlotRange(rangeMinimum, rangeMaximum);
+
+	MPlotAbstractImageData::emitDataChanged();
+}
+
+void MPlotSimpleImageDatawDefault::setZ(int indexX, int indexY, qreal z)
+{
+	if (range_.isNull()){
+
+		range_.setX(z);
+		range_.setY(z);
+	}
+
+	else {
+
+		if (z < range_.x() && z != defaultValue_)
+			range_.setX(z);
+
+		if (z > range_.y())
+			range_.setY(z);
+	}
+
+	z_[indexX*y_.size() + indexY] = z;
+	emitDataChanged();
 }
 
 #endif // MPLOTIMAGEDATA_H
