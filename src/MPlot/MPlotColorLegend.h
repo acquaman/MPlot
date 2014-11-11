@@ -37,6 +37,9 @@ public:
 	/// Constructor.  Builds a colour legend for the given \param plot.  If there are multiple images stacked on top of each other then this might not be an accurate representation of the colour map.
 	MPlotColorLegend(MPlot *plot, QGraphicsItem *parent = 0);
 
+	/// Destructor is responsible for cleaning up the signal handler in particular
+	virtual ~MPlotColorLegend();
+
 	/// Pure virtual implementation.  Bounding rectangle.
 	virtual QRectF boundingRect() const;
 	/// Pure virutal implementation.  The paint function.

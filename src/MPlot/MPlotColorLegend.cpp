@@ -28,6 +28,11 @@ MPlotColorLegend::MPlotColorLegend(MPlot *plot, QGraphicsItem *parent)
 	setFlags(flags() | QGraphicsItem::ItemIsMovable);
 }
 
+MPlotColorLegend::~MPlotColorLegend()
+{
+	signalHandler_->deleteLater();
+}
+
 QRectF MPlotColorLegend::boundingRect() const
 {
 	return boundingRect_;
