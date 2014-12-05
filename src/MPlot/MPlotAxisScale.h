@@ -171,8 +171,14 @@ public:
 				qreal height = drawingSize_.height();
 				qreal maxMinDifference = max - min;
 
-				for (unsigned i = 0; i < size; i++)
-					outputValues[i] = height * (1 - (outputValues[i]-min)/maxMinDifference);
+				if(fabs(dataRange_.length()) < 1e-30){
+					for (unsigned i = 0; i < size; i++)
+						outputValues[i] = 1;
+				}
+				else{
+					for (unsigned i = 0; i < size; i++)
+						outputValues[i] = height * (1 - (outputValues[i]-min)/maxMinDifference);
+				}
 			}
 
 			else {
@@ -180,8 +186,14 @@ public:
 				qreal width = drawingSize_.width();
 				qreal maxMinDifference = max - min;
 
-				for (unsigned i = 0; i < size; i++)
-					outputValues[i] = width * ((outputValues[i]-min)/maxMinDifference);
+				if(fabs(dataRange_.length()) < 1e-30){
+					for (unsigned i = 0; i < size; i++)
+						outputValues[i] = 1;
+				}
+				else{
+					for (unsigned i = 0; i < size; i++)
+						outputValues[i] = width * ((outputValues[i]-min)/maxMinDifference);
+				}
 			}
 		}
 
@@ -192,8 +204,14 @@ public:
 				qreal height = drawingSize_.height();
 				qreal maxMinDifference = max - min;
 
-				for (unsigned i = 0; i < size; i++)
-					outputValues[i] = height * (1 - (dataValues[i]-min)/maxMinDifference);
+				if(fabs(dataRange_.length()) < 1e-30){
+					for (unsigned i = 0; i < size; i++)
+						outputValues[i] = 1;
+				}
+				else{
+					for (unsigned i = 0; i < size; i++)
+						outputValues[i] = height * (1 - (dataValues[i]-min)/maxMinDifference);
+				}
 			}
 
 			else {
@@ -201,8 +219,14 @@ public:
 				qreal width = drawingSize_.width();
 				qreal maxMinDifference = max - min;
 
-				for (unsigned i = 0; i < size; i++)
-					outputValues[i] = width * ((dataValues[i]-min)/maxMinDifference);
+				if(fabs(dataRange_.length()) < 1e-30){
+					for (unsigned i = 0; i < size; i++)
+						outputValues[i] = 1;
+				}
+				else{
+					for (unsigned i = 0; i < size; i++)
+						outputValues[i] = width * ((dataValues[i]-min)/maxMinDifference);
+				}
 			}
 		}
 	}
