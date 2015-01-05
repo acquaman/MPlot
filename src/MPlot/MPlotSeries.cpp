@@ -284,6 +284,16 @@ void MPlotAbstractSeries::setOffset(qreal dx, qreal dy) {
 	onDataChangedPrivate();
 }
 
+bool MPlotAbstractSeries::drawLines() const
+{
+	return drawLines_;
+}
+
+void MPlotAbstractSeries::setDrawLines(bool newState)
+{
+	drawLines_ = newState;
+}
+
 /////////////////////////////
 // MPlotSeriesBasic
 ////////////////////////////
@@ -293,7 +303,7 @@ MPlotSeriesBasic::MPlotSeriesBasic(const MPlotAbstractSeriesData* data)
 
 	// Set style defaults:
 	setDefaults();
-
+	drawLines_ = true;
 	setModel(data);
 }
 
@@ -349,12 +359,15 @@ void MPlotSeriesBasic::paint(QPainter* painter,
 
 	// Render lines (this runs fairly fast, even for large datasets, due to subsampling)
 	////////////////////////////////////////////
-	if(selected()) {
-		painter->setPen(selectedPen_);
+	if(drawLines_)
+	{
+		if(selected()) {
+			painter->setPen(selectedPen_);
+			paintLines(painter);
+		}
+		painter->setPen(linePen_);
 		paintLines(painter);
 	}
-	painter->setPen(linePen_);
-	paintLines(painter);
 }
 
 void MPlotSeriesBasic::paintLines(QPainter* painter) {

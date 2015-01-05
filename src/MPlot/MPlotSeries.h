@@ -115,6 +115,12 @@ public:
 																0, sy_, 0,
 																dx_+offset_.x(), dy_+offset_.y(), 1.0); }
 
+	/// Whether or not the lines will be drawn for the plot or just the points.
+	bool drawLines() const;
+
+	/// Sets whether to draw lines for the plot or just the points.
+	void setDrawLines(bool newState);
+
 	/// Perfectly flat lines can't be amplified to anything, even with an infinite scale factor. This is a limit on the smallest normalization range
 #define MPLOT_MIN_NORMALIZATION_RANGE 1e-30
 
@@ -164,6 +170,9 @@ protected:
 
 	/// Holds the name of the series.
 	QString name_;
+
+	/// Whether or not the lines will be drawn for the plot or just the points.
+	bool drawLines_;
 
 	/// Holds the data model for the series.
 	const MPlotAbstractSeriesData* data_;
