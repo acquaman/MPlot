@@ -317,7 +317,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 			if(tickLabelsVisible_) {
 				painter->setPen(axisPen_);
 				QRectF labelBox = QRectF(QPointF(x,tickTop-tickLabelOffset_), QSizeF(0,0));
-				painter->drawText(labelBox, Qt::AlignBottom | Qt::AlignHCenter | Qt::TextDontClip, QString::number(tickValue));
+				painter->drawText(labelBox, Qt::AlignBottom | Qt::AlignHCenter | Qt::TextDontClip, formatTickLabel(tickValue));
 			}
 
 			// draw the gridline
@@ -379,7 +379,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 				painter->setPen(axisPen_);
 				QRectF labelBox = QRectF(QPointF(tickLeft-tickLabelOffset_,y), QSizeF(0,0));
 				QRectF actualLabelBox;
-				painter->drawText(labelBox, Qt::AlignRight | Qt::AlignVCenter | Qt::TextDontClip, QString::number(tickValue), &actualLabelBox);
+				painter->drawText(labelBox, Qt::AlignRight | Qt::AlignVCenter | Qt::TextDontClip, formatTickLabel(tickValue), &actualLabelBox);
 				if(actualLabelBox.width() > maxLabelWidth)
 					maxLabelWidth = actualLabelBox.width();
 			}
@@ -446,7 +446,7 @@ void MPlotAxis::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 				painter->setPen(axisPen_);
 				QRectF labelBox = QRectF(QPointF(tickRight+tickLabelOffset_,y), QSizeF(0,0));
 				QRectF actualLabelBox;
-				painter->drawText(labelBox, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip, QString::number(tickValue), &actualLabelBox);
+				painter->drawText(labelBox, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip, formatTickLabel(tickValue), &actualLabelBox);
 				if(actualLabelBox.width() > maxLabelWidth)
 					maxLabelWidth = actualLabelBox.width();
 			}
