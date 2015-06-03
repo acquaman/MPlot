@@ -13,6 +13,9 @@ equals(QMAKE_CXX, "clang++"){
 	DEFINES *= MPLOT_PRAGMA_WARNING_CONTROLS
 }
 
+# Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
+QMAKE_CXXFLAGS *= -Wextra -g
+
 INCLUDEPATH += src
 
 HEADERS += src/MPlot/MPlot_global.h \
@@ -34,7 +37,7 @@ HEADERS += src/MPlot/MPlot_global.h \
 		src/MPlot/MPlotRectangle.h \
 		src/MPlot/MPlotMarkerTransparentVerticalRectangle.h \
 		src/MPlot/MPlotColorLegend.h \
-    src/MPlot/MPlotImageRangeDialog.h
+	src/MPlot/MPlotImageRangeDialog.h
 
 SOURCES += src/MPlot/MPlot.cpp \
 		src/MPlot/MPlotAbstractTool.cpp \
@@ -54,7 +57,7 @@ SOURCES += src/MPlot/MPlot.cpp \
 		src/MPlot/MPlotRectangle.cpp \
 		src/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp \
 		src/MPlot/MPlotColorLegend.cpp \
-    src/MPlot/MPlotImageRangeDialog.cpp
+	src/MPlot/MPlotImageRangeDialog.cpp
 
 # Location to install the library in. By default, we use the current folder (top-level MPlot). This needs to be an absolute path for the macx QMAKE_POST_LINK step to work.
 INSTALLBASE = $${PWD}
