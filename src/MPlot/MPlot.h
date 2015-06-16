@@ -133,9 +133,10 @@ public:
 
 	/// Add a tool to the plot:
 	void addTool(MPlotAbstractTool* newTool);
-
 	/// Remove a tool from a plot. (Note: Does not delete the tool...)
 	bool removeTool(MPlotAbstractTool* removeMe);
+	/// Returns all the tools currently added to the plot.
+	QList<MPlotAbstractTool*> tools() const { return tools_; }
 
 	/// Returns the QGraphicsItem that contains the plot area.
 	QGraphicsRectItem* plotArea() const { return plotArea_; }
