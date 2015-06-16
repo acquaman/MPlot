@@ -10,7 +10,7 @@
 
 
 MPlotPlotSelectorTool::MPlotPlotSelectorTool() :
-	MPlotAbstractTool()
+	MPlotAbstractTool("Plot selector")
 {
 	selectedItem_ = 0;
 }
@@ -94,7 +94,7 @@ void MPlotPlotSelectorTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * e
 
 /// Constructor. By default, this tool operates on all axes (Left, Right, and Bottom), and adds/subtracts 25% to the axis range on each mousewheel click.  Use setZoomIncrement() and setYAxisTargets() to change these later.
 MPlotWheelZoomerTool::MPlotWheelZoomerTool(qreal zoomIncrement)
-	: MPlotAbstractTool()
+	: MPlotAbstractTool("Wheel zoomer")
 {
 	setZoomIncrement(zoomIncrement);
 }
@@ -203,7 +203,7 @@ void MPlotWheelZoomerTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * ev
 
 /// Constructor.  \c axisTargets specifies an OR combination of MPlotAxis::AxisID flags that set which axes this tool has zoom control over.
 MPlotDragZoomerTool::MPlotDragZoomerTool() :
-	MPlotAbstractTool()
+	MPlotAbstractTool("Drag zoomer")
 {
 
 	selectionRect_ = new QGraphicsRectItem(QRectF(), this);
@@ -335,7 +335,7 @@ void MPlotDragZoomerTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * eve
 
 
 MPlotCursorTool::MPlotCursorTool()
-	: MPlotAbstractTool() {
+	: MPlotAbstractTool("Cursor") {
 
 }
 
@@ -468,7 +468,7 @@ void MPlotCursorTool::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent * event )
 /////////////////////////////////////////////////
 
 MPlotDataPositionTool::MPlotDataPositionTool(bool useSelectionRect)
-	: MPlotAbstractTool()
+	: MPlotAbstractTool("Data position")
 {
 	useSelectionRect_ = useSelectionRect;
 
