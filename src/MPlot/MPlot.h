@@ -136,7 +136,7 @@ public:
 	/// Remove a tool from a plot. (Note: Does not delete the tool...)
 	bool removeTool(MPlotAbstractTool* removeMe);
 	/// Removes all tools from a plot (Note: Does not delete the tools...)
-	bool removeTools();
+	void removeTools();
 	/// Returns all the tools currently added to the plot.
 	QList<MPlotAbstractTool*> tools() const { return tools_; }
 

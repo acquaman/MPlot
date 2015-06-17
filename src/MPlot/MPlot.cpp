@@ -238,7 +238,7 @@ bool MPlot::removeTool(MPlotAbstractTool* removeMe) {
 		return false;
 }
 
-bool MPlot::removeTools()
+void MPlot::removeTools()
 {
 	tools_.clear();
 }
