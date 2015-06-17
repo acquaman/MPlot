@@ -15,7 +15,7 @@ class MPLOTSHARED_EXPORT MPlotAbstractTool : public QGraphicsObject
 	Q_OBJECT
 public:
 	/// Constructor.  Builds the basis for any real MPlot tools.  Defines a default geometry if one is not provided.
-	MPlotAbstractTool(const QString &name, const QRectF& geometry = QRectF(0,0,100,100));
+	MPlotAbstractTool(const QString &name, const QString &description = QString(), const QRectF& geometry = QRectF(0,0,100,100));
 	/// Destructor.  Removes the tool from the plot.
 	virtual ~MPlotAbstractTool();
 
@@ -40,9 +40,14 @@ public:
 	void setTargetAxes(const QList<MPlotAxisScale*> targetAxes) { targetAxes_ = targetAxes; }
 
 	/// Sets the name of the tool.
-	void setName(const QString &name);
+	void setName(const QString &newName) { name_ = newName; }
 	/// Returns the name of the tool.
 	QString name() const { return name_; }
+
+	/// Sets the description of the tool.
+	void setDescription(const QString &newDescription) { description_ = newDescription; }
+	/// Returns the description of this tool.
+	QString description() const { return description_; }
 
 protected:
 	/// Defining the mousePressEvent as a pure virtual function to ensure that all the subclasses must reimplement it.
@@ -64,6 +69,8 @@ protected:
 	QList<MPlotAxisScale*> targetAxes_;
 	/// The name of the tool.
 	QString name_;
+	/// The tool's description.
+	QString description_;
 };
 
 #endif // MPLOTABSTRACTTOOL_H

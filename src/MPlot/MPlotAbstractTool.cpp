@@ -5,12 +5,13 @@
 
 #include "MPlot/MPlot.h"
 
-MPlotAbstractTool::MPlotAbstractTool(const QString &name, const QRectF& geometry) :
+MPlotAbstractTool::MPlotAbstractTool(const QString &name, const QString &description, const QRectF& geometry) :
 	QGraphicsObject()
 {
 	plot_ = 0;
 	rect_ = geometry;
 	name_ = name;
+	description_ = description;
 }
 
 MPlotAbstractTool::~MPlotAbstractTool() {
