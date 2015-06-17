@@ -238,6 +238,11 @@ bool MPlot::removeTool(MPlotAbstractTool* removeMe) {
 		return false;
 }
 
+bool MPlot::removeTools()
+{
+	tools_.clear();
+}
+
 // Sets the rectangle to be filled by this plot (in scene or parent QGraphicsItem coordinates).
 /* Also rescales and re-applies the margins and transform for the plotArea). Can call with setRect(rect()) to re-compute margins.)*/
 void MPlot::setRect(const QRectF& rect) {
