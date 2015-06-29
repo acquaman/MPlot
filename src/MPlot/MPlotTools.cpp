@@ -486,6 +486,8 @@ MPlotDataPositionTool::MPlotDataPositionTool(bool useSelectionRect)
 
 	dragInProgress_ = false;
 	dragStarted_ = false;
+
+	indicatorValid_ = false;
 }
 
 MPlotDataPositionTool::~MPlotDataPositionTool()
@@ -497,8 +499,14 @@ MPlotDataPositionTool::~MPlotDataPositionTool()
 QPointF MPlotDataPositionTool::currentPosition() const
 {
 	QPointF pos;
-	pos.setX(indicator_->xAxisTarget()->mapDrawingToData(indicator_->pos().x()));
-	pos.setY(indicator_->yAxisTarget()->mapDrawingToData(indicator_->pos().y()));
+
+	if (indicator_ && indicatorValid_) {
+		pos.setX(indicator_->xAxisTarget()->mapDrawingToData(indicator_->pos().x()));
+		pos.setY(indicator_->yAxisTarget()->mapDrawingToData(indicator_->pos().y()));
+	} else {
+		pos.setX(0);
+		pos.setY(0);
+	}
 
 	return pos;
 }
@@ -545,6 +553,8 @@ bool MPlotDataPositionTool::setDataPositionIndicator(MPlotAxisScale *xAxisScale,
 	indicator_->setXAxisTarget(xAxisScale);
 
 	indicator_->setDescription(QString("Position Indicator"));
+
+	indicatorValid_ = true;
 
 	connect(this, SIGNAL(positionChanged(QPointF)), plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)));
 
