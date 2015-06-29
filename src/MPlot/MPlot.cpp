@@ -240,7 +240,9 @@ bool MPlot::removeTool(MPlotAbstractTool* removeMe) {
 
 void MPlot::removeTools()
 {
-	tools_.clear();
+	foreach (MPlotAbstractTool *tool, tools_) {
+		removeTool(tool);
+	}
 }
 
 // Sets the rectangle to be filled by this plot (in scene or parent QGraphicsItem coordinates).
