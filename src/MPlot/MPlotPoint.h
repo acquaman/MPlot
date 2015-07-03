@@ -58,12 +58,9 @@ public:
 protected:
 	QPen selectedPen_;
 	MPlotAbstractMarker* marker_;
-
 	QPointF point_;
 
 	virtual void setDefaults();
-
-
 };
 
 

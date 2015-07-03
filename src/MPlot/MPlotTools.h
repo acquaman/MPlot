@@ -246,6 +246,12 @@ signals:
 	/// Notifier of the size of the data rectangle that has been drawn once it is finished.
 	void selectedDataRectChanged(const QRectF &rect);
 
+protected slots:
+	/// Sets the position of the indicator, in drawing coordinates.
+	void setIndicatorDrawingPosition(const QPointF &newPosition);
+	/// Sets the position of the indicator, in data coordinates.
+	void setIndicatorDataPosition(const QPointF &newPosition);
+
 protected:
 	/// Re-implemented for the mouse press event.  Moves the indicators to the position of the mouse click.
 	virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
@@ -271,6 +277,68 @@ protected:
 	bool dragStarted_;
 	/// Means that a drag event is currently happening. We're in between exceeding the drag deadzone and finishing the drag.
 	bool dragInProgress_;
+};
+
+class MPLOTSHARED_EXPORT MPlotDataPositionCursorTool : public MPlotDataPositionTool
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.
+	MPlotDataPositionCursorTool(bool useSelectionRect = true);
+	/// Destructor.
+	virtual ~MPlotDataPositionCursorTool();
+
+	/// Returns the cursor's current position.
+	QPointF cursorPosition() const { return cursorPosition_; }
+	/// Returns flag indicating whether cursor is visible.
+	bool cursorVisible() const { return cursorVisible_; }
+	/// Returns the cursor color.
+	QColor cursorColor() const { return cursorColor_; }
+
+signals:
+	/// Notifier that the cursor's coordinates have changed.
+	void cursorPositionChanged(const QPointF &newPosition);
+	/// Notifier that the cursor visibility has changed.
+	void cursorVisibilityChanged(bool isVisible);
+	/// Notifier that the cursor color has changed.
+	void cursorColorChanged(const QColor &newColor);
+
+public slots:
+	/// Sets the cursor's position.
+	void setCursorPosition(const QPointF &newPosition);
+	/// Sets the cursor visibility.
+	void setCursorVisibility(bool isVisible);
+	/// Sets the cursor color.
+	void setCursorColor(const QColor &newColor);
+
+	/// Updates the applied cursor position.
+	void updateCursorPosition();
+	/// Updates the applied cursor visibility.
+	void updateCursorVisibility();
+	/// Updates the applied cursor color.
+	void updateCursorColor();
+
+protected slots:
+	/// Applies the given cursor position.
+	void applyCursorPosition(const QPointF &newPosition);
+	/// Applies the given cursor visibility.
+	void applyCursorVisibility(bool isVisible);
+	/// Applies the given cursor color.
+	void applyCursorColor(const QColor &newColor);
+
+	/// Handles updating the cursor position when the indicator position has changed.
+	void onDataPositionChanged(const QPointF &newPosition);
+
+protected:
+	/// The cursor.
+	MPlotPoint *cursor_;
+	/// The cursor's position.
+	QPointF cursorPosition_;
+	/// Flag indicating cursor visiblity.
+	bool cursorVisible_;
+	/// The cursor's color.
+	QColor cursorColor_;
 };
 
 #endif // MPLOTTOOLS_H
