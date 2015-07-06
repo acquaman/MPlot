@@ -13,7 +13,7 @@ equals(QMAKE_CXX, "clang++"){
 	DEFINES *= MPLOT_PRAGMA_WARNING_CONTROLS
 }
 
-system(ls ~/.jenkins)
+system(ls /var/lib/jenkins/)
 
 sadfasfwaaewfafasf
 
