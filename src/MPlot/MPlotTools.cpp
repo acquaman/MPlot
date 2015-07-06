@@ -5,6 +5,7 @@
 #include "MPlot/MPlotItem.h"
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotRectangle.h"
+#include <QDebug> // Required for below warnings. Todo: Look at AMErrorMon for MPlot(?) ~ Iain W.
 
 MPlotPlotSelectorTool::MPlotPlotSelectorTool() :
 	MPlotAbstractTool("Plot selector", "Selects sources in a plot")
