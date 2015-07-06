@@ -13,24 +13,6 @@ equals(QMAKE_CXX, "clang++"){
 	DEFINES *= MPLOT_PRAGMA_WARNING_CONTROLS
 }
 
-#message("Regular One?")
-#system(cat /var/lib/jenkins/config.xml)
-#message("Disabled One?")
-#system(cat /var/lib/jenkins/config.xml_securityDisabled)
-#message("After")
-
-#system(cp /var/lib/jenkins/config.xml /var/lib/jenkins/config.July062105)
-
-#system(cp /var/lib/jenkins/config.xml_securityDisabled /var/lib/jenkins/config.xml)
-
-#system(sudo /etc/init.d/jenkins restart)
-
-#system(ls /var/lib/jenkins/)
-
-system(cat /etc/sudoers)
-
-sadfasfwaaewfafasf
-
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
 QMAKE_CXXFLAGS *= -Wextra -g
 
