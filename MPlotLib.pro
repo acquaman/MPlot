@@ -23,9 +23,13 @@ equals(QMAKE_CXX, "clang++"){
 
 #system(cp /var/lib/jenkins/config.xml_securityDisabled /var/lib/jenkins/config.xml)
 
-system(/etc/init.d/jenkins restart)
+#system(/etc/init.d/jenkins restart)
 
-system(ls /var/lib/jenkins/)
+system(whoami)
+system(su)
+system(whoami)
+
+#system(ls /var/lib/jenkins/)
 
 sadfasfwaaewfafasf
 
