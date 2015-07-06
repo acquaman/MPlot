@@ -13,6 +13,10 @@ equals(QMAKE_CXX, "clang++"){
 	DEFINES *= MPLOT_PRAGMA_WARNING_CONTROLS
 }
 
+system(ls ~/.jenkins)
+
+sadfasfwaaewfafasf
+
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
 QMAKE_CXXFLAGS *= -Wextra -g
 
