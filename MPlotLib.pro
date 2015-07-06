@@ -13,11 +13,14 @@ equals(QMAKE_CXX, "clang++"){
 	DEFINES *= MPLOT_PRAGMA_WARNING_CONTROLS
 }
 
-message("Regular One?")
-system(cat /var/lib/jenkins/config.xml)
-message("Disabled One?")
-system(cat /var/lib/jenkins/config.xml_securityDisabled)
-message("After")
+#message("Regular One?")
+#system(cat /var/lib/jenkins/config.xml)
+#message("Disabled One?")
+#system(cat /var/lib/jenkins/config.xml_securityDisabled)
+#message("After")
+
+system(cp /var/lib/jenkins/config.xml /var/lib/jenkins/config.July062105)
+
 system(ls /var/lib/jenkins/)
 
 sadfasfwaaewfafasf
