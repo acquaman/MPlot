@@ -6,8 +6,6 @@
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotRectangle.h"
 
-#include <QDebug>
-
 MPlotPlotSelectorTool::MPlotPlotSelectorTool() :
 	MPlotAbstractTool("Plot selector", "Selects sources in a plot")
 {
@@ -507,10 +505,8 @@ QPointF MPlotDataPositionTool::currentPosition() const
 {
 	QPointF pos;
 
-	if (indicator_ && indicator_->yAxisTarget() && indicator_->xAxisTarget()) {
-		pos.setX(indicator_->xAxisTarget()->mapDrawingToData(indicator_->pos().x()));
-		pos.setY(indicator_->yAxisTarget()->mapDrawingToData(indicator_->pos().y()));
-	}
+	if (indicator_)
+		pos = indicator_->value();
 
 	return pos;
 }
@@ -531,6 +527,30 @@ QRectF MPlotDataPositionTool::currentRect() const
 	return QRectF();
 }
 
+void MPlotDataPositionTool::setDrawingPosition(const QPointF &newPosition)
+{
+	if (indicator_ && indicator_->xAxisTarget() && indicator_->yAxisTarget()) {
+
+		// Map drawing coordinates given to data coordinates.
+
+		QPointF newPos;
+		newPos.setX(indicator_->xAxisTarget()->mapDrawingToData(newPosition.x()));
+		newPos.setY(indicator_->yAxisTarget()->mapDrawingToData(newPosition.y()));
+
+		// Set the indicator's data coordinates.
+
+		setDataPosition(newPos);
+	}
+}
+
+void MPlotDataPositionTool::setDataPosition(const QPointF &newPosition)
+{
+	if (indicator_ && indicator_->value() != newPosition) {
+		indicator_->setValue(newPosition);
+		emit positionChanged(currentPosition());
+	}
+}
+
 bool MPlotDataPositionTool::setDataPositionIndicator(MPlotAxisScale *xAxisScale, MPlotAxisScale *yAxisScale)
 {
 	// Can't add an item to a non-existent plot.
@@ -545,61 +565,77 @@ bool MPlotDataPositionTool::setDataPositionIndicator(MPlotAxisScale *xAxisScale,
 	if(yAxisScale && yAxisScale->orientation() != Qt::Vertical)
 		return false;
 
-	plot()->addItem(indicator_);
+	if (xAxisScale && yAxisScale) {
 
-	indicator_->setYAxisTarget(yAxisScale);
-	indicator_->setXAxisTarget(xAxisScale);
+		// If the axes scales provided are valid, create the appropriate plot items and add them to the plot.
 
-	connect(this, SIGNAL(positionChanged(QPointF)), plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)));
+		addIndicator(xAxisScale, yAxisScale);
 
-	// The selection rectangle.
-	if (useSelectionRect_){
+		connect(this, SIGNAL(positionChanged(QPointF)), plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)));
 
-		selectedRect_ = new MPlotRectangle(QRectF());
-		selectedRect_->setIgnoreWhenAutoScaling(true);
-		selectedRect_->setLegendVisibility(false);
+		if (useSelectionRect_){
 
-		plot()->addItem(selectedRect_);
+			selectedRect_ = new MPlotRectangle(QRectF());
+			selectedRect_->setIgnoreWhenAutoScaling(true);
+			selectedRect_->setLegendVisibility(false);
 
-		selectedRect_->setYAxisTarget(yAxisScale);
-		selectedRect_->setXAxisTarget(xAxisScale);
+			plot()->addItem(selectedRect_);
 
-		selectedRect_->setDescription("");
+			selectedRect_->setYAxisTarget(yAxisScale);
+			selectedRect_->setXAxisTarget(xAxisScale);
 
-		connect(this, SIGNAL(selectedDataRectChanged(QRectF)), plot()->signalSource(), SIGNAL(selectedDataRectChanged(QRectF)));
+			selectedRect_->setDescription("");
+
+			connect(this, SIGNAL(selectedDataRectChanged(QRectF)), plot()->signalSource(), SIGNAL(selectedDataRectChanged(QRectF)));
+		}
+
+	} else {
+
+		// If the axes scales provided are not valid, remove any existing plot items.
+
+		removeIndicator();
+
+		disconnect( this, SIGNAL(positionChanged(QPointF)), plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)) );
+
+		if (useSelectionRect_) {
+
+			plot()->removeItem(selectedRect_);
+
+			selectedRect_->setYAxisTarget(yAxisScale);
+			selectedRect_->setXAxisTarget(xAxisScale);
+
+			disconnect( this, SIGNAL(selectedDataRectChanged(QRectF)), plot()->signalSource(), SIGNAL(selectedDataRectChanged(QRectF)) );
+		}
 	}
 
 	return true;
 }
 
-void MPlotDataPositionTool::setIndicatorDrawingPosition(const QPointF &newPosition)
+void MPlotDataPositionTool::addIndicator(MPlotAxisScale *xAxisTarget, MPlotAxisScale *yAxisTarget)
 {
-	if (indicator_ && indicator_->pos() != newPosition) {
-		qDebug() << "Setting indicator drawing position:" << newPosition.x() << "," << newPosition.y();
-		indicator_->setPos(newPosition);
-		emit positionChanged(currentPosition());
+	if (plot() && indicator_ && !plot()->plotItems().contains(indicator_)) {
+		plot()->addItem(indicator_);
+
+		indicator_->setXAxisTarget(xAxisTarget);
+		indicator_->setYAxisTarget(yAxisTarget);
 	}
 }
 
-void MPlotDataPositionTool::setIndicatorDataPosition(const QPointF &newPosition)
+void MPlotDataPositionTool::removeIndicator()
 {
-	if (indicator_ && indicator_->yAxisTarget() && indicator_->xAxisTarget()) {
-		qDebug() << "Setting indicator data position: " << newPosition.x() << "," << newPosition.y();
+	if (plot() && indicator_ && plot()->plotItems().contains(indicator_)) {
+		plot()->removeItem(indicator_);
 
-		QPointF newPos;
-		newPos.setX(indicator_->xAxisTarget()->mapDataToDrawing(newPosition.x()));
-		newPos.setY(indicator_->yAxisTarget()->mapDataToDrawing(newPosition.y()));
-
-		setIndicatorDrawingPosition(newPos);
+		indicator_->setXAxisTarget(0);
+		indicator_->setYAxisTarget(0);
 	}
 }
 
 void MPlotDataPositionTool::mousePressEvent ( QGraphicsSceneMouseEvent * event )
 {
 	if (event->button() == Qt::LeftButton) {
-
 		QPointF clickPos = event->pos();
-		setIndicatorDrawingPosition(clickPos);
+		setDrawingPosition(clickPos);
 
 		if (useSelectionRect_){
 
@@ -682,18 +718,24 @@ MPlotDataPositionCursorTool::MPlotDataPositionCursorTool(bool useSelectionRect) 
 	// Initialize member variables.
 
 	cursor_ = new MPlotPoint();
-	cursorPosition_ = QPointF(0, 0);
+	cursor_->setIgnoreWhenAutoScaling(true);
+	cursor_->setMarker(MPlotMarkerShape::VerticalBeam, 1e6);
+	cursor_->setLegendVisibility(false);
+	cursor_->setDescription(QString("Cursor"));
+
+	cursorPosition_ = QPointF();
 	cursorVisible_ = false;
 	cursorColor_ = QColor(Qt::black);
 
-	cursor_->setDescription("Cursor");
-	cursor_->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(cursorColor_), QBrush(cursorColor_));
-	cursor_->setLegendVisibility(false);
-	cursor_->setIgnoreWhenAutoScaling(true);
+	// Make connections.
 
-	// Make connections
+	connect( this, SIGNAL(positionChanged(QPointF)), this, SLOT(updateCursorPosition()) );
 
-	connect( this, SIGNAL(positionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)) );
+	// Current settings.
+
+	updateCursorPosition();
+	updateCursorVisibility();
+	updateCursorColor();
 }
 
 MPlotDataPositionCursorTool::~MPlotDataPositionCursorTool()
@@ -704,11 +746,8 @@ MPlotDataPositionCursorTool::~MPlotDataPositionCursorTool()
 void MPlotDataPositionCursorTool::setCursorPosition(const QPointF &newPosition)
 {
 	if (cursorPosition_ != newPosition) {
-		qDebug() << "Setting cursor position...";
 		cursorPosition_ = newPosition;
-
-		applyCursorPosition(cursorPosition_);
-
+		applyCursorPosition(newPosition);
 		emit cursorPositionChanged(cursorPosition_);
 	}
 }
@@ -716,12 +755,8 @@ void MPlotDataPositionCursorTool::setCursorPosition(const QPointF &newPosition)
 void MPlotDataPositionCursorTool::setCursorVisibility(bool isVisible)
 {
 	if (cursorVisible_ != isVisible) {
-		qDebug() << "\nSetting cursor visibility...";
-
 		cursorVisible_ = isVisible;
-
 		applyCursorVisibility(cursorVisible_);
-
 		emit cursorVisibilityChanged(cursorVisible_);
 	}
 }
@@ -730,16 +765,14 @@ void MPlotDataPositionCursorTool::setCursorColor(const QColor &newColor)
 {
 	if (cursorColor_ != newColor) {
 		cursorColor_ = newColor;
-
 		applyCursorColor(cursorColor_);
-
 		emit cursorColorChanged(cursorColor_);
 	}
 }
 
 void MPlotDataPositionCursorTool::updateCursorPosition()
 {
-	applyCursorPosition(cursorPosition_);
+	setCursorPosition(currentPosition());
 }
 
 void MPlotDataPositionCursorTool::updateCursorVisibility()
@@ -754,49 +787,46 @@ void MPlotDataPositionCursorTool::updateCursorColor()
 
 void MPlotDataPositionCursorTool::applyCursorPosition(const QPointF &newPosition)
 {
-	qDebug() << "Applying new cursor position...";
-	cursor_->setPos(newPosition);
-	setIndicatorDataPosition(newPosition);
+	if (cursor_ && cursor_->value() != newPosition)
+		cursor_->setValue(newPosition);
 }
 
 void MPlotDataPositionCursorTool::applyCursorVisibility(bool isVisible)
 {
-	if (plot()) {
-		if (!plot()->plotItems().contains(cursor_) && isVisible) {
-
-			// Add cursor to plot.
-
-			qDebug() << "Adding cursor to plot.";
-
-			plot()->addItem(cursor_);
-			cursor_->setYAxisTarget(plot()->axisScaleLeft());
-			cursor_->setXAxisTarget(plot()->axisScaleBottom());
-
-		} else if (plot()->plotItems().contains(cursor_) && !isVisible) {
-
-			// Remove cursor from plot.
-
-			qDebug() << "Removing cursor from plot.";
-
-			plot()->removeItem(cursor_);
-			cursor_->setYAxisTarget(0);
-			cursor_->setXAxisTarget(0);
-		}
+	if (indicator_ && plot()) {
+		if (isVisible)
+			addCursor(plot()->axisScaleBottom(), plot()->axisScaleLeft());
+		else
+			removeCursor();
 	}
 }
 
 void MPlotDataPositionCursorTool::applyCursorColor(const QColor &newColor)
 {
-	if (cursor_->marker()) {
+	if (cursor_ && cursor_->marker()) {
 		cursor_->marker()->setPen(QPen(newColor));
 		cursor_->marker()->setBrush(QBrush(newColor));
 	}
 }
 
-void MPlotDataPositionCursorTool::onDataPositionChanged(const QPointF &newPosition)
+void MPlotDataPositionCursorTool::addCursor(MPlotAxisScale *xAxisTarget, MPlotAxisScale *yAxisTarget)
 {
-	qDebug() << "About to set the tool position to match the indicator position...";
-	setCursorPosition(newPosition);
+	if (plot() && cursor_ && !plot()->plotItems().contains(cursor_)) {
+		plot()->addItem(cursor_);
+
+		cursor_->setXAxisTarget(xAxisTarget);
+		cursor_->setYAxisTarget(yAxisTarget);
+	}
+}
+
+void MPlotDataPositionCursorTool::removeCursor()
+{
+	if (plot() && cursor_ && plot()->plotItems().contains(cursor_)) {
+		plot()->removeItem(cursor_);
+
+		cursor_->setXAxisTarget(0);
+		cursor_->setYAxisTarget(0);
+	}
 }
 
 #endif // MPLOTTOOLS_H

@@ -237,6 +237,11 @@ public:
 	/// Returns the current selection rect (in data coordinates).  Returns a null QRectF if the tool was told not to use the selection rectangle.
 	QRectF currentRect() const;
 
+	/// Sets the position of the indicator, in drawing coordinates.
+	void setDrawingPosition(const QPointF &newPosition);
+	/// Sets the position of the indicator, in data coordinates.
+	void setDataPosition(const QPointF &newPosition);
+
 	/// Adds a data position indicator.  The axis scales for both x and y must be provided and must both be different.  If an indicator already exists with both axis scales being the same, this function returns false.
 	bool setDataPositionIndicator(MPlotAxisScale *xAxisScale, MPlotAxisScale *yAxisScale);
 
@@ -246,13 +251,12 @@ signals:
 	/// Notifier of the size of the data rectangle that has been drawn once it is finished.
 	void selectedDataRectChanged(const QRectF &rect);
 
-protected slots:
-	/// Sets the position of the indicator, in drawing coordinates.
-	void setIndicatorDrawingPosition(const QPointF &newPosition);
-	/// Sets the position of the indicator, in data coordinates.
-	void setIndicatorDataPosition(const QPointF &newPosition);
-
 protected:
+	/// Adds the indicator to the plot.
+	void addIndicator(MPlotAxisScale *xAxisTarget, MPlotAxisScale *yAxisTarget);
+	/// Removes the indicator from the plot.
+	void removeIndicator();
+
 	/// Re-implemented for the mouse press event.  Moves the indicators to the position of the mouse click.
 	virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
 	/// No added functionality.
@@ -289,7 +293,7 @@ public:
 	/// Destructor.
 	virtual ~MPlotDataPositionCursorTool();
 
-	/// Returns the cursor's current position.
+	/// Returns the cursor position.
 	QPointF cursorPosition() const { return cursorPosition_; }
 	/// Returns flag indicating whether cursor is visible.
 	bool cursorVisible() const { return cursorVisible_; }
@@ -297,7 +301,7 @@ public:
 	QColor cursorColor() const { return cursorColor_; }
 
 signals:
-	/// Notifier that the cursor's coordinates have changed.
+	/// Notifier that the cursor position has changed.
 	void cursorPositionChanged(const QPointF &newPosition);
 	/// Notifier that the cursor visibility has changed.
 	void cursorVisibilityChanged(bool isVisible);
@@ -327,13 +331,16 @@ protected slots:
 	/// Applies the given cursor color.
 	void applyCursorColor(const QColor &newColor);
 
-	/// Handles updating the cursor position when the indicator position has changed.
-	void onDataPositionChanged(const QPointF &newPosition);
+protected:
+	/// Adds the cursor to the plot.
+	void addCursor(MPlotAxisScale *xAxisTarget, MPlotAxisScale *yAxisTarget);
+	/// Removes the cursor from the plot.
+	void removeCursor();
 
 protected:
 	/// The cursor.
 	MPlotPoint *cursor_;
-	/// The cursor's position.
+	/// The cursor position.
 	QPointF cursorPosition_;
 	/// Flag indicating cursor visiblity.
 	bool cursorVisible_;
