@@ -237,17 +237,24 @@ public:
 	/// Returns the current selection rect (in data coordinates).  Returns a null QRectF if the tool was told not to use the selection rectangle.
 	QRectF currentRect() const;
 
+	/// Returns the units for the data position indicator.
+	QStringList units() const { return units_; }
+
+public slots:
 	/// Sets the position of the indicator, in drawing coordinates.
 	void setDrawingPosition(const QPointF &newPosition);
 	/// Sets the position of the indicator, in data coordinates.
 	void setDataPosition(const QPointF &newPosition);
-
+	/// Sets the indicator units.
+	void setUnits(const QStringList &newUnits);
 	/// Adds a data position indicator.  The axis scales for both x and y must be provided and must both be different.  If an indicator already exists with both axis scales being the same, this function returns false.
 	bool setDataPositionIndicator(MPlotAxisScale *xAxisScale, MPlotAxisScale *yAxisScale);
 
 signals:
 	/// Notifier that the position inside the plot has changed.  Passes the new position.
 	void positionChanged(const QPointF &position);
+	/// Notifier that the units have changed.
+	void unitsChanged(const QStringList &newUnits);
 	/// Notifier of the size of the data rectangle that has been drawn once it is finished.
 	void selectedDataRectChanged(const QRectF &rect);
 
@@ -270,6 +277,9 @@ protected:
 
 	/// Position indicator.
 	MPlotPoint *indicator_;
+	/// Position units.
+	QStringList units_;
+
 	/// Selection rectangle.
 	MPlotRectangle *selectedRect_;
 

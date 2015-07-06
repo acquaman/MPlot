@@ -5,6 +5,7 @@
 #include "MPlot/MPlotItem.h"
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotRectangle.h"
+#include <QDebug>
 
 MPlotPlotSelectorTool::MPlotPlotSelectorTool() :
 	MPlotAbstractTool("Plot selector", "Selects sources in a plot")
@@ -475,6 +476,10 @@ MPlotDataPositionTool::MPlotDataPositionTool(bool useSelectionRect)
 	indicator_->setLegendVisibility(false);
 	indicator_->setDescription(QString("Position Indicator"));
 
+	// The units.
+
+	units_ = QStringList();
+
 	// The selection rect.
 
 	useSelectionRect_ = useSelectionRect;
@@ -499,6 +504,8 @@ MPlotDataPositionTool::~MPlotDataPositionTool()
 {
 	if (useSelectionRect_)
 		delete selectionRect_;
+
+	delete indicator_;
 }
 
 QPointF MPlotDataPositionTool::currentPosition() const
@@ -548,6 +555,14 @@ void MPlotDataPositionTool::setDataPosition(const QPointF &newPosition)
 	if (indicator_ && indicator_->value() != newPosition) {
 		indicator_->setValue(newPosition);
 		emit positionChanged(currentPosition());
+	}
+}
+
+void MPlotDataPositionTool::setUnits(const QStringList &newUnits)
+{
+	if (units_ != newUnits) {
+		units_ = newUnits;
+		emit unitsChanged(units_);
 	}
 }
 
@@ -740,7 +755,7 @@ MPlotDataPositionCursorTool::MPlotDataPositionCursorTool(bool useSelectionRect) 
 
 MPlotDataPositionCursorTool::~MPlotDataPositionCursorTool()
 {
-
+	delete cursor_;
 }
 
 void MPlotDataPositionCursorTool::setCursorPosition(const QPointF &newPosition)
