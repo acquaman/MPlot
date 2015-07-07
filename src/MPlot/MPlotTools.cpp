@@ -767,6 +767,12 @@ void MPlotDataPositionCursorTool::setCursorPosition(const QPointF &newPosition)
 	}
 }
 
+void MPlotDataPositionCursorTool::setCursorPosition(double xPosition)
+{
+	QPointF newPosition = QPointF(xPosition, cursorPosition_.y());
+	setCursorPosition(newPosition);
+}
+
 void MPlotDataPositionCursorTool::setCursorVisibility(bool isVisible)
 {
 	if (cursorVisible_ != isVisible) {

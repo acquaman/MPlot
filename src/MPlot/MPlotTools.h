@@ -321,6 +321,8 @@ signals:
 public slots:
 	/// Sets the cursor's position.
 	void setCursorPosition(const QPointF &newPosition);
+	/// Sets the cursor's position.
+	void setCursorPosition(double xPosition);
 	/// Sets the cursor visibility.
 	void setCursorVisibility(bool isVisible);
 	/// Sets the cursor color.
