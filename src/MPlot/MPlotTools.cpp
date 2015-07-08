@@ -738,6 +738,7 @@ MPlotDataPositionCursorTool::MPlotDataPositionCursorTool(bool useSelectionRect) 
 	cursor_->setMarker(MPlotMarkerShape::VerticalBeam, 1e6);
 	cursor_->setLegendVisibility(false);
 	cursor_->setDescription(QString("Cursor"));
+	cursor_->setSelectable(false);
 
 	cursorPosition_ = QPointF();
 	cursorVisible_ = false;
