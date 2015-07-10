@@ -49,11 +49,6 @@ public:
         /// Sets the brush to paint the marker.
 	virtual void setBrush(const QBrush &brush) { brush_ = brush; }
 
-	/// Returns the marker shape.
-	virtual MPlotMarkerShape::Shape shape() const { return shape_; }
-	/// Sets the marker shape.
-	virtual void setShape(MPlotMarkerShape::Shape shape) { shape_ = shape; }
-
         /// Paint function. Pure virtual because subclasses must define what they look like.
 	virtual void paint(QPainter* painter) = 0;
 	////////////////////
@@ -65,8 +60,6 @@ protected:
 	QPen pen_;
         /// Mebmer holding the brush for the marker.
 	QBrush brush_;
-	/// Member holding the marker shape.
-	MPlotMarkerShape::Shape shape_;
 };
 
 /*
