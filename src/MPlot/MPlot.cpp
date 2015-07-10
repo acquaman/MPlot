@@ -96,7 +96,6 @@ MPlot::MPlot(const QRectF& rect, QGraphicsItem* parent) :
 }
 
 MPlot::~MPlot() {
-
 	gettingDeleted_ = true;
 	delete signalHandler_;
 	signalHandler_ = 0;

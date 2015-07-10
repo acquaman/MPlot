@@ -505,8 +505,6 @@ MPlotDataPositionTool::~MPlotDataPositionTool()
 {
 	if (useSelectionRect_)
 		delete selectionRect_;
-
-	delete indicator_;
 }
 
 QPointF MPlotDataPositionTool::currentPosition() const
@@ -757,7 +755,8 @@ MPlotDataPositionCursorTool::MPlotDataPositionCursorTool(bool useSelectionRect) 
 
 MPlotDataPositionCursorTool::~MPlotDataPositionCursorTool()
 {
-	delete cursor_;
+	if (!cursorVisible_)
+		delete cursor_;
 }
 
 void MPlotDataPositionCursorTool::setCursorPosition(const QPointF &newPosition)
