@@ -499,6 +499,8 @@ MPlotDataPositionTool::MPlotDataPositionTool(bool useSelectionRect)
 
 	dragInProgress_ = false;
 	dragStarted_ = false;
+
+	connect( this, SIGNAL(positionChanged(QPointF)), this, SLOT(onPositionChanged(QPointF)) );
 }
 
 MPlotDataPositionTool::~MPlotDataPositionTool()
@@ -554,6 +556,22 @@ void MPlotDataPositionTool::setDataPosition(const QPointF &newPosition)
 	if (indicator_ && indicator_->value() != newPosition) {
 		indicator_->setValue(newPosition);
 		emit positionChanged(currentPosition());
+	}
+}
+
+void MPlotDataPositionTool::setDataPositionX(double xPosition)
+{
+	if (indicator_) {
+		QPointF newPosition = QPointF(xPosition, indicator_->y());
+		setDataPosition(newPosition);
+	}
+}
+
+void MPlotDataPositionTool::setDataPositionY(double yPosition)
+{
+	if (indicator_) {
+		QPointF newPosition = QPointF(indicator_->x(), yPosition);
+		setDataPosition(newPosition);
 	}
 }
 
@@ -623,6 +641,13 @@ bool MPlotDataPositionTool::setDataPositionIndicator(MPlotAxisScale *xAxisScale,
 	}
 
 	return true;
+}
+
+#include <QDebug>
+
+void MPlotDataPositionTool::onPositionChanged(const QPointF &newPosition)
+{
+	qDebug() << "\nData position tool position changed: " << newPosition.x() << ", " << newPosition.y();
 }
 
 void MPlotDataPositionTool::addIndicator(MPlotAxisScale *xAxisTarget, MPlotAxisScale *yAxisTarget)
@@ -770,9 +795,15 @@ void MPlotDataPositionCursorTool::setCursorPosition(const QPointF &newPosition)
 	}
 }
 
-void MPlotDataPositionCursorTool::setCursorPosition(double xPosition)
+void MPlotDataPositionCursorTool::setCursorPositionX(double xPosition)
 {
 	QPointF newPosition = QPointF(xPosition, cursorPosition_.y());
+	setCursorPosition(newPosition);
+}
+
+void MPlotDataPositionCursorTool::setCursorPositionY(double yPosition)
+{
+	QPointF newPosition = QPointF(cursorPosition_.x(), yPosition);
 	setCursorPosition(newPosition);
 }
 

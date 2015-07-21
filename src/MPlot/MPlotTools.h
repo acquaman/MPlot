@@ -245,6 +245,10 @@ public slots:
 	void setDrawingPosition(const QPointF &newPosition);
 	/// Sets the position of the indicator, in data coordinates.
 	void setDataPosition(const QPointF &newPosition);
+	/// Sets the x position of the indicator, in data coordinates.
+	void setDataPositionX(double newPosition);
+	/// Sets the y position of the indicator, in data coordinates.
+	void setDataPositionY(double newPosition);
 	/// Sets the indicator units.
 	void setUnits(const QStringList &newUnits);
 	/// Adds a data position indicator.  The axis scales for both x and y must be provided and must both be different.  If an indicator already exists with both axis scales being the same, this function returns false.
@@ -257,6 +261,10 @@ signals:
 	void unitsChanged(const QStringList &newUnits);
 	/// Notifier of the size of the data rectangle that has been drawn once it is finished.
 	void selectedDataRectChanged(const QRectF &rect);
+
+protected slots:
+	/// Testing.
+	void onPositionChanged(const QPointF &newPosition);
 
 protected:
 	/// Adds the indicator to the plot.
