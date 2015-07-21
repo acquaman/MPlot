@@ -499,8 +499,6 @@ MPlotDataPositionTool::MPlotDataPositionTool(bool useSelectionRect)
 
 	dragInProgress_ = false;
 	dragStarted_ = false;
-
-	connect( this, SIGNAL(positionChanged(QPointF)), this, SLOT(onPositionChanged(QPointF)) );
 }
 
 MPlotDataPositionTool::~MPlotDataPositionTool()
@@ -641,13 +639,6 @@ bool MPlotDataPositionTool::setDataPositionIndicator(MPlotAxisScale *xAxisScale,
 	}
 
 	return true;
-}
-
-#include <QDebug>
-
-void MPlotDataPositionTool::onPositionChanged(const QPointF &newPosition)
-{
-	qDebug() << "\nData position tool position changed: " << newPosition.x() << ", " << newPosition.y();
 }
 
 void MPlotDataPositionTool::addIndicator(MPlotAxisScale *xAxisTarget, MPlotAxisScale *yAxisTarget)

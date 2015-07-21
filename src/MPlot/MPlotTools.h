@@ -262,10 +262,6 @@ signals:
 	/// Notifier of the size of the data rectangle that has been drawn once it is finished.
 	void selectedDataRectChanged(const QRectF &rect);
 
-protected slots:
-	/// Testing.
-	void onPositionChanged(const QPointF &newPosition);
-
 protected:
 	/// Adds the indicator to the plot.
 	void addIndicator(MPlotAxisScale *xAxisTarget, MPlotAxisScale *yAxisTarget);
@@ -331,10 +327,12 @@ signals:
 	void cursorColorChanged(const QColor &newColor);
 
 public slots:
-	/// Sets the cursor's position.
+	/// Sets the cursor's position, in data coordinates.
 	void setCursorPosition(const QPointF &newPosition);
-	/// Sets the cursor's position.
-	void setCursorPosition(double xPosition);
+	/// Sets the cursor's x position, in data coordinates.
+	void setCursorPositionX(double xPosition);
+	/// Sets the cursor's y position, in data coordinates.
+	void setCursorPositionY(double yPosition);
 	/// Sets the cursor visibility.
 	void setCursorVisibility(bool isVisible);
 	/// Sets the cursor marker.
