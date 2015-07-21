@@ -307,6 +307,8 @@ public:
 	QPointF cursorPosition() const { return cursorPosition_; }
 	/// Returns flag indicating whether cursor is visible.
 	bool cursorVisible() const { return cursorVisible_; }
+	/// Returns the cursor marker shape.
+	MPlotMarkerShape::Shape cursorMarker() const { return cursorMarker_; }
 	/// Returns the cursor color.
 	QColor cursorColor() const { return cursorColor_; }
 
@@ -315,6 +317,8 @@ signals:
 	void cursorPositionChanged(const QPointF &newPosition);
 	/// Notifier that the cursor visibility has changed.
 	void cursorVisibilityChanged(bool isVisible);
+	/// Notifier that the cursor marker has changed.
+	void cursorMarkerChanged(const MPlotMarkerShape::Shape &newShape);
 	/// Notifier that the cursor color has changed.
 	void cursorColorChanged(const QColor &newColor);
 
@@ -325,6 +329,8 @@ public slots:
 	void setCursorPosition(double xPosition);
 	/// Sets the cursor visibility.
 	void setCursorVisibility(bool isVisible);
+	/// Sets the cursor marker.
+	void setCursorMarker(const MPlotMarkerShape::Shape &newShape);
 	/// Sets the cursor color.
 	void setCursorColor(const QColor &newColor);
 
@@ -332,6 +338,8 @@ public slots:
 	void updateCursorPosition();
 	/// Updates the applied cursor visibility.
 	void updateCursorVisibility();
+	/// Updates the applied cursor marker.
+	void updateCursorMarker();
 	/// Updates the applied cursor color.
 	void updateCursorColor();
 
@@ -340,6 +348,8 @@ protected slots:
 	void applyCursorPosition(const QPointF &newPosition);
 	/// Applies the given cursor visibility.
 	void applyCursorVisibility(bool isVisible);
+	/// Applies the given cursor marker.
+	void applyCursorMarker(const MPlotMarkerShape::Shape &newShape);
 	/// Applies the given cursor color.
 	void applyCursorColor(const QColor &newColor);
 
@@ -352,6 +362,9 @@ protected:
 protected:
 	/// The cursor.
 	MPlotPoint *cursor_;
+
+	/// The cursor marker.
+	MPlotMarkerShape::Shape cursorMarker_;
 	/// The cursor position.
 	QPointF cursorPosition_;
 	/// Flag indicating cursor visiblity.

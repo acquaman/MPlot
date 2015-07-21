@@ -731,16 +731,17 @@ MPlotDataPositionCursorTool::MPlotDataPositionCursorTool(bool useSelectionRect) 
 {
 	// Initialize member variables.
 
+	cursorPosition_ = QPointF();
+	cursorVisible_ = false;
+	cursorMarker_ = MPlotMarkerShape::VerticalBeam;
+	cursorColor_ = QColor(Qt::black);
+
 	cursor_ = new MPlotPoint();
 	cursor_->setIgnoreWhenAutoScaling(true);
-	cursor_->setMarker(MPlotMarkerShape::VerticalBeam, 1e6);
+	cursor_->setMarker(cursorMarker_, 1e6);
 	cursor_->setLegendVisibility(false);
 	cursor_->setDescription(QString("Cursor"));
 	cursor_->setSelectable(false);
-
-	cursorPosition_ = QPointF();
-	cursorVisible_ = false;
-	cursorColor_ = QColor(Qt::black);
 
 	// Make connections.
 
@@ -750,6 +751,7 @@ MPlotDataPositionCursorTool::MPlotDataPositionCursorTool(bool useSelectionRect) 
 
 	updateCursorPosition();
 	updateCursorVisibility();
+	updateCursorMarker();
 	updateCursorColor();
 }
 
@@ -783,6 +785,15 @@ void MPlotDataPositionCursorTool::setCursorVisibility(bool isVisible)
 	}
 }
 
+void MPlotDataPositionCursorTool::setCursorMarker(const MPlotMarkerShape::Shape &newShape)
+{
+	if (cursorMarker_ != newShape) {
+		cursorMarker_ = newShape;
+		applyCursorMarker(cursorMarker_);
+		emit cursorMarkerChanged(cursorMarker_);
+	}
+}
+
 void MPlotDataPositionCursorTool::setCursorColor(const QColor &newColor)
 {
 	if (cursorColor_ != newColor) {
@@ -802,6 +813,11 @@ void MPlotDataPositionCursorTool::updateCursorVisibility()
 	applyCursorVisibility(cursorVisible_);
 }
 
+void MPlotDataPositionCursorTool::updateCursorMarker()
+{
+	applyCursorMarker(cursorMarker_);
+}
+
 void MPlotDataPositionCursorTool::updateCursorColor()
 {
 	applyCursorColor(cursorColor_);
@@ -809,8 +825,10 @@ void MPlotDataPositionCursorTool::updateCursorColor()
 
 void MPlotDataPositionCursorTool::applyCursorPosition(const QPointF &newPosition)
 {
-	if (cursor_ && cursor_->value() != newPosition)
+	if (cursor_ && cursor_->value() != newPosition) {
+//		setDataPosition(newPosition);
 		cursor_->setValue(newPosition);
+	}
 }
 
 void MPlotDataPositionCursorTool::applyCursorVisibility(bool isVisible)
@@ -821,6 +839,12 @@ void MPlotDataPositionCursorTool::applyCursorVisibility(bool isVisible)
 		else
 			removeCursor();
 	}
+}
+
+void MPlotDataPositionCursorTool::applyCursorMarker(const MPlotMarkerShape::Shape &newShape)
+{
+	if (cursor_)
+		cursor_->setMarker(newShape, 1e6, QPen(cursorColor_), QBrush(cursorColor_));
 }
 
 void MPlotDataPositionCursorTool::applyCursorColor(const QColor &newColor)
