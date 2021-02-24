@@ -4,8 +4,12 @@
 #
 #-------------------------------------------------
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
+
 TEMPLATE = app
 TARGET = MPlotTest
+
+greaterThan(QT_MAJOR_VERSION, 4): CONFIG += depend_includepath
 DEPENDPATH += . \
 	src \
 	src/MPlot
